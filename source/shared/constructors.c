@@ -239,12 +239,6 @@ VSP_problem* VSP_construct_problem
     /* Construct adjacency matrix */
     problem->Graph     = Construct_Graph(num_vertices, nz) ;
 
-    /* Construct cost and weight arrays. Need to use calloc */
-    problem->Graph->c = calloc( num_vertices, sizeof(VSPINT) );
-
-    problem->Graph->n  = num_vertices ;
-    problem->Graph->nz = nz ;
-
     /* Construct matching arrays. Need to use calloc */
     problem->matching = calloc( num_vertices, sizeof(VSPINT));
     problem->matchmap = calloc( num_vertices, sizeof(VSPINT));
