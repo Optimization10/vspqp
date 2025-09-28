@@ -239,7 +239,7 @@ void Graph_Simple_Match
     VSPINT  *Ae  = Graph->Ae ;
     VSPLONG *Ap  = Graph->Ap ;
     VSPINT  *c   = Graph->c ;
-    VSPINT pow2l = pow_ints(2, lvl) ;
+    VSPINT pow2l = pow_ints(2, lvl + 1) ;
 
 
     /*------------------------------------------------------------------------*/
@@ -360,7 +360,10 @@ void Graph_Simple_Match
                         matchmap, cn, matchtype_brotherly
                     ) ;
                     ci_coarse = c[i] + c[j] ;
-                    VSP_ASSERT(c[perfect] + c[k] == pow2l) ;
+                    if(c[perfect] + c[k] != pow2l)
+                    {
+                        ERR("Non-perfect vertex") ;
+                    }
                     perfect = EMPTY ;
                 }
                 else perfect = k ;
