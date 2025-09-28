@@ -359,9 +359,9 @@ void Graph_Simple_Match
                         perfect, k, matching, invmatchmap, matchtype,
                         matchmap, cn, matchtype_brotherly
                     ) ;
-                    perfect = EMPTY ;
                     ci_coarse = c[i] + c[j] ;
                     VSP_ASSERT(c[perfect] + c[k] == pow2l) ;
+                    perfect = EMPTY ;
                 }
                 else perfect = k ;
             }
