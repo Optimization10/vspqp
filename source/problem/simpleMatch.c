@@ -317,6 +317,7 @@ void Graph_Simple_Match
         {
             heap_sings[++n_heap_sings] = i ;
             lookup_heap[i] = n_heap_sings ;
+            continue ;
         }
 
         // j holds the unmatched neighbor with heaviest edge and greatest
