@@ -25,7 +25,12 @@ int main(int argc, char** argv)
 
     // Absolute or relative path of directory containing the matrices
     // Make sure to include a trailing slash
+
+    // Matrices on ovi computer
     char matricesDir[] = "/home/ovi/data/symmetric/" ;
+
+    // Matrices dir on hager6
+    // char matricesDir[] = "/media/hager/datafile/symmetric/" ;
 
 
     // Choose between VSPQP and METIS
@@ -42,7 +47,7 @@ int main(int argc, char** argv)
     unsigned int seed ;
 
     // seed = (unsigned int) time(NULL) ;
-    seed = 3 ;
+    seed = 1 ;
     srand(seed) ;
     SaveRndSeed(seed) ;
     printf("\nSeed : %u", seed ) ;
