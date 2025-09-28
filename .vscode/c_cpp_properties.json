@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/**"
+            ],
+            "defines": [
+                "TEMP",
+                "VSP_DEBUG",
+                "MIX",
+                "VSP_STATS",
+                "CLOCK_REALTIME",
+                "MEASURE_PERFORMANCE",
+                "PRINT_FLIP_INFO"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": [
+                "-Iinclude",
+                "-Isource"
+            ]
+        }
+    ],
+    "version": 4
+}

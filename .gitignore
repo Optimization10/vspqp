@@ -1,0 +1,64 @@
+# Data
+*.sf
+*.mtx
+*.ovi
+diff.txt
+compile_commands.json
+framac_output.txt
+ManualMatsList.txt
+see.txt
+
+outputs_archive/
+output/
+.cache/
+# Prerequisites
+*.d
+
+# Object files
+build/*
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
