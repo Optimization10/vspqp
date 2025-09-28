@@ -34,8 +34,8 @@ int main(int argc, char** argv)
 
 
     // Choose between VSPQP and METIS
-    SolveAlg solve = SOLVE_WITH_VSPQP ;
-    // SolveAlg solve = SOLVE_WITH_METIS ;
+    // SolveAlg solve = SOLVE_WITH_VSPQP ;
+    SolveAlg solve = SOLVE_WITH_METIS ;
 
     // The maximum path length of a problem
     #define MAX_MATRIX_PATH_LENGTH 1000
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     unsigned int seed ;
 
     // seed = (unsigned int) time(NULL) ;
-    seed = 1 ;
+    seed = 20 ;
     srand(seed) ;
     SaveRndSeed(seed) ;
     printf("\nSeed : %u", seed ) ;
@@ -153,6 +153,12 @@ int main(int argc, char** argv)
             Prepend(matricesDir, filePath, MAX_MATRIX_PATH_LENGTH) ;
 
             problem = Read_hager6_File(filePath, options) ;
+
+            // Record the problem being solved
+            FILE *f = fopen("./output/SolveLog.txt", "a") ;
+            fprintf(f, "Starting problem: %s\n", problem->name) ;
+            fclose(f) ;
+
             VSP_set_default_problem_data(problem) ;
             VSP_Solve_With_Metis 
             (
