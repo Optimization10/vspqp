@@ -576,6 +576,9 @@ void Graph_Simple_Match
     // Match singletons
     /* ====================================================================== */
     VSP_ASSERT(n_heap_sings >= 0) ;
+
+    // Can occur if the graph consists entirely of singletons
+    if(gamma_coarse == 0) gamma_coarse = pow2l ;
     Match_Singletons
     (
         heap_sings, lookup_heap, &n_heap_sings, c, gamma_coarse, matching,
