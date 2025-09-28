@@ -48,7 +48,7 @@ static void Create_Match_2way
     *cn_ptr += 1;
 }
 
-static void Create_Match_3way
+static void Create_Match_3way_HEM
 (
     VSPINT             i, // HEM
     VSPINT             j, // HEM
@@ -93,6 +93,58 @@ static void Create_Match_3way
     
     return;
 }
+
+static void Create_Match_3way_Singleton
+(
+    VSPINT             i, // singleton, unmatched
+    VSPINT             j, // singleton, unmatched
+    VSPINT             k, // singleton, unmatched
+    VSPINT*            matching,
+    VSPINT*            matchmap,
+    VSPINT*            invmatchmap,
+    VSP_match_type*    matchtype_arr,
+    VSPINT*            cn_ptr
+)
+{
+
+    SET_FUNCTION_COUNTER;
+    #ifdef VSP_DEBUG
+        if(Is_Matched(i, matching))
+        {
+            ERR("Trying to match an already matched vertex");
+        }
+
+        if(Is_Matched(j, matching))
+        {
+            ERR("Trying to match an already matched vertex");
+        }
+
+        if(Is_Matched(k, matching))
+        {
+            ERR("Trying to match an already matched vertex");
+        }
+
+    #endif
+
+
+    matching[i] = j + 1;
+    matching[j] = k + 1;
+    matching[k] = i + 1;
+
+    matchtype_arr[i] = matchtype_singleton ;
+    matchtype_arr[j] = matchtype_singleton ;
+    matchtype_arr[k] = matchtype_singleton ;
+
+    matchmap[i] = *cn_ptr ;
+    matchmap[j] = *cn_ptr ;
+    matchmap[k] = *cn_ptr ;
+    
+    invmatchmap[*cn_ptr] = i ;
+
+    *cn_ptr += 1 ;
+    return;
+}
+
 
 // ASSUME: old is in a 2-way brotherly match with some vertex i
 // DO: Unmatch old and brotherly match new with i
@@ -178,9 +230,9 @@ static void Match_Singletons
         {
             // extract k
             MinHeap_Get_Top_Val_v0(heap_sings, lookup_heap,n_heap_sings, c,&k);
-            Create_Match_3way
+            Create_Match_3way_Singleton
             (
-                i, j, k, matching, matchmap, invmatchmap, matchtype
+                i, j, k, matching, matchmap, invmatchmap, matchtype, cn
             ) ;
         }
         else if(j != EMPTY && c[i] + c[j] <= gamma_coarse)
@@ -488,7 +540,7 @@ void Graph_Simple_Match
             // If the 3-way match is light, do it
             if(c[i] + c[j] + c[k] <= pow2l)
             {
-                Create_Match_3way
+                Create_Match_3way_HEM
                 (
                     i, j, k, matching, matchmap, invmatchmap, matchtype
                 ) ;
