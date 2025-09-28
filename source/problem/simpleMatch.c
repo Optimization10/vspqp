@@ -412,10 +412,12 @@ void Graph_Simple_Match
                         matchmap, cn, matchtype_brotherly
                     ) ;
                     ci_coarse = c[i] + c[j] ;
-                    if(c[perfect] + c[k] != pow2l)
-                    {
-                        ERR("Non-perfect vertex") ;
-                    }
+                    #ifdef VSP_DEBUG
+                        if(c[perfect] + c[k] != pow2l)
+                        {
+                            ERR("Non-perfect vertex") ;
+                        }
+                    #endif
                     perfect = EMPTY ;
                 }
                 else perfect = k ;
