@@ -1,6 +1,7 @@
 #include "shared_api.h"
 #include "mc_internal.h"
 #include "Stopwatches.h"
+#include "shared_functions.h"
 
 #define VSP_EPS (1E-10)
 
@@ -16,7 +17,7 @@ void VSP_mountain_climbing
     static long long unsigned count = 0 ;
     count++ ;
 
-    if(gamma == problem->Graph->max_vtx_cost)
+    if( VSP_equal(gamma, problem->Graph->max_vtx_cost) )
     {
         Stopwatches_Start(problem->Stopwatches, "MC_OrgGamma") ;
     }

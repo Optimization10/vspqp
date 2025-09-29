@@ -34,8 +34,8 @@ int main(int argc, char** argv)
 
 
     // Choose between VSPQP and METIS
-    // SolveAlg solve = SOLVE_WITH_VSPQP ;
-    SolveAlg solve = SOLVE_WITH_METIS ;
+    SolveAlg solve = SOLVE_WITH_VSPQP ;
+    // SolveAlg solve = SOLVE_WITH_METIS ;
 
     // The maximum path length of a problem
     #define MAX_MATRIX_PATH_LENGTH 1000
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     unsigned int seed ;
 
     // seed = (unsigned int) time(NULL) ;
-    seed = 20 ;
+    seed = 30 ;
     srand(seed) ;
     SaveRndSeed(seed) ;
     printf("\nSeed : %u", seed ) ;

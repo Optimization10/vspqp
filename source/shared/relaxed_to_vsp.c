@@ -1,4 +1,5 @@
 #include "shared_api.h"
+#include "Stopwatches.h"
 
 void improve
 (
@@ -37,6 +38,8 @@ void VSP_relaxed_to_vertex_separator
     #ifdef VSP_DEBUG
         VSP_check_states(X, Y, problem) ;
     #endif
+
+    Stopwatches_Start(problem->Stopwatches, "RelaxedToVSP") ;
 
     TIMER_START ;
 
@@ -234,7 +237,7 @@ void VSP_relaxed_to_vertex_separator
         }
     #endif
 
-    // improve(X, Y, problem) ;
+    improve(X, Y, problem) ;
 
     #ifdef VSP_DEBUG
         VSP_check_states(X, Y, problem) ;
@@ -271,8 +274,9 @@ void VSP_relaxed_to_vertex_separator
     TIMER_END ;
     PERFORMANCE_UPDATE_TIME(Relaxed_To_VSP) ;
 
-    return ;
+    Stopwatches_Stop(problem->Stopwatches, "RelaxedToVSP") ;
 
+    return ;
 }
 
 /* Assumes (x, y) is fully binary */
