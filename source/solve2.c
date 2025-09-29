@@ -42,7 +42,7 @@ void Final_Cleanup
 
 void Destroy_Coarse_Problems(VSP_problem *problemFinest) ;
 
-static VSP_problem *Problem_Recursive_Coarsen
+VSP_problem *Problem_Recursive_Coarsen
 (
     VSP_problem *probFinest,
     VSP_options    *options
@@ -154,6 +154,7 @@ VSP_solve_result *Solve_v2
     // Invariant: X_l, Y_l holds the solution at level l
     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
     {
+
         // Uncoarsen point from level l+1
         X_l = VSP_construct_state(P->Graph->n) ;
         Y_l = VSP_construct_state(P->Graph->n) ;
@@ -187,75 +188,7 @@ VSP_solve_result *Solve_v2
 
 
 
-VSP_problem *Problem_Recursive_Coarsen
-(
-    VSP_problem *probFinest,
-    VSP_options    *options
-)
-{
-    static long long unsigned count = 0 ;
-    count++ ;
 
-    VSPINT n_finest = probFinest->Graph->n ;
-    VSP_problem *P, *coarse_P, *coarsest_P ;
-
-    P = probFinest ;
-    bool stop = false ;
-
-    // After the loop, P will be the coarsest problem
-    VSPINT l = 0 ; // Invariant: l = # of coarsenings
-    while( 1 )
-    {
-        // Match P
-        Stopwatches_Start(P->Stopwatches, "Coarsening") ;
-        Graph_Simple_Match
-        (
-            P->Graph,
-            P->level,
-            P->matching,
-            P->matchmap,
-            P->invmatchmap,
-            P->matchtype,
-            &(P->cn)
-        ) ;
-
-        // Coarsen P
-        coarse_P = Problem_Coarsen(P, options) ;
-
-        // Set the level
-        coarse_P->level = P->level + 1 ;
-
-        // Set the total graph weight
-        coarse_P->Graph->total_vtx_cost = P->Graph->total_vtx_cost ;
-
-        // Link the child and parent problems
-        coarse_P->parent_problem = P ;
-        P       ->child_problem  = coarse_P ;    
-
-        Stopwatches_Stop(P->Stopwatches, "Coarsening") ;
-
-        // Decide stopping criteria
-        if(coarse_P->Graph->n < 10)
-        {
-            coarsest_P = coarse_P ;
-            break ;
-        }
-
-        if(Is_Complete_Graph(coarse_P->Graph->n, coarse_P->Graph->nz))
-        {
-            // Destroy the problem corresponding to a complete graph
-            VSP_destruct_problem(coarse_P) ;
-            coarsest_P = P ;
-            break ;
-        }
-        
-        P = coarse_P ;
-        l++ ;
-    }
-
-    coarsest_P->child_problem = NULL ;
-    return coarsest_P ; // P is coarse problem now and is being returned ####################### Since we hit second stopping criterion
-}
 
 
 // Solve the VSP in the case that the graph has no edges

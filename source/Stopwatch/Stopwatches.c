@@ -122,7 +122,7 @@ void Stopwatches_Print(Stopwatches *SWS)
 
     if (firstRun)
     {
-        fprintf(file, "ProbName,ProbLevel,SWname,SWtime\n");
+        fprintf(file, "ProbName,n,nz,ProbLevel,SWname,SWtime\n");
         firstRun = false;
     }
 
@@ -131,8 +131,10 @@ void Stopwatches_Print(Stopwatches *SWS)
         Stopwatch *sw = SWS->watches[i];
         fprintf
         (
-            file, "%s,%lld,%s,%.6Lf\n",
+            file, "%s,%lld,%lld,%lld,%s,%.6Lf\n",
             SWS->problem->name,
+            CAST(SWS->problem->Graph->n, long long int),
+            CAST(SWS->problem->Graph->nz, long long int),
             CAST(SWS->problem->level, long long int),
             Stopwatch_GetName(sw),
             Stopwatch_GetAccumTime(sw)

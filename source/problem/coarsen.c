@@ -1,12 +1,13 @@
 #include "shared_api.h"
 #include "coarsen_internal.h"
 #include "coarsen_api.h"
-#include "io_api.h" // IWYU pragma: keep
+#include "io_api.h"
 #include "shared_types.h"
 #include <bits/time.h>
 #include <string.h>
 #include <time.h>
 #include "simplematch.h"
+#include "Stopwatches.h"
 
 static void RecordCoarsestLvlNum
 (
@@ -701,15 +702,17 @@ VSP_problem *Problem_Recursive_Coarsen
     count++ ;
 
     VSPINT n_finest = probFinest->Graph->n ;
-    VSP_problem *P, *coarse_P ;
+    VSP_problem *P, *coarse_P, *coarsest_P ;
 
     P = probFinest ;
     bool stop = false ;
 
     // After the loop, P will be the coarsest problem
-    while(!stop)
+    VSPINT l = 0 ; // Invariant: l = # of coarsenings
+    while( 1 )
     {
-        // Coarsen
+        // Match P
+        Stopwatches_Start(P->Stopwatches, "Coarsening") ;
         Graph_Simple_Match
         (
             P->Graph,
@@ -720,27 +723,41 @@ VSP_problem *Problem_Recursive_Coarsen
             P->matchtype,
             &(P->cn)
         ) ;
+
+        // Coarsen P
         coarse_P = Problem_Coarsen(P, options) ;
+
+        // Set the level
+        coarse_P->level = P->level + 1 ;
+
+        // Set the total graph weight
+        coarse_P->Graph->total_vtx_cost = P->Graph->total_vtx_cost ;
+
+        // Link the child and parent problems
+        coarse_P->parent_problem = P ;
+        P       ->child_problem  = coarse_P ;    
+
+        Stopwatches_Stop(P->Stopwatches, "Coarsening") ;
 
         // Decide stopping criteria
         if(coarse_P->Graph->n < 10)
         {
-            stop = true ;
+            coarsest_P = coarse_P ;
+            break ;
         }
 
         if(Is_Complete_Graph(coarse_P->Graph->n, coarse_P->Graph->nz))
         {
-            stop = true ;
-
-            // Destroy coarse_P and return P
-            VSP_destruct_problem(P->child_problem) ;
+            // Destroy the problem corresponding to a complete graph
+            VSP_destruct_problem(coarse_P) ;
+            coarsest_P = P ;
+            break ;
         }
         
         P = coarse_P ;
+        l++ ;
     }
 
-    // Set P as the coarsest problem
-    P->child_problem = NULL ;
-
-    return P ;
+    coarsest_P->child_problem = NULL ;
+    return coarsest_P ; // P is coarse problem now and is being returned ####################### Since we hit second stopping criterion
 }
