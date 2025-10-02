@@ -42,7 +42,7 @@ void Stopwatch_Start(Stopwatch *SW)
     // Input validation
     if(SW->inProgress)
     {
-        printf("\nError: starting stopwatch when in progress") ;
+        printf("\nError: starting stopwatch %s when in progress", SW->name) ;
         return ;
     }
 

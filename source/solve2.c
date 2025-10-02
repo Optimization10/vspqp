@@ -146,7 +146,10 @@ VSP_solve_result *Solve_v2
     X_lp1 = VSP_construct_state(P->Graph->n) ;
     Y_lp1 = VSP_construct_state(P->Graph->n) ;
     VSP_set_initial_guess(X_lp1, Y_lp1, P, options) ;
+
+    Stopwatches_Start(P->Stopwatches, "Total") ;
     Solve_Level(X_lp1, Y_lp1, P, options) ;
+    Stopwatches_Stop(P->Stopwatches, "Total") ;
 
     // Print the stopwatch
     Stopwatches_Print(P->Stopwatches) ;
@@ -154,11 +157,14 @@ VSP_solve_result *Solve_v2
     // Invariant: X_l, Y_l holds the solution at level l
     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
     {
+        Stopwatches_Start(P->Stopwatches, "Total") ;
 
         // Uncoarsen point from level l+1
+        Stopwatches_Start(P->Stopwatches, "UncoarsenPoint") ;
         X_l = VSP_construct_state(P->Graph->n) ;
         Y_l = VSP_construct_state(P->Graph->n) ;
         Uncoarsen_Point(P, X_l, Y_l, X_lp1, Y_lp1) ;
+        Stopwatches_Stop(P->Stopwatches, "UncoarsenPoint") ;
 
         // Solve level l
         Solve_Level(X_l, Y_l, P, options) ;
@@ -166,6 +172,8 @@ VSP_solve_result *Solve_v2
 
         X_lp1 = X_l ;
         Y_lp1 = Y_l ;
+
+        Stopwatches_Stop(P->Stopwatches, "Total") ;
 
         // Print the stopwatch
         Stopwatches_Print(P->Stopwatches) ;
