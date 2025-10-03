@@ -27,15 +27,15 @@ int main(int argc, char** argv)
     // Make sure to include a trailing slash
 
     // Matrices on ovi computer
-    char matricesDir[] = "/home/ovi/data/symmetric/" ;
+    // char matricesDir[] = "/home/ovi/data/symmetric/" ;
 
     // Matrices dir on hager6
-    // char matricesDir[] = "/media/hager/datafile/symmetric/" ;
+    char matricesDir[] = "/media/hager/datafile/symmetric/" ;
 
 
     // Choose between VSPQP and METIS
-    // SolveAlg solve = SOLVE_WITH_VSPQP ;
-    SolveAlg solve = SOLVE_WITH_METIS ;
+    SolveAlg solve = SOLVE_WITH_VSPQP ;
+    // SolveAlg solve = SOLVE_WITH_METIS ;
 
     // The maximum path length of a problem
     #define MAX_MATRIX_PATH_LENGTH 1000
