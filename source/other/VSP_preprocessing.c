@@ -41,6 +41,12 @@ void VSP_set_default_options(VSP_options* options)
     /* ====================================================================== */
     options->tol_LP_opt_checker = 1E-8 ;
 
+    /* ====================================================================== */
+    // Simple Coarsening options
+    /* ====================================================================== */
+    options->max_density     = 0.8 ;
+    options->limit_num_nodes = 100 ;
+
     return ;
 }
 

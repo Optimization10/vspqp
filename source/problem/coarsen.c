@@ -2,6 +2,8 @@
 #include "coarsen_internal.h"
 #include "coarsen_api.h"
 #include "io_api.h"
+#include "shared_functions.h"
+#include "shared_macros.h"
 #include "shared_types.h"
 #include <bits/time.h>
 #include <string.h>
@@ -690,7 +692,28 @@ static void RecordCoarsestLvlNum
     return ;
 }
 
+// Returns true if the child of P is "bad", in which case the child should be
+// destroyed
+static bool Stop_Coarsening(VSP_problem *P, VSP_options *options)
+{
+    bool stop = false ;
+    if(P->Graph->n > options->limit_num_nodes)
+    {
+        VSPFLOAT cn  = (VSPFLOAT) P->child_problem->Graph->n ;
+        VSPFLOAT cnz = (VSPFLOAT) P->child_problem->Graph->nz ;
 
+        // Check if child problem is complete
+        if( VSP_equal(cnz / cn, cn - 1) ) stop = true ;
+    }
+    else 
+    {
+        VSPINT  cn  = P->child_problem->Graph->n ;
+        VSPLONG cnz = P->child_problem->Graph->nz ;
+        if(Graph_Density(cn, cnz) > options->max_density) stop = true ;
+    }
+
+    return stop ;
+}
 
 VSP_problem *Problem_Recursive_Coarsen
 (
@@ -739,7 +762,8 @@ VSP_problem *Problem_Recursive_Coarsen
 
         Stopwatches_Stop(P->Stopwatches, "Coarsening") ;
 
-        if(Is_Complete_Graph(coarse_P->Graph->n, coarse_P->Graph->nz))
+        // Check stopping criteria
+        if(Stop_Coarsening(P, options))
         {
             // Destroy the problem corresponding to a complete graph
             VSP_destruct_problem(coarse_P) ;
@@ -747,14 +771,6 @@ VSP_problem *Problem_Recursive_Coarsen
             break ;
         }
 
-
-        // Decide stopping criteria
-        if(coarse_P->Graph->n < 10)
-        {
-            coarsest_P = coarse_P ;
-            break ;
-        }
-        
         P = coarse_P ;
         l++ ;
     }

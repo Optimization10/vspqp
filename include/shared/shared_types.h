@@ -428,6 +428,21 @@ typedef struct VSP_options_struct
     VSPFLOAT tol_LP_opt_checker ;
 
 
+    /* ====================================================================== */
+    // Simple Coarsening options
+    /* ====================================================================== */
+    // Options pertaining to the new, simple coarsening
+
+    // Coarsening terminates at a problem P according to the following stopping
+    // criteria:
+    // 1) If the number of nodes in P is > limit, then 
+
+    // Coarsening terminates at a problem P if
+    // 1) P has > limit nodes and P's child is complete, or
+    // 2) P has <= limit nodes and the density of P's child is > max_density
+    VSPFLOAT max_density     ;  // default = 0.8
+    VSPINT   limit_num_nodes ;  // default = 100
+
 } VSP_options;
 
 void LoggerInit(bool enable);
