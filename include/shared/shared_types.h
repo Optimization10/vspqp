@@ -207,6 +207,9 @@ typedef struct
     /* Stack containing the sum of all the costs in the separator */
     VSP_dyn_stk *sepOut ;
 
+    // The number of flips done in the problem
+    long long unsigned num_flips ;
+
 } VSP_stats ;
 
 /* Choose when to restart solving a level from some new point, like the

@@ -9,7 +9,7 @@
 VSP_stats *VSP_construct_stats()
 {
     /*--- Generic Info -------------------------------------------------------*/
-    VSP_stats *stats = malloc( sizeof(*stats) ) ;
+    VSP_stats *stats = calloc(1, sizeof(*stats) ) ;
 
     /*--- Resolve Level ------------------------------------------------------*/
     stats->resolve_tried  = VSP_construct_dyn_stk() ;
@@ -21,6 +21,7 @@ VSP_stats *VSP_construct_stats()
     stats->sepOut = VSP_construct_dyn_stk() ;
     stats->numPen = VSP_construct_dyn_stk() ;
 
+    stats->num_flips = 0 ;
     return stats ;
 }
 
