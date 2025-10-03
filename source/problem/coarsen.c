@@ -695,7 +695,11 @@ static void RecordCoarsestLvlNum
 // Returns true if the child of P is "bad", in which case the child should be
 // destroyed
 static bool Stop_Coarsening(VSP_problem *P, VSP_options *options)
-{
+{    
+    // As a safeguard against weird edge cases, stop coarsening if the child
+    // problem is extremely small
+    if(P->child_problem->Graph->n < 8 ) return true ;
+
     bool stop = false ;
     if(P->Graph->n > options->limit_num_nodes)
     {
