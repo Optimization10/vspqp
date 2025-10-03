@@ -99,6 +99,7 @@ void Upflip_v5
     VSP_problem               *problem
 )
 {
+    problem->stats->num_flips++ ;
     SET_FUNCTION_COUNTER ;
     VSPINT n = problem->Graph->n ;
     VSPINT gamma = problem->Graph->max_vtx_cost ;
@@ -271,6 +272,8 @@ void Downflip_v5
     VSP_problem               *problem
 )
 {
+    problem->stats->num_flips++ ;
+
     SET_FUNCTION_COUNTER ;
     VSPINT n = problem->Graph->n ;
     VSPINT gamma = problem->Graph->max_vtx_cost ;
