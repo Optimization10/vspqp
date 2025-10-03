@@ -175,8 +175,9 @@ VSP_solve_result *Solve_v2
 
         Stopwatches_Stop(P->Stopwatches, "Total") ;
 
-        // Print the stopwatch
+        // Print the stopwatch and number of flips
         Stopwatches_Print(P->Stopwatches) ;
+        Print_Num_Flips(P) ;
     }
 
     // X_0, Y_0 is the solution at the finest, uncompressed level

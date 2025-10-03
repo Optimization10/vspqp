@@ -4,6 +4,8 @@
 #include "shared_types.h"
 #include "time.h"
 
+void Print_Num_Flips(VSP_problem *P) ;
+
 VSP_problem* VSP_transpose
 (
     VSPINT           *Ai, /* Row indices of non-zeros  */
