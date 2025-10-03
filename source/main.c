@@ -34,8 +34,8 @@ int main(int argc, char** argv)
 
 
     // Choose between VSPQP and METIS
-    SolveAlg solve = SOLVE_WITH_VSPQP ;
-    // SolveAlg solve = SOLVE_WITH_METIS ;
+    // SolveAlg solve = SOLVE_WITH_VSPQP ;
+    SolveAlg solve = SOLVE_WITH_METIS ;
 
     // The maximum path length of a problem
     #define MAX_MATRIX_PATH_LENGTH 1000

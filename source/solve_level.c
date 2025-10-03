@@ -110,9 +110,8 @@ void Optimize
     if(problem->level >= problem->coarsest_level_num / 2) n_passes = 3 ;
     else n_passes = 2 ;
 
-    Stopwatches_Start(problem->Stopwatches, "FM_METIS") ;
+    
     FM_Metis(X, Y, problem, options, n_passes) ;
-    Stopwatches_Stop(problem->Stopwatches, "FM_METIS") ;
 
     LoggerStop(X, Y, problem) ;
 
