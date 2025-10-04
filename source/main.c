@@ -203,6 +203,8 @@ static void SetCustomOptions(VSP_options *options)
     options->use_coarsening             = true ;
     options->max_size_of_coarsest_graph = 10  ;
 
+    options->compress_threshold = 0.7 ;
+
     /*------------------------------------------------------------------------*/
     // Tim Davis Coarsening with Boundary for Community Matching
     /*------------------------------------------------------------------------*/

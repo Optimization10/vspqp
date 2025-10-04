@@ -10,6 +10,10 @@ void VSP_set_default_options(VSP_options* options)
 
     options->coarsenDec = NULL ;
 
+
+    // Value by which coarsening should compress the graph
+    options->compress_threshold = 0.7 ;
+
     /* Initial guess */
     options->initial_guess                  = VSP_centroid_initial_guess;
     options->random_point_weight_proportion = 0.58 ;

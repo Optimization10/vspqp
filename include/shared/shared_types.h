@@ -379,6 +379,8 @@ typedef struct VSP_options_struct
     VSP_matching_strategy   matching_strategy;
     VSP_coarsen_dec        *coarsenDec ;
 
+    // Value by which coarsening should compress the graph
+    VSPFLOAT compress_threshold ;
 
     /* Initial guess */
     VSP_initial_guess      initial_guess;
