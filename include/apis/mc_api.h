@@ -25,12 +25,14 @@ VSPFLOAT Reduce_Gamma
    outside */
 void VSP_mountain_climbing
 (
-    VSP_state *X,
-    VSP_state *Y,
-    VSP_problem *problem,
-    VSP_options *options,
-    VSPFLOAT gamma
+    VSP_state               *X,
+    VSP_state               *Y,
+    VSP_problem       *problem,
+    VSP_options       *options,
+    VSPFLOAT             gamma,
+    bool          is_gamma_org
 ) ;
+
 
 void VSP_mountain_climbing_v2
 (

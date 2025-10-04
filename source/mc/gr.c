@@ -36,7 +36,7 @@ VSPFLOAT VSP_minreduce
 
     if( gamma_max >= problem->Graph->max_vtx_cost )
     {
-        VSP_mountain_climbing(X, Y, problem, options, problem->Graph->max_vtx_cost) ;
+        VSP_mountain_climbing(X, Y, problem, options, problem->Graph->max_vtx_cost, true) ;
     }
     gamma_tx = VSP_minreduce_one_var(X, Y->Az, problem) ;
     gamma_ty = VSP_minreduce_one_var(Y, X->Az, problem) ;

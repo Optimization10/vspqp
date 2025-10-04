@@ -7,17 +7,29 @@
 
 void VSP_mountain_climbing
 (
-    VSP_state         *X,
-    VSP_state         *Y,
-    VSP_problem *problem,
-    VSP_options *options,
-    VSPFLOAT       gamma
+    VSP_state               *X,
+    VSP_state               *Y,
+    VSP_problem       *problem,
+    VSP_options       *options,
+    VSPFLOAT             gamma,
+    bool          is_gamma_org
 )
 {
     static long long unsigned count = 0 ;
     count++ ;
 
-    if( VSP_equal(gamma, problem->Graph->max_vtx_cost) )
+    #ifdef VSP_DEBUG
+        if(is_gamma_org)
+        {
+            VSP_ASSERT(VSP_equal(gamma, problem->Graph->max_vtx_cost)) ;
+        }
+        else
+        {
+            VSP_ASSERT(gamma < problem->Graph->max_vtx_cost) ;
+        }
+    #endif
+
+    if( is_gamma_org )
     {
         Stopwatches_Start(problem->Stopwatches, "MC_OrgGamma") ;
     }
@@ -176,7 +188,7 @@ void VSP_mountain_climbing
     TIMER_END ;
     PERFORMANCE_UPDATE_TIME(MC) ;
 
-    if(gamma == problem->Graph->max_vtx_cost)
+    if( is_gamma_org )
     {
         Stopwatches_Stop(problem->Stopwatches, "MC_OrgGamma") ;
     }

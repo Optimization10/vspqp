@@ -156,12 +156,12 @@ void Optimize
         VSP_copy_state(X, Xstar) ;
         VSP_copy_state(Y, Ystar) ;
 
-        VSP_mountain_climbing(Xstar, Ystar, problem, options, gamma) ;
+        VSP_mountain_climbing(Xstar, Ystar, problem, options, gamma, false) ;
 
         /*--------------------------------------------------------------------*/
         /* (x*, y*) <- Solution starting from (x*, y*), using original gamma  */
         /*--------------------------------------------------------------------*/
-        VSP_mountain_climbing(Xstar, Ystar, problem, options, gamma_org) ;
+        VSP_mountain_climbing(Xstar, Ystar, problem, options, gamma_org, true) ;
         Flips(Xstar, Ystar, problem, 9, VERSION_DEFAULT) ;
 
         VSP_relaxed_to_vertex_separator(Xstar, Ystar, problem) ;
@@ -369,7 +369,7 @@ static void Best_Of_MC_And_Greedy_Flips
     // Do Mountain CLimbing in-place in (x, y)
     /*------------------------------------------------------------------------*/
     
-    VSP_mountain_climbing(X, Y, problem, options,  gamma) ;
+    VSP_mountain_climbing(X, Y, problem, options,  gamma, true) ;
 
     Force_To_Binary_Point(X, Y, problem) ;
 

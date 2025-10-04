@@ -100,7 +100,7 @@ void Stopwatches_Stop(Stopwatches *SWS, char *name)
 
     if(!found)
     {
-        printf("\nERROR: Trying to end a stopwatch which was not created") ;
+        printf("\nERROR: Trying to end stopwatch %s which was not created",name);
         return ;
     }
 
