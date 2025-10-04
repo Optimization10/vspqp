@@ -33,8 +33,8 @@ int main(int argc, char** argv)
     // char matricesDir[] = "/media/hager/datafile/symmetric/" ;
 
     // Choose between VSPQP and METIS
-    SolveAlg solve = SOLVE_WITH_VSPQP ;
-    // SolveAlg solve = SOLVE_WITH_METIS ;
+    // SolveAlg solve = SOLVE_WITH_VSPQP ;
+    SolveAlg solve = SOLVE_WITH_METIS ;
 
     // The maximum path length of a problem
     #define MAX_MATRIX_PATH_LENGTH 1000
@@ -133,7 +133,6 @@ int main(int argc, char** argv)
             free(sltn_stats) ;
         }
         PrintSumOfResults(sum_sep, sum_imb, sum_time, seed, num_graphs) ;
-        printf("\nARGC: %i", argc) ;
         VSP_Print_Performance() ;
     }
     else if(solve == SOLVE_WITH_METIS)

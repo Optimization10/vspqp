@@ -358,12 +358,27 @@ void Graph_Simple_Match
     G_HEM_TIME += VSP_compute_elapsed_time(G_START_TIME, G_END_TIME) ;
 
     /*------------------------------------------------------------------------*/
+    // Match singletons
     /*------------------------------------------------------------------------*/
-    // Brotherly matching
+    VSP_ASSERT(n_heap_sings >= 0) ;
+
+    // Can occur if the graph consists entirely of singletons
+    if(gamma_coarse == 0) gamma_coarse = pow2l ;
+    Match_Singletons
+    (
+        heap_sings, lookup_heap, &n_heap_sings, c, gamma_coarse, matching,
+        matchmap, invmatchmap, matchtype, cn
+    ) ;
+
+
+    /*------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
+    // Brotherly matching with pivots
     /*------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------*/
     VSPINT node_pivot, ew_pivot, neigh, ew ;
-
+    VSPINT *left_over = malloc(n * sizeof(*left_over)) ;
+    VSPINT n_left_over = 0 ;
     for(k = 0; k < n; k++)
     {
         if ( Is_Matched(k, matching) ) continue;
@@ -408,28 +423,32 @@ void Graph_Simple_Match
             // If node_pivot has a remaining unmatched neighbor
             if (v != EMPTY)
             {
-                Create_Match_2way
-                (
-                    v, v, matching, invmatchmap, matchtype,
-                    matchmap, cn, matchtype_selfMatch
-                ) ;
+                if(matchtype[node_pivot] == matchtype_HEM)
+                {
+                    // Consider a 3-way match
+                    i = VSP_get_match(node_pivot, matching) ;
+                    if(c[i] + c[node_pivot] + c[v] <= pow2l)
+                    {
+                        Create_Match_3way_HEM
+                        (
+                            i, node_pivot, v, matching, matchmap,
+                            invmatchmap, matchtype
+                        ) ;
+                    }
+                }
+                else
+                {
+                    Create_Match_2way
+                    (
+                        v, v, matching, invmatchmap, matchtype,
+                        matchmap, cn, matchtype_selfMatch
+                    ) ;
+                }
             }
         }
     }
 
-
-    /* ====================================================================== */
-    // Match singletons
-    /* ====================================================================== */
-    VSP_ASSERT(n_heap_sings >= 0) ;
-
-    // Can occur if the graph consists entirely of singletons
-    if(gamma_coarse == 0) gamma_coarse = pow2l ;
-    Match_Singletons
-    (
-        heap_sings, lookup_heap, &n_heap_sings, c, gamma_coarse, matching,
-        matchmap, invmatchmap, matchtype, cn
-    ) ;
+    free(left_over) ;
 
 
     /* ====================================================================== */
