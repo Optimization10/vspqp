@@ -27,10 +27,10 @@ int main(int argc, char** argv)
     // Make sure to include a trailing slash
 
     // Matrices on ovi computer
-    // char matricesDir[] = "/home/ovi/data/symmetric/" ;
+    char matricesDir[] = "/home/ovi/data/symmetric/" ;
 
     // Matrices dir on hager6
-    char matricesDir[] = "/media/hager/datafile/symmetric/" ;
+    // char matricesDir[] = "/media/hager/datafile/symmetric/" ;
 
 
     // Choose between VSPQP and METIS
@@ -81,7 +81,7 @@ int main(int argc, char** argv)
     fclose(fp) ;
 
 
-
+    VSPINT num_graphs = 0 ;
     if(solve == SOLVE_WITH_VSPQP)
     {
         /*--------------------------------------------------------------------*/
@@ -93,6 +93,7 @@ int main(int argc, char** argv)
 
         while(GetNextLine(matricesList, filePath, MAX_MATRIX_PATH_LENGTH))
         {
+            num_graphs++ ;
             srand(seed) ;
             WriteGlobalMatrixName(filePath) ;
 
@@ -132,7 +133,8 @@ int main(int argc, char** argv)
             VSP_destruct_solve_result(result) ;
             free(sltn_stats) ;
         }
-        PrintSumOfResults(sum_sep, sum_imb, sum_time) ;
+        PrintSumOfResults(sum_sep, sum_imb, sum_time, seed, num_graphs) ;
+        printf("\nARGC: %i", argc) ;
         VSP_Print_Performance() ;
     }
     else if(solve == SOLVE_WITH_METIS)
@@ -146,6 +148,7 @@ int main(int argc, char** argv)
         VSPINT sumImbMetis  = 0 ;
         while( GetNextLine(matricesList, filePath, MAX_MATRIX_PATH_LENGTH) )
         {
+            num_graphs++ ;
             srand(seed) ;
             WriteGlobalMatrixName(filePath) ;
 
@@ -172,7 +175,7 @@ int main(int argc, char** argv)
             VSP_destruct_problem(problem) ;
         }
         printf("\n\nMETIS:") ;
-        PrintSumOfResults(sumSepMetis, sumImbMetis, sumTimeMetis) ;
+        PrintSumOfResults(sumSepMetis, sumImbMetis, sumTimeMetis, seed, num_graphs);
         /*--------------------------------------------------------------------*/
     }
     else printf("\n Error: Need to select solve alg") ;
@@ -319,11 +322,34 @@ static void SaveRndSeed(time_t seed)
     return ;
 }
 
-static void PrintSumOfResults(VSPINT num_sep, VSPINT sum_imb, long double time)
+static void PrintSumOfResults
+(
+    VSPINT           num_sep,
+    VSPINT           sum_imb,
+    long double         time,
+    unsigned int        seed,
+    VSPINT        num_graphs
+)
 {
-    // setlocale(LC_NUMERIC, "");
-    printf("\nSep  : %i", num_sep) ;
-    printf("\nImb  : %i", sum_imb) ;
+    printf("\nNum Graphs  : %llu" , CAST(num_graphs, long long unsigned)) ;
+    printf("\nSep  : %llu" , CAST(num_sep, long long unsigned)) ;
+    printf("\nImb  : %llu" , CAST(sum_imb, long long unsigned)) ;
     printf("\nTime : %.2Lf\n\n", time) ;
+
+    FILE *fp = fopen("output/aggregate.txt", "w") ;
+    if(fp == NULL)
+    {
+        printf("\nError: Could not open aggregate file") ;
+        return ;
+    }
+    
+    fprintf(fp, "Num Graphs  : %llu" , CAST(num_graphs, long long unsigned)) ;
+    fprintf(fp, "\nSep  : %llu" , CAST(num_sep, long long unsigned)) ;
+    fprintf(fp, "\nImb  : %llu" , CAST(sum_imb, long long unsigned)) ;
+    fprintf(fp, "\nTime : %.2Lf", time) ;
+    fprintf(fp, "\nSeed : %llu" , CAST(seed, long long unsigned)) ;
+    
+
+    fclose(fp) ;
     return ;
 }

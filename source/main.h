@@ -28,7 +28,14 @@ typedef struct
 static void SetCustomOptions(VSP_options *options) ;
 static void WriteGlobalMatrixName(char* name) ;
 static void SaveRndSeed(time_t seed) ;
-static void PrintSumOfResults(VSPINT num_sep, VSPINT sum_imb, long double time) ;
+static void PrintSumOfResults
+(
+    VSPINT           num_sep,
+    VSPINT           sum_imb,
+    long double         time,
+    unsigned int        seed,
+    VSPINT        num_graphs
+) ;
 
 void VSP_Solve_With_Metis
 (
