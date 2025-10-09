@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     char matricesDir[] = "/home/ovi/data/symmetric/" ;
 
     // Matrices dir on hager6
-    // char matricesDdir[] = "/media/hager/datafile/symmetric/" ;
+    // char matricesDir[] = "/media/hager/datafile/symmetric/" ;
 
     // Choose between VSPQP and METIS
     SolveAlg solve = SOLVE_WITH_VSPQP ;
@@ -46,7 +46,8 @@ int main(int argc, char** argv)
     unsigned int seed ;
 
     // seed = (unsigned int) time(NULL) ;
-    seed = 1760026178 ;
+    // seed = 1760026178 ;
+    seed = 1760033187 ;
     srand(seed) ;
     SaveRndSeed(seed) ;
     printf("\nSeed : %u", seed ) ;

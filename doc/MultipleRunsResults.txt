@@ -393,3 +393,48 @@ Output files for run 3 archived successfully to: outputs_archive/Run_10-09_12-12
 End time: Thu Oct  9 12:12:33 PM EDT 2025
 
 
+
+
+Start time: Thu Oct  9 01:53:28 PM EDT 2025
+Number of runs: 3
+Building project at: Thu Oct  9 01:53:28 PM EDT 2025
+
+Seed : 1760032414
+Num Graphs  : 1300
+Sep  : 968690
+Imb  : 11530498
+Time : 78.94
+
+Flips time: 7.118938
+HEM time: 3.282090
+BM time: 7.168881
+Coarsen time: 7.726935
+Output files for run 1 archived successfully to: outputs_archive/Run_10-09_13-54-58_2025
+
+Seed : 1760032498
+Num Graphs  : 1300
+Sep  : 978683
+Imb  : 11503777
+Time : 80.29
+
+Flips time: 7.142744
+HEM time: 3.403346
+BM time: 7.444596
+Coarsen time: 8.051851
+Output files for run 2 archived successfully to: outputs_archive/Run_10-09_13-56-24_2025
+
+Seed : 1760032584
+Num Graphs  : 1300
+Sep  : 969361
+Imb  : 11324177
+Time : 79.88
+
+Flips time: 7.187520
+HEM time: 3.313317
+BM time: 7.250866
+Coarsen time: 8.009107
+Output files for run 3 archived successfully to: outputs_archive/Run_10-09_13-57-49_2025
+
+End time: Thu Oct  9 01:57:49 PM EDT 2025
+
+

@@ -381,6 +381,7 @@ void Graph_Simple_Match
     /*------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------*/
     VSPINT node_pivot, ew_pivot, neigh, ew ;
+    VSPINT perfect, light, lightest, c_lightest ;
     for(k = 0; k < n; k++)
     {
         if ( Is_Matched(k, matching) ) continue;
@@ -402,23 +403,43 @@ void Graph_Simple_Match
             }
         }
 
+        // Match neighbors of the pivot, prioritizing matches between perfect
+        // vertices
         if (node_pivot != EMPTY)
         {
-            v = EMPTY ; 
+            perfect = EMPTY ;
+            light   = EMPTY ;
+
             for (p = Ap[node_pivot] ; p < Ap[node_pivot + 1] ; p++)
             {
                 neigh = Ai[p] ;
                 if (Is_Matched(neigh, matching)) continue ;
 
-                if (v == EMPTY) v = neigh ;
+                if(Is_Perfect_Vtx(neigh, c, pow2l))
+                {
+                    if(perfect != EMPTY)
+                    {
+                        Create_Match_2way
+                        (
+                            perfect, neigh, matching, invmatchmap, matchtype,
+                            matchmap, cn, matchtype_brotherly
+                        ) ;
+                        perfect = EMPTY ;
+                    }
+                    else perfect = neigh ;
+                }
                 else
                 {
-                    Create_Match_2way
-                    (
-                        neigh, v, matching, invmatchmap, matchtype,
-                        matchmap, cn, matchtype_brotherly
-                    ) ;
-                    v = EMPTY ;
+                    if(light != EMPTY)
+                    {
+                        Create_Match_2way
+                        (
+                            light, neigh, matching, invmatchmap, matchtype,
+                            matchmap, cn, matchtype_brotherly
+                        ) ;
+                        light = EMPTY ;
+                    }
+                    else light = neigh ;
                 }
             }
         }
@@ -430,8 +451,6 @@ void Graph_Simple_Match
     // Brotherly matching new
     /*------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------*/
-    VSPINT perfect, light, lightest, c_lightest ;
-
     VSPINT *selfmatch = malloc(n * sizeof(*selfmatch)) ;
     VSPINT num_selfmatch = 0 ;
 
