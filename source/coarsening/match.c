@@ -98,6 +98,7 @@ void Match_Check
         if ( matching [i] <= 0 || matching [i] >= n + 1 )
         {
             matched_to_invalid_vertex = TRUE ;
+            break ;
         }
         if
         (
@@ -115,6 +116,7 @@ void Match_Check
         )
         {
             wrong_matchtype = TRUE ;
+            break ;
         }
     }
     if (matched_to_invalid_vertex)

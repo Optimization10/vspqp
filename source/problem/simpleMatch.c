@@ -420,24 +420,6 @@ void Graph_Simple_Match
                     v = EMPTY ;
                 }
             }
-
-            // If node_pivot has a remaining unmatched neighbor
-            if (v != EMPTY)
-            {
-                if(matchtype[node_pivot] == matchtype_HEM)
-                {
-                    // Consider a 3-way match
-                    i = VSP_get_match(node_pivot, matching) ;
-                    if(c[i] + c[node_pivot] + c[v] <= pow2l)
-                    {
-                        Create_Match_3way_HEM
-                        (
-                            i, node_pivot, v, matching, matchmap,
-                            invmatchmap, matchtype
-                        ) ;
-                    }
-                }
-            }
         }
     }
 
