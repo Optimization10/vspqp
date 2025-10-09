@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     char matricesDir[] = "/home/ovi/data/symmetric/" ;
 
     // Matrices dir on hager6
-    // char matricesDir[] = "/media/hager/datafile/symmetric/" ;
+    // char matricesDdir[] = "/media/hager/datafile/symmetric/" ;
 
     // Choose between VSPQP and METIS
     SolveAlg solve = SOLVE_WITH_VSPQP ;

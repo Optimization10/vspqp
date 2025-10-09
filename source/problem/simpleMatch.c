@@ -291,7 +291,8 @@ void Graph_Simple_Match
     VSPINT  *Ae  = Graph->Ae ;
     VSPLONG *Ap  = Graph->Ap ;
     VSPINT  *c   = Graph->c ;
-    VSPINT pow2l = pow_ints(2, lvl + 1) ;
+    VSPINT pow2l = pow_ints(2, lvl) ;
+    VSPINT pow2lp1 = pow_ints(2, lvl + 1) ;
 
 
     /*------------------------------------------------------------------------*/
@@ -363,7 +364,7 @@ void Graph_Simple_Match
     VSP_ASSERT(n_heap_sings >= 0) ;
 
     // Can occur if the graph consists entirely of singletons
-    if(gamma_coarse == 0) gamma_coarse = pow2l ;
+    if(gamma_coarse == 0) gamma_coarse = pow2lp1 ;
     Match_Singletons
     (
         heap_sings, lookup_heap, &n_heap_sings, c, gamma_coarse, matching,
@@ -486,7 +487,7 @@ void Graph_Simple_Match
                 }
                 else perfect = k ;
             }
-            else // ck == pow2l, i.e. k is not perfect
+            else // ck != pow2l, i.e. k is not perfect
             {
                 if(light != EMPTY)
                 {
@@ -604,7 +605,7 @@ void Graph_Simple_Match
             }
 
             // If the 3-way match is light, do it
-            if(c[i] + c[j] + c[k] <= pow2l)
+            if(c[i] + c[j] + c[k] <= pow2lp1)
             {
                 Create_Match_3way_HEM
                 (
