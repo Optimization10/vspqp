@@ -369,7 +369,10 @@ void Graph_Simple_Match
         heap_sings, lookup_heap, &n_heap_sings, c, gamma_coarse, matching,
         matchmap, invmatchmap, matchtype, cn
     ) ;
-
+    free(heap_sings) ;
+    free(lookup_heap) ;
+    heap_sings  = NULL ;
+    lookup_heap = NULL ;
 
     /*------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------*/
@@ -377,8 +380,6 @@ void Graph_Simple_Match
     /*------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------*/
     VSPINT node_pivot, ew_pivot, neigh, ew ;
-    VSPINT *left_over = malloc(n * sizeof(*left_over)) ;
-    VSPINT n_left_over = 0 ;
     for(k = 0; k < n; k++)
     {
         if ( Is_Matched(k, matching) ) continue;
@@ -436,26 +437,227 @@ void Graph_Simple_Match
                         ) ;
                     }
                 }
-                else
-                {
-                    Create_Match_2way
-                    (
-                        v, v, matching, invmatchmap, matchtype,
-                        matchmap, cn, matchtype_selfMatch
-                    ) ;
-                }
             }
         }
     }
 
-    free(left_over) ;
 
+    /*------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
+    // Brotherly matching new
+    /*------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
+    VSPINT perfect, light, lightest, c_lightest ;
+
+    VSPINT *selfmatch = malloc(n * sizeof(*selfmatch)) ;
+    VSPINT num_selfmatch = 0 ;
+
+    // Loop through HEM pairs
+    bool *HEM_Pair_Visited = calloc(n, sizeof(*HEM_Pair_Visited)) ;
+    for(i  = 0 ; i < n ; i++)
+    {
+        if(matchtype[i] != matchtype_HEM || HEM_Pair_Visited[i] ) continue ;
+
+        // {i, j} is a HEM pair 
+        j = VSP_get_match(i, matching) ;
+
+        // Mark {i, j} pair as visited
+        HEM_Pair_Visited[i] = true ;
+        HEM_Pair_Visited[j] = true ;
+
+        // Initialize
+        perfect    = EMPTY ;
+        light      = EMPTY ;
+        lightest   = EMPTY ;
+        c_lightest = pow2l + 1 ;
+        end = Ap[i+1] ;
+
+        /*--------------------------------------------------------------------*/
+        // Visit Neighbors of i
+        /*--------------------------------------------------------------------*/
+        for(p = Ap[i] ; p < end ; p++)
+        {
+
+            k  = Ai[p] ;
+            if(Is_Matched(k, matching)) continue ;
+
+            ck = c[k] ;
+            if(ck < c_lightest) lightest = k ;
+
+            if(ck == pow2l)
+            {
+                if(perfect != EMPTY)
+                {
+                    Create_Match_2way
+                    (
+                        perfect, k, matching, invmatchmap, matchtype,
+                        matchmap, cn, matchtype_brotherly
+                    ) ;
+                    ci_coarse = c[i] + c[j] ;
+                    #ifdef VSP_DEBUG
+                        if(c[perfect] + c[k] != pow2l)
+                        {
+                            ERR("Non-perfect vertex") ;
+                        }
+                    #endif
+                    perfect = EMPTY ;
+                }
+                else perfect = k ;
+            }
+            else // ck == pow2l, i.e. k is not perfect
+            {
+                if(light != EMPTY)
+                {
+                    Create_Match_2way
+                    (
+                        light, k, matching, invmatchmap, matchtype,
+                        matchmap, cn, matchtype_brotherly
+                    ) ;
+                    if(gamma_coarse < pow2l)
+                    {
+                        ci_coarse = c[i] + c[j] ;
+                        if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
+                    }
+                    light = EMPTY ;
+                }
+                else light = k ;
+            }
+        }
+
+        /*--------------------------------------------------------------------*/
+        // Visit Neighbors of j
+        /*--------------------------------------------------------------------*/
+        end = Ap[j+1] ;
+        for(p = Ap[j] ; p < end ; p++)
+        {
+            k  = Ai[p] ;
+            if(Is_Matched(k, matching)) continue ;
+
+            // This check is for the following situation: u is a neighbor of
+            // both i and j. After visiting the neighbors of i, assume that 
+            // perfect = u or light = u. Then at some point k will be u, and
+            // if we don't stop this iteration, then k will be matched with
+            // itself
+            // I wonder how expe
+            if(k == perfect || k == light) continue ;
+
+            ck = c[k] ;
+            if(ck < c_lightest) lightest = k ;
+
+            if(ck == pow2l)
+            {
+                if(perfect != EMPTY)
+                {
+                    Create_Match_2way
+                    (
+                        perfect, k, matching, invmatchmap, matchtype,
+                        matchmap, cn, matchtype_brotherly
+                    ) ;
+                    perfect = EMPTY ;
+                    ci_coarse = c[i] + c[j] ;
+                }
+                else perfect = k ;
+            }
+            else // ck == pow2l, i.e. k is not perfect
+            {
+                if(light != EMPTY)
+                {
+                    Create_Match_2way
+                    (
+                        light, k, matching, invmatchmap, matchtype,
+                        matchmap, cn, matchtype_brotherly
+                    ) ;
+                    light = EMPTY ;
+                    if(gamma_coarse < pow2l)
+                    {
+                        ci_coarse = c[i] + c[j] ;
+                        if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
+                    }
+
+                }
+                else light = k ;
+            }
+        }
+
+        /*--------------------------------------------------------------------*/
+        // Resolve unmatched neighbors of {i, j}
+        /*--------------------------------------------------------------------*/
+
+        // If {i, j} has two unmatched neighbors remaining, match them together
+        if(perfect != EMPTY && light != EMPTY)
+        {
+            Create_Match_2way
+            (
+                perfect, light, matching, invmatchmap, matchtype,
+                matchmap, cn, matchtype_brotherly
+            ) ;
+
+            ci_coarse = c[i] + c[j] ;
+            if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
+            continue ;
+        }
+
+        // Here, at least one of perfect and light is non-EMPTY
+        // If both are EMPTY, k is EMPTY. Otherwise, k is the non-empty one
+        k = perfect + light + 1 ;
+
+        if( k != EMPTY )
+        {
+            ck = c[k] ;
+
+            // Ensure the remaining vertex has lightest cost
+            if(ck > c_lightest)
+            {
+                Steal_Match
+                (
+                    lightest, k, matching, invmatchmap, matchtype, matchmap
+                ) ;
+
+                // Check if gamma_coarse increased due to stolen match
+                ci_coarse = c[k] + c[ VSP_get_match(k, matching) ] ;
+                if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
+
+                k  = lightest ;
+                ck = c_lightest ;
+            }
+
+            // If the 3-way match is light, do it
+            if(c[i] + c[j] + c[k] <= pow2l)
+            {
+                Create_Match_3way_HEM
+                (
+                    i, j, k, matching, matchmap, invmatchmap, matchtype
+                ) ;
+
+                if(c[i] + c[j] + c[k] > gamma_coarse)
+                {
+                    gamma_coarse = c[i] + c[j] + c[k] ;
+                }
+            }
+            else selfmatch[ num_selfmatch++ ] = k ;
+        }
+    }
+
+    // Self-match any remaining vertices
+    for(i = 0 ; i < num_selfmatch ; i++)
+    {
+        j = selfmatch[i] ;
+        if( !Is_Matched(j, matching) )
+        {
+            Create_Match_2way
+            (
+                j, j, matching, invmatchmap, matchtype,
+                matchmap, cn, matchtype_selfMatch
+            ) ;
+            if(c[j] > gamma_coarse) gamma_coarse = c[j] ;
+        }
+    }
+    free(selfmatch) ;
+    selfmatch = NULL ;
 
     /* ====================================================================== */
     // Cleanup
     /* ====================================================================== */
-    free(heap_sings) ;
-    free(lookup_heap) ;
 
     clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;
     G_BM_TIME += VSP_compute_elapsed_time(G_START_TIME, G_END_TIME) ;
