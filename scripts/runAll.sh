@@ -1,12 +1,12 @@
 #!/bin/bash
 
-COUNT=300
+COUNT=3
 OUT_FILE="doc/MultipleRunsResults.txt"
 OUTPUT_DIR="output"
 ARCHIVE_DIR="outputs_archive"
 
 # Append start time
-printf "Start time: %s\n" "$(date)" >> "$OUT_FILE"
+printf "\n\nStart time: %s\n" "$(date)" >> "$OUT_FILE"
 printf "Number of runs: %i\n" "$COUNT" >> "$OUT_FILE"
 
 # If a string argument is given, append it first

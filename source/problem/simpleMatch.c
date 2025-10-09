@@ -367,7 +367,7 @@ void Graph_Simple_Match
     if(gamma_coarse == 0) gamma_coarse = pow2lp1 ;
     Match_Singletons
     (
-        heap_sings, lookup_heap, &n_heap_sings, c, gamma_coarse, matching,
+        heap_sings, lookup_heap, &n_heap_sings, c, pow2lp1, matching,
         matchmap, invmatchmap, matchtype, cn
     ) ;
     free(heap_sings) ;
@@ -478,7 +478,7 @@ void Graph_Simple_Match
                     ) ;
                     ci_coarse = c[i] + c[j] ;
                     #ifdef VSP_DEBUG
-                        if(c[perfect] + c[k] != pow2l)
+                        if(c[perfect] + c[k] != pow2lp1)
                         {
                             ERR("Non-perfect vertex") ;
                         }

@@ -46,7 +46,7 @@ int main(int argc, char** argv)
     unsigned int seed ;
 
     // seed = (unsigned int) time(NULL) ;
-    seed = 30 ;
+    seed = 1760026178 ;
     srand(seed) ;
     SaveRndSeed(seed) ;
     printf("\nSeed : %u", seed ) ;
