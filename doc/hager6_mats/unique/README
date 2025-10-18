@@ -1,0 +1,5 @@
+The tests are a partition of the 32GB.txt file into 8 (almost) equal parts
+
+test_1 has the smallest 159 graphs.
+All other tests have 155 graphs.
+test_8 has the largest 155 graphs.
