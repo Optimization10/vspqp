@@ -33,8 +33,8 @@ int main(int argc, char** argv)
     // char matricesDir[] = "/media/hager/datafile/symmetric/" ;
 
     // Choose between VSPQP and METIS
-    SolveAlg solve = SOLVE_WITH_VSPQP ;
-    // SolveAlg solve = SOLVE_WITH_METIS ;
+    // SolveAlg solve = SOLVE_WITH_VSPQP ;
+    SolveAlg solve = SOLVE_WITH_METIS ;
 
     // The maximum path length of a problem
     #define MAX_MATRIX_PATH_LENGTH 1000
@@ -45,9 +45,9 @@ int main(int argc, char** argv)
     VSP_reset_output_files() ;
     unsigned int seed ;
 
-    // seed = (unsigned int) time(NULL) ;
+    seed = (unsigned int) time(NULL) ;
     // seed = 1760026178 ;
-    seed = 1760033187 ;
+    // seed = 1760033187 ;
     srand(seed) ;
     SaveRndSeed(seed) ;
     printf("\nSeed : %u", seed ) ;
@@ -162,7 +162,7 @@ int main(int argc, char** argv)
             fclose(f) ;
 
             VSP_set_default_problem_data(problem) ;
-            VSP_Solve_With_Metis 
+            VSP_Solve_With_Metis
             (
                 problem->name, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->c,
                 problem->Graph->n , 0.6, seed, &MSS
