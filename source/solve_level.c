@@ -234,6 +234,12 @@ void Flips
     VersionNum         version
 )
 {
+    // if(problem->level > 3)
+    // {
+    //     VSP_relaxed_to_vertex_separator(X, Y, problem) ;
+    //     return ;
+    // }
+
     clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
 
     SET_FUNCTION_COUNTER ;
