@@ -53,6 +53,18 @@ static void Determine_Num_GR
     return ;
 }
 
+
+// Single an early exit if f(x, y) >= c(V) - alpha
+// The logic is that if (X, Y) represent a vertex separator
+// partition, and the separator only contains a node of minimal weight, then
+// X, Y is globally optimal, or nearly globally optimal
+// Note that we are not taking into account the penalty term
+bool Early_Exit(VSP_state *X, VSP_state *Y, VSP_problem *P)
+{
+    VSPFLOAT obj = VSP_compute_obj(X, Y, P, P->Graph->max_vtx_cost) ;
+    return (VSP_lteq(P->Graph->total_vtx_cost - P->Graph->min_vtx_cost, obj)) ;
+}
+
 // whereToUseFMFlips:
 // 0 - FMv2 disabled (or anything besides 1, 2, 3)
 // 1 - FMv2 only during first optimization
@@ -75,7 +87,8 @@ void Optimize
     #endif
 
     /* 0.1 Local vars */
-    VSPINT i, num_gamma_reductions, n = problem->Graph->n, gamma_org = problem->Graph->max_vtx_cost ;
+    VSPINT i, k, num_gamma_reductions, n = problem->Graph->n,
+    gamma_org = problem->Graph->max_vtx_cost ;
 
     VSPFLOAT f_x_y, f_xstar_ystar ;
 
@@ -87,44 +100,40 @@ void Optimize
 
 
     /*--- Solve VSP ----------------------------------------------------------*/
-    /* First refinement */
-    LoggerStart(X, Y, problem, "MC And Greedy") ;
-
-    /*------------------------------------------------------------------------*/
     // 1. mountain climbing vs Flips
-    Best_Of_MC_And_Greedy_Flips(X, Y, problem, options, 5) ;
-
-    /*------------------------------------------------------------------------*/
-
     LoggerStop(X, Y, problem) ;
+    Best_Of_MC_And_Greedy_Flips(X, Y, problem, options, 5) ;
+    LoggerStart(X, Y, problem, "MC And Greedy") ;
+    if(Early_Exit(X, Y, problem))
+    {
+        goto EARLY_EXIT ;
+    }
 
+    // 2. Flips
     LoggerStart(X, Y, problem, "Flips") ;
     Flips(X, Y, problem, 9, VERSION_DEFAULT) ;
-
     LoggerStop(X, Y, problem) ;
 
+    // 3. Get vertex separator in preparation for FM_METIS
     VSP_relaxed_to_vertex_separator(X, Y, problem) ;
+    if(Early_Exit(X, Y, problem))
+    {
+        goto EARLY_EXIT ;
+    }
 
+    // FM METIS
     LoggerStart(X, Y, problem, "Metis") ;
     VSPINT n_passes ;
     if(problem->level >= problem->coarsest_level_num / 2) n_passes = 3 ;
     else n_passes = 2 ;
-
-    
     FM_Metis(X, Y, problem, options, n_passes) ;
-
     LoggerStop(X, Y, problem) ;
 
-    /*------------------------------------------------------------------------*/
-    if(whereToUseFMFlips == 1 || whereToUseFMFlips == 3)
-    {       
-        LoggerStart(X, Y, problem, "FM Flips") ;
-        FM_Flips(X, Y, problem) ;
-        LoggerStop(X, Y, problem) ;
+    if(Early_Exit(X, Y, problem))
+    {
+        goto EARLY_EXIT ;
     }
     /*------------------------------------------------------------------------*/
-
-    Force_To_Binary_Point(X, Y, problem) ;
 
 
     #ifdef VSP_DEBUG
@@ -134,10 +143,8 @@ void Optimize
     #endif
 
     /* Gamma reductions */
-    VSPINT loop = 0 ;
+    k = 0 ;
     Determine_Num_GR(n, options, &num_gamma_reductions) ;
-    VSPINT k = 0 ;
-
     for(i = 0 ; i < num_gamma_reductions ; i++)
     {
         /*--------------------------------------------------------------------*/
@@ -190,6 +197,11 @@ void Optimize
             Swap_Mem(X, Xstar, sizeof(VSP_state) ) ;
             Swap_Mem(Y, Ystar, sizeof(VSP_state) ) ;
             k = 0 ; // Set k so that we call minreduce again
+
+            if(Early_Exit(X, Y, problem))
+            {
+                goto EARLY_EXIT ;
+            }
         }
         else k++ ;
     }
@@ -208,6 +220,8 @@ void Optimize
     /*------------------------------------------------------------------------*/
     /* Cleanup                                                                */
     /*------------------------------------------------------------------------*/
+    EARLY_EXIT:
+
     VSP_destruct_state(Xstar) ;
     VSP_destruct_state(Ystar) ;
 
