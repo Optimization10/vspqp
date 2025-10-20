@@ -107,7 +107,7 @@ VSP_solve_result *Solve_v2
 {
     static long long unsigned count = 0 ;
     count++ ;
-
+ 
     VSP_problem *probCoarsest, *P ;
 
     /* Preprocessing */
