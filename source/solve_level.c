@@ -62,6 +62,7 @@ static void Determine_Num_GR
 bool Early_Exit(VSP_state *X, VSP_state *Y, VSP_problem *P)
 {
     VSPFLOAT obj = VSP_compute_obj(X, Y, P, P->Graph->max_vtx_cost) ;
+    // printf("\nEE Sep: %f",(VSPFLOAT) (P->Graph->total_vtx_cost - obj) ) ;
     return (VSP_lteq(P->Graph->total_vtx_cost - P->Graph->min_vtx_cost, obj)) ;
 }
 
@@ -98,6 +99,12 @@ void Optimize
     /* 2. Solve the problem using the original gamma */
     VSPFLOAT gamma = problem->Graph->max_vtx_cost ;
 
+    {
+        if(problem->level <= 12)
+        {
+            printf("\nlevel: %i alpha: %i", problem->level, problem->Graph->min_vtx_cost) ;
+        }
+    }
 
     /*--- Solve VSP ----------------------------------------------------------*/
     // 1. mountain climbing vs Flips
