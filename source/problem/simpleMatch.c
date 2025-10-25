@@ -473,11 +473,11 @@ void Graph_Simple_Match
         // Self-match any unmatched vertices
         for(i = 0 ; i < n ; i++)
         {
-            if( !Is_Matched(j, matching) )
+            if( !Is_Matched(i, matching) )
             {
                 Create_Match_2way
                 (
-                    j, j, matching, invmatchmap, matchtype,
+                    i, i, matching, invmatchmap, matchtype,
                     matchmap, cn, matchtype_selfMatch
                 ) ;
             }
