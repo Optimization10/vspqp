@@ -287,7 +287,8 @@ void Graph_Simple_Match
     VSPINT              *matchmap,
     VSPINT           *invmatchmap,
     VSP_match_type     *matchtype,
-    VSPINT                    *cn
+    VSPINT                    *cn,
+    VSP_options          *options
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -483,22 +484,7 @@ void Graph_Simple_Match
     #endif
 
 
-    if(ratio_compression <= 0.63)
-    {
-        // Self-match any unmatched vertices
-        for(i = 0 ; i < n ; i++)
-        {
-            if( !Is_Matched(i, matching) )
-            {
-                Create_Match_2way
-                (
-                    i, i, matching, invmatchmap, matchtype,
-                    matchmap, cn, matchtype_selfMatch
-                ) ;
-            }
-        }
-    }
-    else
+    if(ratio_compression > options->compression_threshold)
     {
         /*--------------------------------------------------------------------*/
         /*--------------------------------------------------------------------*/
@@ -708,6 +694,21 @@ void Graph_Simple_Match
         }
         free(selfmatch) ;
         selfmatch = NULL ;
+    }
+    else
+    {
+        // Self-match any unmatched vertices
+        for(i = 0 ; i < n ; i++)
+        {
+            if( !Is_Matched(i, matching) )
+            {
+                Create_Match_2way
+                (
+                    i, i, matching, invmatchmap, matchtype,
+                    matchmap, cn, matchtype_selfMatch
+                ) ;
+            }
+        }
     }
 
     /* ====================================================================== */

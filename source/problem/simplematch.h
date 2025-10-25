@@ -11,7 +11,8 @@ void Graph_Simple_Match
     VSPINT              *matchmap,
     VSPINT           *invmatchmap,
     VSP_match_type     *matchtype,
-    VSPINT                    *cn
+    VSPINT                    *cn,
+    VSP_options          *options
 ) ;
 
 #endif

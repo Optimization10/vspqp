@@ -748,7 +748,8 @@ VSP_problem *Problem_Recursive_Coarsen
             P->matchmap,
             P->invmatchmap,
             P->matchtype,
-            &(P->cn)
+            &(P->cn),
+            options
         ) ;
 
         // Coarsen P

@@ -45,9 +45,9 @@ int main(int argc, char** argv)
     VSP_reset_output_files() ;
     unsigned int seed ;
 
-    seed = (unsigned int) time(NULL) ;
-    seed = 1761158413 ;
-    // seed = 1760033187 ;
+    // seed = (unsigned int) time(NULL) ;
+    seed = 1 ;
+
     srand(seed) ;
     SaveRndSeed(seed) ;
     printf("\nSeed : %u", seed ) ;
@@ -315,7 +315,7 @@ static void SetCustomOptions(VSP_options *options)
     /* ====================================================================== */
     options->max_density     = 0.8 ;
     options->limit_num_nodes = 100 ;
-    options->compression_threshold = 0.65 ;
+    options->compression_threshold = 0.55 ;
 
     return ;
 }
