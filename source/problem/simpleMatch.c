@@ -356,7 +356,7 @@ void Graph_Simple_Match
         }
     }
 
-    clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;
+    clock_gettime(CLOCK_REALTIME, &G_END_TIME) ; 
     G_HEM_TIME += VSP_compute_elapsed_time(G_START_TIME, G_END_TIME) ;
 
     /*------------------------------------------------------------------------*/
