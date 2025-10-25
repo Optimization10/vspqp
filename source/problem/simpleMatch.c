@@ -13,7 +13,8 @@ static void Additional_Match_Check
     VSPINT             *matching,
     VSPINT             *matchmap,
     VSPINT          *invmatchmap,
-    VSP_match_type    *matchtype
+    VSP_match_type    *matchtype,
+    VSPINT                    cn
 ) ;
 
 static void Create_Match_2way
@@ -679,7 +680,8 @@ void Graph_Simple_Match
             matching,
             matchmap,
             invmatchmap,
-            matchtype
+            matchtype,
+            *cn
         ) ;
     #endif
 }
@@ -697,6 +699,8 @@ void Graph_Simple_Match
 // If i is in a 3-way match, then it is matched to precisely 2 other vertices,
 // and it neighbors at least one of them
 
+// cn is correct
+
 static void Additional_Match_Check
 (
     VSP_Graph             *Graph,
@@ -704,7 +708,8 @@ static void Additional_Match_Check
     VSPINT             *matching,
     VSPINT             *matchmap,
     VSPINT          *invmatchmap,
-    VSP_match_type    *matchtype
+    VSP_match_type    *matchtype,
+    VSPINT                    cn
 )
 {
     static long long unsigned count = 0 ;
@@ -794,4 +799,27 @@ static void Additional_Match_Check
                 break ;
         }
     }
+
+    // Check that cn is correct
+    VSPINT *seen = calloc(n, sizeof(VSPINT)) ;
+    VSPINT cn_local = 0 ;
+
+    for(i = 0 ; i < n ; i++)
+    {
+        if(seen[i]) continue ;
+
+        cn_local++ ;
+        j = VSP_get_match(i, matching) ;
+        k = VSP_get_match(j, matching) ;
+        seen[i] = 1 ;
+        seen[j] = 1 ;
+        seen[k] = 1 ;
+    }
+
+    if(cn != cn_local)
+    {
+        ERR("Wrong number of coarse vertices") ;
+    }
+
+    free(seen) ;
 }
