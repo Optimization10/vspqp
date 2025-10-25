@@ -469,16 +469,19 @@ void Graph_Simple_Match
     VSPINT n_coarse = n_matches + n_unmatched ;
     VSPFLOAT ratio_compression = ((VSPFLOAT) n_coarse) / ((VSPFLOAT) n) ;
 
-    if(*cn != n_coarse)
-    {
-        printf("\ncn: %i  n_coarse: %i", *cn, n_coarse) ;
-    }
+    #ifdef VSP_DEBUG
+        VSP_ASSERT(*cn == n_matches) ;
+        VSPINT dbg_n_unmatched = 0 ;
+        for(VSPINT ii = 0 ; ii < n ; ii++)
+        {
+            if(!Is_Matched(ii, matching)) dbg_n_unmatched++ ;
+        }
+        if(dbg_n_unmatched != n_unmatched)
+        {
+            ERR("Wrong count of unmatched nodes") ;
+        }
+    #endif
 
-    // if(ratio_compression > 0.65)
-    // {
-    //     printf("Compression ratio: %f\n", ratio_compression) ;
-    // }
-    // fflush(stdout) ;
 
     if(ratio_compression <= 0.63)
     {

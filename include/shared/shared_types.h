@@ -448,6 +448,12 @@ typedef struct VSP_options_struct
     VSPFLOAT max_density     ;  // default = 0.8
     VSPINT   limit_num_nodes ;  // default = 100
 
+    // Enable Hager BM if after HEM and pivot BM, the ratio
+    // num coarse nodes / num fine nodes is > compression_threshold
+    // To enable Hager BM always, set compression_threshold = 0'
+    // To disable Hager BM always, set compression_threshold = 1
+    VSPFLOAT compression_threshold ;
+
 } VSP_options;
 
 void LoggerInit(bool enable);
