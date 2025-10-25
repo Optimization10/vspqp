@@ -96,3 +96,12 @@ VSP_solve_result* Solve_v2
     VSP_problem *probFinest,
     VSP_options    *options
 ) ;
+
+void Write_Performance_Profile
+(
+    VSP_problem        *P,
+    VSPINT       size_sep,
+    VSPINT          wgt_x,
+    VSPINT          wgt_y,
+    VSPFLOAT         time
+) ;

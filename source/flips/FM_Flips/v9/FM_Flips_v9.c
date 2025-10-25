@@ -4,6 +4,7 @@
 #include "score.h"
 #include "states_manager.h"
 #include "basic_flip_strats.h"
+#include "flips_context.h"
 #include "flips_mem.h"
 
 

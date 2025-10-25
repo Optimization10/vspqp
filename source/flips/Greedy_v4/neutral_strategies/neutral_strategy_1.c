@@ -50,6 +50,7 @@ Rmk 2: When we say "do all feasible, strictly beneficial flips", it is only
 ------------------------------------------------------------------------------*/
 
 #include "neutral_strategies.h"
+#include "shared_macros.h"
 
 
 void Neutral_Flips_Strategy_1
@@ -137,6 +138,7 @@ void Neutral_Flips_Strategy_1
             ) ;
 
         } while(numFeasibleStrictlyBenFlips) ;
+
 
         /*--------------------------------------------------------------------*/
         // Alternate between neutral dnflips in w and strictly beneficial flips
@@ -266,7 +268,7 @@ void Neutral_Downflips
             break ;
         }
     }
-    // printf("\n\nNum Downflips: %i", numFlips) ;
+
     return ;
 }
 
@@ -295,8 +297,12 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
 )
 {
     SET_FUNCTION_COUNTER ;
+
+    // SET_FUNCTION_COUNTER ;
     VSPINT indFlip ;
     char   varFlip ;
+
+    VSPINT max_num_upflips = 0.01 * problem->Graph->n ;
 
     VSPINT numFlips = 0 ;
     while( 1 )
@@ -309,7 +315,9 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
                 w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
                 problem
             ) ;
-        #endif        
+        #endif 
+
+        if(numFlips >= max_num_upflips) break ;       
 
         // Choose a flip
         VSPINT randNum = (VSPINT) rand() ;
@@ -379,7 +387,6 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
             ) ;
         #endif       
     }
-    // printf("\n\nNum upflips: %i", numFlips) ;
 
     return ;
 }
@@ -435,18 +442,8 @@ void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2
         VSPINT *group    = w1Az2_groups->groups[cval] ;
         VSPINT sizeGroup = w1Az2_groups->sizes[cval] ;
 
-        // Don't do infeasible downflip
-        if(*wgtw > cval)
-        {
-            *retIndFlip      = group[ randNum % sizeGroup ] ;
-            *retVarFlip      = 'w' ;
-        }
-        else
-        {
-            VSP_ASSERT(*wgtw == cval) ;
-            *retIndFlip = EMPTY ;
-            *retVarFlip = '\0' ;
-        }
+        *retIndFlip      = group[ randNum % sizeGroup ] ;
+        *retVarFlip      = 'w' ;
 
         goto RET ;
     }
@@ -532,13 +529,6 @@ void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2_Check
         if(*wgtz + gamma > u)
         {
             ERR("Infeasible neutral upflip selected") ;
-        }
-    }
-    else if(givenVarFlip == 'w')
-    {
-        if(*wgtz <= c[givenIndFlip] )
-        {
-            ERR("Infeasible downflip selected") ;
         }
     }
 

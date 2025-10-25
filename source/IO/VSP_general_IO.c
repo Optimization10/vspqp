@@ -1,4 +1,5 @@
 #include "shared_api.h"
+#include "shared_types.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -50,7 +51,8 @@ VSP_solution_stats* VSP_compute_solution_stats
 
 
 
-void VSP_reset_file(char* name) {
+void VSP_reset_file(char* name)
+{
     FILE* file = fopen(name, "w") ;
     fclose(file) ;
     return ;
@@ -301,6 +303,45 @@ void Print_Num_Flips(VSP_problem *P)
         CAST(P->level, long long unsigned),
         CAST(P->stats->num_flips, long long unsigned)
     ) ;
+
+    fclose(file) ;
+    return ;
+}
+
+
+void cleanupGraphName(char *graph_name) ;
+
+// Columns: ID  n  nz  sep  imb  time
+void Write_Performance_Profile
+(
+    VSP_problem        *P,
+    VSPINT       size_sep,
+    VSPINT          wgt_x,
+    VSPINT          wgt_y,
+    VSPFLOAT         time
+)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+
+    char cpy_graph_name[1000] ;
+    strcpy(cpy_graph_name, P->name) ;
+
+    if(count == 1)
+    {
+        VSP_reset_file("output/profile_raw") ;
+    }
+
+    FILE *file = fopen("output/profile_raw", "a") ;
+
+    /* Write data */
+    fprintf(file, "%s "  , cpy_graph_name) ;
+    fprintf(file, "%lld ", (long long) P->Graph->n) ;
+    fprintf(file, "%lld ", (long long) P->Graph->nz  ) ;
+    fprintf(file, "%lld ", (long long) size_sep) ;
+    fprintf(file, "%lld ", llabs(wgt_x - wgt_y)) ;
+    fprintf(file, "%.8f" , time) ;
+    fprintf(file, "\n") ;
 
     fclose(file) ;
     return ;

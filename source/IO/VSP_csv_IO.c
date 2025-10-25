@@ -12,7 +12,7 @@ static void getColTitle
     char         *titleToWrite
 ) ;
 
-static void cleanupGraphName(char *graph_name) ;
+void cleanupGraphName(char *graph_name) ;
 
 /*----------------------------------------------------------------------------*/
 /*   Write to Numerical_Results.csv                                           */
@@ -122,13 +122,13 @@ void VSP_write_to_csv_2
 
 
 
+   
 
 
 
 
 
-
-
+          
 
 
 
@@ -155,7 +155,7 @@ static void getColTitle
 }
 
 /* The cleanup is done in-place */
-static void cleanupGraphName(char *graph_name)
+void cleanupGraphName(char *graph_name)
 {
     /* Remove directories */
     char *last_slash = strrchr(graph_name, '/');

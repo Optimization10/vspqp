@@ -65,7 +65,7 @@ $(COMMON_DEFINES) $(OTHER_FLAGS) -DVSP_LOG -DVSP_STATS $(IGNORE_WARNINGS) -Wl,--
 # Build the executable in preparation for running the debugger in VS Code
 vscode_dbg: create_dirs archive_output
 	@echo "Compiling..." ;
-	$(COMPILER) $(SOURCE)   -o$(VSP_EXE) $(INCLUDE) $(DBG_FLAGS) $(LIBS) -DVSP_DEBUG \
+	$(COMPILER) $(SOURCE)   -o$(VSP_EXE) $(INCLUDE) $(DBG_FLAGS) $(LIBS) \
 $(COMMON_DEFINES) $(OTHER_FLAGS) $(IGNORE_WARNINGS)
 	@echo "\n"
 

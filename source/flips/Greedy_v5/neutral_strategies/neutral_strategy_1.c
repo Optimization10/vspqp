@@ -264,7 +264,6 @@ void Neutral_Downflip_v5s_v5
             break ;
         }
     }
-    // printf("\n\nNum Downflip_v5s: %i", numFlips) ;
     return ;
 }
 
@@ -292,13 +291,19 @@ void Neutral_Upflip_v5s_In_z_And_Downflip_v5s_In_w1Az2_v5
     VSP_problem               *problem
 )
 {
-    SET_FUNCTION_COUNTER ;
+    static long long unsigned count = 0 ;
+    count++ ;
+
     VSPINT indFlip ;
     char   varFlip ;
+
+    VSPINT max_num_upflips = 0.01 * problem->Graph->n ;
 
     VSPINT numFlips = 0 ;
     while( 1 )
     {
+        if(numFlips >= max_num_upflips) break ;
+
         #ifdef VSP_DEBUG
             Check_All_Data_v5
             (
@@ -375,7 +380,6 @@ void Neutral_Upflip_v5s_In_z_And_Downflip_v5s_In_w1Az2_v5
             ) ;
         #endif       
     }
-    // printf("\n\nNum Upflip_v5s: %i", numFlips) ;
 
     return ;
 }
@@ -432,17 +436,9 @@ void Select_Random_Feasible_Neutral_Upflip_v5_In_z_Or_w1Az2_v5
         VSPINT sizeGroup = w1Az2_groups->sizes[cval] ;
 
         // Don't do infeasible downflip
-        if(*wgtw > cval)
-        {
-            *retIndFlip      = group[ randNum % sizeGroup ] ;
-            *retVarFlip      = 'w' ;
-        }
-        else
-        {
-            VSP_ASSERT(*wgtw == cval) ;
-            *retIndFlip = EMPTY ;
-            *retVarFlip = '\0' ;
-        }
+        *retIndFlip      = group[ randNum % sizeGroup ] ;
+        *retVarFlip      = 'w' ;
+
         goto RET ;
     }
 
@@ -527,13 +523,6 @@ void Select_Random_Feasible_Neutral_Upflip_v5_In_z_Or_w1Az2_v5_Check
         if(*wgtz + gamma > u)
         {
             ERR("Infeasible neutral Upflip_v5 selected") ;
-        }
-    }
-    else if(givenVarFlip == 'w')
-    {
-        if(*wgtz <= c[givenIndFlip] )
-        {
-            ERR("Infeasible Downflip_v5 selected") ;
         }
     }
 

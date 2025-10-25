@@ -1,4 +1,5 @@
 // #include "source/data_structures/flips_memory/flips_mem.h"
+#include "source/flips/flips_context.h"
 #include "flips_mem.h"
 
 struct FlipsMemory

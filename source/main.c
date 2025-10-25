@@ -33,8 +33,8 @@ int main(int argc, char** argv)
     // char matricesDir[] = "/media/hager/datafile/symmetric/" ;
 
     // Choose between VSPQP and METIS
-    SolveAlg solve = SOLVE_WITH_VSPQP ;
-    // SolveAlg solve = SOLVE_WITH_METIS ;
+    // SolveAlg solve = SOLVE_WITH_VSPQP ;
+    SolveAlg solve = SOLVE_WITH_METIS ;
 
     // The maximum path length of a problem
     #define MAX_MATRIX_PATH_LENGTH 1000
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
     unsigned int seed ;
 
     seed = (unsigned int) time(NULL) ;
-    // seed = 1760026178 ;
+    seed = 1761158413 ;
     // seed = 1760033187 ;
     srand(seed) ;
     SaveRndSeed(seed) ;
@@ -127,6 +127,14 @@ int main(int argc, char** argv)
 
             // /* 5. Write results to a csv file */
             VSP_write_to_csv_2(filePath, col_title, sltn_stats, problem, options) ;
+            Write_Performance_Profile
+            (
+                problem,
+                sltn_stats->num_nodes_sep,
+                sltn_stats->num_nodes_x,
+                sltn_stats->num_nodes_y,
+                sltn_stats->time
+            ) ;
 
             // /* 6. Free memory */
             VSP_destruct_problem(problem) ;
@@ -170,6 +178,15 @@ int main(int argc, char** argv)
             sumSepMetis  += MSS.costSep ;
             sumImbMetis  += ABS_DIFF( MSS.numNodesx, MSS.numNodesy) ; 
             sumTimeMetis += MSS.time ;
+
+            Write_Performance_Profile
+            (
+                problem,
+                MSS.costSep,
+                MSS.numNodesx,
+                MSS.numNodesy,
+                MSS.time
+            ) ;
 
             VSP_destruct_problem(problem) ;
         }
