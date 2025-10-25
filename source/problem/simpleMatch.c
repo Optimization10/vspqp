@@ -686,6 +686,40 @@ void Graph_Simple_Match
     #endif
 }
 
+// Can handle states where not all vertices are matched yet
+static void Check_cn
+(
+    VSPINT         n,
+    VSPINT        cn, 
+    VSPINT *matching
+)
+{
+    SET_FUNCTION_COUNTER ;
+
+    VSPINT i, j, k ;
+    VSPINT *seen = calloc(n, sizeof(VSPINT)) ;
+    VSPINT cn_local = 0 ;
+
+    for(i = 0 ; i < n ; i++)
+    {
+        if(seen[i] || !Is_Matched(i, matching)) continue ;
+
+        cn_local++ ;
+        j = VSP_get_match(i, matching) ;
+        k = VSP_get_match(j, matching) ;
+        seen[i] = 1 ;
+        seen[j] = 1 ;
+        seen[k] = 1 ;
+    }
+
+    if(cn != cn_local)
+    {
+        ERR("Wrong number of coarse vertices") ;
+    }
+
+    free(seen) ;
+}
+
 
 // Check the following:
 // A vertex and its match(es) all have the same matchtype
@@ -800,26 +834,5 @@ static void Additional_Match_Check
         }
     }
 
-    // Check that cn is correct
-    VSPINT *seen = calloc(n, sizeof(VSPINT)) ;
-    VSPINT cn_local = 0 ;
-
-    for(i = 0 ; i < n ; i++)
-    {
-        if(seen[i]) continue ;
-
-        cn_local++ ;
-        j = VSP_get_match(i, matching) ;
-        k = VSP_get_match(j, matching) ;
-        seen[i] = 1 ;
-        seen[j] = 1 ;
-        seen[k] = 1 ;
-    }
-
-    if(cn != cn_local)
-    {
-        ERR("Wrong number of coarse vertices") ;
-    }
-
-    free(seen) ;
+    Check_cn(n, cn, matching) ;
 }
