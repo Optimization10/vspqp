@@ -212,7 +212,9 @@ static void Match_Singletons
     VSPINT             *matchmap,
     VSPINT          *invmatchmap,
     VSP_match_type    *matchtype,
-    VSPINT                   *cn
+    VSPINT                   *cn,
+    VSPINT            *n_matches,
+    VSPINT          *n_unmatched
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -235,6 +237,8 @@ static void Match_Singletons
             (
                 i, j, k, matching, matchmap, invmatchmap, matchtype, cn
             ) ;
+            (*n_matches)++ ;
+            (*n_unmatched) -= 3 ;
         }
         else if(j != EMPTY && c[i] + c[j] <= gamma_coarse)
         {
@@ -244,6 +248,8 @@ static void Match_Singletons
                 i, j, matching, invmatchmap, matchtype,
                 matchmap, cn, matchtype_singleton
             ) ;
+            (*n_matches)++ ;
+            (*n_unmatched) -= 2 ;
         }
         else
         {
@@ -253,6 +259,8 @@ static void Match_Singletons
                 i, i, matching, invmatchmap, matchtype,
                 matchmap, cn, matchtype_singleton
             ) ;
+            (*n_matches)++ ;
+            (*n_unmatched) -= 1 ;
 
             if(j != EMPTY)
             {
@@ -262,6 +270,8 @@ static void Match_Singletons
                     j, j, matching, invmatchmap, matchtype,
                     matchmap, cn, matchtype_singleton
                 ) ;
+                (*n_matches)++ ;
+                (*n_unmatched) -= 1 ;
             }
         }
     }
@@ -292,8 +302,11 @@ void Graph_Simple_Match
     VSPINT  *Ae  = Graph->Ae ;
     VSPLONG *Ap  = Graph->Ap ;
     VSPINT  *c   = Graph->c ;
-    VSPINT pow2l = pow_ints(2, lvl) ;
+    VSPINT pow2l   = pow_ints(2, lvl) ;
     VSPINT pow2lp1 = pow_ints(2, lvl + 1) ;
+
+    VSPINT n_matches   = 0 ;
+    VSPINT n_unmatched = n ;
 
     /*------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------*/
@@ -303,7 +316,7 @@ void Graph_Simple_Match
     VSPINT *heap_sings      = malloc((n+1) * sizeof(*heap_sings)) ;
     VSPINT  n_heap_sings    = 0 ;
 
-    VSPINT *lookup_heap      = malloc((n+1) * sizeof(*heap_sings)) ;
+    VSPINT *lookup_heap     = malloc((n+1) * sizeof(*heap_sings)) ;
 
     // The largest cost of any 2-way or 3-way match. Used to block singleton
     // matching if the cost of such a matching would exceed gamma_coarse.
@@ -350,6 +363,8 @@ void Graph_Simple_Match
                 i, j, matching, invmatchmap, matchtype,
                 matchmap, cn, matchtype_HEM
             ) ;
+            n_matches++ ;
+            n_unmatched -= 2 ;
 
             ci_coarse = c[i] + c[j] ;
             if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
@@ -369,7 +384,7 @@ void Graph_Simple_Match
     Match_Singletons
     (
         heap_sings, lookup_heap, &n_heap_sings, c, pow2lp1, matching,
-        matchmap, invmatchmap, matchtype, cn
+        matchmap, invmatchmap, matchtype, cn, &n_matches, &n_unmatched
     ) ;
     free(heap_sings) ;
     free(lookup_heap) ;
@@ -426,6 +441,8 @@ void Graph_Simple_Match
                             matchmap, cn, matchtype_brotherly
                         ) ;
                         perfect = EMPTY ;
+                        n_matches++ ;
+                        n_unmatched -= 2 ;
                     }
                     else perfect = neigh ;
                 }
@@ -438,6 +455,8 @@ void Graph_Simple_Match
                             light, neigh, matching, invmatchmap, matchtype,
                             matchmap, cn, matchtype_brotherly
                         ) ;
+                        n_matches++ ;
+                        n_unmatched -= 2 ;
                         light = EMPTY ;
                     }
                     else light = neigh ;
@@ -446,214 +465,235 @@ void Graph_Simple_Match
         }
     }
 
+    VSPINT n_coarse = n_matches + n_unmatched ;
+    VSPFLOAT ratio_compression = ((VSPFLOAT) n_coarse) / ((VSPFLOAT) n) ;
 
-    /*------------------------------------------------------------------------*/
-    /*------------------------------------------------------------------------*/
-    // Brotherly matching new
-    /*------------------------------------------------------------------------*/
-    /*------------------------------------------------------------------------*/
-    VSPINT *selfmatch = malloc(n * sizeof(*selfmatch)) ;
-    VSPINT num_selfmatch = 0 ;
-
-    // Loop through HEM pairs
-    bool *HEM_Pair_Visited = calloc(n, sizeof(*HEM_Pair_Visited)) ;
-    for(i  = 0 ; i < n ; i++)
+    if(ratio_compression <= 0.7)
     {
-        if(matchtype[i] != matchtype_HEM || HEM_Pair_Visited[i] ) continue ;
-
-        // {i, j} is a HEM pair 
-        j = VSP_get_match(i, matching) ;
-
-        // Mark {i, j} pair as visited
-        HEM_Pair_Visited[i] = true ;
-        HEM_Pair_Visited[j] = true ;
-
-        // Initialize
-        perfect    = EMPTY ;
-        light      = EMPTY ;
-        lightest   = EMPTY ;
-        c_lightest = pow2l + 1 ;
-        end = Ap[i+1] ;
-
-        /*--------------------------------------------------------------------*/
-        // Visit Neighbors of i
-        /*--------------------------------------------------------------------*/
-        for(p = Ap[i] ; p < end ; p++)
+        // Self-match any unmatched vertices
+        for(i = 0 ; i < n ; i++)
         {
-
-            k  = Ai[p] ;
-            if(Is_Matched(k, matching)) continue ;
-
-            ck = c[k] ;
-            if(ck < c_lightest) lightest = k ;
-
-            if(ck == pow2l)
+            if( !Is_Matched(j, matching) )
             {
-                if(perfect != EMPTY)
+                Create_Match_2way
+                (
+                    j, j, matching, invmatchmap, matchtype,
+                    matchmap, cn, matchtype_selfMatch
+                ) ;
+            }
+        }
+    }
+    else
+    {
+        /*--------------------------------------------------------------------*/
+        /*--------------------------------------------------------------------*/
+        // Brotherly matching new
+        /*--------------------------------------------------------------------*/
+        /*--------------------------------------------------------------------*/
+
+        VSPINT *selfmatch    = malloc(n * sizeof(*selfmatch)) ;
+        VSPINT num_selfmatch = 0 ;
+
+        // Loop through HEM pairs
+        bool *HEM_Pair_Visited = calloc(n, sizeof(*HEM_Pair_Visited)) ;
+        for(i  = 0 ; i < n ; i++)
+        {
+            if(matchtype[i] != matchtype_HEM || HEM_Pair_Visited[i] ) continue ;
+
+            // {i, j} is a HEM pair 
+            j = VSP_get_match(i, matching) ;
+
+            // Mark {i, j} pair as visited
+            HEM_Pair_Visited[i] = true ;
+            HEM_Pair_Visited[j] = true ;
+
+            // Initialize
+            perfect    = EMPTY ;
+            light      = EMPTY ;
+            lightest   = EMPTY ;
+            c_lightest = pow2l + 1 ;
+            end = Ap[i+1] ;
+
+            /*----------------------------------------------------------------*/
+            // Visit Neighbors of i
+            /*----------------------------------------------------------------*/
+            for(p = Ap[i] ; p < end ; p++)
+            {
+
+                k  = Ai[p] ;
+                if(Is_Matched(k, matching)) continue ;
+
+                ck = c[k] ;
+                if(ck < c_lightest) lightest = k ;
+
+                if(ck == pow2l)
                 {
-                    Create_Match_2way
-                    (
-                        perfect, k, matching, invmatchmap, matchtype,
-                        matchmap, cn, matchtype_brotherly
-                    ) ;
-                    ci_coarse = c[i] + c[j] ;
-                    #ifdef VSP_DEBUG
-                        if(c[perfect] + c[k] != pow2lp1)
+                    if(perfect != EMPTY)
+                    {
+                        Create_Match_2way
+                        (
+                            perfect, k, matching, invmatchmap, matchtype,
+                            matchmap, cn, matchtype_brotherly
+                        ) ;
+                        ci_coarse = c[i] + c[j] ;
+                        #ifdef VSP_DEBUG
+                            if(c[perfect] + c[k] != pow2lp1)
+                            {
+                                ERR("Non-perfect vertex") ;
+                            }
+                        #endif
+                        perfect = EMPTY ;
+                    }
+                    else perfect = k ;
+                }
+                else // ck != pow2l, i.e. k is not perfect
+                {
+                    VSP_ASSERT(ck < pow2l) ;
+                    if(light != EMPTY)
+                    {
+                        Create_Match_2way
+                        (
+                            light, k, matching, invmatchmap, matchtype,
+                            matchmap, cn, matchtype_brotherly
+                        ) ;
+                        if(gamma_coarse < pow2l)
                         {
-                            ERR("Non-perfect vertex") ;
+                            ci_coarse = c[i] + c[j] ;
+                            if(ci_coarse > gamma_coarse) gamma_coarse=ci_coarse;
                         }
-                    #endif
-                    perfect = EMPTY ;
-                }
-                else perfect = k ;
-            }
-            else // ck != pow2l, i.e. k is not perfect
-            {
-                VSP_ASSERT(ck < pow2l) ;
-                if(light != EMPTY)
-                {
-                    Create_Match_2way
-                    (
-                        light, k, matching, invmatchmap, matchtype,
-                        matchmap, cn, matchtype_brotherly
-                    ) ;
-                    if(gamma_coarse < pow2l)
-                    {
-                        ci_coarse = c[i] + c[j] ;
-                        if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
+                        light = EMPTY ;
                     }
-                    light = EMPTY ;
+                    else light = k ;
                 }
-                else light = k ;
             }
-        }
 
-        /*--------------------------------------------------------------------*/
-        // Visit Neighbors of j
-        /*--------------------------------------------------------------------*/
-        end = Ap[j+1] ;
-        for(p = Ap[j] ; p < end ; p++)
-        {
-            k  = Ai[p] ;
-            if(Is_Matched(k, matching)) continue ;
-
-            // This check is for the following situation: u is a neighbor of
-            // both i and j. After visiting the neighbors of i, assume that 
-            // perfect = u or light = u. Then at some point k will be u, and
-            // if we don't stop this iteration, then k will be matched with
-            // itself
-            if(k == perfect || k == light) continue ;
-
-            ck = c[k] ;
-            if(ck < c_lightest) lightest = k ;
-
-            if(ck == pow2l)
+            /*----------------------------------------------------------------*/
+            // Visit Neighbors of j
+            /*----------------------------------------------------------------*/
+            end = Ap[j+1] ;
+            for(p = Ap[j] ; p < end ; p++)
             {
-                if(perfect != EMPTY)
+                k  = Ai[p] ;
+                if(Is_Matched(k, matching)) continue ;
+
+                // This check is for the following situation: u is a neighbor of
+                // both i and j. After visiting the neighbors of i, assume that 
+                // perfect = u or light = u. Then at some point k will be u, and
+                // if we don't stop this iteration, then k will be matched with
+                // itself
+                if(k == perfect || k == light) continue ;
+
+                ck = c[k] ;
+                if(ck < c_lightest) lightest = k ;
+
+                if(ck == pow2l)
                 {
-                    Create_Match_2way
-                    (
-                        perfect, k, matching, invmatchmap, matchtype,
-                        matchmap, cn, matchtype_brotherly
-                    ) ;
-                    perfect = EMPTY ;
-                    ci_coarse = c[i] + c[j] ;
-                }
-                else perfect = k ;
-            }
-            else // ck == pow2l, i.e. k is not perfect
-            {
-                VSP_ASSERT(ck < pow2l) ;
-                if(light != EMPTY)
-                {
-                    Create_Match_2way
-                    (
-                        light, k, matching, invmatchmap, matchtype,
-                        matchmap, cn, matchtype_brotherly
-                    ) ;
-                    light = EMPTY ;
-                    if(gamma_coarse < pow2l)
+                    if(perfect != EMPTY)
                     {
+                        Create_Match_2way
+                        (
+                            perfect, k, matching, invmatchmap, matchtype,
+                            matchmap, cn, matchtype_brotherly
+                        ) ;
+                        perfect = EMPTY ;
                         ci_coarse = c[i] + c[j] ;
-                        if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
                     }
-
+                    else perfect = k ;
                 }
-                else light = k ;
+                else // ck == pow2l, i.e. k is not perfect
+                {
+                    VSP_ASSERT(ck < pow2l) ;
+                    if(light != EMPTY)
+                    {
+                        Create_Match_2way
+                        (
+                            light, k, matching, invmatchmap, matchtype,
+                            matchmap, cn, matchtype_brotherly
+                        ) ;
+                        light = EMPTY ;
+                        if(gamma_coarse < pow2l)
+                        {
+                            ci_coarse = c[i] + c[j] ;
+                            if(ci_coarse > gamma_coarse) gamma_coarse=ci_coarse;
+                        }
+
+                    }
+                    else light = k ;
+                }
             }
-        }
 
-        /*--------------------------------------------------------------------*/
-        // Resolve unmatched neighbors of {i, j}
-        /*--------------------------------------------------------------------*/
+            /*----------------------------------------------------------------*/
+            // Resolve unmatched neighbors of {i, j}
+            /*----------------------------------------------------------------*/
 
-        // If {i, j} has two unmatched neighbors remaining, match them together
-        if(perfect != EMPTY && light != EMPTY)
-        {
-            Create_Match_2way
-            (
-                perfect, light, matching, invmatchmap, matchtype,
-                matchmap, cn, matchtype_brotherly
-            ) ;
-
-            ci_coarse = c[i] + c[j] ;
-            if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
-            continue ;
-        }
-
-        // Here, at least one of perfect and light is non-EMPTY
-        // If both are EMPTY, k is EMPTY. Otherwise, k is the non-empty one
-        k = perfect + light + 1 ;
-
-        if( k != EMPTY )
-        {
-            ck = c[k] ;
-
-            // Ensure the remaining vertex has lightest cost
-            if(ck > c_lightest)
+            // If {i, j} has two unmatched neighbors remaining, match them
+            if(perfect != EMPTY && light != EMPTY)
             {
-                Steal_Match
+                Create_Match_2way
                 (
-                    lightest, k, matching, invmatchmap, matchtype, matchmap
+                    perfect, light, matching, invmatchmap, matchtype,
+                    matchmap, cn, matchtype_brotherly
                 ) ;
 
-                k  = lightest ;
-                ck = c_lightest ;
+                ci_coarse = c[i] + c[j] ;
+                if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
+                continue ;
             }
 
-            // If the 3-way match is light, do it
-            if(c[i] + c[j] + c[k] <= pow2lp1)
+            // Here, at least one of perfect and light is non-EMPTY
+            // If both are EMPTY, k is EMPTY. Otherwise, k is the non-empty one
+            k = perfect + light + 1 ;
+
+            if( k != EMPTY )
             {
-                Create_Match_3way_HEM
-                (
-                    i, j, k, matching, matchmap, invmatchmap, matchtype
-                ) ;
+                ck = c[k] ;
 
-                if(c[i] + c[j] + c[k] > gamma_coarse)
+                // Ensure the remaining vertex has lightest cost
+                if(ck > c_lightest)
                 {
-                    gamma_coarse = c[i] + c[j] + c[k] ;
-                }
-            }
-            else selfmatch[ num_selfmatch++ ] = k ;
-        }
-    }
+                    Steal_Match
+                    (
+                        lightest, k, matching, invmatchmap, matchtype, matchmap
+                    ) ;
 
-    // Self-match any remaining vertices
-    for(i = 0 ; i < num_selfmatch ; i++)
-    {
-        j = selfmatch[i] ;
-        if( !Is_Matched(j, matching) )
-        {
-            Create_Match_2way
-            (
-                j, j, matching, invmatchmap, matchtype,
-                matchmap, cn, matchtype_selfMatch
-            ) ;
-            if(c[j] > gamma_coarse) gamma_coarse = c[j] ;
+                    k  = lightest ;
+                    ck = c_lightest ;
+                }
+
+                // If the 3-way match is light, do it
+                if(c[i] + c[j] + c[k] <= pow2lp1)
+                {
+                    Create_Match_3way_HEM
+                    (
+                        i, j, k, matching, matchmap, invmatchmap, matchtype
+                    ) ;
+
+                    if(c[i] + c[j] + c[k] > gamma_coarse)
+                    {
+                        gamma_coarse = c[i] + c[j] + c[k] ;
+                    }
+                }
+                else selfmatch[ num_selfmatch++ ] = k ;
+            }
         }
+
+        // Self-match any remaining vertices
+        for(i = 0 ; i < num_selfmatch ; i++)
+        {
+            j = selfmatch[i] ;
+            if( !Is_Matched(j, matching) )
+            {
+                Create_Match_2way
+                (
+                    j, j, matching, invmatchmap, matchtype,
+                    matchmap, cn, matchtype_selfMatch
+                ) ;
+                if(c[j] > gamma_coarse) gamma_coarse = c[j] ;
+            }
+        }
+        free(selfmatch) ;
+        selfmatch = NULL ;
     }
-    free(selfmatch) ;
-    selfmatch = NULL ;
 
     /* ====================================================================== */
     // Cleanup
