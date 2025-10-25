@@ -465,10 +465,22 @@ void Graph_Simple_Match
         }
     }
 
+
     VSPINT n_coarse = n_matches + n_unmatched ;
     VSPFLOAT ratio_compression = ((VSPFLOAT) n_coarse) / ((VSPFLOAT) n) ;
 
-    if(ratio_compression <= 0.7)
+    if(*cn != n_coarse)
+    {
+        printf("\ncn: %i  n_coarse: %i", *cn, n_coarse) ;
+    }
+
+    // if(ratio_compression > 0.65)
+    // {
+    //     printf("Compression ratio: %f\n", ratio_compression) ;
+    // }
+    // fflush(stdout) ;
+
+    if(ratio_compression <= 0.63)
     {
         // Self-match any unmatched vertices
         for(i = 0 ; i < n ; i++)
