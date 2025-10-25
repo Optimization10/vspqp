@@ -767,10 +767,12 @@ static void Check_cn
         seen[k] = 1 ;
     }
 
-    if(cn != cn_local)
-    {
-        ERR("Wrong number of coarse vertices") ;
-    }
+    #ifdef VSP_DEBUG
+        if(cn != cn_local)
+        {
+            ERR("Wrong number of coarse vertices") ;
+        }
+    #endif
 
     free(seen) ;
 }

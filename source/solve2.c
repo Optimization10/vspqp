@@ -179,36 +179,36 @@ VSP_solve_result *Solve_v2
         /* ================================================================== */
         // Check objective
         /* ================================================================== */
-        if(X_l->point->ind_frac != EMPTY || Y_l->point->ind_frac != EMPTY)
-        {
-            printf("\nThere is a fractional entry") ;
-            fflush(stdout) ;
-        }
-        VSPINT cost_shores = 0 ;
-        VSPINT cost_graph  = 0 ;
-        VSPINT xAy         = 0 ;
-        VSPINT *x          = X_l->point->int_part ;
-        VSPINT *y          = Y_l->point->int_part ;
-        VSPINT *Ay         = Y_l->Az->int_part ;
-        VSPINT *c          = P->Graph->c ;
-        for(VSPINT i = 0 ; i < P->Graph->n ; i++)
-        {
-            cost_shores += c[i] * x[i] ;
-            cost_shores += c[i] * y[i] ;
-            cost_graph  += c[i] ;
-            xAy         += x[i] * Ay[i] ;
-        }
+        // if(X_l->point->ind_frac != EMPTY || Y_l->point->ind_frac != EMPTY)
+        // {
+        //     printf("\nThere is a fractional entry") ;
+        //     fflush(stdout) ;
+        // }
+        // VSPINT cost_shores = 0 ;
+        // VSPINT cost_graph  = 0 ;
+        // VSPINT xAy         = 0 ;
+        // VSPINT *x          = X_l->point->int_part ;
+        // VSPINT *y          = Y_l->point->int_part ;
+        // VSPINT *Ay         = Y_l->Az->int_part ;
+        // VSPINT *c          = P->Graph->c ;
+        // for(VSPINT i = 0 ; i < P->Graph->n ; i++)
+        // {
+        //     cost_shores += c[i] * x[i] ;
+        //     cost_shores += c[i] * y[i] ;
+        //     cost_graph  += c[i] ;
+        //     xAy         += x[i] * Ay[i] ;
+        // }
 
-        if(xAy == 0)
-        {
-            printf("\nLevel: %i  Sep Cost: %i", P->level, cost_graph - cost_shores) ;
-            fflush(stdout) ;
-        }
-        else
-        {
-            printf("\nPenalty term not zero") ;
-            fflush(stdout) ;
-        }
+        // if(xAy == 0)
+        // {
+        //     printf("\nLevel: %i  Sep Cost: %i", P->level, cost_graph - cost_shores) ;
+        //     fflush(stdout) ;
+        // }
+        // else
+        // {
+        //     printf("\nPenalty term not zero") ;
+        //     fflush(stdout) ;
+        // }
 
 
         /* ================================================================== */
