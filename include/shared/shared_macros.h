@@ -190,7 +190,7 @@
 #if defined(VSP_DEBUG) || defined(VSP_DEBUG_COARSENING)
     #define WARN_IF_NOT_DEBUG_MODE
 #else
-    #define WARN_IF_NOT_DEBUG_MODE printf("\n\nWARNING: Calling debugging function when not in debug mode. File: %s  Line: %i\n\n", __FILE__, __LINE__)
+    #define WARN_IF_NOT_DEBUG_MODE printf("\n\nWARNING: Calling debugging function when not in debug mode. File: %s  Line: %lld\n\n", __FILE__, (long long) __LINE__)
 #endif
 
 

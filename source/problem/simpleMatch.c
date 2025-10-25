@@ -294,10 +294,9 @@ void Graph_Simple_Match
     VSPINT pow2l = pow_ints(2, lvl) ;
     VSPINT pow2lp1 = pow_ints(2, lvl + 1) ;
 
-
     /*------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------*/
-    // Heavy Edge and Singleton Matching
+    // Heavy Edge and Weight Matching
     /*------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------*/
     VSPINT *heap_sings      = malloc((n+1) * sizeof(*heap_sings)) ;
@@ -350,6 +349,7 @@ void Graph_Simple_Match
                 i, j, matching, invmatchmap, matchtype,
                 matchmap, cn, matchtype_HEM
             ) ;
+
             ci_coarse = c[i] + c[j] ;
             if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
         }
@@ -508,6 +508,7 @@ void Graph_Simple_Match
             }
             else // ck != pow2l, i.e. k is not perfect
             {
+                VSP_ASSERT(ck < pow2l) ;
                 if(light != EMPTY)
                 {
                     Create_Match_2way
@@ -540,7 +541,6 @@ void Graph_Simple_Match
             // perfect = u or light = u. Then at some point k will be u, and
             // if we don't stop this iteration, then k will be matched with
             // itself
-            // I wonder how expe
             if(k == perfect || k == light) continue ;
 
             ck = c[k] ;
@@ -562,6 +562,7 @@ void Graph_Simple_Match
             }
             else // ck == pow2l, i.e. k is not perfect
             {
+                VSP_ASSERT(ck < pow2l) ;
                 if(light != EMPTY)
                 {
                     Create_Match_2way
@@ -614,10 +615,6 @@ void Graph_Simple_Match
                 (
                     lightest, k, matching, invmatchmap, matchtype, matchmap
                 ) ;
-
-                // Check if gamma_coarse increased due to stolen match
-                ci_coarse = c[k] + c[ VSP_get_match(k, matching) ] ;
-                if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
 
                 k  = lightest ;
                 ck = c_lightest ;

@@ -142,10 +142,10 @@ void Print_Neighs
 )
 {
     FILE *file = fopen("Log_Dbg.txt", "a") ;
-    fprintf(file, "\nNeighbors of vertex %i :\n", vtx) ;
+    fprintf(file, "\nNeighbors of vertex %lld :\n", (long long) vtx) ;
     for(VSPINT p = Ap[vtx] ; p < Ap[vtx + 1] ; p++)
     {
-        fprintf(file, "%i  ", Ai[p]) ;
+        fprintf(file, "%lld  ", (long long) Ai[p]) ;
     }
     fclose(file) ;
     return ;
