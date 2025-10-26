@@ -204,6 +204,8 @@ int main(int argc, char** argv)
     printf("BM time: %Lf\n", G_BM_TIME) ;
     printf("Coarsen time: %Lf\n", G_COARSEN_TIME) ;
 
+    VSP_Print_Performance() ;
+
     return 0 ;
 }
 
@@ -315,7 +317,7 @@ static void SetCustomOptions(VSP_options *options)
     /* ====================================================================== */
     options->max_density     = 0.8 ;
     options->limit_num_nodes = 100 ;
-    options->compression_threshold = 0.55 ;
+    options->compression_threshold = 0.51 ;
 
     return ;
 }
