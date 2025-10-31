@@ -941,7 +941,7 @@ static void BND_Delete
         if (*nbnd <= 0)
         {
             char msg[ERR_MSG_LEN];
-            snprintf(msg, sizeof(msg), "Error: No nodes to delete. *nbnd = %d", *nbnd);
+            snprintf(msg, sizeof(msg), "Error: No nodes to delete. *nbnd = %lld", (long long) *nbnd);
             VSP_error(msg, DBG_INFO);
         }
 

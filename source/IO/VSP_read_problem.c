@@ -79,18 +79,20 @@ VSP_problem *Read_Dot_Ovi_File
         exit(1);
     }
 
-    VSPINT n_ovi, nz_ovi;
+    long long n_ovi_long, nz_ovi_long ;
     char line[256];
     
-    /* Read n and nz */
-    VSPINT result = fscanf(filein, "n: %d nz: %d\n", &n_ovi, &nz_ovi) ; // silence unused result warning with void
+    // Read n and nz. Always read them as long long. If not, the fscanf call is
+    // tricky to make if n and nz are declared as VSPINTs or VSPLONGs, since
+    // these can switch between int and long long 
+    VSPINT result = fscanf(filein, "n: %lld nz: %lld\n", &n_ovi_long, &nz_ovi_long) ; // silence unused result warning with void
     if(result != 2)
     {
         printf("\n\nError in reading problem\n\n") ;
     }
 
     // Construct problem
-    VSP_problem *problem = VSP_construct_problem(n_ovi, nz_ovi, options) ;
+    VSP_problem *problem = VSP_construct_problem( (VSPINT) n_ovi_long, (VSPLONG) nz_ovi_long, options) ;
     VSPINT *apNumbers = problem->Graph->Ap ;
     VSPINT *aiNumbers = problem->Graph->Ai ;
 
@@ -101,9 +103,9 @@ VSP_problem *Read_Dot_Ovi_File
     while (fgets(line, sizeof(line), filein))
     {
         if (strncmp(line, "Ai:", 3) == 0) break;
-        VSPINT number;
-        if (sscanf(line, "%d", &number) == 1) {
-            apNumbers[ap_count++] = number;
+        long long number;
+        if (sscanf(line, "%lld", &number) == 1) {
+            apNumbers[ap_count++] = (VSPLONG) number;
         }
     }
 
