@@ -54,7 +54,7 @@ void VSP_Print_Performance
 
 ) ;
 
-int Prepend
+VSPINT Prepend
 (
     const char      *bufferA,
     char            *bufferB,
@@ -81,7 +81,7 @@ VSP_problem *Read_hager6_File(char *fileName, VSP_options *options) ;
 
 
 VSP_problem *Read_hager6_File(char *path, VSP_options *options) ;
-int GetNextLine(const char* fileName, char* output, size_t outputSize) ;
+VSPINT GetNextLine(const char* fileName, char* output, size_t outputSize) ;
 
 #define MAX_HEIGHT 10
 #define MAX_WIDTH  255

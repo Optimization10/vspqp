@@ -391,7 +391,7 @@ void Min_Queue_Print_Node_v1
     char         *msg  // Ignored if NULL
 )
 {
-    int i ;
+    VSPINT i ;
     FILE *file = fopen("output/log_debug.txt", "a") ;
     fprintf(file, "\n    Printing Heap Node:") ;
     if(msg != NULL)
@@ -414,10 +414,10 @@ void Min_Queue_Print_Node_v1
 
     // Figure out the number of minuses
     // The .01 is in case the argument is a power of 10.
-    int num_digits_node = (int) ceil( log(node + 0.1) / log(10) ) ;
-    int num_digits_vtx  = (int) ceil( log(vtx + 0.1) / log(10) ) ;
-    int num_digits_ci   = (int) ceil( log(ci + 0.1) / log(10) ) ;
-    int num_minuses = 19 + 4 + num_digits_node + num_digits_vtx + num_digits_ci ;
+    VSPINT num_digits_node = (VSPINT) ceil( log(node + 0.1) / log(10) ) ;
+    VSPINT num_digits_vtx  = (VSPINT) ceil( log(vtx + 0.1) / log(10) ) ;
+    VSPINT num_digits_ci   = (VSPINT) ceil( log(ci + 0.1) / log(10) ) ;
+    VSPINT num_minuses = 19 + 4 + num_digits_node + num_digits_vtx + num_digits_ci ;
 
     // Print top row of box
     fprintf(file, "+") ;

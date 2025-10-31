@@ -460,7 +460,7 @@ void FM_Metis
         /* mincutorder is the nswap at which the best separator is achieved */
         VSPINT mincutorder = EMPTY ;
 
-        // TODO: Careful with abs here if VSPINT is not int
+        // TODO: Careful with abs here if VSPINT is not VSPINT
         mptr[0]           = 0 ;
         nmind             = 0 ;
 

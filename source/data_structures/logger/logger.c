@@ -25,7 +25,7 @@ static char* LoggerCreateFormattedBuffer(const char *format, va_list args)
     va_copy(args_copy, args);
     
     // Calculate required buffer size
-    int size = vsnprintf(NULL, 0, format, args_copy) + 1;
+    VSPINT size = vsnprintf(NULL, 0, format, args_copy) + 1;
     va_end(args_copy);
     
     char *buffer = (char *)malloc(size);

@@ -345,7 +345,7 @@ VSPINT** VSP_construct_explicit_matrix
     }
 
     /* Check that the matrix is symmetric */
-    int is_symmetric = TRUE ;
+    VSPINT is_symmetric = TRUE ;
     for (i = 0 ; i < n ; i++) {
         for (j = 0 ; j < n ; j++) {
             if ( A[i][j] != A [j][i] ) {

@@ -350,7 +350,7 @@ void VSP_check_arrays_are_equal
  a) If the matrix passes all the checks, return TRUE (i.e. integer 1).
     Otherwise, return FALSE (integer 0) and print errors to the error log.
 */
-int VSP_check_matrix
+VSPINT VSP_check_matrix
 (
     VSPINT* Ai,
     VSPINT* Ap,
@@ -365,12 +365,12 @@ int VSP_check_matrix
     WARN_IF_NOT_DEBUG_MODE ;
 
     VSPINT i, j, p, k, end ;
-    int repeated_entry             = FALSE ;
-    int diag_nonzero               = FALSE ;
-    int invalid_neighbor           = FALSE ;
-    int error                      = FALSE ;
-    int invalid_entry_in_Ap        = FALSE ;
-    int last_entry_of_Ap_incorrect = FALSE ;
+    VSPINT repeated_entry             = FALSE ;
+    VSPINT diag_nonzero               = FALSE ;
+    VSPINT invalid_neighbor           = FALSE ;
+    VSPINT error                      = FALSE ;
+    VSPINT invalid_entry_in_Ap        = FALSE ;
+    VSPINT last_entry_of_Ap_incorrect = FALSE ;
 
 
 
@@ -526,7 +526,7 @@ void VSP_check_entries_are_between_bounds(
     }
 
     VSPINT i, vi ;
-    int error = 0 ;
+    VSPINT error = 0 ;
 
     /* Compute the true maximum of c */
     for (i = 0 ; i < n ; i++) {
@@ -613,7 +613,7 @@ void VSP_check_max_of_array(
     Otherwise, return FALSE (integer 0) and print errors to the error log.
 */
 
-int VSP_check_problem
+VSPINT VSP_check_problem
 (
     VSP_problem* problem,
     VSP_options* options
@@ -638,9 +638,9 @@ int VSP_check_problem
     VSPINT n     = problem->Graph->n ;
     VSPINT bal   = problem->u ;
 
-    int cost_is_wrong     = FALSE ;
-    int weight_is_wrong   = FALSE ;
-    int is_there_an_error = FALSE ;
+    VSPINT cost_is_wrong     = FALSE ;
+    VSPINT weight_is_wrong   = FALSE ;
+    VSPINT is_there_an_error = FALSE ;
 
 
     /* Do all the matrix checks */
@@ -735,10 +735,10 @@ void VSP_check_permutation (
     }
 
     /* Sort the copies */
-    qsort(arr_1_copy, n, sizeof(VSPINT), VSP_comparison_increasing) ;
-    qsort(arr_2_copy, n, sizeof(VSPINT), VSP_comparison_increasing) ;
+    qsort(arr_1_copy, n, sizeof(int), VSP_comparison_increasing) ;
+    qsort(arr_2_copy, n, sizeof(int), VSP_comparison_increasing) ;
 
-    int arrays_are_equal = TRUE ;
+    VSPINT arrays_are_equal = TRUE ;
     for (i = 0 ; i < n ; i++) {
         if (arr_1_copy [i] != arr_2_copy [i]) {
             arrays_are_equal = FALSE ;

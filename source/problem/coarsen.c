@@ -386,7 +386,7 @@ VSP_Graph* Graph_Coarsen
               between any two members of any two preimages, then there is an
               edge connecting the corresponding coarse vertices.
            ================================================================== */
-        int is_fine_edge, is_coarse_edge ;
+        VSPINT is_fine_edge, is_coarse_edge ;
 
         for (k = 0 ; k < n_fine ; k++) {
             VSPINT* matches_k = VSP_get_all_matches(k, matching) ;

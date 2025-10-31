@@ -163,9 +163,9 @@ void VSP_ResolveLevelDecideAndDo
 
 void VSP_check_for_complete_graph(VSP_problem *problem)
 {
-    long long int n_long  = (long long int) problem->Graph->n ;
-    long long int nz_long = (long long int) problem->Graph->nz ;
-    long long int upper_bnd_nz = n_long * n_long - n_long ;
+    long long n_long  = (long long) problem->Graph->n ;
+    long long nz_long = (long long) problem->Graph->nz ;
+    long long upper_bnd_nz = n_long * n_long - n_long ;
     if( nz_long == upper_bnd_nz )
     {
         fprintf(stderr, "ERROR: Graph %s is complete\n", problem->name) ;

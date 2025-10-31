@@ -7,7 +7,7 @@
     #define IFDBG(some_code)
 #endif
 
-#define PRINTINT long long int
+#define PRINTINT long long VSPINT
 
 #define NUMLPS 2
 #define PLUS 1

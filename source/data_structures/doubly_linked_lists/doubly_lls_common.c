@@ -220,8 +220,8 @@ void Doubly_Linked_Lists_Check
 
     for(i = 0 ; i < n ; i++)
     {
-        int in_L0  = (L0spread[i] == 2) ;
-        int in_L1  = (L1spread[i] == 2) ;
+        VSPINT in_L0  = (L0spread[i] == 2) ;
+        VSPINT in_L1  = (L1spread[i] == 2) ;
 
         if(locked == NULL)
         {
@@ -233,7 +233,7 @@ void Doubly_Linked_Lists_Check
         }
         else
         {
-            int is_lkd = (locked[i]   == 1) ;
+            VSPINT is_lkd = (locked[i]   == 1) ;
             if(in_L0 + in_L1 + is_lkd != 1)
             {
                 VSP_error("Error in linked lists", DBG_INFO) ;

@@ -34,7 +34,7 @@ void VSP_min_heapify_v3
     VSPINT *Az_int = Az->int_part ;
     VSPINT ind_frac_z = Az->ind_frac_z ;
     VSPFLOAT val_frac_z = Az->val_frac_z ;
-    int is_z_frac = (ind_frac_z != EMPTY) ;
+    VSPINT is_z_frac = (ind_frac_z != EMPTY) ;
     VSPINT *col_A = Az->col_frac_z ;
     VSPINT one = Az->one ;
 
@@ -158,7 +158,7 @@ void VSP_min_heap_add_v3 /* returns the new size of the heap */
     VSPINT *Az_int = Az->int_part ;
     VSPINT ind_frac_z = Az->ind_frac_z ;
     VSPFLOAT val_frac_z = Az->val_frac_z ;
-    int is_z_frac = (ind_frac_z != EMPTY) ;
+    VSPINT is_z_frac = (ind_frac_z != EMPTY) ;
     VSPINT *col_A = Az->col_frac_z ;
     VSPINT one = Az->one ;
 

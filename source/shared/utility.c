@@ -20,7 +20,7 @@ bool Is_Finest_Problem(VSP_problem *problem)
     return (problem->parent_problem == NULL) ; 
 }
 
-int Are_Neighbors
+VSPINT Are_Neighbors
 (
     VSPINT vert1,
     VSPINT vert2,
@@ -165,7 +165,7 @@ VSPINT VSP_bin_points_diff
 }
 
 // Check if candidate is in array[start, ... end)
-int Is_Array_Member
+VSPINT Is_Array_Member
 (
     VSPINT candidate,
     VSPINT    *array,
@@ -200,9 +200,9 @@ bool Is_Complete_Graph
         return true ;
     }
 
-    long long int nlong       = (long long int) n ;
-    long long int nzlong      = (long long int) nz ;
-    long long int upperbnd_nz = nlong * nlong - nlong ;
+    long long nlong       = (long long) n ;
+    long long nzlong      = (long long) nz ;
+    long long upperbnd_nz = nlong * nlong - nlong ;
 
     if( nzlong ==  upperbnd_nz )
     {
@@ -556,7 +556,7 @@ void State_Round_Down
 
 }
 
-int VSP_round(VSPFLOAT f) {
+VSPINT VSP_round(VSPFLOAT f) {
     return (f - floor(f) > 0.5) ? ceil(f) : floor(f) ;
 }
 
@@ -564,7 +564,7 @@ void VSP_error
 ( 
     char* msg,
     char* file_name,
-    int line_num,
+    VSPINT line_num,
     unsigned long long count
 )
 {

@@ -29,7 +29,7 @@ int VSP_compare_value_index_floats(const void *a, const void *b)
  Function to compare the float values in two value_index struct. This is used
  when calling qsort to sort these structs.
 */
-int VSP_compare_val_ind_structs_inc(const void *a, const void *b) 
+VSPINT VSP_compare_val_ind_structs_inc(const void *a, const void *b) 
 {
     VSP_value_index* A = (VSP_value_index*) a;
     VSP_value_index* B = (VSP_value_index*) b;

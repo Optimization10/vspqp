@@ -45,7 +45,7 @@ static void RefineOneVar
     for( fv = 0 ; fv < fn ; fv++ )
     {
         cv = matchMap[fv];
-        if( cz[ cv ] ) /* The int part of the coarse vertex is 1 */
+        if( cz[ cv ] ) /* The VSPINT part of the coarse vertex is 1 */
         {
             fvWgt = fc[ fv ] ;
             if( fWgtz + fvWgt < fu ) /* fv fits into z with extra room */
@@ -66,7 +66,7 @@ static void RefineOneVar
                 break ;
             }
         }
-        else /* The int part of the coarse vertex is 0 */
+        else /* The VSPINT part of the coarse vertex is 0 */
         {
             fz[fv] = 0 ;
         }

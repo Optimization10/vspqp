@@ -21,7 +21,7 @@ void Flips_v4
     #endif
 
     /*------------------------------------------------------------------------*/
-    // static int nums = 0 ;
+    // static VSPINT nums = 0 ;
     // nums++; 
     // if(nums == 1)
     // {
