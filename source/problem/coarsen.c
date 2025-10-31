@@ -781,7 +781,7 @@ VSP_problem *Problem_Recursive_Coarsen
         P = coarse_P ;
         l++ ;
     }
-
+ 
     coarsest_P->child_problem = NULL ;
     return coarsest_P ; // P is coarse problem now and is being returned ####################### Since we hit second stopping criterion
 }
