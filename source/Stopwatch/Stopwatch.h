@@ -12,4 +12,4 @@ const char *Stopwatch_GetName(Stopwatch *SW) ;
 bool Stopwatch_GetInProgress(Stopwatch *SW) ;
 long double Stopwatch_GetAccumTime(Stopwatch *SW) ;
 long long int Stopwatch_GetCounter(Stopwatch *SW) ;
-#endif
+#endif 
