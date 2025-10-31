@@ -160,7 +160,7 @@ void MovesImprovingCost
                 other = 1 - to ;
                 if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
                 {
-                    // printf("\nBlocked infeasible FM move. Problem: %s  Level: %i", problem->name, problem->level) ;
+                    // printf("\nBlocked infeasible FM move. Problem: %s  Level: %lld", problem->name, (long long) problem->level) ;
                     break ;
                 }
             }

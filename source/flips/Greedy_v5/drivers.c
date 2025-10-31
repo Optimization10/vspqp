@@ -160,8 +160,8 @@ void StrictlyBeneficialFlips_v5
                 if(indFlip != EMPTY)
                 {
                     char filename[150] ;
-                    snprintf(filename, sizeof(filename), "Flips_v5/problem_%s_Level_%i.csv", problem->name, problem->level) ;
-                    Log(filename, "%c, %i", flipVar, indFlip) ;
+                    snprintf(filename, sizeof(filename), "Flips_v5/problem_%s_Level_%lld.csv", problem->name, (long long) problem->level) ;
+                    Log(filename, "%c, %lld", flipVar, (long long) indFlip) ;
                 }
             }
         #endif

@@ -133,7 +133,7 @@ void Direct_Access_List_Print
         fprintf(file, "| ") ;
         for(VSPINT i = 0 ; i < list->size ; i++)
         {
-            fprintf(file, "i = %i,  ci = %i  | ", list->list[i], c[list->list[i]] ) ;
+            fprintf(file, "i = %lld,  ci = %lld  | ", (long long) list->list[i], (long long) c[list->list[i]] ) ;
         }
     }
     fclose(file) ;

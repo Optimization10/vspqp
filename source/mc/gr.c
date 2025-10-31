@@ -92,7 +92,7 @@ VSPFLOAT VSP_minreduce_one_var
             if(c[i] / Awi > gamma_t)
             {
                 gamma_t = c[i] / Awi ;
-                // if(gamma_t == 4 && problem->Graph->max_vtx_cost == 2) printf("\ni: %i", i) ;
+                // if(gamma_t == 4 && problem->Graph->max_vtx_cost == 2) printf("\ni: %lld", (long long) i) ;
             }
         }
         #ifdef VSP_DEBUG

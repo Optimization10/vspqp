@@ -325,8 +325,8 @@ void QueueFM_Check_Heap_Light(QueueFM *q)
     if(q->numNodes < 0)
     {
         char msg[ERR_MSG_LEN] ;
-        sprintf(msg, "Num nodes in FM heap: %i, which is negative",
-                     q->numNodes) ;
+        sprintf(msg, "Num nodes in FM heap: %lld, which is negative",
+                     (long long) q->numNodes) ;
         VSP_error(msg, DBG_INFO) ;
     }
 
@@ -334,8 +334,8 @@ void QueueFM_Check_Heap_Light(QueueFM *q)
     if(q->maxNumNodes <= 0)
     {
         char msg[ERR_MSG_LEN] ;
-        sprintf(msg, "Max num nodes in FM heap: %i, which is non-positive",
-                     q->maxNumNodes) ;
+        sprintf(msg, "Max num nodes in FM heap: %lld, which is non-positive",
+                     (long long) q->maxNumNodes) ;
         VSP_error(msg, DBG_INFO) ;
     }
 
@@ -343,8 +343,8 @@ void QueueFM_Check_Heap_Light(QueueFM *q)
     if(q->numNodes > q->maxNumNodes)
     {
         char msg[ERR_MSG_LEN] ;
-        sprintf(msg, "Num nodes in FM heap: %i, which is greater than the"
-                     "maximum, %i", q->numNodes, q->maxNumNodes              ) ;
+        sprintf(msg, "Num nodes in FM heap: %lld, which is greater than the"
+                     "maximum, %lld", (long long) q->numNodes, (long long) q->maxNumNodes              ) ;
         VSP_error(msg, DBG_INFO) ;
     }
 

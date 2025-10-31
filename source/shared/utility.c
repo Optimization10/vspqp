@@ -583,7 +583,7 @@ void VSP_error
             fprintf(file, "\n\n ERROR: %s", msg) ;
             fprintf(file, "\n Graph name  : %s", global_matrix) ;
             fprintf(file, "\n File name   : %s", file_name) ;
-            fprintf(file, "\n Line number : %i", line_num) ;
+            fprintf(file, "\n Line number : %lld", (long long) line_num) ;
             fprintf(file, "\n Count : %llu", count) ;
             fclose(file) ;
         }
@@ -826,7 +826,7 @@ void DumpPoint(VSP_point *z, char *outName)
         }
         else
         {
-           fprintf(file, "%i\n", z->int_part[i]) ; 
+           fprintf(file, "%lld\n", (long long) z->int_part[i]) ; 
         }
     }
     fclose(file) ;
@@ -861,17 +861,17 @@ void DumpPoints(VSP_point *x, VSP_point *y, char *outName)
         }
         else
         {
-           fprintf(file, "%i,", x->int_part[i]) ; 
+           fprintf(file, "%lld,", (long long) x->int_part[i]) ; 
         }
 
         // y
         if(i == y->ind_frac)
         {
-            fprintf(file, "%f", y->val_frac) ; 
+            fprintf(file, "%f", (long long) y->val_frac) ; 
         }
         else
         {
-           fprintf(file, "%i", y->int_part[i]) ; 
+           fprintf(file, "%lld", (long long) y->int_part[i]) ; 
         }
     }
 
@@ -889,7 +889,7 @@ void DumpIntArray(VSPINT *array, VSPINT len, char *outName)
 
     for(VSPINT i = 0 ; i < len ; i++)
     {
-        fprintf(file, "%i  ", array[i]) ;
+        fprintf(file, "%lld  ", (long long) array[i]) ;
     }
     fclose(file) ;
     return ;

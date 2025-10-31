@@ -56,9 +56,9 @@ void VSP_write_to_csv
 
     /* Write data */
     fprintf(file, "%s, ", cpy_graph_name) ;
-    fprintf(file, "%i, ", solStats->num_nodes_total) ;
-    fprintf(file, "%i, ", solStats->num_edges_total) ;
-    fprintf(file, "%i, ", solStats->num_nodes_sep) ;
+    fprintf(file, "%lld, ", (long long) solStats->num_nodes_total) ;
+    fprintf(file, "%lld, ", (long long) solStats->num_edges_total) ;
+    fprintf(file, "%lld, ", (long long) solStats->num_nodes_sep) ;
     fprintf(file, "%.5f\n", solStats->time) ;
 
 
@@ -109,10 +109,10 @@ void VSP_write_to_csv_2
 
     /* Write data */
     fprintf(file, "%s,", cpy_graph_name) ;
-    fprintf(file, "%i,", solStats->num_nodes_total) ;
-    fprintf(file, "%i,", solStats->num_edges_total) ;
-    fprintf(file, "%i,", solStats->num_nodes_sep) ;
-    fprintf(file, "%i,", abs(solStats->num_nodes_x - solStats->num_nodes_y)) ;
+    fprintf(file, "%lld,", (long long) solStats->num_nodes_total) ;
+    fprintf(file, "%lld,", (long long) solStats->num_edges_total) ;
+    fprintf(file, "%lld,", (long long) solStats->num_nodes_sep) ;
+    fprintf(file, "%lld,", (long long) labs((long long) solStats->num_nodes_x - (long long) solStats->num_nodes_y)) ;
     fprintf(file, "%.6f\n", solStats->time) ;
 
     fclose(file) ;

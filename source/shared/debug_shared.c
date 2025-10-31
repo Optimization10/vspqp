@@ -4,17 +4,17 @@
 void VSP_DumpNeighs(VSPINT i, VSPINT *Ai, VSPINT *Ap)
 {
     FILE *file = fopen("output/dump.txt", "a") ;
-    fprintf(file, "\nNeighbors of %i:\n", i) ;
+    fprintf(file, "\nNeighbors of %lld:\n", (long long) i) ;
     for(VSPINT p = Ap[i] ; p < Ap[i+1] ; p++)
     {
         VSPINT neigh = Ai[p] ;
         if(p != Ap[i+1] -1)
         {
-            fprintf(file, "%i,  ", neigh) ;
+            fprintf(file, "%lld,  ", (long long) neigh) ;
         }
         else
         {
-            fprintf(file, "%i", neigh) ;
+            fprintf(file, "%lld", (long long) neigh) ;
         }
 
     }
@@ -735,8 +735,8 @@ void VSP_check_permutation (
     }
 
     /* Sort the copies */
-    qsort(arr_1_copy, n, sizeof(int), VSP_comparison_increasing) ;
-    qsort(arr_2_copy, n, sizeof(int), VSP_comparison_increasing) ;
+    qsort(arr_1_copy, n, sizeof(*arr_1), VSP_comparison_increasing) ;
+    qsort(arr_2_copy, n, sizeof(*arr_2), VSP_comparison_increasing) ;
 
     VSPINT arrays_are_equal = TRUE ;
     for (i = 0 ; i < n ; i++) {

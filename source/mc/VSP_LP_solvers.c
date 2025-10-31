@@ -399,10 +399,6 @@ VSPFLOAT VSP_LP_solver_4
         }
     }
 
-    // VSPINT fin_things_sorted = n_L2 ;
-    // printf("Things sorted: %i\n\n\n", ini_things_sorted - fin_things_sorted) ;
-
-
     Z->weight = u ;
     free(L2) ;
 

@@ -92,7 +92,7 @@ void VSP_dump_graph
     FILE *file = fopen(path, "w") ;
 
     /* Write n and nz */
-    fprintf(file, "n: %i\nnz: %i\n", n, nz / 2) ;
+    fprintf(file, "n: %lld\nnz: %lld\n", (long long) n, (long long) nz / 2) ;
 
     /* Write the cost values */
     fprintf(file, "\nCosts:") ;
@@ -100,11 +100,11 @@ void VSP_dump_graph
     {
         if(i + 1 < 10)
         {
-            fprintf(file, "\nc(%i):  %i", i + 1, c[i]) ;
+            fprintf(file, "\nc(%lld):  %lld", (long long) i + 1, (long long) c[i]) ;
         }
         else
         {
-            fprintf(file, "\nc(%i): %i", i + 1, c[i]) ;
+            fprintf(file, "\nc(%lld): %lld", (long long) i + 1, (long long) c[i]) ;
         }
     }
 
@@ -120,11 +120,11 @@ void VSP_dump_graph
             {
                 if(col + 1 < 10)
                 {
-                    fprintf(file, "\n%i   %i", col + 1, row + 1) ;
+                    fprintf(file, "\n%lld   %lld", (long long) col + 1, (long long) row + 1) ;
                 }
                 else
                 {
-                    fprintf(file, "\n%i  %i", col + 1, row + 1) ;
+                    fprintf(file, "\n%lld  %lld", (long long) col + 1, (long long) row + 1) ;
                 }
             }
 
@@ -145,7 +145,7 @@ void VSP_dump_graph
     {
         if(x[i])
         {
-            fprintf(file, "\n%i", i + 1) ;
+            fprintf(file, "\n%lld", (long long) i + 1) ;
         }
     }
 
@@ -156,7 +156,7 @@ void VSP_dump_graph
     {
         if(y[i])
         {
-            fprintf(file, "\n%i", i + 1) ;
+            fprintf(file, "\n%lld", (long long) i + 1) ;
         }
     }
 
@@ -212,13 +212,13 @@ void VSP_create_dot_ovi_file
 
     /* 2a. Write n and nz */
     FILE *file = fopen(file_name, "w") ;
-    fprintf(file, "n: %i    nz: %i", n, nz) ;
+    fprintf(file, "n: %lld    nz: %lld", (long long) n, (long long) nz) ;
 
     /* 2b. Write Ap */
     fprintf(file, "\nAp:") ;
     for(i = 0 ; i <= n ; i++)
     {
-        fprintf(file, "\n%i", Ap[i]) ;
+        fprintf(file, "\n%lld", (long long) Ap[i]) ;
     }
 
     /* 2c. Write Ai */
@@ -227,7 +227,7 @@ void VSP_create_dot_ovi_file
     fprintf(file, "\nAi:") ;
     for(i = 0 ; i < nz ; i++)
     {
-        fprintf(file, "\n%i", Ai[i]) ;
+        fprintf(file, "\n%lld", (long long) Ai[i]) ;
     }
     fprintf(file, "\n") ;
 

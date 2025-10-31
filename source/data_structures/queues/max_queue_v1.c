@@ -432,7 +432,7 @@ void Max_Queue_Print_Node_v1
     fprintf(file, "+") ;
 
     // Print middle row of box
-    fprintf(file, "\n|  node: %i  vtx: %i  ci: %i  |\n", node, vtx, ci) ;
+    fprintf(file, "\n|  node: %lld  vtx: %lld  ci: %lld  |\n", (long long) node, (long long) vtx, (long long) ci) ;
 
     //Print bottom row of box
     fprintf(file, "+") ;
