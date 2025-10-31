@@ -1,5 +1,6 @@
 #include "shared_api.h"
 #include "shared_functions.h"
+#include "shared_globals.h"
 #include "shared_macros.h"
 #include "shared_types.h"
 #include "coarsen_internal.h"
@@ -291,6 +292,8 @@ void Graph_Simple_Match
     VSP_options          *options
 )
 {
+    TIMER_START ;
+
     SET_FUNCTION_COUNTER ;
 
     VSPINT i, j, k, v, q, j_ew, k_ew, ck, cj, ci_coarse ;
@@ -397,6 +400,9 @@ void Graph_Simple_Match
     // Brotherly matching with pivots
     /*------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------*/
+
+    clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
+
     VSPINT node_pivot, ew_pivot, neigh, ew ;
     VSPINT perfect, light, lightest, c_lightest ;
     for(k = 0; k < n; k++)
@@ -740,6 +746,11 @@ void Graph_Simple_Match
             *cn
         ) ;
     #endif
+
+    TIMER_END ;
+    PERFORMANCE_UPDATE_TIME(Matching) ;
+
+    return ;
 }
 
 // Can handle states where not all vertices are matched yet

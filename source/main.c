@@ -1,4 +1,5 @@
 #include "main.h"
+#include "shared_globals.h"
 #include "shared_types.h"
 // #include <cstdlib>
 #include "time.h"
@@ -203,6 +204,8 @@ int main(int argc, char** argv)
     printf("HEM time: %Lf\n", G_HEM_TIME) ;
     printf("BM time: %Lf\n", G_BM_TIME) ;
     printf("Coarsen time: %Lf\n", G_COARSEN_TIME) ;
+
+    printf("Matching time: %Lf\n", G_Performance_Struct.Matching_Seconds) ;
 
     VSP_Print_Performance() ;
 

@@ -709,7 +709,7 @@ static bool Stop_Coarsening(VSP_problem *P, VSP_options *options)
         // Check if child problem is complete
         if( VSP_equal(cnz / cn, cn - 1) ) stop = true ;
     }
-    else 
+    else
     {
         VSPINT  cn  = P->child_problem->Graph->n ;
         VSPLONG cnz = P->child_problem->Graph->nz ;
@@ -736,6 +736,8 @@ VSP_problem *Problem_Recursive_Coarsen
 
     // After the loop, P will be the coarsest problem
     VSPINT l = 0 ; // Invariant: l = # of coarsenings
+
+
     while( 1 )
     {
         // Match P

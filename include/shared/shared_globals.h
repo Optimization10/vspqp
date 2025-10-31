@@ -24,6 +24,9 @@
 
         long double Relaxed_To_VSP_Seconds ;
         long long unsigned Relaxed_To_VSP_Count ;
+
+        long double Matching_Seconds ;
+        long long unsigned Matching_Count ;
     } VSP_Performance ;
 
     extern VSP_Performance G_Performance_Struct ;
