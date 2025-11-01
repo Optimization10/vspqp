@@ -185,7 +185,7 @@ void VSP_mat_vec_mult
     const VSPINT *const    z,
     VSPINT       *const   Az,
     const VSPINT *const   Ai,
-    const VSPINT *const   Ap,
+    const VSPLONG *const   Ap,
     const VSPINT           n
 )
 {

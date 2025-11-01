@@ -312,7 +312,7 @@ VSP_Graph* Graph_Coarsen
         for (k = 0 ; k < n_coarse ; k++) {
             end = Ap_coarse [k + 1] ;
 
-            for (VSPINT p = Ap_coarse [k] ; p < end ; p++ ) {
+            for (VSPLONG p = Ap_coarse [k] ; p < end ; p++ ) {
 
                 /* There is an edge between k and i. Get the preimages
                    of k and i, i.e. the vertices in fine graph corresponding to

@@ -353,7 +353,7 @@ void VSP_check_arrays_are_equal
 VSPINT VSP_check_matrix
 (
     VSPINT* Ai,
-    VSPINT* Ap,
+    VSPLONG* Ap,
     VSPINT* Ae,
     VSPLONG nz,
     VSPINT n,
@@ -629,7 +629,7 @@ VSPINT VSP_check_problem
 
     /* Unpack problem */
     VSPINT* Ai = problem->Graph->Ai ;
-    VSPINT* Ap = problem->Graph->Ap ;
+    VSPLONG* Ap = problem->Graph->Ap ;
     VSPINT* Ae = problem->Graph->Ae ;
     VSPINT* c = problem->Graph->c ;
 

@@ -89,7 +89,7 @@ void Check_Az_Int
     const VSPINT *const  z,
     const VSPINT *const Az,
     const VSPINT *const Ai,
-    const VSPINT *const Ap,
+    const VSPLONG *const Ap,
     const VSPINT         n
 )
 {

@@ -202,7 +202,7 @@ void Heavy_Edge_Matching(VSP_problem* problem, VSP_options* options)
     /* Graph data */
     VSPINT n   = problem->Graph->n;
     VSPINT* Ai = problem->Graph->Ai;
-    VSPINT* Ap = problem->Graph->Ap;
+    VSPLONG* Ap = problem->Graph->Ap;
     const VSPINT isoriginal = Is_Finest_Problem(problem);
 
     /* Matching data*/

@@ -40,7 +40,7 @@ VSPINT VSP_get_edge_weight
 ) ;
 
 
-VSPINT* VSP_get_neighbors(VSPINT v, VSPINT* Ap, VSPINT* Ai) ;
+VSPINT* VSP_get_neighbors(VSPINT v, VSPLONG* Ap, VSPINT* Ai) ;
 
 VSPINT* VSP_get_preimage_of_vertex
 (
@@ -78,7 +78,7 @@ VSPINT VSP_check_for_edge_between_arrays_of_vertices
 VSPINT VSP_check_matrix
 (
     VSPINT* Ai,
-    VSPINT* Ap,
+    VSPLONG* Ap,
     VSPINT* Ae,
     VSPLONG nz,
     VSPINT n,
