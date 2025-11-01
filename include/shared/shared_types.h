@@ -5,11 +5,11 @@
 
 typedef struct Stopwatches Stopwatches ;
 
-// typedef int VSPINT ;
-// typedef int VSPLONG ;
+typedef int VSPINT ;
+typedef int VSPLONG ;
 
-typedef long long VSPINT ;
-typedef long long VSPLONG ;
+// typedef long long VSPINT ;
+// typedef long long VSPLONG ;
 
 typedef double VSPFLOAT ;
 

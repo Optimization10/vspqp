@@ -1,4 +1,5 @@
 #include "ds_api.h"
+#include "shared_functions.h"
 
 IdxGroupsByC *IdxGroupsByC_Init
 (
@@ -20,12 +21,12 @@ IdxGroupsByC *IdxGroupsByC_Init
     if(first_time)
     {
         fp = fopen("output/mem.csv", "w") ;
-        fprintf(fp, "name,n,nz,level,ints_alloc,n_current,ints_over_n,gb_allocated\n") ;
+        fprintf(fp, "name,n_curr,nz_curr,n_finest,nz_finest,level,ints_alloc,ints_over_n_finest,gb_allocated\n") ;
     }        
     else           fp = fopen("output/mem.csv", "a") ;
     first_time = false ;
 
-    long long mem_used = 0 ;
+    long long ints_alloc = 0 ;
 
     SET_FUNCTION_COUNTER ;
     IdxGroupsByC *Groups = malloc( sizeof(*Groups) ) ;
@@ -53,19 +54,19 @@ IdxGroupsByC *IdxGroupsByC_Init
         #endif
     }
     // Approximate memory used for heap
-    mem_used += 2*(gamma + 1) ;
+    ints_alloc += 2*(gamma + 1) ;
     
 
     Groups->groups = malloc( (gamma + 1) * sizeof( VSPINT* ) ) ;
     Groups->sizes  = calloc( (gamma + 1), sizeof(VSPINT) ) ;
-    mem_used += 2*(gamma + 1) ;
+    ints_alloc += 2*(gamma + 1) ;
 
     for(VSPINT cval = 0 ; cval <= gamma ; cval++)
     {
         if(maxGroupSizes[cval])
         {
             Groups->groups[cval] = malloc( maxGroupSizes[cval] * sizeof(VSPINT) ) ;
-            mem_used += maxGroupSizes[cval] ;
+            ints_alloc += maxGroupSizes[cval] ;
         }
         else
         {
@@ -74,7 +75,7 @@ IdxGroupsByC *IdxGroupsByC_Init
     }
 
     Groups->ptrs = malloc( nvtx * sizeof(VSPINT) ) ;
-    mem_used += nvtx ;
+    ints_alloc += nvtx ;
 
     for(VSPINT i = 0 ; i < nvtx ; i++)
     {
@@ -83,7 +84,20 @@ IdxGroupsByC *IdxGroupsByC_Init
     Groups->c         = c ;
     Groups->gamma     = gamma ;
 
-    fprintf(fp, "%lld,%lld,%f,%f\n", mem_used, nvtx, (double) mem_used/nvtx, (mem_used * sizeof(VSPINT)) / 1e9  ) ;
+    // fprintf(fp, "name,n_curr,nz_curr,n_finest,nz_finest,level,ints_alloc,ints_over_n_finest,gb_allocated\n") ;
+    fprintf
+    (
+        fp, "%s,%lld,%lld,%lld,%lld,%lld,%lld,%f,%f\n",
+        G_P->name,
+        (long long) G_P->Graph->n,
+        (long long) G_P->Graph->nz,
+        (long long) Problem_Get_N_Finest(G_P),
+        (long long) Problem_Get_NZ_Finest(G_P),
+        (long long) G_P->level,
+        (long long) ints_alloc,
+        (double) ints_alloc / Problem_Get_N_Finest(G_P),
+        (double) ints_alloc * sizeof(VSPINT) / 1e9
+    ) ;
     fflush(stdout) ;
     fclose(fp) ;
     return Groups ;

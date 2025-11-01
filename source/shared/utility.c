@@ -1210,7 +1210,7 @@ bool Is_Singleton
     return (Ap[i+1] - Ap[i] == 0) ;
 }
 
-VSPINT Problem_Get_N_Finest(VSP_problem *P)
+VSPINT Problem_Get_N_Finest(const VSP_problem *P)
 {
     if(P == NULL) return 0 ;
 
@@ -1221,7 +1221,7 @@ VSPINT Problem_Get_N_Finest(VSP_problem *P)
     return P->Graph->n ;
 }
 
-VSPLONG Problem_Get_NZ_Finest(VSP_problem *P)
+VSPLONG Problem_Get_NZ_Finest(const VSP_problem *P)
 {
     if(P == NULL) return 0 ;
 
