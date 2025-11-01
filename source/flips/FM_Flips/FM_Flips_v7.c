@@ -471,8 +471,8 @@ static void Do_Flip
     dir = DIR_FLIP(zi),
     Awi = Ts[var][zi],
     *c  = problem->Graph->c,
-    *Ai = problem->Graph->Ai,
-    *Ap = problem->Graph->Ap ;
+    *Ai = problem->Graph->Ai ;
+    VSPLONG *Ap = problem->Graph->Ap ;
 
     Doubly_LLs_Sized *lists ;
 
