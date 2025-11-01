@@ -95,7 +95,7 @@ void Check_Az_Int
 {
     DBG_FN_BOILERPLATE ;
     VSP_ASSERT(n > 0) ;
-    VSPINT *AzDbg = malloc(n * sizeof(VSPINT)) ;
+    VSPINT *AzDbg = malloc(n * sizeof(*AzDbg)) ;
     VSP_mat_vec_mult(z, AzDbg, Ai, Ap, n) ;
     VSP_check_arrays_are_equal(Az, AzDbg, n) ;
     free(AzDbg) ;

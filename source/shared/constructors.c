@@ -199,9 +199,9 @@ VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz)
     Graph->n         = n  ;
     Graph->nz        = nz ;
 
-    Graph->Ae        = malloc(  nz     * sizeof(VSPLONG) ) ;
-    Graph->Ai        = malloc(  nz     * sizeof(VSPLONG) ) ;
-    Graph->Ap        = malloc( (n + 1) * sizeof(VSPINT)  ) ;
+    Graph->Ae        = malloc(  nz     * sizeof(VSPINT) ) ;
+    Graph->Ai        = malloc(  nz     * sizeof(VSPINT) ) ;
+    Graph->Ap        = malloc( (n + 1) * sizeof(VSPLONG)  ) ;
 
     Graph->c         = malloc(  n      * sizeof(VSPINT)  ) ;
     return Graph ;

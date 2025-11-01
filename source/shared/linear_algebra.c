@@ -189,8 +189,8 @@ void VSP_mat_vec_mult
     const VSPINT           n
 )
 {
-    VSPINT col = 0 ;
-    VSPINT i ;
+    VSPINT i, col = 0 ;
+    VSPLONG p ;
     VSPLONG start, end ;
 
     /* Initialize Az to all 0's */
@@ -202,7 +202,7 @@ void VSP_mat_vec_mult
         {
             start = Ap[col] ;
             end   = Ap[col + 1] ;
-            for (i = start ; i < end ; i++) Az[ Ai[i] ] ++ ;
+            for (p = start ; p < end ; p++) Az[ Ai[p] ] ++ ;
             /* Take identity into account */
             Az[col] ++ ;
         }
@@ -772,8 +772,8 @@ void VSP_ComputeGradFlt
     VSPINT        n
 )
 {
-    VSPINT col = 0 ;
-    VSPINT i ;
+    VSPINT i, col = 0 ;
+    VSPLONG p ;
     VSPLONG start, end ;
 
     /* Initialize Az to all 0's */
@@ -786,7 +786,7 @@ void VSP_ComputeGradFlt
         {
             start = Ap[col] ;
             end   = Ap[col + 1] ;
-            for (i = start ; i < end ; i++) grad[ Ai[i] ] -= (gamma * z[col]) ;
+            for (p = start ; p < end ; p++) grad[ Ai[p] ] -= (gamma * z[col]) ;
             /* Take identity into account */
             grad[col] += (gamma * z[col]) ;
         }
