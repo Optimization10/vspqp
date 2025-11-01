@@ -93,7 +93,7 @@ VSP_problem *Read_Dot_Ovi_File
 
     // Construct problem
     VSP_problem *problem = VSP_construct_problem( (VSPINT) n_ovi_long, (VSPLONG) nz_ovi_long, options) ;
-    VSPINT *apNumbers = problem->Graph->Ap ;
+    VSPLONG *apNumbers = problem->Graph->Ap ;
     VSPINT *aiNumbers = problem->Graph->Ai ;
 
 
@@ -110,11 +110,11 @@ VSP_problem *Read_Dot_Ovi_File
     }
 
     /* Read Ai numbers */
-    VSPINT ai_count = 0;
+    VSPLONG ai_count = 0;
     while (fgets(line, sizeof(line), filein)) {
-        VSPINT number;
-        if (sscanf(line, "%d", &number) == 1) {
-            aiNumbers[ai_count++] = number;
+        long long number;
+        if (sscanf(line, "%lld", &number) == 1) {
+            aiNumbers[ai_count++] = (VSPINT) number;
         }
     }
 

@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     unsigned int seed ;
 
     // seed = (unsigned VSPINT) time(NULL) ;
-    seed = 1 ;
+    seed = 2 ;
 
     srand(seed) ;
     SaveRndSeed(seed) ;

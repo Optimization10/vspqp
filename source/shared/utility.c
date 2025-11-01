@@ -867,7 +867,7 @@ void DumpPoints(VSP_point *x, VSP_point *y, char *outName)
         // y
         if(i == y->ind_frac)
         {
-            fprintf(file, "%f", (long long) y->val_frac) ; 
+            fprintf(file, "%f", y->val_frac) ; 
         }
         else
         {
