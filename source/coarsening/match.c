@@ -394,7 +394,7 @@ void VSP_matching_cleanup(VSP_problem* problem, VSP_options* options)
 
     VSPINT k, ismatched, degree, singleton, p;
     VSPINT n = problem->Graph->n;
-    VSPINT* Ap = problem->Graph->Ap;
+    VSPLONG* Ap = problem->Graph->Ap;
     VSPINT* matching = problem->matching;
 
     /* Match unmatched vertices to themselves */
