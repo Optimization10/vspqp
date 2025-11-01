@@ -341,7 +341,8 @@ VSP_problem* VSP_transpose(
 
     /* Prepare the transpose matrix T */
     VSP_problem* T = VSP_construct_problem(n, nz, options) ;
-    VSPINT *Ti = T->Graph->Ai , *Tp = T->Graph->Ap, *Te = T->Graph->Ae ;
+    VSPINT *Ti = T->Graph->Ai , *Te = T->Graph->Ae ;
+    VSPLONG *Tp = T->Graph->Ap ;
 
     /* Count the number of nonzeros in each row */
     for (i = 0 ; i < nz ; i++) {

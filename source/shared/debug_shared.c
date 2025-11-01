@@ -476,7 +476,8 @@ void VSP_check_matrix_is_symmetric
 ) {
     /* Get the transpose */
     VSP_problem* T = VSP_transpose(Ai, Ap, Ae, nz, n, options) ;
-    VSPINT *Ti = T->Graph->Ai, *Tp = T->Graph->Ap, *Te = T->Graph->Ae ;
+    VSPINT *Ti = T->Graph->Ai, *Te = T->Graph->Ae ;
+    VSPLONG *Tp = T->Graph->Ap ;
 
     /* Check that the number of 1's in each column is the same in A and T */
     VSP_check_arrays_are_equal(Ap, Tp, n+1) ;
