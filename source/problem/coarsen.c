@@ -155,7 +155,7 @@ VSP_Graph* Graph_Coarsen
             vertexCost += c_fine[vertex];
              
 
-            for (VSPINT p = Ap_fine[vertex]; p < Ap_fine[vertex + 1]; p++)
+            for (VSPLONG p = Ap_fine[vertex]; p < Ap_fine[vertex + 1]; p++)
             {
                 /* Inside of this double for loop, we are figuring out what
                    the neighbors of k in the coarse graph are. We do this by
