@@ -115,9 +115,9 @@ void MovesImprovingCost
     numNeutralMoves = 0,
     n = problem->Graph->n,
     *c = problem->Graph->c,
-    *Ap = problem->Graph->Ap,
     *Ai = problem->Graph->Ai,
     nflips = 0 ; // nflips accurate at beginning of loop
+    VSPLONG *Ap = problem->Graph->Ap ;
 
 
     while( 1 )
