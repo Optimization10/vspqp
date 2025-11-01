@@ -81,7 +81,7 @@ VSP_Graph* Graph_Coarsen
 
     #endif
 
-    VSPINT *Ap_fine = GraphFine->Ap;
+    VSPLONG *Ap_fine = GraphFine->Ap;
     VSPINT *Ai_fine = GraphFine->Ai;
     VSPINT *Ae_fine = GraphFine->Ae;
     VSPINT *c_fine  = GraphFine->c;
@@ -96,7 +96,7 @@ VSP_Graph* Graph_Coarsen
     // VSP_problem* problem_coarse = VSP_construct_problem(n_coarse, GraphFine->nz, options) ;
     VSP_Graph *Graph_Coarse = Construct_Graph(n_coarse, GraphFine->nz) ;
 
-    VSPINT *Ap_coarse = Graph_Coarse->Ap;
+    VSPLONG *Ap_coarse = Graph_Coarse->Ap;
     VSPINT *Ai_coarse = Graph_Coarse->Ai;
     VSPINT *Ae_coarse = Graph_Coarse->Ae;
     VSPINT *c_coarse  = Graph_Coarse->c;

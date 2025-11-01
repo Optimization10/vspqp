@@ -774,7 +774,7 @@ void FlipsCtx_Apply_Flip
     VSPINT *Aw = FC->Avars[otherVar];
     VSPINT *c = problem->Graph->c;
     VSPINT *Ai = problem->Graph->Ai;
-    VSPINT *Ap = problem->Graph->Ap;
+    VSPLONG *Ap = problem->Graph->Ap;
 
     zi = z[i];
     VSPINT dir = DIR_FLIP(zi);

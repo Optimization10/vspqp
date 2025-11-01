@@ -105,7 +105,7 @@ void Upflip
     VSPINT gamma = problem->Graph->max_vtx_cost ;
     VSPINT *c = problem->Graph->c ;
     VSPINT *Ai   = problem->Graph->Ai ;
-    VSPINT *Ap   = problem->Graph->Ap ;
+    VSPLONG *Ap   = problem->Graph->Ap ;
     VSPINT i, k, p, Azk, start, end ;
 
     #ifdef VSP_DEBUG
@@ -278,7 +278,7 @@ void Downflip
     VSPINT gamma = problem->Graph->max_vtx_cost ;
     VSPINT *c = problem->Graph->c ;
     VSPINT *Ai   = problem->Graph->Ai ;
-    VSPINT *Ap   = problem->Graph->Ap ;
+    VSPLONG *Ap   = problem->Graph->Ap ;
     VSPINT i, k, p, Azk, start, end ;
 
     #ifdef VSP_DEBUG

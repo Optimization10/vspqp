@@ -356,7 +356,7 @@ void FM_Metis
     VSPINT  n  = problem->Graph->n ;
     VSPINT *c  = problem->Graph->c ;
     VSPINT *Ai = problem->Graph->Ai ;
-    VSPINT *Ap = problem->Graph->Ap ;
+    VSPLONG *Ap = problem->Graph->Ap ;
 
     /* Initialize swaps array */
     VSPINT *swaps = malloc( n * sizeof(*swaps) ) ;

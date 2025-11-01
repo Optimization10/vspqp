@@ -138,7 +138,7 @@ void Check_Weight
 
 void Print_Neighs
 (
-    VSPINT vtx, VSPINT *Ai, VSPINT *Ap
+    VSPINT vtx, VSPINT *Ai, VSPLONG *Ap
 )
 {
     FILE *file = fopen("Log_Dbg.txt", "a") ;

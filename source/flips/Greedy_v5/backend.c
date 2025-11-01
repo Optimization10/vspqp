@@ -105,7 +105,7 @@ void Upflip_v5
     VSPINT gamma = problem->Graph->max_vtx_cost ;
     VSPINT *c = problem->Graph->c ;
     VSPINT *Ai   = problem->Graph->Ai ;
-    VSPINT *Ap   = problem->Graph->Ap ;
+    VSPLONG *Ap   = problem->Graph->Ap ;
     VSPINT i, k, p, Azk, start, end ;
 
     #ifdef VSP_DEBUG
@@ -279,7 +279,7 @@ void Downflip_v5
     VSPINT gamma = problem->Graph->max_vtx_cost ;
     VSPINT *c = problem->Graph->c ;
     VSPINT *Ai   = problem->Graph->Ai ;
-    VSPINT *Ap   = problem->Graph->Ap ;
+    VSPLONG *Ap   = problem->Graph->Ap ;
     VSPINT i, k, p, Azk, start, end ;
 
     #ifdef VSP_DEBUG
@@ -1191,7 +1191,7 @@ void Flips_v5_UnitTest
     VSPINT i, ci, p, k ;
     VSPINT n = problem->Graph->n ;
     VSPINT *Ai = problem->Graph->Ai ;
-    VSPINT *Ap = problem->Graph->Ap ;
+    VSPLONG *Ap = problem->Graph->Ap ;
     VSPINT u = problem->u ;
     VSPINT *c = problem->Graph->c ;
 

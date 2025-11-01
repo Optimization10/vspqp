@@ -121,7 +121,7 @@ void FM_Flips_Struct_Check_v2
     if(check_Az)
     {
         VSPINT *Ai = data->Ai ;
-        VSPINT *Ap = data->Ap ;
+        VSPLONG *Ap = data->Ap ;
         VSPINT *Az_true = malloc(n * sizeof(VSPINT)) ;
         for(i = 0; i < n; i++) Az_true[i] = 0 ;
 

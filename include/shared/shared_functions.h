@@ -60,7 +60,7 @@ VSPINT Are_Neighbors
 
 void VSP_ResetDumpFile() ;
 
-void VSP_PrintNeighs(VSPINT i, VSPINT *Ai, VSPINT *Ap) ;
+void VSP_PrintNeighs(VSPINT i, VSPINT *Ai, VSPLONG *Ap) ;
 
 VSPINT VSP_count_nzs(VSPINT *array, VSPINT n) ;
 
@@ -573,7 +573,7 @@ void Check_Weight
 
 void Print_Neighs
 (
-    VSPINT vtx, VSPINT *Ai, VSPINT *Ap
+    VSPINT vtx, VSPINT *Ai, VSPLONG *Ap
 ) ;
 
 

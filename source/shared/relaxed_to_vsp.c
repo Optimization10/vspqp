@@ -137,7 +137,7 @@ void VSP_relaxed_to_vertex_separator
             // printf("\nEntered terrible situation") ;
             // printf("\nGraph name: %s \n", problem->name) ;
             // fflush(stdout) ;
-            VSPINT *Ap = problem->Graph->Ap ;
+            VSPLONG *Ap = problem->Graph->Ap ;
             VSPINT *Ai = problem->Graph->Ai ;
             VSPINT k, p ;
             bool complete_graph = true ;

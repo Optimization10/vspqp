@@ -80,7 +80,7 @@ void VSP_dump_graph
     VSPINT col, row, i, p ;
     /* Unpack graph */
     VSPINT *Ai = problem->Graph->Ai ;
-    VSPINT *Ap = problem->Graph->Ap ;
+    VSPLONG *Ap = problem->Graph->Ap ;
     VSPINT  *c = problem->Graph->c ;
     VSPINT  n  = problem->Graph->n  ;
     VSPINT  nz = problem->Graph->nz ;
@@ -206,7 +206,7 @@ void VSP_create_dot_ovi_file
 
     /* 2. Write the problem to a file */
     VSPINT *Ai = problem->Graph->Ai ;
-    VSPINT *Ap = problem->Graph->Ap ;
+    VSPLONG *Ap = problem->Graph->Ap ;
     VSPINT  n  = problem->Graph->n  ;
     VSPINT  nz = problem->Graph->nz ;
 

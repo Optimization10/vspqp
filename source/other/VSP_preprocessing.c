@@ -98,7 +98,7 @@ void    VSP_preprocess_finest_problem
 
     /* Compute the maximum degree */
     VSPINT maxDeg = 0 ;
-    VSPINT *Ap    = problem->Graph->Ap ;
+    VSPLONG *Ap    = problem->Graph->Ap ;
     for(node = 0 ; node < num_nodes ; node++)
     {
         if( Ap[node + 1] - Ap[node] > maxDeg )

@@ -457,7 +457,7 @@ void VSP_resolve_frac_entry
         /* Round up */
         if(Z->weight + (1 - val_frac) * c[k] <= problem->u)
         {
-            VSPINT *Ap = problem->Graph->Ap ;
+            VSPLONG *Ap = problem->Graph->Ap ;
             VSPINT *Ai = problem->Graph->Ai ;
 
             Z->point->int_part[k] = 1 ;

@@ -270,7 +270,7 @@ void VSP_Az_pm_col_of_A (
     VSP_problem   *problem
 ) {
     VSPINT *Ai = problem->Graph->Ai ;
-    VSPINT *Ap = problem->Graph->Ap ;
+    VSPLONG *Ap = problem->Graph->Ap ;
     VSPINT const end = Ap [i+1] ;
     for(VSPINT p = Ap[i] ; p < end ; p++)
     {

@@ -1,7 +1,7 @@
 #include "shared_api.h"
 #include "limits.h"
 
-void VSP_DumpNeighs(VSPINT i, VSPINT *Ai, VSPINT *Ap)
+void VSP_DumpNeighs(VSPINT i, VSPINT *Ai, VSPLONG *Ap)
 {
     FILE *file = fopen("output/dump.txt", "a") ;
     fprintf(file, "\nNeighbors of %lld:\n", (long long) i) ;
