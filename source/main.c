@@ -46,8 +46,8 @@ int main(int argc, char** argv)
     VSP_reset_output_files() ;
     unsigned int seed ;
 
-    // seed = (unsigned int) time(NULL) ;
-    seed = 1 ;
+    // seed = (unsigned VSPINT) time(NULL) ;
+    seed = 2 ;
 
     srand(seed) ;
     SaveRndSeed(seed) ;

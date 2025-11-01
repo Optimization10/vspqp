@@ -91,7 +91,7 @@ void FlipsCtx_Set_Wgt
 
 void FlipsCtx_Initialize_Lists_And_Ts(FlipsCtx *FC) ;
 
-int FlipsCtx_GetFlipDir
+VSPINT FlipsCtx_GetFlipDir
 (
     FlipsCtx    *FC,
     Flip      *flip

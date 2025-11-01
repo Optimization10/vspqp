@@ -12,7 +12,7 @@ typedef struct
     VSPINT  ind ;
     char    var ;
     VSPINT gain ;
-    int     dir ;
+    VSPINT     dir ;
 } Flip ;
 
 

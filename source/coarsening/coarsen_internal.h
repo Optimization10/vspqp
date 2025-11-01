@@ -49,7 +49,7 @@ VSPINT* VSP_get_preimage_of_vertex
     VSPINT  *invmatchmap
 ) ;
 
-int VSP_there_is_an_edge
+VSPINT VSP_there_is_an_edge
 (
     VSPINT vertex_a,
     VSPINT vertex_b,
@@ -66,7 +66,7 @@ void VSP_check_matrix_is_symmetric(
     VSP_options* options
 ) ;
 
-int VSP_check_for_edge_between_arrays_of_vertices
+VSPINT VSP_check_for_edge_between_arrays_of_vertices
 (
     VSPINT *arr1,
     VSPINT *arr2,
@@ -75,7 +75,7 @@ int VSP_check_for_edge_between_arrays_of_vertices
     VSPINT   *Ap
 ) ;
 
-int VSP_check_matrix
+VSPINT VSP_check_matrix
 (
     VSPINT* Ai,
     VSPINT* Ap,

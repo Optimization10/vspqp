@@ -13,7 +13,7 @@ typedef struct
 void PointScore_SetObj(PointScore *Score, VSPFLOAT obj) ;
 void PointScore_SetImb(PointScore *Score, VSPINT imb) ;
 
-int PointScore_Compare(PointScore *Score1, PointScore *Score2) ;
+VSPINT PointScore_Compare(PointScore *Score1, PointScore *Score2) ;
 
 void PointScore_Update
 (

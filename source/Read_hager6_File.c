@@ -126,11 +126,11 @@ VSP_problem *Read_hager6_File(char *path, VSP_options *options)
 // Does NOT prepend a path
 // Writes the next line from the list file to the provided buffer
 // If it ever reads an empty line, 
-int GetNextLine(const char* fileName, char* output, size_t outputSize)
+VSPINT GetNextLine(const char* fileName, char* output, size_t outputSize)
 {
     // Static variables to maintain state between calls
     static FILE* fp = NULL; // File pointer for reading the file
-    static int eof_reached = 0; // Flag to track EOF state
+    static VSPINT eof_reached = 0; // Flag to track EOF state
 
     // If EOF was reached previously, return 0
     if (eof_reached) return 0;
@@ -177,7 +177,7 @@ int GetNextLine(const char* fileName, char* output, size_t outputSize)
 // string in buffer B
 // Returns 1 if success, and 0 if failure (if the combined length of the strings
 // exceeds sizeBufferB)
-int Prepend
+VSPINT Prepend
 (
     const char      *bufferA,
     char            *bufferB,

@@ -231,8 +231,8 @@ void Neutral_Downflip_v5s_v5
                     if(indFlip != EMPTY)
                     {
                         char filename[150] ;
-                        snprintf(filename, sizeof(filename), "Flips_v5/problem_%s_Level_%i.csv", problem->name, problem->level) ;
-                        Log(filename, "%c, %i", z1Aw1_groups->var, indFlip) ;
+                        snprintf(filename, sizeof(filename), "Flips_v5/problem_%s_Level_%lld.csv", problem->name, (long long) problem->level) ;
+                        Log(filename, "%c, %lld", z1Aw1_groups->var, (long long) indFlip) ;
                     }
                 }
             #endif
@@ -331,8 +331,8 @@ void Neutral_Upflip_v5s_In_z_And_Downflip_v5s_In_w1Az2_v5
             {
                 char realVarFlip = (varFlip == 'z') ? z0Aw0_groups->var : w0Az0_groups->var ;
                 char filename[150] ;
-                snprintf(filename, sizeof(filename), "Flips_v5/problem_%s_Level_%i.csv", problem->name, problem->level) ;
-                Log(filename, "%c, %i", realVarFlip, indFlip) ;
+                snprintf(filename, sizeof(filename), "Flips_v5/problem_%s_Level_%lld.csv", problem->name, (long long) problem->level) ;
+                Log(filename, "%c, %lld", realVarFlip, (long long) indFlip) ;
             }
         }
         #endif

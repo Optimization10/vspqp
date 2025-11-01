@@ -797,12 +797,12 @@ typedef struct
     VSPINT *c ;    // the keys
     VSPINT  numVals ;
     VSPINT  maxNumVals ;
-    int     minOrMax ; // +1 for max heap, -1 for min heap
+    VSPINT     minOrMax ; // +1 for max heap, -1 for min heap
 } Dynamic_Heap ;
 
 Dynamic_Heap *Dynamic_Heap_Init
 (
-    VSPINT *c, VSPINT *ptrs, VSPINT maxNumVals, int minOrMax
+    VSPINT *c, VSPINT *ptrs, VSPINT maxNumVals, VSPINT minOrMax
 ) ;
 void Dynamic_Heap_Destroy(Dynamic_Heap *Heap) ;
 void Dynamic_Heap_Insert(Dynamic_Heap *Heap, VSPINT toInsert) ;

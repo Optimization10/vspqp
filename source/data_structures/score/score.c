@@ -9,9 +9,9 @@
 
 // Return 1 if score 1 is highest, return 2 if score 2 is higher, and return 0
 // if equal
-int PointScore_Compare(PointScore *Score1, PointScore *Score2)
+VSPINT PointScore_Compare(PointScore *Score1, PointScore *Score2)
 {
-    int ret ;
+    VSPINT ret ;
 
     if( VSP_equal(Score1->obj, Score2->obj) )
     {

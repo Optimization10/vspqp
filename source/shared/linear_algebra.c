@@ -266,7 +266,7 @@ void Compute_Az
 void VSP_Az_pm_col_of_A (
     VSPINT             *Az, // vector to which we add/subtract
     VSPINT               i, // column to add/subtract
-    int          operation, // 1 if add, -1 if subtract
+    VSPINT          operation, // 1 if add, -1 if subtract
     VSP_problem   *problem
 ) {
     VSPINT *Ai = problem->Graph->Ai ;
@@ -382,7 +382,7 @@ VSP_problem* VSP_transpose(
 
     #ifdef VSP_DEBUG
 
-        int error_in_transpose = FALSE ;
+        VSPINT error_in_transpose = FALSE ;
         for (i = 0 ; i < n ; i++ ) {
             if ( pointers_into_Ti [i] != Tp [i + 1] ) {
                 error_in_transpose = TRUE ;
@@ -413,7 +413,7 @@ VSP_problem* VSP_transpose(
             }
 
             /* Check the transpose matches */
-            int transpose_wrong = FALSE ;
+            VSPINT transpose_wrong = FALSE ;
             for (i = 0 ; i < n ; i++) {
                 for (j = 0 ; j < n ; j++) {
 

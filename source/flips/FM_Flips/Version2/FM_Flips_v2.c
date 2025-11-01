@@ -403,7 +403,7 @@ VSPINT SelectBestFlipRandomly
 
     VSPINT randInt = rand() % sum ;
 
-    // Find the smallest index in cummNumFlips where the random int is surpassed
+    // Find the smallest index in cummNumFlips where the random VSPINT is surpassed
     for(p = 0 ; p < 4 ; p++)
     {
         if(cummNumFlips[p] > randInt)
@@ -425,8 +425,8 @@ Flip Get_Best_Flip_Random(FM_Flips_Struct *zstruct, FM_Flips_Struct *wstruct, VS
     VSPINT wgtz = zstruct->weight, wgtw = wstruct->weight;
 
     Flip  ret;
-    int   d_obj[4], ind_flips[4] = {EMPTY, EMPTY, EMPTY, EMPTY};
-    int   best_flip = EMPTY;
+    VSPINT   d_obj[4], ind_flips[4] = {EMPTY, EMPTY, EMPTY, EMPTY};
+    VSPINT   best_flip = EMPTY;
     VSPINT best_gain = -n*gamma - gamma;
 
     // z down

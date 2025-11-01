@@ -99,28 +99,6 @@ void Optimize
     /* 2. Solve the problem using the original gamma */
     VSPFLOAT gamma = problem->Graph->max_vtx_cost ;
 
-    // {
-    //     if(problem->level <= 12)
-    //     {
-    //         printf("\nlevel: %i alpha: %i", problem->level, problem->Graph->min_vtx_cost) ;
-    //     }
-
-    //     VSPINT min  = problem->Graph->max_vtx_cost ;
-    //     VSPLONG *Ap = problem->Graph->Ap ;
-    //     VSPINT *c = problem->Graph->c ;
-    //     for(VSPINT v = 0 ; v < problem->Graph->n ; v++)
-    //     {
-    //         if( Ap[v+1] - Ap[v] && c[v] < min )
-    //         {
-    //             min = c[v] ;
-    //         }
-    //     }
-    //     if(problem->level <= 12)
-    //     {
-    //         printf("\nlevel: %i non-sing alpha: %i", problem->level, problem->Graph->min_vtx_cost) ;
-    //     }
-    // }
-
     /*--- Solve VSP ----------------------------------------------------------*/
     // 1. mountain climbing vs Flips
     LoggerStop(X, Y, problem) ;

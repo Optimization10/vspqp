@@ -15,6 +15,6 @@ void StatesMan_UpdateWorkStates(StatesMan *Man) ;
 void StatesMan_UpdateBestStates(StatesMan *Man) ;
 VSP_state *StatesMan_GetState
 (
-    StatesMan *SM, StateManStateType type, int which
+    StatesMan *SM, StateManStateType type, VSPINT which
 ) ;
 #endif

@@ -345,12 +345,12 @@ VSPINT** VSP_construct_explicit_matrix
     }
 
     /* Check that the matrix is symmetric */
-    int is_symmetric = TRUE ;
+    VSPINT is_symmetric = TRUE ;
     for (i = 0 ; i < n ; i++) {
         for (j = 0 ; j < n ; j++) {
             if ( A[i][j] != A [j][i] ) {
                 is_symmetric = FALSE ;
-                printf("\nA[%i][%i] = %i   while   A[%i][%i] = %i", i, j, A[i][j], j, i, A[j][i]) ;
+                printf("\nA[%lld][%lld] = %lld   while   A[%lld][%lld] = %lld", (long long) i, (long long) j, (long long) A[i][j], (long long) j, (long long) i, (long long) A[j][i]) ;
                 fflush(stdout) ;
             }
         }

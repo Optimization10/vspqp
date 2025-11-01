@@ -67,7 +67,7 @@ VSPINT VSP_get_edge_weight (
     #ifdef VSP_DEBUG
 
         /* Get the weight of the "reverse" edge */
-        int reverse_weight = FALSE ;
+        VSPINT reverse_weight = FALSE ;
 
         end = Ap [vertex_b + 1] ;
 
@@ -95,7 +95,7 @@ VSPINT VSP_get_edge_weight (
    { v1, v2, ..., vk, EMPTY, ..., EMPTY }
    It is okay if one, or both, are completely empty, or completely full       */
 
-int VSP_check_for_edge_between_arrays_of_vertices (
+VSPINT VSP_check_for_edge_between_arrays_of_vertices (
     VSPINT *arr1,
     VSPINT *arr2,
     VSPINT  size,
@@ -103,7 +103,7 @@ int VSP_check_for_edge_between_arrays_of_vertices (
     VSPINT   *Ap
 ) {
     VSPINT r, s, v1, v2 ;
-    int there_is_an_edge = FALSE ;
+    VSPINT there_is_an_edge = FALSE ;
 
     WARN_IF_NOT_DEBUG_MODE ;
 
@@ -129,7 +129,7 @@ int VSP_check_for_edge_between_arrays_of_vertices (
 }
 
 /* Check if there is an edge between vertex_a and vertex_b */
-int VSP_there_is_an_edge (
+VSPINT VSP_there_is_an_edge (
     VSPINT vertex_a,
     VSPINT vertex_b,
     VSPINT      *Ai,
@@ -142,7 +142,7 @@ int VSP_there_is_an_edge (
     #endif
 
     VSPINT i, p, end ;
-    int there_is_an_edge = FALSE ;
+    VSPINT there_is_an_edge = FALSE ;
 
     end = Ap [vertex_a + 1] ;
 
@@ -158,7 +158,7 @@ int VSP_there_is_an_edge (
     #ifdef VSP_DEBUG
 
         /* Check that vertex_a is among the neighbors of vertex_b */
-        int reverse_edge = FALSE ;
+        VSPINT reverse_edge = FALSE ;
 
         end = Ap [vertex_b + 1] ;
 

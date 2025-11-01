@@ -10,7 +10,7 @@ typedef struct Stopwatch
     struct timespec end ;
     bool            inProgress ;
     long double     accumTime ;
-    long long int   counter ; // Number of times the sw has been start/stopped
+    long long   counter ; // Number of times the sw has been start/stopped
 } Stopwatch ;
 
 Stopwatch *Stopwatch_Construct(char *SWname)
@@ -86,7 +86,7 @@ long double Stopwatch_GetAccumTime(Stopwatch *SW)
     return SW->accumTime;
 }
 
-long long int Stopwatch_GetCounter(Stopwatch *SW)
+long long Stopwatch_GetCounter(Stopwatch *SW)
 {
     return SW->counter;
 }

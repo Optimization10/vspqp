@@ -458,13 +458,13 @@ static void FlipsCtx_GetFlipWgts
 // Function to select a random entry based on weights
 // Returns 1 if successful, 0 if all entries are 0
 // Stores selected indices in v and col
-static int FlipsCtx_Select_Weighted_Random(int wgts[2][2], int *v, int *zi)
+static VSPINT FlipsCtx_Select_Weighted_Random(VSPINT wgts[2][2], VSPINT *v, VSPINT *zi)
 {
     // Calculate sum of all entries
-    int sum = 0 ;
-    for (int i = 0 ; i < 2 ; i++)
+    VSPINT sum = 0 ;
+    for (VSPINT i = 0 ; i < 2 ; i++)
     {
-        for (int j = 0 ; j < 2 ; j++)
+        for (VSPINT j = 0 ; j < 2 ; j++)
         {
             sum += wgts[i][j] ;
         }
@@ -477,13 +477,13 @@ static int FlipsCtx_Select_Weighted_Random(int wgts[2][2], int *v, int *zi)
     }
     
     // Generate random number between 1 and sum
-    int r = rand() % sum + 1 ;
+    VSPINT r = rand() % sum + 1 ;
     
     // Find the entry corresponding to the random number
-    int currentSum = 0 ;
-    for (int i = 0 ; i < 2 ; i++)
+    VSPINT currentSum = 0 ;
+    for (VSPINT i = 0 ; i < 2 ; i++)
     {
-        for (int j = 0 ; j < 2 ; j++)
+        for (VSPINT j = 0 ; j < 2 ; j++)
         {
             currentSum += wgts[i][j] ;
             if (r <= currentSum)
@@ -975,7 +975,7 @@ void FlipsCtx_Set_Wgt
 
 // ASSUMED: The flip is not empty
 // Return 1 for upflip, -1 for downflip
-int FlipsCtx_GetFlipDir
+VSPINT FlipsCtx_GetFlipDir
 (
     FlipsCtx    *FC,
     Flip      *flip

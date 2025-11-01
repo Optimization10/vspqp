@@ -80,8 +80,8 @@ void Match_Check
     count ++ ;
 
     VSPINT i, k0, k1, k2, k3 ;
-    int matched_to_invalid_vertex = FALSE ;
-    int wrong_matchtype = FALSE ;
+    VSPINT matched_to_invalid_vertex = FALSE ;
+    VSPINT wrong_matchtype = FALSE ;
 
 
     /* Check that matchmap composed with invmatchmap is the identiy */
@@ -530,7 +530,7 @@ void VSP_create_community_match
     #endif
 
     /* Determine if vertex A is part of a 3-way match */
-    int is3way = (vm[0] == vm[3]);
+    VSPINT is3way = (vm[0] == vm[3]);
     
     if (is3way)
     {

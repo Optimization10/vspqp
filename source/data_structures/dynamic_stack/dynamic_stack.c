@@ -9,7 +9,7 @@ struct DynamicStack
 
 DynamicStack *DynamicStack_Init()
 {
-    int maxNumObjects = 10 ;
+    VSPINT maxNumObjects = 10 ;
     DynamicStack *ret = calloc(1, sizeof(DynamicStack) ) ;
     ret->stack = calloc(maxNumObjects, sizeof(void*) ) ;
     ret->size = 0 ;

@@ -324,9 +324,9 @@ void FM_Flips_Struct_Check_v2
 
     for(i = 0 ; i < n ; i++)
     {
-        int in_L0 = (L0spread[i] == 2) ;
-        int in_L1 = (L1spread[i] == 2) ;
-        int in_lk = (locked[i]   == 1) ;
+        VSPINT in_L0 = (L0spread[i] == 2) ;
+        VSPINT in_L1 = (L1spread[i] == 2) ;
+        VSPINT in_lk = (locked[i]   == 1) ;
 
         if(in_L0 + in_L1 + in_lk != 1)
         {

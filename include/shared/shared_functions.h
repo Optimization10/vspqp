@@ -49,7 +49,7 @@ VSPINT VSP_penalty_term
     VSPINT   n
 ) ;
 
-int Are_Neighbors
+VSPINT Are_Neighbors
 (
     VSPINT vert1,
     VSPINT vert2,
@@ -156,7 +156,7 @@ void VSP_check_linear_constraint (
     VSPINT n
 ) ;
 
-int VSP_check_problem(
+VSPINT VSP_check_problem(
     VSP_problem* problem,
     VSP_options* options
 ) ;
@@ -164,7 +164,7 @@ int VSP_check_problem(
 void VSP_error( 
     char* msg,
     char* file_name,
-    int line_num,
+    VSPINT line_num,
     unsigned long long count
 ) ;
 
@@ -257,7 +257,7 @@ long double VSP_compute_elapsed_time(struct timespec start, struct timespec end)
 
 int VSP_compare_value_index_floats(const void *a, const void *b) ;
 
-int VSP_compare_val_ind_structs_inc(const void *a, const void *b) ;
+VSPINT VSP_compare_val_ind_structs_inc(const void *a, const void *b) ;
 
 
 void VSP_extract_matrix_col(
@@ -284,7 +284,7 @@ int VSP_comparison_increasing(const void *a, const void *b) ;
 
 void VSP_resolve_frac_entry(VSP_state *Z, VSP_state *W, VSP_problem *problem) ;
 
-int Is_Array_Member
+VSPINT Is_Array_Member
 (
     VSPINT candidate,
     VSPINT    *array,
@@ -375,7 +375,7 @@ void VSP_Az_pm_col_of_A
 (
     VSPINT             *Az, // vector to which we add/subtract
     VSPINT               i, // column to add/subtract
-    int          operation, // 1 if add, -1 if subtract
+    VSPINT          operation, // 1 if add, -1 if subtract
     VSP_problem   *problem
 ) ;
 

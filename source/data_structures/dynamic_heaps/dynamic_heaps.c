@@ -5,7 +5,7 @@ Dynamic_Heap *Dynamic_Heap_Init
     VSPINT                  *c,
     VSPINT               *ptrs,
     VSPINT          maxNumVals,
-    int               minOrMax  // 1 for max, -1 for min
+    VSPINT               minOrMax  // 1 for max, -1 for min
 )
 {
     SET_FUNCTION_COUNTER ;

@@ -1173,8 +1173,8 @@ void FeasibleBeneficialFlipSelector_Check
     // trueFlip struct
     // givenFlip struct
 
-    int givenFlipExists  = (givenIndFlip != EMPTY) ;
-    int trueBestExists   = (trueBestGainInd != EMPTY) ;
+    VSPINT givenFlipExists  = (givenIndFlip != EMPTY) ;
+    VSPINT trueBestExists   = (trueBestGainInd != EMPTY) ;
 
     // Either both must be true or both must be false simultaneously
     if( (givenFlipExists + trueBestExists != 0) && (givenFlipExists + trueBestExists != 2) ) 

@@ -44,7 +44,7 @@ void StatesMan_UpdateBestStates(StatesMan *Man)
 
 VSP_state *StatesMan_GetState
 (
-    StatesMan *SM, StateManStateType type, int which
+    StatesMan *SM, StateManStateType type, VSPINT which
 )
 {
     SET_FUNCTION_COUNTER ;

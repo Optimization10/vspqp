@@ -7,8 +7,8 @@
  *
  * SuiteSparse_config.h provides the definition of the long integer.  On most
  * systems, a C program can be compiled in LP64 mode, in which long's and
- * pointers are both 64-bits, and int's are 32-bits.  Windows 64, however, uses
- * the LLP64 model, in which int's and long's are 32-bits, and long long's and
+ * pointers are both 64-bits, and VSPINT's are 32-bits.  Windows 64, however, uses
+ * the LLP64 model, in which VSPINT's and long's are 32-bits, and long long's and
  * pointers are 64-bits.
  *
  * SuiteSparse packages that include long integer versions are

@@ -108,7 +108,7 @@ void VSP_Solve_With_Metis
     idx_t sepSize ;
     struct timespec start, end ;
     clock_gettime(CLOCK_REALTIME, &start);
-    UNUSED int metisExit = METIS_ComputeVertexSeparator
+    UNUSED VSPINT metisExit = METIS_ComputeVertexSeparator
                         (
                             &numVertices, adjPointers, adjIndices,
                             costVertices, options, &sepSize, partition

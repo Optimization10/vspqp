@@ -160,7 +160,7 @@ void MovesImprovingCost
                 other = 1 - to ;
                 if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
                 {
-                    // printf("\nBlocked infeasible FM move. Problem: %s  Level: %i", problem->name, problem->level) ;
+                    // printf("\nBlocked infeasible FM move. Problem: %s  Level: %lld", problem->name, (long long) problem->level) ;
                     break ;
                 }
             }
@@ -460,7 +460,7 @@ void FM_Metis
         /* mincutorder is the nswap at which the best separator is achieved */
         VSPINT mincutorder = EMPTY ;
 
-        // TODO: Careful with abs here if VSPINT is not int
+        // TODO: Careful with abs here if VSPINT is not VSPINT
         mptr[0]           = 0 ;
         nmind             = 0 ;
 
@@ -941,7 +941,7 @@ static void BND_Delete
         if (*nbnd <= 0)
         {
             char msg[ERR_MSG_LEN];
-            snprintf(msg, sizeof(msg), "Error: No nodes to delete. *nbnd = %d", *nbnd);
+            snprintf(msg, sizeof(msg), "Error: No nodes to delete. *nbnd = %lld", (long long) *nbnd);
             VSP_error(msg, DBG_INFO);
         }
 

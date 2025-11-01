@@ -371,7 +371,7 @@ VSPINT Flips_SelectBestFlipRandomly_v2
     VSPINT numFlips[4] 
 ) ;
 
-int SelectBestFlipRandomlyBiased
+VSPINT SelectBestFlipRandomlyBiased
 (
     VSPINT numFlips[4],
     VSPINT        wgtz,
@@ -382,7 +382,7 @@ void PrintFlipInfo
 (
     VSPINT    runningGain,
     Flip             flip,
-    int           dirFlip, // 1 for upflip, -1 for downflip
+    VSPINT           dirFlip, // 1 for upflip, -1 for downflip
     VSP_problem  *problem
 ) ;
 
