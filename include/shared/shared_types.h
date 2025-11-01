@@ -315,7 +315,7 @@ typedef struct VSP_problem_struct
 
     /* Coarser graph size */
     VSPINT                    cn ;
-    VSPINT                   cnz ;
+    VSPLONG                   cnz ;
 
     /* Link to parent problem. NULL if this is finest graph */
     struct VSP_problem_struct* parent_problem ;
