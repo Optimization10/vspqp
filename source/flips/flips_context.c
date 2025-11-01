@@ -814,8 +814,8 @@ void FlipsCtx_Apply_Flip
     }
 
     /* Update neighbors */
-    VSPINT start = Ap[i];
-    VSPINT end = Ap[i + 1];
+    VSPLONG start = Ap[i];
+    VSPLONG end = Ap[i + 1];
     p = start;
     j = i;
     bool iItselfFinished = false;

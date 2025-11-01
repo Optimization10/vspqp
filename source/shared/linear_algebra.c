@@ -191,7 +191,7 @@ void VSP_mat_vec_mult
 {
     VSPINT col = 0 ;
     VSPINT i ;
-    VSPINT start, end ;
+    VSPLONG start, end ;
 
     /* Initialize Az to all 0's */
     for(i = 0; i < n; i++) Az[i] = 0 ;
@@ -773,7 +773,7 @@ void VSP_ComputeGradFlt
 {
     VSPINT col = 0 ;
     VSPINT i ;
-    VSPINT start, end ;
+    VSPLONG start, end ;
 
     /* Initialize Az to all 0's */
     for(i = 0; i < n; i++) grad[i] = 0 ;

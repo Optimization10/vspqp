@@ -111,8 +111,8 @@ void FM_Flips_Struct_Check
         {
             if (z[col])
             {
-                VSPINT start = Ap[col] ;
-                VSPINT end   = Ap[col + 1] ;
+                VSPLONG start = Ap[col] ;
+                VSPLONG end   = Ap[col + 1] ;
                 for (i = start ; i < end ; i++) Az_true[ Ai[i] ] ++ ;
                 /* Take identity into account */
                 Az_true[col] ++ ;

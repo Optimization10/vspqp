@@ -494,8 +494,8 @@
 //     // Loop through j in N(i) cup (i) where wj is unlocked, and shift them one
 //     // list up or down
 //     /*------------------------------------------------------------------------*/
-//     VSPINT start = Ap[i] ;
-//     VSPINT end   = Ap[i+1] ;
+//     VSPLONG start = Ap[i] ;
+//     VSPLONG end   = Ap[i+1] ;
 //     p = start ;
 //     j = i ;
 
