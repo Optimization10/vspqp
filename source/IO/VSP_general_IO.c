@@ -77,7 +77,9 @@ void VSP_dump_graph
     static long long unsigned count = 0 ;
     count++ ;
 
-    VSPINT col, row, i, p ;
+    VSPINT col, row, i ;
+    VSPLONG p ;
+
     /* Unpack graph */
     VSPINT *Ai = problem->Graph->Ai ;
     VSPLONG *Ap = problem->Graph->Ap ;

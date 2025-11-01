@@ -335,9 +335,10 @@ VSP_problem* VSP_transpose(
         }
     #endif
 
-    VSPINT i, j, ind_row, p ;
-    VSPINT* pointers_into_Ti ;
-    VSPINT* num_nonzeros_in_row = calloc(n, sizeof(VSPINT)) ;
+    VSPINT i, j, ind_row ;
+    VSPLONG p ;
+    VSPLONG* pointers_into_Ti ;
+    VSPLONG* num_nonzeros_in_row = calloc(n, sizeof(*num_nonzeros_in_row)) ;
 
     /* Prepare the transpose matrix T */
     VSP_problem* T = VSP_construct_problem(n, nz, options) ;

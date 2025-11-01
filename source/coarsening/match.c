@@ -192,7 +192,8 @@ void Match_Check
 void Heavy_Edge_Matching(VSP_problem* problem, VSP_options* options)
 {
     /* Initialize local variables */
-    VSPINT k = 0, p = 0, weight = 0;
+    VSPINT k = 0, weight = 0;
+    VSPLONG p = 0 ;
 
     VSPINT ismatched = -1;
     VSPINT heaviestneighbor = -1;

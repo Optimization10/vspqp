@@ -139,7 +139,8 @@ void VSP_relaxed_to_vertex_separator
             // fflush(stdout) ;
             VSPLONG *Ap = problem->Graph->Ap ;
             VSPINT *Ai = problem->Graph->Ai ;
-            VSPINT k, p ;
+            VSPINT p ;
+            VSPLONG k ;
             bool complete_graph = true ;
 
             /* Iterate through all the vertices */

@@ -449,7 +449,8 @@ void VSP_resolve_frac_entry
     if(k == EMPTY) return ;
 
     VSPFLOAT val_frac = Z->point->val_frac ;
-    VSPINT         *c = problem->Graph->c, j, p ;
+    VSPINT         *c = problem->Graph->c, j ;
+    VSPLONG p ;
 
     /* Check if setting frac entry to 0 would violate lower bound */
     if(Z->weight - val_frac * c[k] < 1 - VSP_ZERO)
