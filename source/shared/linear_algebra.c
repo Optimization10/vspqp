@@ -462,13 +462,13 @@ VSP_problem* VSP_transpose(
    The array arr is also overwritten, so that for i = 0, 1, 2, ..., n-1, 
         arr[i] = partial_sums[i].
    */
-VSPINT VSP_partial_sums_of_array(
-    VSPINT          *arr,
+VSPLONG VSP_partial_sums_of_array(
+    VSPLONG          *arr,
     VSPLONG *partial_sums,
-    VSPINT             n
+    VSPINT              n
 ) {
-
-    VSPINT i, sum = 0 ;
+    VSPINT i ;
+    VSPLONG sum = 0 ;
 
     for (i = 0 ; i < n ; i++) {
         partial_sums [i] = sum ;
@@ -479,7 +479,6 @@ VSPINT VSP_partial_sums_of_array(
     partial_sums [n] = sum ;
 
     return sum ;
-
 }
 
 

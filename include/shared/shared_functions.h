@@ -105,8 +105,8 @@ void VSP_xAy
     VSPFLOAT        *xAy
 ) ;
 
-VSPINT VSP_partial_sums_of_array(
-    VSPINT          *arr,
+VSPLONG VSP_partial_sums_of_array(
+    VSPLONG          *arr,
     VSPLONG *partial_sums,
     VSPINT             n
 ) ;
