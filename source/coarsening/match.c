@@ -393,7 +393,8 @@ void VSP_matching_cleanup(VSP_problem* problem, VSP_options* options)
         count++ ;
     #endif
 
-    VSPINT k, ismatched, degree, singleton, p;
+    VSPINT k, ismatched, degree, singleton ;
+    VSPLONG p ;
     VSPINT n = problem->Graph->n;
     VSPLONG* Ap = problem->Graph->Ap;
     VSPINT* matching = problem->matching;
@@ -405,7 +406,7 @@ void VSP_matching_cleanup(VSP_problem* problem, VSP_options* options)
         ismatched = matching[k];
         if ( !(ismatched) )
         {
-            degree = Ap[k+1] - Ap[k];
+            degree = (VSPINT) (Ap[k+1] - Ap[k]) ;
             /* If k is a singleton */
             if (degree == 0)
             {
