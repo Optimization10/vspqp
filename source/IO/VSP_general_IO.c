@@ -83,7 +83,7 @@ void VSP_dump_graph
     VSPLONG *Ap = problem->Graph->Ap ;
     VSPINT  *c = problem->Graph->c ;
     VSPINT  n  = problem->Graph->n  ;
-    VSPINT  nz = problem->Graph->nz ;
+    VSPLONG nz = problem->Graph->nz ;
 
     /* Open file */
     char path[1000];
@@ -208,7 +208,7 @@ void VSP_create_dot_ovi_file
     VSPINT *Ai = problem->Graph->Ai ;
     VSPLONG *Ap = problem->Graph->Ap ;
     VSPINT  n  = problem->Graph->n  ;
-    VSPINT  nz = problem->Graph->nz ;
+    VSPLONG nz = problem->Graph->nz ;
 
     /* 2a. Write n and nz */
     FILE *file = fopen(file_name, "w") ;

@@ -11,7 +11,7 @@ VSP_problem* VSP_transpose
     VSPINT           *Ai, /* Row indices of non-zeros  */
     VSPINT           *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
-    VSPINT            nz, /* Number of rows/columns    */
+    VSPLONG nz, /* Number of rows/columns    */
     VSPINT             n, /* Number of nonzeros        */
     VSP_options* options
 ) ;
@@ -115,7 +115,7 @@ VSP_problem* VSP_transpose(
     VSPINT           *Ai, /* Row indices of non-zeros  */
     VSPINT           *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
-    VSPINT            nz, /* Number of rows/columns    */
+    VSPLONG nz, /* Number of rows/columns    */
     VSPINT             n, /* Number of nonzeros        */
     VSP_options* options
 ) ;

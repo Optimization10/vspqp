@@ -61,7 +61,7 @@ void VSP_check_matrix_is_symmetric(
     VSPINT           *Ai,
     VSPINT           *Ap,
     VSPINT           *Ae,
-    VSPINT            nz,
+    VSPLONG nz,
     VSPINT             n,
     VSP_options* options
 ) ;
