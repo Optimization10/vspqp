@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     // Matrices on ovi computer
     char matricesDir[] = "/home/ovi/data/symmetric/" ;
 
-    // Matrices dir on hager6
+    // Matrices dir on hager6 
     // char matricesDir[] = "/media/hager/datafile/symmetric/" ;
 
     // Choose between VSPQP and METIS
