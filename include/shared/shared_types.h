@@ -5,11 +5,18 @@
 
 typedef struct Stopwatches Stopwatches ;
 
-typedef int VSPINT ;
-typedef long long VSPLONG ;
-
-// typedef long long VSPINT ;
-// typedef long long VSPLONG ;
+#if VSP_INTEGERS_MODE == 0
+    typedef int VSPINT ;
+    typedef int VSPLONG ;
+#elif VSP_INTEGERS_MODE == 1
+    typedef int VSPINT ;
+    typedef long long VSPLONG ;
+#elif VSP_INTEGERS_MODE == 2
+    typedef long long VSPINT ;
+    typedef long long VSPLONG ;
+#else
+    #error "Invalid VSP_INTEGERS_MODE"
+#endif
 
 typedef double VSPFLOAT ;
 

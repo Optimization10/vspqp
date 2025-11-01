@@ -2,6 +2,11 @@
 COMPILER = gcc
 # COMPILER = clang
 
+# Mode 0 --> VSPINT = int and VSPLONG = int (default)
+# Mode 1 --> VSPINT = int and VSPLONG = long long
+# Mode 2 --> VSPINT = long long and VSPLONG = long long
+VSP_INTEGERS_MODE = 2
+
 # Measure Performance
 # 1 to enable, 0 to disable
 MEASURE_PERFORMANCE = -DMEASURE_PERFORMANCE=1
@@ -56,8 +61,9 @@ TEST_DATA =
 
 default: create_dirs
 	@echo "Compiling..." ;
-	@$(COMPILER) $(SOURCE)   -o$(VSP_EXE) $(INCLUDE) $(DBG_FLAGS) $(LIBS) $(DBG_DEFS) \
-$(COMMON_DEFINES) $(OTHER_FLAGS) -DVSP_LOG -DVSP_STATS $(IGNORE_WARNINGS) -Wl,--gc-sections
+	@$(COMPILER) $(SOURCE)   -o$(VSP_EXE) $(INCLUDE) $(DBG_FLAGS) $(LIBS) \
+	$(DBG_DEFS) $(COMMON_DEFINES) $(OTHER_FLAGS) -DVSP_LOG -DVSP_STATS \
+	$(IGNORE_WARNINGS) -DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE) -Wl,--gc-sections
 	@echo "Solving VSP..." ;
 	@$(VSP_EXE) $(DATA)
 
@@ -66,18 +72,20 @@ $(COMMON_DEFINES) $(OTHER_FLAGS) -DVSP_LOG -DVSP_STATS $(IGNORE_WARNINGS) -Wl,--
 vscode_dbg: create_dirs archive_output
 	@echo "Compiling..." ;
 	$(COMPILER) $(SOURCE)   -o$(VSP_EXE) $(INCLUDE) $(DBG_FLAGS) $(LIBS) -DVSP_DEBUG \
-$(COMMON_DEFINES) $(OTHER_FLAGS) $(IGNORE_WARNINGS)
+	$(COMMON_DEFINES) $(OTHER_FLAGS) $(IGNORE_WARNINGS) -DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
 	@echo "\n"
 
 performance: create_dirs archive_output
 	@echo "Compiling..." ;
-	@$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) $(PERF_FLAGS) $(COMMON_DEFINES) -Wno-unused-result -g3
+	@$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) $(PERF_FLAGS) \
+	-DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE) $(COMMON_DEFINES) -Wno-unused-result -g3
 	@echo "Solving VSP..." ;
 	@$(VSP_EXE) $(DATA)
 
 buildPerformance: create_dirs archive_output
 	@echo "Compiling..." ;
-	@$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) $(PERF_FLAGS) $(COMMON_DEFINES) -Wno-unused-result -g3
+	@$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) $(PERF_FLAGS) $(COMMON_DEFINES) -Wno-unused-result -g3 \
+	-DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
 	@echo "Compilation finished" ;
 
 runPerformance: create_dirs archive_output
@@ -88,7 +96,8 @@ runPerformance: create_dirs archive_output
 # Here, we may be using debugging symbols, we may enable optimzations, etc
 slower_performance: create_dirs archive_output
 	@echo "Compiling..." ;
-	@$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) -O0 $(COMMON_DEFINES) -g3
+	@$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) -O0 $(COMMON_DEFINES) -g3 \
+	-DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
 	@echo "Solving VSP..." ;
 	@$(VSP_EXE) $(DATA)
 	@echo "\n"
@@ -96,7 +105,8 @@ slower_performance: create_dirs archive_output
 valgrind: create_dirs archive_output
 	@echo "Compiling..." ;
 	$(COMPILER) $(SOURCE)   -o$(VSP_EXE) $(INCLUDE) $(DBG_FLAGS) $(LIBS)  $(DBG_DEFS) \
-		$(OTHER_FLAGS) $(IGNORE_WARNINGS) -DVSP_LOG -DVSP_STATS -DMEASURE_PERFORMANCE=1 -DVSP_DEBUG -DVSP_DEBUG_COARSENING
+		$(OTHER_FLAGS) $(IGNORE_WARNINGS) -DVSP_LOG -DVSP_STATS -DMEASURE_PERFORMANCE=1 -DVSP_DEBUG -DVSP_DEBUG_COARSENING \
+		-DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
 	@echo "\nRunning valgrind..."
 	valgrind $(VALGRIND_FLAGS) ./build/vsp $(DATA)
 
@@ -104,14 +114,14 @@ valgrindcrs: create_dirs archive_output
 	@echo "Compiling..." ;
 	$(COMPILER) $(SOURCE)   -o$(VSP_EXE) $(INCLUDE) $(DBG_FLAGS) $(LIBS) \
         $(DBG_CRSNG_DEFS) $(DBG_DEFS) \
-		$(OTHER_FLAGS)
+		$(OTHER_FLAGS) -DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
 	@echo "\nRunning valgrind..."
 	valgrind $(VALGRIND_FLAGS) ./build/vsp $(DATA)
 
 
 gprof_profile: create_dirs archive_output
 	@echo "Compiling..." ;
-	$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) -pg -g3 -O3 $(OTHER_FLAGS) $(COMMON_DEFINES)
+	$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) -pg -g3 -O3 $(OTHER_FLAGS) $(COMMON_DEFINES) -DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
 	@echo "Solving VSP..." ;
 	$(VSP_EXE) $(DATA)
 	mv gmon.out build/
@@ -121,7 +131,7 @@ gprof_profile: create_dirs archive_output
 
 perf_profile: create_dirs archive_output
 	@echo "Compiling..." ;
-	$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) -g3 -O3 $(OTHER_FLAGS) $(COMMON_DEFINES)
+	$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) -g3 -O3 $(OTHER_FLAGS) $(COMMON_DEFINES) -DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
 	@echo "Solving VSP..." ;
 	$(VSP_EXE) $(DATA)
 	sudo perf record $(VSP_EXE) $(DATA)
@@ -129,7 +139,7 @@ perf_profile: create_dirs archive_output
 
 valgrind_profile: create_dirs archive_output
 	@echo "Compiling..." ;
-	$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) -g3 -O3 $(OTHER_FLAGS) $(COMMON_DEFINES)
+	$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) -g3 -O3 $(OTHER_FLAGS) $(COMMON_DEFINES) -DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
 	@echo "Solving VSP..." ;
 	$(VSP_EXE) $(DATA)
 	valgrind --tool=callgrind $(VSP_EXE) $(DATA)
@@ -137,7 +147,7 @@ valgrind_profile: create_dirs archive_output
 test: create_dirs archive_output
 	@echo "Compiling..." ;
 	$(COMPILER) $(SOURCE)   -o$(VSP_EXE) $(INCLUDE) $(DBG_FLAGS) $(LIBS)  $(DBG_DEFS) $(COMMON_DEFINES) \
-		$(OTHER_FLAGS)
+		$(OTHER_FLAGS) -DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
 	@echo "Solving VSP..." ;
 	$(VSP_EXE) $(TEST_DATA)
 
@@ -145,14 +155,14 @@ test: create_dirs archive_output
 dbg_coarsening: create_dirs archive_output
 	@echo "Compiling..." ;
 	$(COMPILER) $(SOURCE)   -o$(VSP_EXE) $(INCLUDE) $(LIBS) $(DBG_FLAGS) $(DBG_DEFS) $(COMMON_DEFINES) \
-		$(DBG_CRSNG_DEFS) $(OTHER_FLAGS) $(IGNORE_WARNINGS)
+		$(DBG_CRSNG_DEFS) $(OTHER_FLAGS) $(IGNORE_WARNINGS) -DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
 	@echo "Solving VSP..." ;
 	$(VSP_EXE) $(DATA)
 
 
 callgrind: create_dirs archive_output
 	@echo "Compiling..." ;
-	@$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) $(PERF_FLAGS) $(COMMON_DEFINES) -fno-inline -Wno-unused-result -g3 -O0
+	@$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) $(PERF_FLAGS) $(COMMON_DEFINES) -fno-inline -Wno-unused-result -g3 -O0 -DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
 	@echo "Calling callgrind..." ;
 	@valgrind --tool=callgrind --branch-sim=yes --cache-sim=yes --callgrind-out-file=./build/callgrind.out.%p ./$(VSP_EXE) $(DATA)
 	@echo "Launching kcachegrind..." ;
