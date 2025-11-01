@@ -1318,8 +1318,8 @@ static void CheckAllFMDataNoLock
     VSPINT i, p, j, k, key,
     n = problem->Graph->n,
     *c = problem->Graph->c,
-    *Ai = problem->Graph->Ai,
-    *Ap = problem->Graph->Ap ;
+    *Ai = problem->Graph->Ai ;
+    VSPLONG *Ap = problem->Graph->Ap ;
     /*------------------------------------------------------------------------*/
     // - parition weights are correct
     // - partition is feasible
