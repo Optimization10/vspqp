@@ -41,7 +41,7 @@ VSPINT VSP_get_edge_weight (
     VSPINT      vertex_a,
     VSPINT      vertex_b,
     VSPINT           *Ai,
-    VSPINT           *Ap,
+    VSPLONG *Ap,
     VSPINT *Ae
 ) {
 
@@ -100,7 +100,7 @@ VSPINT VSP_check_for_edge_between_arrays_of_vertices (
     VSPINT *arr2,
     VSPINT  size,
     VSPINT   *Ai,
-    VSPINT   *Ap
+    VSPLONG *Ap
 ) {
     VSPINT r, s, v1, v2 ;
     VSPINT there_is_an_edge = FALSE ;
@@ -133,7 +133,7 @@ VSPINT VSP_there_is_an_edge (
     VSPINT vertex_a,
     VSPINT vertex_b,
     VSPINT      *Ai,
-    VSPINT      *Ap
+    VSPLONG *Ap
 ) {
 
     #ifdef VSP_DEBUG

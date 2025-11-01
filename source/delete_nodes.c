@@ -154,7 +154,7 @@ VSP_state *Uncompress_State
     VSPINT            *newIndex,
     VSP_state             *Zcmp,
     VSPINT               *AiOrg,
-    VSPINT               *ApOrg,
+    VSPLONG *ApOrg,
     VSPINT                 nOrg
 )
 {

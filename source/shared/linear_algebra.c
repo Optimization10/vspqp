@@ -317,7 +317,7 @@ void VSP_compute_weight(VSP_point *Z, VSPINT *weight_z, VSPINT *c) {
 
 VSP_problem* VSP_transpose(
     VSPINT           *Ai, /* Row indices of non-zeros  */
-    VSPINT           *Ap, /* Column pointers           */
+    VSPLONG *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
     VSPLONG nz, /* Number of rows/columns    */
     VSPINT             n, /* Number of nonzeros        */
@@ -581,7 +581,7 @@ VSPFLOAT VSP_compute_objective_0(
     VSPFLOAT  obj_val = 0 ;
     VSPINT    n       = problem->Graph->n ;
     VSPINT   *Ai      = problem->Graph->Ai ;
-    VSPINT   *Ap      = problem->Graph->Ap ;
+    VSPLONG *Ap      = problem->Graph->Ap ;
     VSPINT   *c       = problem->Graph->c ;
 
 
@@ -768,7 +768,7 @@ void VSP_ComputeGradFlt
     VSPFLOAT  gamma,
     VSPFLOAT     *z,
     VSPINT      *Ai,
-    VSPINT      *Ap,
+    VSPLONG *Ap,
     VSPINT        n
 )
 {

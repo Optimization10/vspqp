@@ -9,7 +9,7 @@ void Print_Num_Flips(VSP_problem *P) ;
 VSP_problem* VSP_transpose
 (
     VSPINT           *Ai, /* Row indices of non-zeros  */
-    VSPINT           *Ap, /* Column pointers           */
+    VSPLONG *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
     VSPLONG nz, /* Number of rows/columns    */
     VSPINT             n, /* Number of nonzeros        */
@@ -54,7 +54,7 @@ VSPINT Are_Neighbors
     VSPINT vert1,
     VSPINT vert2,
     VSPINT   *Ai,
-    VSPINT   *Ap
+    VSPLONG *Ap
 ) ;
 
 
@@ -113,7 +113,7 @@ VSPINT VSP_partial_sums_of_array(
 
 VSP_problem* VSP_transpose(
     VSPINT           *Ai, /* Row indices of non-zeros  */
-    VSPINT           *Ap, /* Column pointers           */
+    VSPLONG *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
     VSPLONG nz, /* Number of rows/columns    */
     VSPINT             n, /* Number of nonzeros        */
@@ -449,7 +449,7 @@ void VSP_ComputeGradFlt
     VSPFLOAT  gamma,
     VSPFLOAT     *z,
     VSPINT      *Ai,
-    VSPINT      *Ap,
+    VSPLONG *Ap,
     VSPINT        n
 ) ;
 

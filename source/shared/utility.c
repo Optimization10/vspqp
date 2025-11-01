@@ -25,7 +25,7 @@ VSPINT Are_Neighbors
     VSPINT vert1,
     VSPINT vert2,
     VSPINT   *Ai,
-    VSPINT   *Ap
+    VSPLONG *Ap
 )
 {
     for(VSPLONG p = Ap[vert1] ; p < Ap[vert1 + 1] ; p++)

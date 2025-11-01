@@ -79,7 +79,7 @@ FM_Flips_Struct *Construct_FM_Flips_Struct
     VSPINT        weight,
     VSPINT         gamma,
     VSPINT           *Ai,
-    VSPINT           *Ap,
+    VSPLONG *Ap,
     VSPINT             u
 ) ;
 

@@ -35,7 +35,7 @@ static void Check_Ext_Neigh_Wgts
 (
     ExtNeighWgts     *extWgts,
     VSPINT                *Ai,
-    VSPINT                *Ap,
+    VSPLONG *Ap,
     VSPINT                 *c,
     VSPINT                  n,
     VSPINT             *where 
@@ -86,7 +86,7 @@ static void Set_Ext_Neigh_Wgts
 (
     ExtNeighWgts     *extWgts,
     VSPINT                *Ai,
-    VSPINT                *Ap,
+    VSPLONG *Ap,
     VSPINT                 *c,
     VSPINT               *sep,
     VSPINT               nsep,
@@ -1106,7 +1106,7 @@ static void Set_Ext_Neigh_Wgts
 (
     ExtNeighWgts     *extWgts,
     VSPINT                *Ai,
-    VSPINT                *Ap,
+    VSPLONG *Ap,
     VSPINT                 *c,
     VSPINT               *sep,
     VSPINT               nsep,
@@ -1143,7 +1143,7 @@ static void Check_Ext_Neigh_Wgts
 (
     ExtNeighWgts     *extWgts,
     VSPINT                *Ai,
-    VSPINT                *Ap,
+    VSPLONG *Ap,
     VSPINT                 *c,
     VSPINT                  n,
     VSPINT             *where 

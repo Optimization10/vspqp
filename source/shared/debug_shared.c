@@ -31,7 +31,7 @@ void VSP_ResetDumpFile()
 
 void VSP_check_matrix_is_symmetric(
     VSPINT           *Ai,
-    VSPINT           *Ap,
+    VSPLONG *Ap,
     VSPINT           *Ae,
     VSPLONG nz,
     VSPINT             n,
@@ -468,7 +468,7 @@ VSPINT VSP_check_matrix
 void VSP_check_matrix_is_symmetric
 (
     VSPINT           *Ai,
-    VSPINT           *Ap,
+    VSPLONG *Ap,
     VSPINT           *Ae,
     VSPLONG nz,
     VSPINT             n,

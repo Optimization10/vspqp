@@ -304,7 +304,7 @@ VSPINT** VSP_construct_explicit_matrix
     VSPINT *values,
     VSPINT     *Ai,
     UNUSED VSPLONG nz,
-    VSPINT     *Ap,
+    VSPLONG *Ap,
     VSPINT       n
 )
 {
