@@ -638,4 +638,7 @@ void State_Round_Down
 
 VSPINT Get_Max_Degree(VSPLONG *Ap, VSPINT n) ;
 
+VSPINT Problem_Get_N_Finest(VSP_problem *P) ;
+VSPLONG Problem_Get_NZ_Finest(VSP_problem *P) ;
+
 #endif

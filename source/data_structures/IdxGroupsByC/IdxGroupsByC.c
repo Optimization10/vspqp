@@ -20,7 +20,7 @@ IdxGroupsByC *IdxGroupsByC_Init
     if(first_time)
     {
         fp = fopen("output/mem.csv", "w") ;
-        fprintf(fp, "ints_alloc,n_current,ints_over_n,gb_allocated\n") ;
+        fprintf(fp, "name,n,nz,level,ints_alloc,n_current,ints_over_n,gb_allocated\n") ;
     }        
     else           fp = fopen("output/mem.csv", "a") ;
     first_time = false ;
