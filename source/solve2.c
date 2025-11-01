@@ -158,6 +158,7 @@ VSP_solve_result *Solve_v2
     VSP_set_initial_guess(X_lp1, Y_lp1, P, options) ;
 
     Set_Global_Problem(P) ;
+
     Stopwatches_Start(P->Stopwatches, "Total") ;
     Solve_Level(X_lp1, Y_lp1, P, options) ;
     Stopwatches_Stop(P->Stopwatches, "Total") ;
