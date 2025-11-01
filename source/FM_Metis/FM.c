@@ -1160,7 +1160,7 @@ static void Check_Ext_Neigh_Wgts
             VSPINT ext1 = 0 ;
             
             /* Go through neighbors and compute external weights */
-            for(VSPINT p = Ap[i] ; p < Ap[i+1] ; p++)
+            for(VSPLONG p = Ap[i] ; p < Ap[i+1] ; p++)
             {
                 VSPINT k = Ai[p] ;
                 if(where[k] == 0)      ext0 += c[k] ;

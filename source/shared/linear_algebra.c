@@ -272,7 +272,7 @@ void VSP_Az_pm_col_of_A (
     VSPINT *Ai = problem->Graph->Ai ;
     VSPLONG *Ap = problem->Graph->Ap ;
     VSPINT const end = Ap [i+1] ;
-    for(VSPINT p = Ap[i] ; p < end ; p++)
+    for(VSPLONG p = Ap[i] ; p < end ; p++)
     {
         VSPINT const j = Ai [p] ;
         Az[j] += operation;

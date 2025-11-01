@@ -5,7 +5,7 @@ void VSP_DumpNeighs(VSPINT i, VSPINT *Ai, VSPLONG *Ap)
 {
     FILE *file = fopen("output/dump.txt", "a") ;
     fprintf(file, "\nNeighbors of %lld:\n", (long long) i) ;
-    for(VSPINT p = Ap[i] ; p < Ap[i+1] ; p++)
+    for(VSPLONG p = Ap[i] ; p < Ap[i+1] ; p++)
     {
         VSPINT neigh = Ai[p] ;
         if(p != Ap[i+1] -1)

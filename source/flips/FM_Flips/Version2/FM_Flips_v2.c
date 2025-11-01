@@ -500,7 +500,7 @@ void Do_Given_Flip(Flip flip, FM_Flips_Struct *zstruct, FM_Flips_Struct *wstruct
         if(z[i])
         {
             FM_Flips_Struct_Update_zi_1_To_0_Where_i_Is_In_O_dn_v2(zstruct, i, zstruct->O_dn->lookup[i]);
-            for(VSPINT p = Ap[i]; p < Ap[i+1]; p++)
+            for(VSPLONG p = Ap[i]; p < Ap[i+1]; p++)
             {
                 VSPINT j = Ai[p];
                 if(w[j]) FM_Flips_Struct_Update_wj_1_And_Azj_Decreases_By_1_v2(wstruct, j, Az[j]);
@@ -511,7 +511,7 @@ void Do_Given_Flip(Flip flip, FM_Flips_Struct *zstruct, FM_Flips_Struct *wstruct
         } else
         {
             FM_Flips_Struct_Update_zi_0_To_1_Where_i_Is_In_O_up_v2(zstruct, i, zstruct->O_up->lookup[i]);
-            for(VSPINT p = Ap[i]; p < Ap[i+1]; p++)
+            for(VSPLONG p = Ap[i]; p < Ap[i+1]; p++)
             {
                 VSPINT j = Ai[p];
                 if(w[j]) FM_Flips_Struct_Update_wj_1_And_Azj_Increases_By_1_v2(wstruct, j, Az[j]);
@@ -523,7 +523,7 @@ void Do_Given_Flip(Flip flip, FM_Flips_Struct *zstruct, FM_Flips_Struct *wstruct
     } else {
         if(w[i]) {
             FM_Flips_Struct_Update_zi_1_To_0_Where_i_Is_In_O_dn_v2(wstruct, i, wstruct->O_dn->lookup[i]);
-            for(VSPINT p = Ap[i]; p < Ap[i+1]; p++) {
+            for(VSPLONG p = Ap[i]; p < Ap[i+1]; p++) {
                 VSPINT j = Ai[p];
                 if(z[j]) FM_Flips_Struct_Update_wj_1_And_Azj_Decreases_By_1_v2(zstruct, j, Aw[j]);
                 else     FM_Flips_Struct_Update_wj_0_And_Azj_Decreases_By_1_v2(zstruct, j, Aw[j]);
@@ -532,7 +532,7 @@ void Do_Given_Flip(Flip flip, FM_Flips_Struct *zstruct, FM_Flips_Struct *wstruct
             else     FM_Flips_Struct_Update_wj_0_And_Azj_Decreases_By_1_v2(zstruct, i, Aw[i]);
         } else {
             FM_Flips_Struct_Update_zi_0_To_1_Where_i_Is_In_O_up_v2(wstruct, i, wstruct->O_up->lookup[i]);
-            for(VSPINT p = Ap[i]; p < Ap[i+1]; p++) {
+            for(VSPLONG p = Ap[i]; p < Ap[i+1]; p++) {
                 VSPINT j = Ai[p];
                 if(z[j]) FM_Flips_Struct_Update_wj_1_And_Azj_Increases_By_1_v2(zstruct, j, Aw[j]);
                 else     FM_Flips_Struct_Update_wj_0_And_Azj_Increases_By_1_v2(zstruct, j, Aw[j]);
