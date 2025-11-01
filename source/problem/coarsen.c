@@ -103,7 +103,7 @@ VSP_Graph* Graph_Coarsen
     VSPLONG munch = 0;
 
     /* Hashtable stores column pointer values. */
-    VSPINT* htable = malloc(n_coarse * sizeof(VSPINT));
+    VSPLONG* htable = malloc(n_coarse * sizeof(*htable));
     for (VSPINT i = 0; i < n_coarse; i++)
     {
         htable[i] = -1;
@@ -134,7 +134,7 @@ VSP_Graph* Graph_Coarsen
         }
 
         /* Right here, munch is the number of neighbors of 0, 1, 2, ..., k-1 */
-        VSPINT ps    = munch;
+        VSPLONG ps    = munch;
         Ap_coarse[k] = munch;
 
         /* Compute the degree of vertex k - 1 */
