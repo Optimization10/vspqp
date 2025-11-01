@@ -578,8 +578,8 @@ static void Rollback
     start, // an index of mem containing the first flips which should be done
     dir,   // dir - +1 if we go from lower cp up, and -1 if from higher cp down
     *c = problem->Graph->c,
-    *Ai = problem->Graph->Ai,
-    *Ap = problem->Graph->Ap ;
+    *Ai = problem->Graph->Ai ;
+    VSPLONG *Ap = problem->Graph->Ap ;
 
     VSPINT h ; // h has the property that hm <= bestPoint < (h+1)m
 
