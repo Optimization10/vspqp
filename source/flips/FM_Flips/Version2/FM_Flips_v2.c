@@ -491,9 +491,10 @@ void Do_Given_Flip(Flip flip, FM_Flips_Struct *zstruct, FM_Flips_Struct *wstruct
     #endif
     if(flip.ind == EMPTY) return;
     VSPINT i = flip.ind;
-    VSPINT *Ai = problem->Graph->Ai, *Ap = problem->Graph->Ap;
+    VSPINT *Ai = problem->Graph->Ai ;
     VSPINT *Az = wstruct->Aw, *Aw = zstruct->Aw;
     VSPINT *z  = zstruct->z,  *w  = wstruct->z;
+    VSPLONG *Ap = problem->Graph->Ap ;
 
     if(flip.var == 'z')
     {
