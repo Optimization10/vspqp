@@ -341,6 +341,34 @@ void VSP_check_arrays_are_equal
     return ;
 }
 
+void Check_Arrays_Are_Equal_VSPLONG
+(
+    const VSPLONG *const u, /* Check that vector u equals vector v */
+    const VSPLONG *const v,
+    const VSPINT  n  /* Size of u and v */
+)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+    WARN_IF_NOT_DEBUG_MODE ;
+
+    VSPINT i ;
+    bool equal = true ;
+    for(i = 0 ; i < n ; i++)
+    {
+        if(u[i] != v[i])
+        {
+            equal = false ;
+            break ;
+        }
+    }
+    if(equal == false)
+    {
+        VSP_error("Arrays not equal", DBG_INFO) ;
+    }
+    return ;
+}
+
 /*
  INPUTS:
  a) A matrix A in compressed column format
@@ -480,7 +508,7 @@ void VSP_check_matrix_is_symmetric
     VSPLONG *Tp = T->Graph->Ap ;
 
     /* Check that the number of 1's in each column is the same in A and T */
-    VSP_check_arrays_are_equal(Ap, Tp, n+1) ;
+    Check_Arrays_Are_Equal_VSPLONG(Ap, Tp, n+1) ;
 
     /* Check that the row index of each 1 in each column is the same in A, T*/
     for(VSPINT j = 0 ; j < n ; j++) {

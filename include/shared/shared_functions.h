@@ -196,6 +196,13 @@ void VSP_check_arrays_are_equal
     const VSPINT  n  /* Size of u and v */
 ) ;
 
+void Check_Arrays_Are_Equal_VSPLONG
+(
+    const VSPLONG *const u, /* Check that vector u equals vector v */
+    const VSPLONG *const v,
+    const VSPINT  n  /* Size of u and v */
+) ;
+
 void VSP_check_entries_are_between_bounds
 (
     VSPINT*  v,
