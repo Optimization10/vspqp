@@ -14,6 +14,19 @@ IdxGroupsByC *IdxGroupsByC_Init
     MinMax_Heap_Flag flag
 )
 {
+    static bool first_time = true ;
+
+    FILE *fp ;
+    if(first_time)
+    {
+        fp = fopen("output/mem.csv", "w") ;
+        fprintf(fp, "ints_alloc,n_current,ints_over_n,gb_allocated\n") ;
+    }        
+    else           fp = fopen("output/mem.csv", "a") ;
+    first_time = false ;
+
+    long long mem_used = 0 ;
+
     SET_FUNCTION_COUNTER ;
     IdxGroupsByC *Groups = malloc( sizeof(*Groups) ) ;
     Groups->var       = var ;
@@ -39,16 +52,20 @@ IdxGroupsByC *IdxGroupsByC_Init
             ERR("Invalid heap choice") ;
         #endif
     }
+    // Approximate memory used for heap
+    mem_used += 2*(gamma + 1) ;
     
 
     Groups->groups = malloc( (gamma + 1) * sizeof( VSPINT* ) ) ;
     Groups->sizes  = calloc( (gamma + 1), sizeof(VSPINT) ) ;
+    mem_used += 2*(gamma + 1) ;
 
     for(VSPINT cval = 0 ; cval <= gamma ; cval++)
     {
         if(maxGroupSizes[cval])
         {
             Groups->groups[cval] = malloc( maxGroupSizes[cval] * sizeof(VSPINT) ) ;
+            mem_used += maxGroupSizes[cval] ;
         }
         else
         {
@@ -57,6 +74,8 @@ IdxGroupsByC *IdxGroupsByC_Init
     }
 
     Groups->ptrs = malloc( nvtx * sizeof(VSPINT) ) ;
+    mem_used += nvtx ;
+
     for(VSPINT i = 0 ; i < nvtx ; i++)
     {
         Groups->ptrs[i] = EMPTY ;
@@ -64,6 +83,9 @@ IdxGroupsByC *IdxGroupsByC_Init
     Groups->c         = c ;
     Groups->gamma     = gamma ;
 
+    fprintf(fp, "%lld,%lld,%f,%f\n", mem_used, nvtx, (double) mem_used/nvtx, (mem_used * sizeof(VSPINT)) / 1e9  ) ;
+    fflush(stdout) ;
+    fclose(fp) ;
     return Groups ;
 }
 

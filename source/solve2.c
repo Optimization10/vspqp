@@ -8,6 +8,7 @@
 #include <bits/time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <limits.h>
 #include "simplematch.h"
@@ -18,11 +19,19 @@
 extern struct timespec  G_START_TIME, G_END_TIME ;
 extern long double G_COMPRESS_TIME ;
 
+const VSP_problem *G_P = NULL ;
+
 void SetUpperBound
 (
     VSP_problem *problem,
     VSP_options *options
 ) ;
+
+static void Set_Global_Problem(VSP_problem *P)
+{
+    G_P = P ;
+    return ;
+}
 
 // Input: an almost binary point. Initial point at this level
 // Output: all our improvements algorithms have been applied
@@ -148,6 +157,7 @@ VSP_solve_result *Solve_v2
     Y_lp1 = VSP_construct_state(P->Graph->n) ;
     VSP_set_initial_guess(X_lp1, Y_lp1, P, options) ;
 
+    Set_Global_Problem(P) ;
     Stopwatches_Start(P->Stopwatches, "Total") ;
     Solve_Level(X_lp1, Y_lp1, P, options) ;
     Stopwatches_Stop(P->Stopwatches, "Total") ;
@@ -158,6 +168,8 @@ VSP_solve_result *Solve_v2
     // Invariant: X_l, Y_l holds the solution at level l
     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
     {
+        Set_Global_Problem(P) ;
+
         Stopwatches_Start(P->Stopwatches, "Total") ;
 
         // Uncoarsen point from level l+1
@@ -191,8 +203,8 @@ VSP_solve_result *Solve_v2
     VSP_solve_result *result = malloc( sizeof(*result) ) ;
     Final_Cleanup(X_0, Y_0, probFinest, result) ;
 
+    Set_Global_Problem(NULL) ;
     return result ;
-
 }
 
 

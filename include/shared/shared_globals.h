@@ -1,6 +1,11 @@
 #ifndef SHARED_GLOBALS_H
 #define SHARED_GLOBALS_H
 
+extern char G_name[500] ;
+extern long long G_n ;
+extern long long G_nz ;
+extern long long G_level ;
+
 /******************************************************************************
     GLOBAL PERFORMANCE MEASURING STRUCT
 *******************************************************************************/

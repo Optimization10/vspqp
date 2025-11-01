@@ -502,7 +502,7 @@ void Graph_Simple_Match
         VSPINT num_selfmatch = 0 ;
 
         // Loop through HEM pairs
-        bool *HEM_Pair_Visited = calloc(n, sizeof(*HEM_Pair_Visited)) ;
+        bool *HEM_Pair_Visited = calloc((size_t) n, sizeof(*HEM_Pair_Visited)) ;
         for(i  = 0 ; i < n ; i++)
         {
             if(matchtype[i] != matchtype_HEM || HEM_Pair_Visited[i] ) continue ;
