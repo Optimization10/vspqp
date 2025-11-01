@@ -202,7 +202,7 @@ VSP_Graph* Graph_Coarsen
                 VSPINT edgeWeight = Ae_fine[ p ] ;
 
                 /* Check the hashtable before scattering. */
-                VSPINT cp = htable[toCoarsened];
+                VSPLONG cp = htable[toCoarsened];
                 if (cp < ps) /* Hasn't been seen yet this column */
                 {
                     htable[toCoarsened]        = munch;
