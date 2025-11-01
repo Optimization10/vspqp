@@ -1119,8 +1119,8 @@ void Fix_Lower_Bound_Issue
     *w  = W->point->int_part,
     *Aw = W->Az->int_part,
     *Ai = problem->Graph->Ai,
-    *Ap = problem->Graph->Ap,
     *c  = problem->Graph->c  ;
+    VSPLONG *Ap = problem->Graph->Ap ;
 
     if(Z->point->ind_frac != EMPTY) k = Z->point->ind_frac ;
     else
