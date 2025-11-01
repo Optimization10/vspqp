@@ -463,7 +463,7 @@ VSP_problem* VSP_transpose(
    */
 VSPINT VSP_partial_sums_of_array(
     VSPINT          *arr,
-    VSPINT *partial_sums,
+    VSPLONG *partial_sums,
     VSPINT             n
 ) {
 
