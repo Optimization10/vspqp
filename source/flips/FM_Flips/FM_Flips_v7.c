@@ -456,7 +456,8 @@ static void Do_Flip
     SET_FUNCTION_COUNTER ;
     IFDBG( Check_Data(vars, Avars, wgts, locked, Ts, Lists, problem) ) ;
 
-    VSPINT p, j, T, wj, Azj,
+    VSPLONG p ;
+    VSPINT j, T, wj, Azj,
     otherVar = OTHER_VAR(var) ;
 
     VSPINT

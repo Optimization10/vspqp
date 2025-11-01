@@ -1316,7 +1316,8 @@ static void CheckAllFMDataNoLock
     count++ ;
     WARN_IF_NOT_DEBUG_MODE ;
 
-    VSPINT i, p, j, k, key,
+    VSPLONG p ;
+    VSPINT i, j, k, key,
     n = problem->Graph->n,
     *c = problem->Graph->c,
     *Ai = problem->Graph->Ai ;

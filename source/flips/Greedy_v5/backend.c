@@ -1190,7 +1190,8 @@ void Flips_v5_UnitTest
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSPINT i, ci, p, k ;
+    VSPINT i, ci, k ;
+    VSPLONG p ;
     VSPINT n = problem->Graph->n ;
     VSPINT *Ai = problem->Graph->Ai ;
     VSPLONG *Ap = problem->Graph->Ap ;

@@ -761,7 +761,8 @@ void FlipsCtx_Apply_Flip
 
     IFDBG(FlipsCtx_Check(FC));
 
-    VSPINT p, j, T, wj, Azj, ziNew, zi, v;
+    VSPLONG  p ;
+    VSPINT j, T, wj, Azj, ziNew, zi, v;
     VSPINT i = flip->ind;
     VSPINT var = flip->var;
     VSPINT otherVar = OTHER_VAR(var);
