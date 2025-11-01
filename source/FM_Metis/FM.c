@@ -272,7 +272,7 @@ void MovesImprovingCost
                 /* TODO: I think we only need to move this if k is not locked */
                 (extWgts[k].wgts)[0] = 0 ;
                 (extWgts[k].wgts)[1] = 0 ;
-                for (VSPINT jj = Ap[k]; jj < Ap[k + 1]; jj++)
+                for (VSPLONG jj = Ap[k]; jj < Ap[k + 1]; jj++)
                 {
                     VSPINT kk = Ai[jj];
                     if (where[kk] != 2)
@@ -628,7 +628,7 @@ void FM_Metis
                     /* TODO: I think we only need to move this if k is not locked */
                     (extWgts[k].wgts)[0] = 0 ;
                     (extWgts[k].wgts)[1] = 0 ;
-                    for (VSPINT jj = Ap[k]; jj < Ap[k + 1]; jj++)
+                    for (VSPLONG jj = Ap[k]; jj < Ap[k + 1]; jj++)
                     {
                         VSPINT kk = Ai[jj];
                         if (where[kk] != 2)
@@ -738,7 +738,7 @@ void FM_Metis
                 where[k] = other;
                 INC_DEC(pwgts[other], pwgts[2], c[k]);
                 BND_Delete(&nbnd, bndind, bndptr, k);
-                for(VSPINT jj = Ap[k]; jj < Ap[k + 1]; jj++)
+                for(VSPLONG jj = Ap[k]; jj < Ap[k + 1]; jj++)
                 {
                     VSPINT kk = Ai[jj];
                     if (where[kk] == 2)

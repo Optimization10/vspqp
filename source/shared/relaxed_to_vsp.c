@@ -153,7 +153,7 @@ void VSP_relaxed_to_vertex_separator
                     /* Create a hash map of neighbors of i */
                     VSPINT *neighbors = calloc(n, sizeof(*neighbors)) ;
                     
-                    VSPINT end = Ap[i + 1] ;
+                    VSPLONG end = Ap[i + 1] ;
                     for(k = Ap[i] ; k < end ; k++) neighbors[ Ai[k] ] = 1 ;
 
                     for(k = 0 ; k < n ; k++)
