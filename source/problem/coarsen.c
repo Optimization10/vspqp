@@ -100,7 +100,7 @@ VSP_Graph* Graph_Coarsen
     VSPINT *Ai_coarse = Graph_Coarse->Ai;
     VSPINT *Ae_coarse = Graph_Coarse->Ae;
     VSPINT *c_coarse  = Graph_Coarse->c;
-    VSPINT munch = 0;
+    VSPLONG munch = 0;
 
     /* Hashtable stores column pointer values. */
     VSPINT* htable = malloc(n_coarse * sizeof(VSPINT));
