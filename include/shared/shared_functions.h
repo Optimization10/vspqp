@@ -325,7 +325,7 @@ void VSP_destruct_options(VSP_options* options);
 VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz) ;
 void Destroy_Graph(VSP_Graph *Graph) ;
 
-VSP_problem* VSP_construct_problem(VSPINT numvertices, VSPINT numedges,
+VSP_problem* VSP_construct_problem(VSPINT numvertices, VSPLONG numedges,
                                                         VSP_options* options);
 
 
