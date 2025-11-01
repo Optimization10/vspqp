@@ -96,7 +96,7 @@ slower_performance: create_dirs archive_output
 valgrind: create_dirs archive_output
 	@echo "Compiling..." ;
 	$(COMPILER) $(SOURCE)   -o$(VSP_EXE) $(INCLUDE) $(DBG_FLAGS) $(LIBS)  $(DBG_DEFS) \
-		$(OTHER_FLAGS) $(IGNORE_WARNINGS) -DVSP_LOG -DVSP_STATS -DVSP_DEBUG -DVSP_DEBUG_COARSENING -DMEASURE_PERFORMANCE=1
+		$(OTHER_FLAGS) $(IGNORE_WARNINGS) -DVSP_LOG -DVSP_STATS -DMEASURE_PERFORMANCE=1
 	@echo "\nRunning valgrind..."
 	valgrind $(VALGRIND_FLAGS) ./build/vsp $(DATA)
 

@@ -699,7 +699,9 @@ void Graph_Simple_Match
             }
         }
         free(selfmatch) ;
-        selfmatch = NULL ;
+        free(HEM_Pair_Visited) ;
+        selfmatch        = NULL ;
+        HEM_Pair_Visited = NULL ;
     }
     else
     {
