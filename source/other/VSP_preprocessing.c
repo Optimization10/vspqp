@@ -60,7 +60,7 @@ void VSP_set_default_options(VSP_options* options)
 void VSP_set_default_problem_data(VSP_problem* problem) {
     VSPINT i ;
     VSPINT n = problem->Graph->n ;
-    VSPINT nz = problem->Graph->nz ;
+    VSPLONG nz = problem->Graph->nz ;
 
     /* Set cost of each vertex to 1 */
     VSPINT* c = problem->Graph->c ;

@@ -80,7 +80,7 @@ VSPINT VSP_check_matrix
     VSPINT* Ai,
     VSPINT* Ap,
     VSPINT* Ae,
-    VSPINT nz,
+    VSPLONG nz,
     VSPINT n,
     VSP_options* options
 ) ;

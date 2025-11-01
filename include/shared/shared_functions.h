@@ -335,7 +335,7 @@ VSP_flips_dec *VSP_construct_flips_dec(VSP_flips_dec_type decType) ;
 void VSP_destruct_flips_dec(VSP_flips_dec *dec) ;
 
 VSPINT** VSP_construct_explicit_matrix (
-    VSPINT* values, VSPINT* Ai, VSPINT nz, VSPINT* Ap, VSPINT n
+    VSPINT* values, VSPINT* Ai, VSPLONG nz, VSPINT* Ap, VSPINT n
 ) ;
 
 void VSP_destruct_explicit_matrix( VSPINT** A, VSPINT n ) ;

@@ -260,8 +260,8 @@ VSP_Graph* Graph_Coarsen
 
         VSPINT i, v1, v2, end, k, r, s, is_edge ;
         VSPINT edge_weight_coarse_computed, edge_weight_coarse_claimed ;
-        VSPINT nz_coarse = Graph_Coarse->nz ;
-        VSPINT nz_fine   = GraphFine->nz ;
+        VSPLONG nz_coarse = Graph_Coarse->nz ;
+        VSPLONG nz_fine   = GraphFine->nz ;
         VSPINT n_fine    = GraphFine->n ;
 
 

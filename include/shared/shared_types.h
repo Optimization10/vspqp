@@ -185,7 +185,7 @@ typedef struct
 {
     /*--- Generic Info -------------------------------------------------------*/
     VSPINT n  ;      /* Number of vertices */
-    VSPINT nz ;      /* Twice the number of edges */
+    VSPLONG nz ;      /* Twice the number of edges */
     char name[200] ; /* Name of the graph */
 
     /*--- Resolve from Centroid ----------------------------------------------*/

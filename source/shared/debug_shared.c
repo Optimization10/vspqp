@@ -355,7 +355,7 @@ VSPINT VSP_check_matrix
     VSPINT* Ai,
     VSPINT* Ap,
     VSPINT* Ae,
-    VSPINT nz,
+    VSPLONG nz,
     VSPINT n,
     VSP_options* options
 ) {
@@ -634,7 +634,7 @@ VSPINT VSP_check_problem
 
     VSPINT alpha = problem->Graph->min_vtx_cost ;
     VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT nz    = problem->Graph->nz ;
+    VSPLONG nz    = problem->Graph->nz ;
     VSPINT n     = problem->Graph->n ;
     VSPINT bal   = problem->u ;
 
