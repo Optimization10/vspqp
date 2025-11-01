@@ -35,7 +35,7 @@ static void Check_Ext_Neigh_Wgts
 (
     ExtNeighWgts     *extWgts,
     VSPINT                *Ai,
-    VSPINT                *Ap,
+    VSPLONG *Ap,
     VSPINT                 *c,
     VSPINT                  n,
     VSPINT             *where 
@@ -86,7 +86,7 @@ static void Set_Ext_Neigh_Wgts
 (
     ExtNeighWgts     *extWgts,
     VSPINT                *Ai,
-    VSPINT                *Ap,
+    VSPLONG *Ap,
     VSPINT                 *c,
     VSPINT               *sep,
     VSPINT               nsep,
@@ -115,9 +115,9 @@ void MovesImprovingCost
     numNeutralMoves = 0,
     n = problem->Graph->n,
     *c = problem->Graph->c,
-    *Ap = problem->Graph->Ap,
     *Ai = problem->Graph->Ai,
     nflips = 0 ; // nflips accurate at beginning of loop
+    VSPLONG *Ap = problem->Graph->Ap ;
 
 
     while( 1 )
@@ -272,7 +272,7 @@ void MovesImprovingCost
                 /* TODO: I think we only need to move this if k is not locked */
                 (extWgts[k].wgts)[0] = 0 ;
                 (extWgts[k].wgts)[1] = 0 ;
-                for (VSPINT jj = Ap[k]; jj < Ap[k + 1]; jj++)
+                for (VSPLONG jj = Ap[k]; jj < Ap[k + 1]; jj++)
                 {
                     VSPINT kk = Ai[jj];
                     if (where[kk] != 2)
@@ -356,7 +356,7 @@ void FM_Metis
     VSPINT  n  = problem->Graph->n ;
     VSPINT *c  = problem->Graph->c ;
     VSPINT *Ai = problem->Graph->Ai ;
-    VSPINT *Ap = problem->Graph->Ap ;
+    VSPLONG *Ap = problem->Graph->Ap ;
 
     /* Initialize swaps array */
     VSPINT *swaps = malloc( n * sizeof(*swaps) ) ;
@@ -628,7 +628,7 @@ void FM_Metis
                     /* TODO: I think we only need to move this if k is not locked */
                     (extWgts[k].wgts)[0] = 0 ;
                     (extWgts[k].wgts)[1] = 0 ;
-                    for (VSPINT jj = Ap[k]; jj < Ap[k + 1]; jj++)
+                    for (VSPLONG jj = Ap[k]; jj < Ap[k + 1]; jj++)
                     {
                         VSPINT kk = Ai[jj];
                         if (where[kk] != 2)
@@ -738,7 +738,7 @@ void FM_Metis
                 where[k] = other;
                 INC_DEC(pwgts[other], pwgts[2], c[k]);
                 BND_Delete(&nbnd, bndind, bndptr, k);
-                for(VSPINT jj = Ap[k]; jj < Ap[k + 1]; jj++)
+                for(VSPLONG jj = Ap[k]; jj < Ap[k + 1]; jj++)
                 {
                     VSPINT kk = Ai[jj];
                     if (where[kk] == 2)
@@ -1106,7 +1106,7 @@ static void Set_Ext_Neigh_Wgts
 (
     ExtNeighWgts     *extWgts,
     VSPINT                *Ai,
-    VSPINT                *Ap,
+    VSPLONG *Ap,
     VSPINT                 *c,
     VSPINT               *sep,
     VSPINT               nsep,
@@ -1118,7 +1118,8 @@ static void Set_Ext_Neigh_Wgts
         count++ ;
     #endif
 
-    VSPINT i, j, k, p, end, which_set ;
+    VSPINT i, j, k, which_set ;
+    VSPLONG end, p ;
     for(k = 0 ; k < nsep ; k++)
     {
         i = sep[k] ;
@@ -1143,7 +1144,7 @@ static void Check_Ext_Neigh_Wgts
 (
     ExtNeighWgts     *extWgts,
     VSPINT                *Ai,
-    VSPINT                *Ap,
+    VSPLONG *Ap,
     VSPINT                 *c,
     VSPINT                  n,
     VSPINT             *where 
@@ -1160,7 +1161,7 @@ static void Check_Ext_Neigh_Wgts
             VSPINT ext1 = 0 ;
             
             /* Go through neighbors and compute external weights */
-            for(VSPINT p = Ap[i] ; p < Ap[i+1] ; p++)
+            for(VSPLONG p = Ap[i] ; p < Ap[i+1] ; p++)
             {
                 VSPINT k = Ai[p] ;
                 if(where[k] == 0)      ext0 += c[k] ;
@@ -1315,11 +1316,12 @@ static void CheckAllFMDataNoLock
     count++ ;
     WARN_IF_NOT_DEBUG_MODE ;
 
-    VSPINT i, p, j, k, key,
+    VSPLONG p ;
+    VSPINT i, j, k, key,
     n = problem->Graph->n,
     *c = problem->Graph->c,
-    *Ai = problem->Graph->Ai,
-    *Ap = problem->Graph->Ap ;
+    *Ai = problem->Graph->Ai ;
+    VSPLONG *Ap = problem->Graph->Ap ;
     /*------------------------------------------------------------------------*/
     // - parition weights are correct
     // - partition is feasible

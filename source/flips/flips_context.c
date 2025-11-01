@@ -761,7 +761,8 @@ void FlipsCtx_Apply_Flip
 
     IFDBG(FlipsCtx_Check(FC));
 
-    VSPINT p, j, T, wj, Azj, ziNew, zi, v;
+    VSPLONG  p ;
+    VSPINT j, T, wj, Azj, ziNew, zi, v;
     VSPINT i = flip->ind;
     VSPINT var = flip->var;
     VSPINT otherVar = OTHER_VAR(var);
@@ -774,7 +775,7 @@ void FlipsCtx_Apply_Flip
     VSPINT *Aw = FC->Avars[otherVar];
     VSPINT *c = problem->Graph->c;
     VSPINT *Ai = problem->Graph->Ai;
-    VSPINT *Ap = problem->Graph->Ap;
+    VSPLONG *Ap = problem->Graph->Ap;
 
     zi = z[i];
     VSPINT dir = DIR_FLIP(zi);
@@ -814,8 +815,8 @@ void FlipsCtx_Apply_Flip
     }
 
     /* Update neighbors */
-    VSPINT start = Ap[i];
-    VSPINT end = Ap[i + 1];
+    VSPLONG start = Ap[i];
+    VSPLONG end = Ap[i + 1];
     p = start;
     j = i;
     bool iItselfFinished = false;

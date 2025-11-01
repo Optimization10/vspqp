@@ -77,13 +77,15 @@ void VSP_dump_graph
     static long long unsigned count = 0 ;
     count++ ;
 
-    VSPINT col, row, i, p ;
+    VSPINT col, row, i ;
+    VSPLONG p ;
+
     /* Unpack graph */
     VSPINT *Ai = problem->Graph->Ai ;
-    VSPINT *Ap = problem->Graph->Ap ;
+    VSPLONG *Ap = problem->Graph->Ap ;
     VSPINT  *c = problem->Graph->c ;
     VSPINT  n  = problem->Graph->n  ;
-    VSPINT  nz = problem->Graph->nz ;
+    VSPLONG nz = problem->Graph->nz ;
 
     /* Open file */
     char path[1000];
@@ -206,9 +208,9 @@ void VSP_create_dot_ovi_file
 
     /* 2. Write the problem to a file */
     VSPINT *Ai = problem->Graph->Ai ;
-    VSPINT *Ap = problem->Graph->Ap ;
+    VSPLONG *Ap = problem->Graph->Ap ;
     VSPINT  n  = problem->Graph->n  ;
-    VSPINT  nz = problem->Graph->nz ;
+    VSPLONG nz = problem->Graph->nz ;
 
     /* 2a. Write n and nz */
     FILE *file = fopen(file_name, "w") ;

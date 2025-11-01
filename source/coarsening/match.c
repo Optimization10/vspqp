@@ -192,7 +192,8 @@ void Match_Check
 void Heavy_Edge_Matching(VSP_problem* problem, VSP_options* options)
 {
     /* Initialize local variables */
-    VSPINT k = 0, p = 0, weight = 0;
+    VSPINT k = 0, weight = 0;
+    VSPLONG p = 0 ;
 
     VSPINT ismatched = -1;
     VSPINT heaviestneighbor = -1;
@@ -202,7 +203,7 @@ void Heavy_Edge_Matching(VSP_problem* problem, VSP_options* options)
     /* Graph data */
     VSPINT n   = problem->Graph->n;
     VSPINT* Ai = problem->Graph->Ai;
-    VSPINT* Ap = problem->Graph->Ap;
+    VSPLONG* Ap = problem->Graph->Ap;
     const VSPINT isoriginal = Is_Finest_Problem(problem);
 
     /* Matching data*/
@@ -252,7 +253,7 @@ void VSP_matching_SR_HEM(VSP_problem* problem, VSP_options* options)
         count++ ;
     #endif
     VSPINT n = problem->Graph->n;
-    VSPINT* Gp = problem->Graph->Ap;
+    VSPLONG* Gp = problem->Graph->Ap;
     VSPINT* Gi = problem->Graph->Ai;
     VSPINT* Gx = problem->Graph->Ae;
     const bool isFinestProb = Is_Finest_Problem(problem) ;
@@ -266,7 +267,7 @@ void VSP_matching_SR_HEM(VSP_problem* problem, VSP_options* options)
         VSPINT heaviestweight = -1;
 
         /* Go through all the neighbors of k */
-        for (VSPINT p = Gp[k]; p < Gp[k+1]; p++)
+        for (VSPLONG p = Gp[k]; p < Gp[k+1]; p++)
         {
             VSPINT neighbor = Gi[p];
             #ifdef VSP_DEBUG
@@ -297,7 +298,7 @@ void VSP_matching_SR_HEM(VSP_problem* problem, VSP_options* options)
                We lost k, but k will get resolved since it is in
                N(heaviestneighbor) */
             VSPINT v = -1; 
-            for (VSPINT p = Gp[heaviestneighbor]; p < Gp[heaviestneighbor + 1];
+            for (VSPLONG p = Gp[heaviestneighbor]; p < Gp[heaviestneighbor + 1];
                                                                         p++)
             {
                 VSPINT neighbor = Gi[p];
@@ -392,9 +393,10 @@ void VSP_matching_cleanup(VSP_problem* problem, VSP_options* options)
         count++ ;
     #endif
 
-    VSPINT k, ismatched, degree, singleton, p;
+    VSPINT k, ismatched, degree, singleton ;
+    VSPLONG p ;
     VSPINT n = problem->Graph->n;
-    VSPINT* Ap = problem->Graph->Ap;
+    VSPLONG* Ap = problem->Graph->Ap;
     VSPINT* matching = problem->matching;
 
     /* Match unmatched vertices to themselves */
@@ -404,7 +406,7 @@ void VSP_matching_cleanup(VSP_problem* problem, VSP_options* options)
         ismatched = matching[k];
         if ( !(ismatched) )
         {
-            degree = Ap[k+1] - Ap[k];
+            degree = (VSPINT) (Ap[k+1] - Ap[k]) ;
             /* If k is a singleton */
             if (degree == 0)
             {

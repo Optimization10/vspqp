@@ -81,7 +81,7 @@ VSP_Graph* Graph_Coarsen
 
     #endif
 
-    VSPINT *Ap_fine = GraphFine->Ap;
+    VSPLONG *Ap_fine = GraphFine->Ap;
     VSPINT *Ai_fine = GraphFine->Ai;
     VSPINT *Ae_fine = GraphFine->Ae;
     VSPINT *c_fine  = GraphFine->c;
@@ -96,14 +96,14 @@ VSP_Graph* Graph_Coarsen
     // VSP_problem* problem_coarse = VSP_construct_problem(n_coarse, GraphFine->nz, options) ;
     VSP_Graph *Graph_Coarse = Construct_Graph(n_coarse, GraphFine->nz) ;
 
-    VSPINT *Ap_coarse = Graph_Coarse->Ap;
+    VSPLONG *Ap_coarse = Graph_Coarse->Ap;
     VSPINT *Ai_coarse = Graph_Coarse->Ai;
     VSPINT *Ae_coarse = Graph_Coarse->Ae;
     VSPINT *c_coarse  = Graph_Coarse->c;
-    VSPINT munch = 0;
+    VSPLONG munch = 0;
 
     /* Hashtable stores column pointer values. */
-    VSPINT* htable = malloc(n_coarse * sizeof(VSPINT));
+    VSPLONG* htable = malloc(n_coarse * sizeof(*htable));
     for (VSPINT i = 0; i < n_coarse; i++)
     {
         htable[i] = -1;
@@ -134,7 +134,7 @@ VSP_Graph* Graph_Coarsen
         }
 
         /* Right here, munch is the number of neighbors of 0, 1, 2, ..., k-1 */
-        VSPINT ps    = munch;
+        VSPLONG ps    = munch;
         Ap_coarse[k] = munch;
 
         /* Compute the degree of vertex k - 1 */
@@ -155,7 +155,7 @@ VSP_Graph* Graph_Coarsen
             vertexCost += c_fine[vertex];
              
 
-            for (VSPINT p = Ap_fine[vertex]; p < Ap_fine[vertex + 1]; p++)
+            for (VSPLONG p = Ap_fine[vertex]; p < Ap_fine[vertex + 1]; p++)
             {
                 /* Inside of this double for loop, we are figuring out what
                    the neighbors of k in the coarse graph are. We do this by
@@ -202,7 +202,7 @@ VSP_Graph* Graph_Coarsen
                 VSPINT edgeWeight = Ae_fine[ p ] ;
 
                 /* Check the hashtable before scattering. */
-                VSPINT cp = htable[toCoarsened];
+                VSPLONG cp = htable[toCoarsened];
                 if (cp < ps) /* Hasn't been seen yet this column */
                 {
                     htable[toCoarsened]        = munch;
@@ -258,10 +258,11 @@ VSP_Graph* Graph_Coarsen
 
     #ifdef VSP_DEBUG_COARSENING
 
-        VSPINT i, v1, v2, end, k, r, s, is_edge ;
+        VSPLONG end ;
+        VSPINT i, v1, v2, k, r, s, is_edge ;
         VSPINT edge_weight_coarse_computed, edge_weight_coarse_claimed ;
-        VSPINT nz_coarse = Graph_Coarse->nz ;
-        VSPINT nz_fine   = GraphFine->nz ;
+        VSPLONG nz_coarse = Graph_Coarse->nz ;
+        VSPLONG nz_fine   = GraphFine->nz ;
         VSPINT n_fine    = GraphFine->n ;
 
 
@@ -312,7 +313,7 @@ VSP_Graph* Graph_Coarsen
         for (k = 0 ; k < n_coarse ; k++) {
             end = Ap_coarse [k + 1] ;
 
-            for (VSPINT p = Ap_coarse [k] ; p < end ; p++ ) {
+            for (VSPLONG p = Ap_coarse [k] ; p < end ; p++ ) {
 
                 /* There is an edge between k and i. Get the preimages
                    of k and i, i.e. the vertices in fine graph corresponding to

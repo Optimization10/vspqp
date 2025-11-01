@@ -185,13 +185,13 @@ void VSP_mat_vec_mult
     const VSPINT *const    z,
     VSPINT       *const   Az,
     const VSPINT *const   Ai,
-    const VSPINT *const   Ap,
+    const VSPLONG *const   Ap,
     const VSPINT           n
 )
 {
-    VSPINT col = 0 ;
-    VSPINT i ;
-    VSPINT start, end ;
+    VSPINT i, col = 0 ;
+    VSPLONG p ;
+    VSPLONG start, end ;
 
     /* Initialize Az to all 0's */
     for(i = 0; i < n; i++) Az[i] = 0 ;
@@ -202,7 +202,7 @@ void VSP_mat_vec_mult
         {
             start = Ap[col] ;
             end   = Ap[col + 1] ;
-            for (i = start ; i < end ; i++) Az[ Ai[i] ] ++ ;
+            for (p = start ; p < end ; p++) Az[ Ai[p] ] ++ ;
             /* Take identity into account */
             Az[col] ++ ;
         }
@@ -270,9 +270,9 @@ void VSP_Az_pm_col_of_A (
     VSP_problem   *problem
 ) {
     VSPINT *Ai = problem->Graph->Ai ;
-    VSPINT *Ap = problem->Graph->Ap ;
-    VSPINT const end = Ap [i+1] ;
-    for(VSPINT p = Ap[i] ; p < end ; p++)
+    VSPLONG *Ap = problem->Graph->Ap ;
+    VSPLONG const end = Ap [i+1] ;
+    for(VSPLONG p = Ap[i] ; p < end ; p++)
     {
         VSPINT const j = Ai [p] ;
         Az[j] += operation;
@@ -317,9 +317,9 @@ void VSP_compute_weight(VSP_point *Z, VSPINT *weight_z, VSPINT *c) {
 
 VSP_problem* VSP_transpose(
     VSPINT           *Ai, /* Row indices of non-zeros  */
-    VSPINT           *Ap, /* Column pointers           */
+    VSPLONG *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
-    VSPINT            nz, /* Number of rows/columns    */
+    VSPLONG nz, /* Number of rows/columns    */
     VSPINT             n, /* Number of nonzeros        */
     VSP_options* options
 ) {
@@ -335,13 +335,15 @@ VSP_problem* VSP_transpose(
         }
     #endif
 
-    VSPINT i, j, ind_row, p ;
-    VSPINT* pointers_into_Ti ;
-    VSPINT* num_nonzeros_in_row = calloc(n, sizeof(VSPINT)) ;
+    VSPINT i, j, ind_row ;
+    VSPLONG p ;
+    VSPLONG* pointers_into_Ti ;
+    VSPLONG* num_nonzeros_in_row = calloc(n, sizeof(*num_nonzeros_in_row)) ;
 
     /* Prepare the transpose matrix T */
     VSP_problem* T = VSP_construct_problem(n, nz, options) ;
-    VSPINT *Ti = T->Graph->Ai , *Tp = T->Graph->Ap, *Te = T->Graph->Ae ;
+    VSPINT *Ti = T->Graph->Ai , *Te = T->Graph->Ae ;
+    VSPLONG *Tp = T->Graph->Ap ;
 
     /* Count the number of nonzeros in each row */
     for (i = 0 ; i < nz ; i++) {
@@ -460,13 +462,13 @@ VSP_problem* VSP_transpose(
    The array arr is also overwritten, so that for i = 0, 1, 2, ..., n-1, 
         arr[i] = partial_sums[i].
    */
-VSPINT VSP_partial_sums_of_array(
-    VSPINT          *arr,
-    VSPINT *partial_sums,
-    VSPINT             n
+VSPLONG VSP_partial_sums_of_array(
+    VSPLONG          *arr,
+    VSPLONG *partial_sums,
+    VSPINT              n
 ) {
-
-    VSPINT i, sum = 0 ;
+    VSPINT i ;
+    VSPLONG sum = 0 ;
 
     for (i = 0 ; i < n ; i++) {
         partial_sums [i] = sum ;
@@ -477,7 +479,6 @@ VSPINT VSP_partial_sums_of_array(
     partial_sums [n] = sum ;
 
     return sum ;
-
 }
 
 
@@ -575,12 +576,12 @@ VSPFLOAT VSP_compute_objective_0(
     VSPFLOAT gamma
 ) {
     /* Local vars */
-    VSPINT i, j, p, start, end ;
-
+    VSPINT i, j ;
+    VSPLONG start, end, p ;
     VSPFLOAT  obj_val = 0 ;
     VSPINT    n       = problem->Graph->n ;
     VSPINT   *Ai      = problem->Graph->Ai ;
-    VSPINT   *Ap      = problem->Graph->Ap ;
+    VSPLONG *Ap      = problem->Graph->Ap ;
     VSPINT   *c       = problem->Graph->c ;
 
 
@@ -767,13 +768,13 @@ void VSP_ComputeGradFlt
     VSPFLOAT  gamma,
     VSPFLOAT     *z,
     VSPINT      *Ai,
-    VSPINT      *Ap,
+    VSPLONG *Ap,
     VSPINT        n
 )
 {
-    VSPINT col = 0 ;
-    VSPINT i ;
-    VSPINT start, end ;
+    VSPINT i, col = 0 ;
+    VSPLONG p ;
+    VSPLONG start, end ;
 
     /* Initialize Az to all 0's */
     for(i = 0; i < n; i++) grad[i] = 0 ;
@@ -785,7 +786,7 @@ void VSP_ComputeGradFlt
         {
             start = Ap[col] ;
             end   = Ap[col + 1] ;
-            for (i = start ; i < end ; i++) grad[ Ai[i] ] -= (gamma * z[col]) ;
+            for (p = start ; p < end ; p++) grad[ Ai[p] ] -= (gamma * z[col]) ;
             /* Take identity into account */
             grad[col] += (gamma * z[col]) ;
         }

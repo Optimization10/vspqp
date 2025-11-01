@@ -1,11 +1,11 @@
 #include "shared_api.h"
 #include "limits.h"
 
-void VSP_DumpNeighs(VSPINT i, VSPINT *Ai, VSPINT *Ap)
+void VSP_DumpNeighs(VSPINT i, VSPINT *Ai, VSPLONG *Ap)
 {
     FILE *file = fopen("output/dump.txt", "a") ;
     fprintf(file, "\nNeighbors of %lld:\n", (long long) i) ;
-    for(VSPINT p = Ap[i] ; p < Ap[i+1] ; p++)
+    for(VSPLONG p = Ap[i] ; p < Ap[i+1] ; p++)
     {
         VSPINT neigh = Ai[p] ;
         if(p != Ap[i+1] -1)
@@ -31,9 +31,9 @@ void VSP_ResetDumpFile()
 
 void VSP_check_matrix_is_symmetric(
     VSPINT           *Ai,
-    VSPINT           *Ap,
+    VSPLONG *Ap,
     VSPINT           *Ae,
-    VSPINT            nz,
+    VSPLONG nz,
     VSPINT             n,
     VSP_options* options
 ) ;
@@ -341,6 +341,34 @@ void VSP_check_arrays_are_equal
     return ;
 }
 
+void Check_Arrays_Are_Equal_VSPLONG
+(
+    const VSPLONG *const u, /* Check that vector u equals vector v */
+    const VSPLONG *const v,
+    const VSPINT  n  /* Size of u and v */
+)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+    WARN_IF_NOT_DEBUG_MODE ;
+
+    VSPINT i ;
+    bool equal = true ;
+    for(i = 0 ; i < n ; i++)
+    {
+        if(u[i] != v[i])
+        {
+            equal = false ;
+            break ;
+        }
+    }
+    if(equal == false)
+    {
+        VSP_error("Arrays not equal", DBG_INFO) ;
+    }
+    return ;
+}
+
 /*
  INPUTS:
  a) A matrix A in compressed column format
@@ -353,9 +381,9 @@ void VSP_check_arrays_are_equal
 VSPINT VSP_check_matrix
 (
     VSPINT* Ai,
-    VSPINT* Ap,
+    VSPLONG* Ap,
     VSPINT* Ae,
-    VSPINT nz,
+    VSPLONG nz,
     VSPINT n,
     VSP_options* options
 ) {
@@ -364,7 +392,8 @@ VSPINT VSP_check_matrix
 
     WARN_IF_NOT_DEBUG_MODE ;
 
-    VSPINT i, j, p, k, end ;
+    VSPINT i, j, k ;
+    VSPLONG end, p ;
     VSPINT repeated_entry             = FALSE ;
     VSPINT diag_nonzero               = FALSE ;
     VSPINT invalid_neighbor           = FALSE ;
@@ -468,18 +497,19 @@ VSPINT VSP_check_matrix
 void VSP_check_matrix_is_symmetric
 (
     VSPINT           *Ai,
-    VSPINT           *Ap,
+    VSPLONG *Ap,
     VSPINT           *Ae,
-    VSPINT            nz,
+    VSPLONG nz,
     VSPINT             n,
     VSP_options* options
 ) {
     /* Get the transpose */
     VSP_problem* T = VSP_transpose(Ai, Ap, Ae, nz, n, options) ;
-    VSPINT *Ti = T->Graph->Ai, *Tp = T->Graph->Ap, *Te = T->Graph->Ae ;
+    VSPINT *Ti = T->Graph->Ai, *Te = T->Graph->Ae ;
+    VSPLONG *Tp = T->Graph->Ap ;
 
     /* Check that the number of 1's in each column is the same in A and T */
-    VSP_check_arrays_are_equal(Ap, Tp, n+1) ;
+    Check_Arrays_Are_Equal_VSPLONG(Ap, Tp, n+1) ;
 
     /* Check that the row index of each 1 in each column is the same in A, T*/
     for(VSPINT j = 0 ; j < n ; j++) {
@@ -628,13 +658,13 @@ VSPINT VSP_check_problem
 
     /* Unpack problem */
     VSPINT* Ai = problem->Graph->Ai ;
-    VSPINT* Ap = problem->Graph->Ap ;
+    VSPLONG* Ap = problem->Graph->Ap ;
     VSPINT* Ae = problem->Graph->Ae ;
     VSPINT* c = problem->Graph->c ;
 
     VSPINT alpha = problem->Graph->min_vtx_cost ;
     VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT nz    = problem->Graph->nz ;
+    VSPLONG nz    = problem->Graph->nz ;
     VSPINT n     = problem->Graph->n ;
     VSPINT bal   = problem->u ;
 

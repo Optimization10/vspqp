@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 
 
     SuiteSparse_start() ;
-    VSP_reset_output_files() ;
+    VSP_reset_output_files() ; 
     unsigned int seed ;
 
     // seed = (unsigned VSPINT) time(NULL) ;

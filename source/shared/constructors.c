@@ -199,9 +199,9 @@ VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz)
     Graph->n         = n  ;
     Graph->nz        = nz ;
 
-    Graph->Ae        = malloc(  nz     * sizeof(VSPLONG) ) ;
-    Graph->Ai        = malloc(  nz     * sizeof(VSPLONG) ) ;
-    Graph->Ap        = malloc( (n + 1) * sizeof(VSPINT)  ) ;
+    Graph->Ae        = malloc(  nz     * sizeof(VSPINT) ) ;
+    Graph->Ai        = malloc(  nz     * sizeof(VSPINT) ) ;
+    Graph->Ap        = malloc( (n + 1) * sizeof(VSPLONG)  ) ;
 
     Graph->c         = malloc(  n      * sizeof(VSPINT)  ) ;
     return Graph ;
@@ -221,7 +221,7 @@ void Destroy_Graph(VSP_Graph *Graph)
 VSP_problem* VSP_construct_problem
 (
     VSPINT       num_vertices,
-    VSPINT                 nz,
+    VSPLONG nz,
     VSP_options      *options
 )
 {
@@ -303,15 +303,16 @@ VSPINT** VSP_construct_explicit_matrix
 (
     VSPINT *values,
     VSPINT     *Ai,
-    UNUSED VSPINT      nz,
-    VSPINT     *Ap,
+    UNUSED VSPLONG nz,
+    VSPLONG *Ap,
     VSPINT       n
 )
 {
     static long long unsigned count = 0 ;
     count += 1 ;
 
-    VSPINT i, j, p, end ;
+    VSPINT i, j ;
+    VSPLONG end, p ;
 
     /* Make pointers for the rows of A */
     VSPINT** A = malloc( n * sizeof(VSPINT*) ) ;

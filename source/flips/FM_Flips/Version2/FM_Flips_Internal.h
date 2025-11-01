@@ -27,7 +27,7 @@ typedef struct
     VSPINT  gamma ;
     VSPINT weight ;
     VSPINT *Ai ;
-    VSPINT *Ap ;
+    VSPLONG *Ap ;
     VSPINT u ;
 
     VSPINT p_lo ; // min (Aw)_i s.t. z_i = 0 and i is unlocked
@@ -79,7 +79,7 @@ FM_Flips_Struct *Construct_FM_Flips_Struct
     VSPINT        weight,
     VSPINT         gamma,
     VSPINT           *Ai,
-    VSPINT           *Ap,
+    VSPLONG *Ap,
     VSPINT             u
 ) ;
 

@@ -72,7 +72,7 @@ VSP_problem *Read_hager6_File(char *path, VSP_options *options)
     }
 
     // Convert Ai array to VSPINTs
-    VSPINT *Ai = malloc(nztemp * sizeof(VSPINT));
+    VSPINT *Ai = malloc(nztemp * sizeof(*Ai));
     if (!Ai)
     {
         free(tempAi);

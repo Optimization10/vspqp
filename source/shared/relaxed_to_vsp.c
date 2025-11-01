@@ -137,9 +137,10 @@ void VSP_relaxed_to_vertex_separator
             // printf("\nEntered terrible situation") ;
             // printf("\nGraph name: %s \n", problem->name) ;
             // fflush(stdout) ;
-            VSPINT *Ap = problem->Graph->Ap ;
+            VSPLONG *Ap = problem->Graph->Ap ;
             VSPINT *Ai = problem->Graph->Ai ;
-            VSPINT k, p ;
+            VSPINT p ;
+            VSPLONG k ;
             bool complete_graph = true ;
 
             /* Iterate through all the vertices */
@@ -153,7 +154,7 @@ void VSP_relaxed_to_vertex_separator
                     /* Create a hash map of neighbors of i */
                     VSPINT *neighbors = calloc(n, sizeof(*neighbors)) ;
                     
-                    VSPINT end = Ap[i + 1] ;
+                    VSPLONG end = Ap[i + 1] ;
                     for(k = Ap[i] ; k < end ; k++) neighbors[ Ai[k] ] = 1 ;
 
                     for(k = 0 ; k < n ; k++)

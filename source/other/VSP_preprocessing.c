@@ -60,7 +60,7 @@ void VSP_set_default_options(VSP_options* options)
 void VSP_set_default_problem_data(VSP_problem* problem) {
     VSPINT i ;
     VSPINT n = problem->Graph->n ;
-    VSPINT nz = problem->Graph->nz ;
+    VSPLONG nz = problem->Graph->nz ;
 
     /* Set cost of each vertex to 1 */
     VSPINT* c = problem->Graph->c ;
@@ -98,7 +98,7 @@ void    VSP_preprocess_finest_problem
 
     /* Compute the maximum degree */
     VSPINT maxDeg = 0 ;
-    VSPINT *Ap    = problem->Graph->Ap ;
+    VSPLONG *Ap    = problem->Graph->Ap ;
     for(node = 0 ; node < num_nodes ; node++)
     {
         if( Ap[node + 1] - Ap[node] > maxDeg )

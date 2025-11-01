@@ -103,7 +103,7 @@ void FM_Flips_Struct_Check
     if(check_Az)
     {
         VSPINT *Ai = data->Ai ;
-        VSPINT *Ap = data->Ap ;
+        VSPLONG *Ap = data->Ap ;
         VSPINT *Az_true = malloc(n * sizeof(VSPINT)) ;
         for(i = 0; i < n; i++) Az_true[i] = 0 ;
 
@@ -111,8 +111,8 @@ void FM_Flips_Struct_Check
         {
             if (z[col])
             {
-                VSPINT start = Ap[col] ;
-                VSPINT end   = Ap[col + 1] ;
+                VSPLONG start = Ap[col] ;
+                VSPLONG end   = Ap[col + 1] ;
                 for (i = start ; i < end ; i++) Az_true[ Ai[i] ] ++ ;
                 /* Take identity into account */
                 Az_true[col] ++ ;

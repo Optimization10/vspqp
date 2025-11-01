@@ -290,7 +290,6 @@
 //     u     = problem->u,
 //     *c    = problem->Graph->c ;
 
-
 //     /*------------------------------------------------------------------------*/
 //     // Collect the following data from the variables specified by whichVars
 //     // flipInds[4]  - in entry k, record the index of the best flip of type k
@@ -494,8 +493,8 @@
 //     // Loop through j in N(i) cup (i) where wj is unlocked, and shift them one
 //     // list up or down
 //     /*------------------------------------------------------------------------*/
-//     VSPINT start = Ap[i] ;
-//     VSPINT end   = Ap[i+1] ;
+//     VSPLONG start = Ap[i] ;
+//     VSPLONG end   = Ap[i+1] ;
 //     p = start ;
 //     j = i ;
 

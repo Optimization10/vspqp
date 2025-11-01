@@ -25,10 +25,10 @@ VSPINT Are_Neighbors
     VSPINT vert1,
     VSPINT vert2,
     VSPINT   *Ai,
-    VSPINT   *Ap
+    VSPLONG *Ap
 )
 {
-    for(VSPINT p = Ap[vert1] ; p < Ap[vert1 + 1] ; p++)
+    for(VSPLONG p = Ap[vert1] ; p < Ap[vert1 + 1] ; p++)
     {
         if(Ai[p] == vert2) return 1 ;
     }
@@ -449,7 +449,8 @@ void VSP_resolve_frac_entry
     if(k == EMPTY) return ;
 
     VSPFLOAT val_frac = Z->point->val_frac ;
-    VSPINT         *c = problem->Graph->c, j, p ;
+    VSPINT         *c = problem->Graph->c, j ;
+    VSPLONG p ;
 
     /* Check if setting frac entry to 0 would violate lower bound */
     if(Z->weight - val_frac * c[k] < 1 - VSP_ZERO)
@@ -457,7 +458,7 @@ void VSP_resolve_frac_entry
         /* Round up */
         if(Z->weight + (1 - val_frac) * c[k] <= problem->u)
         {
-            VSPINT *Ap = problem->Graph->Ap ;
+            VSPLONG *Ap = problem->Graph->Ap ;
             VSPINT *Ai = problem->Graph->Ai ;
 
             Z->point->int_part[k] = 1 ;
@@ -1111,7 +1112,8 @@ void Fix_Lower_Bound_Issue
     // k - the only index where zk is non-zero
     // j - a member of {i} \cup N(i)
     /*------------------------------------------------------------------------*/
-    VSPINT i, p, j, end,
+    VSPLONG end, p ;
+    VSPINT i, j,
     k   = 0,
     n   = problem->Graph->n,
     *z  = Z->point->int_part,
@@ -1119,8 +1121,8 @@ void Fix_Lower_Bound_Issue
     *w  = W->point->int_part,
     *Aw = W->Az->int_part,
     *Ai = problem->Graph->Ai,
-    *Ap = problem->Graph->Ap,
     *c  = problem->Graph->c  ;
+    VSPLONG *Ap = problem->Graph->Ap ;
 
     if(Z->point->ind_frac != EMPTY) k = Z->point->ind_frac ;
     else

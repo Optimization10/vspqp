@@ -5,11 +5,18 @@
 
 typedef struct Stopwatches Stopwatches ;
 
-typedef int VSPINT ;
-typedef int VSPLONG ;
-
-// typedef long long VSPINT ;
-// typedef long long VSPLONG ;
+#if VSP_INTEGERS_MODE == 0
+    typedef int VSPINT ;
+    typedef int VSPLONG ;
+#elif VSP_INTEGERS_MODE == 1
+    typedef int VSPINT ;
+    typedef long long VSPLONG ;
+#elif VSP_INTEGERS_MODE == 2
+    typedef long long VSPINT ;
+    typedef long long VSPLONG ;
+#else
+    #error "Invalid VSP_INTEGERS_MODE"
+#endif
 
 typedef double VSPFLOAT ;
 
@@ -185,7 +192,7 @@ typedef struct
 {
     /*--- Generic Info -------------------------------------------------------*/
     VSPINT n  ;      /* Number of vertices */
-    VSPINT nz ;      /* Twice the number of edges */
+    VSPLONG nz ;      /* Twice the number of edges */
     char name[200] ; /* Name of the graph */
 
     /*--- Resolve from Centroid ----------------------------------------------*/
@@ -315,7 +322,7 @@ typedef struct VSP_problem_struct
 
     /* Coarser graph size */
     VSPINT                    cn ;
-    VSPINT                   cnz ;
+    VSPLONG                   cnz ;
 
     /* Link to parent problem. NULL if this is finest graph */
     struct VSP_problem_struct* parent_problem ;

@@ -89,13 +89,13 @@ void Check_Az_Int
     const VSPINT *const  z,
     const VSPINT *const Az,
     const VSPINT *const Ai,
-    const VSPINT *const Ap,
+    const VSPLONG *const Ap,
     const VSPINT         n
 )
 {
     DBG_FN_BOILERPLATE ;
     VSP_ASSERT(n > 0) ;
-    VSPINT *AzDbg = malloc(n * sizeof(VSPINT)) ;
+    VSPINT *AzDbg = malloc(n * sizeof(*AzDbg)) ;
     VSP_mat_vec_mult(z, AzDbg, Ai, Ap, n) ;
     VSP_check_arrays_are_equal(Az, AzDbg, n) ;
     free(AzDbg) ;
@@ -138,12 +138,12 @@ void Check_Weight
 
 void Print_Neighs
 (
-    VSPINT vtx, VSPINT *Ai, VSPINT *Ap
+    VSPINT vtx, VSPINT *Ai, VSPLONG *Ap
 )
 {
     FILE *file = fopen("Log_Dbg.txt", "a") ;
     fprintf(file, "\nNeighbors of vertex %lld :\n", (long long) vtx) ;
-    for(VSPINT p = Ap[vtx] ; p < Ap[vtx + 1] ; p++)
+    for(VSPLONG p = Ap[vtx] ; p < Ap[vtx + 1] ; p++)
     {
         fprintf(file, "%lld  ", (long long) Ai[p]) ;
     }

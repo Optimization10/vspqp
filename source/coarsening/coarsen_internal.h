@@ -35,12 +35,12 @@ VSPINT VSP_get_edge_weight
     VSPINT      vertex_a,
     VSPINT      vertex_b,
     VSPINT           *Ai,
-    VSPINT           *Ap,
+    VSPLONG *Ap,
     VSPINT *Ae
 ) ;
 
 
-VSPINT* VSP_get_neighbors(VSPINT v, VSPINT* Ap, VSPINT* Ai) ;
+VSPINT* VSP_get_neighbors(VSPINT v, VSPLONG* Ap, VSPINT* Ai) ;
 
 VSPINT* VSP_get_preimage_of_vertex
 (
@@ -54,14 +54,14 @@ VSPINT VSP_there_is_an_edge
     VSPINT vertex_a,
     VSPINT vertex_b,
     VSPINT      *Ai,
-    VSPINT      *Ap
+    VSPLONG *Ap
 ) ;
 
 void VSP_check_matrix_is_symmetric(
     VSPINT           *Ai,
-    VSPINT           *Ap,
+    VSPLONG *Ap,
     VSPINT           *Ae,
-    VSPINT            nz,
+    VSPLONG nz,
     VSPINT             n,
     VSP_options* options
 ) ;
@@ -72,15 +72,15 @@ VSPINT VSP_check_for_edge_between_arrays_of_vertices
     VSPINT *arr2,
     VSPINT  size,
     VSPINT   *Ai,
-    VSPINT   *Ap
+    VSPLONG *Ap
 ) ;
 
 VSPINT VSP_check_matrix
 (
     VSPINT* Ai,
-    VSPINT* Ap,
+    VSPLONG* Ap,
     VSPINT* Ae,
-    VSPINT nz,
+    VSPLONG nz,
     VSPINT n,
     VSP_options* options
 ) ;

@@ -23,7 +23,7 @@ void VSP_Solve_With_Metis
 (
     char                      *name,
     VSPINT                      *Ai,
-    VSPINT                      *Ap,
+    VSPLONG *Ap,
     VSPINT                       *c, // if NULL, then it's all 1's
     VSPINT                        n,
     VSPFLOAT                ubRatio,

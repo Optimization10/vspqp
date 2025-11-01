@@ -9,9 +9,9 @@ void Print_Num_Flips(VSP_problem *P) ;
 VSP_problem* VSP_transpose
 (
     VSPINT           *Ai, /* Row indices of non-zeros  */
-    VSPINT           *Ap, /* Column pointers           */
+    VSPLONG *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
-    VSPINT            nz, /* Number of rows/columns    */
+    VSPLONG nz, /* Number of rows/columns    */
     VSPINT             n, /* Number of nonzeros        */
     VSP_options* options
 ) ;
@@ -54,13 +54,13 @@ VSPINT Are_Neighbors
     VSPINT vert1,
     VSPINT vert2,
     VSPINT   *Ai,
-    VSPINT   *Ap
+    VSPLONG *Ap
 ) ;
 
 
 void VSP_ResetDumpFile() ;
 
-void VSP_PrintNeighs(VSPINT i, VSPINT *Ai, VSPINT *Ap) ;
+void VSP_PrintNeighs(VSPINT i, VSPINT *Ai, VSPLONG *Ap) ;
 
 VSPINT VSP_count_nzs(VSPINT *array, VSPINT n) ;
 
@@ -105,17 +105,17 @@ void VSP_xAy
     VSPFLOAT        *xAy
 ) ;
 
-VSPINT VSP_partial_sums_of_array(
-    VSPINT          *arr,
-    VSPINT *partial_sums,
+VSPLONG VSP_partial_sums_of_array(
+    VSPLONG          *arr,
+    VSPLONG *partial_sums,
     VSPINT             n
 ) ;
 
 VSP_problem* VSP_transpose(
     VSPINT           *Ai, /* Row indices of non-zeros  */
-    VSPINT           *Ap, /* Column pointers           */
+    VSPLONG *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
-    VSPINT            nz, /* Number of rows/columns    */
+    VSPLONG nz, /* Number of rows/columns    */
     VSPINT             n, /* Number of nonzeros        */
     VSP_options* options
 ) ;
@@ -193,6 +193,13 @@ void VSP_check_arrays_are_equal
 (
     const VSPINT *const u, /* Check that vector u equals vector v */
     const VSPINT *const v,
+    const VSPINT  n  /* Size of u and v */
+) ;
+
+void Check_Arrays_Are_Equal_VSPLONG
+(
+    const VSPLONG *const u, /* Check that vector u equals vector v */
+    const VSPLONG *const v,
     const VSPINT  n  /* Size of u and v */
 ) ;
 
@@ -325,7 +332,7 @@ void VSP_destruct_options(VSP_options* options);
 VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz) ;
 void Destroy_Graph(VSP_Graph *Graph) ;
 
-VSP_problem* VSP_construct_problem(VSPINT numvertices, VSPINT numedges,
+VSP_problem* VSP_construct_problem(VSPINT numvertices, VSPLONG numedges,
                                                         VSP_options* options);
 
 
@@ -335,7 +342,7 @@ VSP_flips_dec *VSP_construct_flips_dec(VSP_flips_dec_type decType) ;
 void VSP_destruct_flips_dec(VSP_flips_dec *dec) ;
 
 VSPINT** VSP_construct_explicit_matrix (
-    VSPINT* values, VSPINT* Ai, VSPINT nz, VSPINT* Ap, VSPINT n
+    VSPINT* values, VSPINT* Ai, VSPLONG nz, VSPLONG* Ap, VSPINT n
 ) ;
 
 void VSP_destruct_explicit_matrix( VSPINT** A, VSPINT n ) ;
@@ -358,7 +365,7 @@ void VSP_mat_vec_mult
     const VSPINT *const    z,
     VSPINT       *const   Az,
     const VSPINT *const   Ai,
-    const VSPINT *const   Ap,
+    const VSPLONG *const   Ap,
     const VSPINT           n
 ) ;
 
@@ -449,7 +456,7 @@ void VSP_ComputeGradFlt
     VSPFLOAT  gamma,
     VSPFLOAT     *z,
     VSPINT      *Ai,
-    VSPINT      *Ap,
+    VSPLONG *Ap,
     VSPINT        n
 ) ;
 
@@ -556,7 +563,7 @@ void Check_Az_Int
     const VSPINT *const  z,
     const VSPINT *const Az,
     const VSPINT *const Ai,
-    const VSPINT *const Ap,
+    const VSPLONG *const Ap,
     const VSPINT         n
 ) ;
 
@@ -573,7 +580,7 @@ void Check_Weight
 
 void Print_Neighs
 (
-    VSPINT vtx, VSPINT *Ai, VSPINT *Ap
+    VSPINT vtx, VSPINT *Ai, VSPLONG *Ap
 ) ;
 
 

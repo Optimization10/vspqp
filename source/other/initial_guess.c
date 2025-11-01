@@ -235,7 +235,7 @@ void VSP_set_centroid
     VSPINT u = problem->u ;
     VSPFLOAT f ;
     VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *Ap = problem->Graph->Ap ;
+    VSPLONG *Ap = problem->Graph->Ap ;
     VSPINT *c = problem->Graph->c ;
 
     /* Allocate memory */

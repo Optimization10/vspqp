@@ -274,11 +274,11 @@ VSP_problem* VSP_read_MM_file(const char* filename, VSP_options* options)
         
 
         for(VSPINT i = 0; i < problem->Graph->n + 1; i++){
-            problem->Graph->Ap[i] = (VSPINT) compressed_A_symmetrized->p[i];
+            problem->Graph->Ap[i] = (VSPLONG) compressed_A_symmetrized->p[i];
         }
 
         for(VSPINT i = 0; i < problem->Graph->nz; i++){
-            problem->Graph->Ai[i] = (VSPINT) compressed_A_symmetrized->i[i];
+            problem->Graph->Ai[i] = (VSPLONG) compressed_A_symmetrized->i[i];
         }
 
         /* Free memory */

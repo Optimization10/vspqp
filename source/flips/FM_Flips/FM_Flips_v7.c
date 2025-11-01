@@ -456,7 +456,8 @@ static void Do_Flip
     SET_FUNCTION_COUNTER ;
     IFDBG( Check_Data(vars, Avars, wgts, locked, Ts, Lists, problem) ) ;
 
-    VSPINT p, j, T, wj, Azj,
+    VSPLONG p ;
+    VSPINT j, T, wj, Azj,
     otherVar = OTHER_VAR(var) ;
 
     VSPINT
@@ -471,8 +472,8 @@ static void Do_Flip
     dir = DIR_FLIP(zi),
     Awi = Ts[var][zi],
     *c  = problem->Graph->c,
-    *Ai = problem->Graph->Ai,
-    *Ap = problem->Graph->Ap ;
+    *Ai = problem->Graph->Ai ;
+    VSPLONG *Ap = problem->Graph->Ap ;
 
     Doubly_LLs_Sized *lists ;
 
@@ -510,8 +511,8 @@ static void Do_Flip
     // Loop through j in N(i) cup (i) where wj is unlocked, and shift them one
     // list up or down
     /*------------------------------------------------------------------------*/
-    VSPINT start = Ap[i] ;
-    VSPINT end   = Ap[i+1] ;
+    VSPLONG start = Ap[i] ;
+    VSPLONG end   = Ap[i+1] ;
     p = start ;
     j = i ;
 
@@ -578,8 +579,8 @@ static void Rollback
     start, // an index of mem containing the first flips which should be done
     dir,   // dir - +1 if we go from lower cp up, and -1 if from higher cp down
     *c = problem->Graph->c,
-    *Ai = problem->Graph->Ai,
-    *Ap = problem->Graph->Ap ;
+    *Ai = problem->Graph->Ai ;
+    VSPLONG *Ap = problem->Graph->Ap ;
 
     VSPINT h ; // h has the property that hm <= bestPoint < (h+1)m
 

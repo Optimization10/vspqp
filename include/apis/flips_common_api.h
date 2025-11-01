@@ -67,7 +67,7 @@ void Do_Flip_Basic
     VSPINT *wgtz,
     VSPINT    *c,
     VSPINT   *Ai,
-    VSPINT   *Ap
+    VSPLONG *Ap
 ) ;
 
 #endif
