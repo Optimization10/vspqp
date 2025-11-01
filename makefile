@@ -175,6 +175,7 @@ clean: create_dirs
 	@echo "Cleaning output and build dirs..." ;
 	@find output -type f -delete
 	@find build -type f -delete
+	rm *.zst
 
 clean_archive: create_dirs
 	@echo "Cleaning output, build, and outputs_archive dirs..." ;
