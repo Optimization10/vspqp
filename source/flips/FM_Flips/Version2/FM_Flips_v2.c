@@ -57,13 +57,13 @@ void FM_Flips_API_v2
            wgtzOrg = Z->weight,
            wgtwOrg = W->weight,
           *Ai      = problem->Graph->Ai,
-          *Ap      = problem->Graph->Ap,
           *c       = problem->Graph->c,
           *z       = Z->point->int_part,
           *Az      = Z->Az->int_part,
           *w       = W->point->int_part,
           *Aw      = W->Az->int_part,
           i, p ;
+    VSPLONG *Ap      = problem->Graph->Ap ;
     Flip *memory = malloc (8 * n * sizeof(Flip)) ;
 
     #ifdef VSP_DEBUG
