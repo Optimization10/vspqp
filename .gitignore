@@ -15,6 +15,9 @@ output/
 # Prerequisites
 *.d
 
+# Heaptrack files
+*.zst
+
 # Object files
 build/*
 *.o
