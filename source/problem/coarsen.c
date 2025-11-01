@@ -258,7 +258,8 @@ VSP_Graph* Graph_Coarsen
 
     #ifdef VSP_DEBUG_COARSENING
 
-        VSPINT i, v1, v2, end, k, r, s, is_edge ;
+        VSPLONG end ;
+        VSPINT i, v1, v2, k, r, s, is_edge ;
         VSPINT edge_weight_coarse_computed, edge_weight_coarse_claimed ;
         VSPLONG nz_coarse = Graph_Coarse->nz ;
         VSPLONG nz_fine   = GraphFine->nz ;

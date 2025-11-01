@@ -311,7 +311,8 @@ VSPINT** VSP_construct_explicit_matrix
     static long long unsigned count = 0 ;
     count += 1 ;
 
-    VSPINT i, j, p, end ;
+    VSPINT i, j ;
+    VSPLONG end, p ;
 
     /* Make pointers for the rows of A */
     VSPINT** A = malloc( n * sizeof(VSPINT*) ) ;

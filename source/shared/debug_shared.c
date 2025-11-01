@@ -392,7 +392,8 @@ VSPINT VSP_check_matrix
 
     WARN_IF_NOT_DEBUG_MODE ;
 
-    VSPINT i, j, p, k, end ;
+    VSPINT i, j, k ;
+    VSPLONG end, p ;
     VSPINT repeated_entry             = FALSE ;
     VSPINT diag_nonzero               = FALSE ;
     VSPINT invalid_neighbor           = FALSE ;

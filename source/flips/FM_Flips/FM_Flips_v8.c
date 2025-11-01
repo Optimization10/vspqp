@@ -290,7 +290,6 @@
 //     u     = problem->u,
 //     *c    = problem->Graph->c ;
 
-
 //     /*------------------------------------------------------------------------*/
 //     // Collect the following data from the variables specified by whichVars
 //     // flipInds[4]  - in entry k, record the index of the best flip of type k

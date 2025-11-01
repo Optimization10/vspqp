@@ -1118,7 +1118,8 @@ static void Set_Ext_Neigh_Wgts
         count++ ;
     #endif
 
-    VSPINT i, j, k, p, end, which_set ;
+    VSPINT i, j, k, which_set ;
+    VSPLONG end, p ;
     for(k = 0 ; k < nsep ; k++)
     {
         i = sep[k] ;

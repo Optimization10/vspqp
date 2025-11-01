@@ -576,8 +576,8 @@ VSPFLOAT VSP_compute_objective_0(
     VSPFLOAT gamma
 ) {
     /* Local vars */
-    VSPINT i, j, p, start, end ;
-
+    VSPINT i, j ;
+    VSPLONG start, end, p ;
     VSPFLOAT  obj_val = 0 ;
     VSPINT    n       = problem->Graph->n ;
     VSPINT   *Ai      = problem->Graph->Ai ;

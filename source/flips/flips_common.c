@@ -518,7 +518,8 @@ void Do_Flip_Basic
     VSPLONG *Ap
 )
 {
-    VSPINT dir, end, p, j ;
+    VSPINT dir, j ;
+    VSPLONG end, p ;
 
     // Do the flip and update weight
     dir    = 1 - 2 * z[i] ;

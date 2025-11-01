@@ -1111,7 +1111,8 @@ void Fix_Lower_Bound_Issue
     // k - the only index where zk is non-zero
     // j - a member of {i} \cup N(i)
     /*------------------------------------------------------------------------*/
-    VSPINT i, p, j, end,
+    VSPLONG end, p ;
+    VSPINT i, j,
     k   = 0,
     n   = problem->Graph->n,
     *z  = Z->point->int_part,

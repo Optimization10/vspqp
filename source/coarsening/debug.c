@@ -50,8 +50,8 @@ VSPINT VSP_get_edge_weight (
         count += 1 ;
     #endif
 
-    VSPINT i, p, end ;
-    VSPINT weight ;
+    VSPLONG p, end ;
+    VSPINT i, weight ;
 
     end = Ap [vertex_a + 1] ;
 
@@ -141,8 +141,8 @@ VSPINT VSP_there_is_an_edge (
         count += 1 ;
     #endif
 
-    VSPINT i, p, end ;
-    VSPINT there_is_an_edge = FALSE ;
+    VSPLONG p, end ;
+    VSPINT i, there_is_an_edge = FALSE ;
 
     end = Ap [vertex_a + 1] ;
 

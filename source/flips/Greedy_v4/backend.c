@@ -106,7 +106,8 @@ void Upflip
     VSPINT *c = problem->Graph->c ;
     VSPINT *Ai   = problem->Graph->Ai ;
     VSPLONG *Ap   = problem->Graph->Ap ;
-    VSPINT i, k, p, Azk, start, end ;
+    VSPINT i, k, Azk ;
+    VSPLONG start, end, p ;
 
     #ifdef VSP_DEBUG
         Check_All_Data
@@ -279,7 +280,8 @@ void Downflip
     VSPINT *c = problem->Graph->c ;
     VSPINT *Ai   = problem->Graph->Ai ;
     VSPLONG *Ap   = problem->Graph->Ap ;
-    VSPINT i, k, p, Azk, start, end ;
+    VSPINT i, k, Azk ;
+    VSPLONG start, end, p ;
 
     #ifdef VSP_DEBUG
         Check_All_Data
