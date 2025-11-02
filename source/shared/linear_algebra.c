@@ -323,7 +323,7 @@ VSP_problem* VSP_transpose(
     VSPINT             n, /* Number of nonzeros        */
     VSP_options* options
 ) {
-
+ 
     #ifdef VSP_DEBUG
         static long long unsigned count = 0 ;
         count += 1 ;
