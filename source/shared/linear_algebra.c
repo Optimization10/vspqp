@@ -346,8 +346,8 @@ VSP_problem* VSP_transpose(
     VSPLONG *Tp = T->Graph->Ap ;
 
     /* Count the number of nonzeros in each row */
-    for (i = 0 ; i < nz ; i++) {
-        ind_row = Ai [i] ;
+    for (VSPLONG ii = 0 ; ii < nz ; ii++) {
+        ind_row = Ai [ii] ;
         num_nonzeros_in_row [ ind_row ] += 1 ;
     }
 
