@@ -177,7 +177,8 @@ void VSP_create_dot_ovi_file
     char         *outDir
 )
 {
-    VSPINT i, k ;
+    VSPLONG i ;
+    VSPINT k ;
     k = 0 ; // To silence warning
 
     /* 1. Figure out file name */

@@ -331,6 +331,9 @@ void FM_Metis
     VSPINT          n_passes
 )
 {
+    printf("Starting FM_METIS\n") ;
+    fflush(stdout) ;
+
     Stopwatches_Start(problem->Stopwatches, "FM_METIS") ;
     TIMER_START ;
 

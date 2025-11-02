@@ -18,6 +18,11 @@ void VSP_mountain_climbing
     static long long unsigned count = 0 ;
     count++ ;
 
+    printf("Starting mc with gamma_org=%lld\n", (long long) is_gamma_org ) ;
+    printf("Value of gamma   : %f", gamma) ;
+    printf("Val of gamma_org : %lld", (long long) problem->Graph->max_vtx_cost) ;
+    fflush(stdout) ;
+
     #ifdef VSP_DEBUG
         if(is_gamma_org)
         {

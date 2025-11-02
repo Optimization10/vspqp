@@ -97,10 +97,19 @@ runPerformance: create_dirs archive_output
 
 
 # Here, we may be using debugging symbols, we may enable optimzations, etc
-slower_performance: create_dirs archive_output
+performance_dbg: create_dirs archive_output
 	@echo "Compiling..." ;
 	@$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) -O0 $(COMMON_DEFINES) -g3 \
 	-DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
+	@echo "Solving VSP..." ;
+	@$(VSP_EXE) $(DATA)
+	@echo "\n"
+
+# Here, we may be using debugging symbols, we may enable optimzations, etc
+performance_dbg_sanitize: create_dirs archive_output
+	@echo "Compiling..." ;
+	@$(COMPILER) $(SOURCE) -o$(VSP_EXE) $(INCLUDE) $(LIBS) -O0 $(COMMON_DEFINES) -g3 \
+	-DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE) -fsanitize=address
 	@echo "Solving VSP..." ;
 	@$(VSP_EXE) $(DATA)
 	@echo "\n"
