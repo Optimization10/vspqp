@@ -357,7 +357,7 @@ VSP_problem* VSP_transpose(
     VSP_partial_sums_of_array(num_nonzeros_in_row, Tp, n) ;
 
     /* Change the name of the array, since the array has changed.
-
+ 
        Recall that Ti is split into chunks, corresponding to columns.
        pointers_in_Ti [i] holds the index of the first available entry
        in chunk i. Thus, initially, pointers_into_Ti [i] = Tp [i] for i = 
