@@ -648,4 +648,13 @@ VSPINT Get_Max_Degree(VSPLONG *Ap, VSPINT n) ;
 VSPINT Problem_Get_N_Finest(const VSP_problem *P) ;
 VSPLONG Problem_Get_NZ_Finest(const VSP_problem *P) ;
 
+// problem.hager6 n nz Ai Ap c x y (integer parts) Ax Ay (integer parts)
+// problem.txt Contains u, and any fractional entries of X and Y
+void Dump_Problem
+(
+    const VSP_problem *P,
+    const VSP_state   *X,
+    const VSP_state   *Y
+) ;
+
 #endif

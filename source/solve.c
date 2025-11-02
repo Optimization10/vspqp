@@ -16,6 +16,8 @@
 #include "globals.h"
 #include "coarsen_api.h"
 #include "limits.h"
+#include "shared_functions.h"
+#include "shared_globals.h"
 
 
 
@@ -62,8 +64,9 @@ void Solve_Level
     VSP_state *X, VSP_state *Y, VSP_problem *problem, VSP_options *options
 )
 {
-    printf("\nSolving level: %lld\n", (long long) problem->level) ;
+    printf("\nStarting level level: %lld\n", (long long) problem->level) ;
     fflush(stdout) ;
+    Dump_Problem(G_P, NULL, NULL) ;
     Optimize(X, Y, problem, options, true, 0) ;
     VSP_relaxed_to_vertex_separator(X, Y, problem) ;
     VSP_ResolveLevelDecideAndDo(X, Y, problem, options) ;

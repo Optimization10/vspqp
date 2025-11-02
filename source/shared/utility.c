@@ -1,5 +1,6 @@
 #include "shared_api.h"
 #include "ds_api.h"
+#include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
 #include "flips_common_api.h"
@@ -1232,4 +1233,119 @@ VSPLONG Problem_Get_NZ_Finest(const VSP_problem *P)
         P = P->parent_problem ;
     }
     return P->Graph->nz ;
+}
+
+// Write 4n EMPTYs, covering x, y, Ax, Ay
+static void Write_EMPTYs_When_NULL
+(
+    FILE    *fp,
+    int32_t   n
+)
+{
+    int32_t empty = EMPTY ;
+    for(int32_t i = 0 ; i < 4*n ; i++)
+    {
+        fwrite(&empty, sizeof(int32_t), 1, fp) ;
+    }
+}
+
+// problem.hager6 n nz Ai Ap c x y (integer parts) Ax Ay (integer parts)
+// problem.txt Contains u, and any fractional entries of X and Y
+void Dump_Problem
+(
+    const VSP_problem *P,
+    const VSP_state   *X,
+    const VSP_state   *Y
+)
+{
+    int32_t i_32 ;
+    int64_t i_64 ;
+
+    FILE *fp  = fopen("output/problem.hager6", "wb") ;
+    FILE *fp2 = fopen("output/problem.txt", "w") ;
+    
+    // Write n
+    int32_t n_32 = (int32_t) P->Graph->n ;
+    fwrite(&n_32, sizeof(int32_t), 1, fp) ;
+
+    // Write nz
+    int64_t nz_64 = (int64_t) P->Graph->nz ;
+    fwrite(&nz_64, sizeof(int64_t), 1, fp) ;
+
+    //  Write Ai
+    VSPINT *Ai = P->Graph->Ai ;
+    int32_t *Ai_32 = malloc( nz_64 * sizeof(*Ai_32) ) ;
+    for(i_64 = 0 ; i_64 < nz_64 ; i_64++) Ai_32[i_64] = (int32_t) Ai[i_64] ;
+    fwrite(Ai_32, sizeof(int32_t), nz_64, fp) ;
+    free(Ai_32) ;
+    Ai_32 = NULL ;
+
+    //  Write Ap
+    VSPLONG *Ap = P->Graph->Ap ;
+    int64_t *Ap_64 = malloc( (n_32 + 1) * sizeof(*Ap_64) ) ;
+    for(i_32 = 0 ; i_32 < n_32 + 1 ; i_32++) Ap_64[i_32] = (int64_t) Ap[i_32] ;
+    fwrite(Ap_64, sizeof(int64_t), n_32 + 1, fp) ;
+    free(Ap_64) ;
+    Ap_64 = NULL ;
+
+    // Write c
+    VSPINT *c = P->Graph->c ;
+    int32_t *c_32 = malloc( n_32 * sizeof(*c_32) ) ;
+    for(i_32 = 0 ; i_32 < n_32 ; i_32++) c_32[i_32] = (int32_t) c[i_32] ;
+    fwrite(c_32, sizeof(int32_t), n_32, fp) ;
+    free(c_32) ;
+    c_32 = NULL ;
+
+    if(X != NULL && Y != NULL)
+    {
+        // Write x
+        VSPINT *x = X->point->int_part ;
+        int32_t *x_32 = malloc( n_32 * sizeof(*x_32) ) ;
+        for(i_32 = 0 ; i_32 < n_32 ; i_32++) x_32[i_32] = (int32_t) x[i_32] ;
+        fwrite(x_32, sizeof(int32_t), n_32, fp) ;
+        free(x_32) ;
+        x_32 = NULL ;
+
+        // Write y
+        VSPINT *y = Y->point->int_part ;
+        int32_t *y_32 = malloc( n_32 * sizeof(*y_32) ) ;
+        for(i_32 = 0 ; i_32 < n_32 ; i_32++) y_32[i_32] = (int32_t) y[i_32] ;
+        fwrite(y_32, sizeof(int32_t), n_32, fp) ;
+        free(y_32) ;
+        y_32 = NULL ;
+
+        // Write Ax
+        VSPINT *Ax = X->Az->int_part ;
+        int32_t *Ax_32 = malloc( n_32 * sizeof(*Ax_32) ) ;
+        for(i_32 = 0 ; i_32 < n_32 ; i_32++) Ax_32[i_32] = (int32_t) Ax[i_32] ;
+        fwrite(Ax_32, sizeof(int32_t), n_32, fp) ;
+        free(Ax_32) ;
+        Ax_32 = NULL ;
+
+        // Write Ay
+        VSPINT *Ay = Y->Az->int_part ;
+        int32_t *Ay_32 = malloc( n_32 * sizeof(*Ay_32) ) ;
+        for(i_32 = 0 ; i_32 < n_32 ; i_32++) Ay_32[i_32] = (int32_t) Ay[i_32] ;
+        fwrite(Ay_32, sizeof(int32_t), n_32, fp) ;
+        free(Ay_32) ;
+        Ay_32 = NULL ;
+
+        // Write fractional entries of x and y
+        fprintf(fp2, "Ind frac x: %lld\n", (long long) X->point->ind_frac) ;
+        fprintf(fp2, "Val frac x: %f\n"  ,  X->point->val_frac) ;
+        fprintf(fp2, "\nInd frac y: %lld\n", (long long) Y->point->ind_frac) ;
+        fprintf(fp2, "Val frac y: %f\n"  ,  Y->point->val_frac) ;
+    }
+    else
+    {
+        Write_EMPTYs_When_NULL(fp, n_32) ;
+    }
+    fclose(fp) ;
+    fp = NULL ;
+
+    // Write u and level
+    fprintf(fp2, "level     : %lld\n", (long long) P->level) ;
+    fprintf(fp2, "u         : %lld\n", (long long) P->u) ;
+    fclose(fp2) ;
+    return ;
 }

@@ -61,6 +61,7 @@ static void Determine_Num_GR
 // Note that we are not taking into account the penalty term
 bool Early_Exit(VSP_state *X, VSP_state *Y, VSP_problem *P)
 {
+    printf("\nTook Early Exit") ;
     VSPFLOAT obj = VSP_compute_obj(X, Y, P, P->Graph->max_vtx_cost) ;
     // printf("\nEE Sep: %f",(VSPFLOAT) (P->Graph->total_vtx_cost - obj) ) ;
     return (VSP_lteq(P->Graph->total_vtx_cost - P->Graph->min_vtx_cost, obj)) ;
@@ -101,11 +102,12 @@ void Optimize
 
     /*--- Solve VSP ----------------------------------------------------------*/
     // 1. mountain climbing vs Flips
-    LoggerStop(X, Y, problem) ;
     Best_Of_MC_And_Greedy_Flips(X, Y, problem, options, 5) ;
-    LoggerStart(X, Y, problem, "MC And Greedy") ;
+
     if(Early_Exit(X, Y, problem))
     {
+        printf("\nTaking early exit\n") ;
+        fflush(stdout) ;
         goto EARLY_EXIT ;
     }
 
@@ -248,6 +250,9 @@ void Flips
     VersionNum         version
 )
 {
+    printf("Starting flips\n") ;
+    fflush(stdout) ;
+
     clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
 
     SET_FUNCTION_COUNTER ;
