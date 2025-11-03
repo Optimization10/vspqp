@@ -72,9 +72,9 @@ void VSP_set_default_problem_data(VSP_problem* problem) {
     for(i = 0 ; i < nz ; i++) Ae[i] = 1 ;
 
     /* Set the upper balance constraint to 60%, and lower constraint to 1 */
-    problem->u = floor(problem->Graph->n * 0.6);
+    problem->u = (VSPINT) (problem->Graph->n * 0.6);
 
-    problem->ubFinest = floor(problem->Graph->n * 0.6) ;
+    problem->ubFinest = (VSPINT) (problem->Graph->n * 0.6) ;
 
     return ;
 }
