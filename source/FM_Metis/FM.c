@@ -374,8 +374,10 @@ void FM_Metis
     /*------------------------------------------------------------------------*/
 
     /* Declare local variables */
+    VSPLONG p ;
     VSPINT i, j, to, other, topGains[2], topVals[2], nswaps ;
     VSPINT k, oldgain ;
+
 
     /* Unpack structs */
     VSPINT *z  = Z->point->int_part ;
@@ -609,12 +611,12 @@ void FM_Metis
             /**********************************************************
              * Update the degrees of the affected nodes
              ***********************************************************/
-            for (j = Ap[higain]; j < Ap[higain + 1]; j++)
+            for (p = Ap[higain]; p < Ap[higain + 1]; p++)
             {
                 #ifdef VSP_DEBUG
                     BND_Check(nbnd, bndind, bndptr, where, n) ;
                 #endif
-                k = Ai[j];
+                k = Ai[p];
 
                 if (where[k] == 2) /* If k is in the separator */
                 { 
@@ -736,9 +738,9 @@ void FM_Metis
             /* Compute edegrees of higain */
             extWgts[higain].wgts[0] = 0 ;
             extWgts[higain].wgts[1] = 0 ;
-            for (j = Ap[higain] ; j < Ap[higain + 1] ; j++)
+            for (p = Ap[higain] ; p < Ap[higain + 1] ; p++)
             {
-                k = Ai[j];
+                k = Ai[p];
                 if (where[k] == 2) // Update ext wgt of neighbors of higain in sep
                 {
                     extWgts[k].wgts[to] -= c[higain] ;

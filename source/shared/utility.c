@@ -1201,7 +1201,7 @@ VSPINT Get_Max_Degree(VSPLONG *Ap, VSPINT n)
         deg = Ap[i+1] - Ap[i] ;
         if(deg > max_deg) max_deg = deg ;
     }
-    return deg ;
+    return max_deg ;
 }
 
 bool Is_Singleton
