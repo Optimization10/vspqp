@@ -111,6 +111,7 @@ void MovesImprovingCost
 {
     SET_FUNCTION_COUNTER ;
 
+    VSPLONG p ;
     VSPINT topVals[2], topGains[2], to, other, higain, j, k, oldgain,
     numNeutralMoves = 0,
     n = problem->Graph->n,
@@ -118,6 +119,7 @@ void MovesImprovingCost
     *Ai = problem->Graph->Ai,
     nflips = 0 ; // nflips accurate at beginning of loop
     VSPLONG *Ap = problem->Graph->Ap ;
+
 
 
     while( 1 )
@@ -242,12 +244,12 @@ void MovesImprovingCost
         /*--------------------------------------------------------------------*/
         // Apply updates due to secondary moves
         /*--------------------------------------------------------------------*/
-        for (j = Ap[higain]; j < Ap[higain + 1]; j++)
+        for (p = Ap[higain]; p < Ap[higain + 1]; p++)
         {
             #ifdef VSP_DEBUG
                 BND_Check(*nbnd, bndind, bndptr, where, n) ;
             #endif
-            k = Ai[j];
+            k = Ai[p];
 
             if (where[k] == 2) /* If k is in the separator */
             { 
