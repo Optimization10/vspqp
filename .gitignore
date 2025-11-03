@@ -8,6 +8,8 @@ framac_output.txt
 ManualMatsList.txt
 see.txt
 Log_Dbg.txt
+stderr.txt
+stdout.txt
 
 outputs_archive/
 output/
