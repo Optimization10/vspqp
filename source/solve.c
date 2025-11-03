@@ -83,7 +83,6 @@ VSP_solve_result* VSP_solve
     VSP_preprocess_finest_problem(problem_finest, options) ;
     LoggerInit(false) ;
 
-
     /* Coarsening */
     Stopwatches_Start(problem_finest->Stopwatches, "Coarsening") ;
     VSP_problem *problem = VSP_coarsen_all_the_way_down(problem_finest, options) ;

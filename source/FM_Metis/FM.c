@@ -331,6 +331,30 @@ void FM_Metis
     VSPINT          n_passes
 )
 {
+    static long long unsigned count = 0 ;
+    count++ ;
+
+    // Check that x, y are binary and compute xAy
+    if(Z->point->ind_frac != EMPTY) printf("x has frac component in FM METIS. Count %llu\n", count) ;
+    if(W->point->ind_frac != EMPTY) printf("y has frac component in FM METIS. Count %llu\n", count) ;
+
+    VSPINT xAy = 0 ;
+    for(VSPINT ii = 0 ; ii < problem->Graph->n ; ii++)
+    {
+        xAy += Z->point->int_part[ii] * W->Az->int_part[ii] ;
+    }
+
+    VSPINT yAx = 0 ;
+    for(VSPINT ii = 0 ; ii < problem->Graph->n ; ii++)
+    {
+        xAy += W->point->int_part[ii] * Z->Az->int_part[ii] ;
+    }
+
+    if(xAy != yAx) printf("Cross term not accurate in FM METIS. Count %llu\n", count) ;
+    if(xAy != 0) printf("Cross term not zero FM METIS. Cross term value: %lld Count %llu\n", (long long) xAy, count) ;
+
+
+
     printf("Starting FM_METIS\n") ;
     fflush(stdout) ;
 
@@ -338,8 +362,6 @@ void FM_Metis
     TIMER_START ;
 
     #ifdef VSP_DEBUG
-        static long long unsigned count = 0 ;
-        count++ ;
 
         Check_FM_Inputs(Z, W, problem) ;
         
