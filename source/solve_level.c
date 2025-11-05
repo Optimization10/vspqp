@@ -61,10 +61,14 @@ static void Determine_Num_GR
 // Note that we are not taking into account the penalty term
 bool Early_Exit(VSP_state *X, VSP_state *Y, VSP_problem *P)
 {
-    printf("\nTook Early Exit") ;
     VSPFLOAT obj = VSP_compute_obj(X, Y, P, P->Graph->max_vtx_cost) ;
-    // printf("\nEE Sep: %f",(VSPFLOAT) (P->Graph->total_vtx_cost - obj) ) ;
-    return (VSP_lteq(P->Graph->total_vtx_cost - P->Graph->min_vtx_cost, obj)) ;
+    bool ret = false ;
+    if(VSP_lteq(P->Graph->total_vtx_cost - P->Graph->min_vtx_cost, obj))
+    {
+        printf("\nTook Early Exit") ;
+        ret = true ;
+    }
+    return ret ;
 }
 
 // whereToUseFMFlips:
@@ -250,7 +254,7 @@ void Flips
     VersionNum         version
 )
 {
-    printf("Starting flips\n") ;
+    // printf("\nStarting flips") ;
     fflush(stdout) ;
 
     clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;

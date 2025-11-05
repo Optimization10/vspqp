@@ -34,7 +34,7 @@ void VSP_relaxed_to_vertex_separator
     VSP_problem    *problem
 )
 {
-    printf("Starting Relaxed To VSP\n") ;
+    // printf("\nStarting Relaxed To VSP") ;
     fflush(stdout) ;
     #ifdef VSP_DEBUG
         VSP_check_states(X, Y, problem) ;

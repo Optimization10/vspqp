@@ -5,7 +5,7 @@ COMPILER = gcc
 # Mode 0 --> VSPINT = int and VSPLONG = int (default)
 # Mode 1 --> VSPINT = int and VSPLONG = long long
 # Mode 2 --> VSPINT = long long and VSPLONG = long long
-VSP_INTEGERS_MODE = 1
+VSP_INTEGERS_MODE = 0
 # WARNING: This is not fixed in SuiteSparse
 # I really should just get rid of all the SuiteSparse stuff and make my own
 # functions for reading and cleaning matrices

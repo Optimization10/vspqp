@@ -64,7 +64,7 @@ void Solve_Level
     VSP_state *X, VSP_state *Y, VSP_problem *problem, VSP_options *options
 )
 {
-    printf("\nStarting level level: %lld\n", (long long) problem->level) ;
+    // printf("\nStarting level level: %lld\n", (long long) problem->level) ;
     fflush(stdout) ;
     Dump_Problem(G_P, NULL, NULL) ;
     Optimize(X, Y, problem, options, true, 0) ;

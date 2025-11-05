@@ -357,7 +357,7 @@ void FM_Metis
 
 
 
-    printf("Starting FM_METIS\n") ;
+    // printf("\nStarting FM_METIS") ;
     fflush(stdout) ;
 
     Stopwatches_Start(problem->Stopwatches, "FM_METIS") ;
