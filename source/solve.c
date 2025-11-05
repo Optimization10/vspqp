@@ -53,7 +53,7 @@ void Final_Cleanup
     VSP_destruct_Az(Y->Az) ;
     free(Y->point) ;
     free(Y) ;
-
+ 
     Destroy_Coarse_Problems(problemFinest) ;
 }
 
