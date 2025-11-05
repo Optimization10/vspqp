@@ -65,8 +65,6 @@ void Solve_Level
 )
 {
     // printf("\nStarting level level: %lld\n", (long long) problem->level) ;
-    fflush(stdout) ;
-    Dump_Problem(G_P, NULL, NULL) ;
     Optimize(X, Y, problem, options, true, 0) ;
     VSP_relaxed_to_vertex_separator(X, Y, problem) ;
     VSP_ResolveLevelDecideAndDo(X, Y, problem, options) ;

@@ -9,6 +9,7 @@
 #include "flips_public_v4.h"
 #include "flips_public_v5.h"
 #include "flips_public_v7.h"
+#include "shared_functions.h"
 #include "string.h"
 #include "gr_flips.h"
 #include "logger.h"
@@ -368,9 +369,9 @@ static void Best_Of_MC_And_Greedy_Flips
     }
 
     bool abortManyFlipsPasses = false ;
-    if(wgtxcpy == 0 || wgtycpy == 0)
+    if(Graph_Density(problem->Graph->n, problem->Graph->nz) > 0.3)
     {
-        abortManyFlipsPasses = true ;       
+        abortManyFlipsPasses = true ;
     }
 
     /*------------------------------------------------------------------------*/
