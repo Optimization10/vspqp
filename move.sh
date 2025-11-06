@@ -1,4 +1,4 @@
 #!/bin/bash
 
-NEW_NAME=wgt0_v2
+NEW_NAME=smallrefactor
 mv ./output/profile_raw ~/Desktop/VSP/matlab/$NEW_NAME

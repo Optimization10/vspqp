@@ -13,6 +13,7 @@
 #include "string.h"
 #include "gr_flips.h"
 #include "logger.h"
+#include <stdio.h>
 
 
 static void Best_Of_MC_And_Greedy_Flips
@@ -356,20 +357,17 @@ static void Best_Of_MC_And_Greedy_Flips
     ) ;
 
     // Compute c*x and c*y locally
-    wgtxcpy = 0 ;
-    wgtycpy = 0 ;
     VSPINT *c = problem->Graph->c ;
-    for(VSPINT i = 0 ; i < problem->Graph->n ; i++)
-    {
-        wgtxcpy += xcpy[i] * c[i] ;
-        wgtycpy += ycpy[i] * c[i] ;
-    }
+
 
     bool abortManyFlipsPasses = false ;
+    wgtxcpy = State_Get_Wgt_Int_Part(X, c) ;
+    wgtycpy = State_Get_Wgt_Int_Part(Y, c) ;
     if(wgtxcpy == 0 || wgtycpy == 0)
     {
         abortManyFlipsPasses = true ;
     }
+
 
     /*------------------------------------------------------------------------*/
     // Do greedy flips, all from the same starting point

@@ -1349,3 +1349,15 @@ void Dump_Problem
     fclose(fp2) ;
     return ;
 }
+
+VSPINT State_Get_Wgt_Int_Part
+(
+    VSP_state *Z,
+    VSPINT    *c
+)
+{
+    if(Z->point->ind_frac == EMPTY) return Z->weight ;
+
+    VSPFLOAT frac_wgt = c[Z->point->ind_frac] * Z->point->val_frac ;
+    return (VSPINT) (Z->weight - frac_wgt + 1e-3) ;
+}

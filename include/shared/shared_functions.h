@@ -657,4 +657,10 @@ void Dump_Problem
     const VSP_state   *Y
 ) ;
 
+VSPINT State_Get_Wgt_Int_Part
+(
+    VSP_state *Z,
+    VSPINT    *c
+) ;
+
 #endif

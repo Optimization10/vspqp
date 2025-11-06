@@ -60,7 +60,7 @@ void TryFlipsManyStartingPoints
 
     VSPINT wgtxBest, wgtyBest ;
     VSPINT *xBest  = malloc(n * sizeof(VSPINT)) ;
-    VSPINT *AxBest  = malloc(n * sizeof(VSPINT)) ;
+    VSPINT *AxBest = malloc(n * sizeof(VSPINT)) ;
     VSPINT *yBest  = malloc(n * sizeof(VSPINT)) ;
     VSPINT *AyBest = malloc(n * sizeof(VSPINT)) ;
 
