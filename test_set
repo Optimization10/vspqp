@@ -1,6 +1,6 @@
 Contains the beginning part of test_8 set and the ending part of test_7.
-Except problems which took more than 3 seconds using VSPQP were excluded.
-n starts from around 200,000
+Problems which took too long (more than about 5 seconds at most) were excluded
+0.2 million < n < 4.19 million
 
 1910
 2517
@@ -174,3 +174,17 @@ n starts from around 200,000
 1876
 2476
 2505
+2497
+2549
+2516
+2573
+2895
+2659
+2579
+1902
+2577
+2578
+2781
+2498
+2477
+2506
