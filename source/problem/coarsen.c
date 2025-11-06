@@ -770,10 +770,22 @@ VSP_problem *Problem_Recursive_Coarsen
 
         Stopwatches_Stop(P->Stopwatches, "Coarsening") ;
 
-        // Check stopping criteria
-        if(Stop_Coarsening(P, options))
+        // // Check stopping criteria
+        // if(Stop_Coarsening(P, options))
+        // {
+        //     // Destroy the problem corresponding to a complete graph
+        //     VSP_destruct_problem(coarse_P) ;
+        //     coarsest_P = P ;
+        //     break ;
+        // }
+        if(Graph_Density(coarse_P->Graph->n, coarse_P->Graph->nz) > 0.4
+           || coarse_P->Graph->n < 10)
         {
-            // Destroy the problem corresponding to a complete graph
+            coarsest_P = coarse_P ;
+            break ;
+        }
+        else if(Is_Complete_Graph(coarse_P->Graph->n, coarse_P->Graph->nz))
+        {
             VSP_destruct_problem(coarse_P) ;
             coarsest_P = P ;
             break ;

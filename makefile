@@ -117,7 +117,7 @@ performance_dbg_sanitize: create_dirs archive_output
 valgrind: create_dirs archive_output
 	@echo "Compiling..." ;
 	$(COMPILER) $(SOURCE)   -o$(VSP_EXE) $(INCLUDE) $(DBG_FLAGS) $(LIBS)  $(DBG_DEFS) \
-		$(OTHER_FLAGS) $(IGNORE_WARNINGS) -DVSP_LOG -DVSP_STATS -DMEASURE_PERFORMANCE=1 -DVSP_DEBUG -DVSP_DEBUG_COARSENING \
+		$(OTHER_FLAGS) $(IGNORE_WARNINGS) -DVSP_LOG -DVSP_STATS -DMEASURE_PERFORMANCE=1 -DVSP_DEBUG \
 		-DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
 	@echo "\nRunning valgrind..."
 	valgrind $(VALGRIND_FLAGS) ./build/vsp $(DATA)
