@@ -66,7 +66,6 @@ bool Early_Exit(VSP_state *X, VSP_state *Y, VSP_problem *P)
     bool ret = false ;
     if(VSP_lteq(P->Graph->total_vtx_cost - P->Graph->min_vtx_cost, obj))
     {
-        printf("\nTook Early Exit") ;
         ret = true ;
     }
     return ret ;
@@ -111,8 +110,6 @@ void Optimize
 
     if(Early_Exit(X, Y, problem))
     {
-        printf("\nTaking early exit\n") ;
-        fflush(stdout) ;
         goto EARLY_EXIT ;
     }
 
@@ -369,13 +366,13 @@ static void Best_Of_MC_And_Greedy_Flips
     }
 
     bool abortManyFlipsPasses = false ;
-    if(Graph_Density(problem->Graph->n, problem->Graph->nz) > 0.3)
+    if(wgtxcpy == 0 || wgtycpy == 0)
     {
         abortManyFlipsPasses = true ;
     }
 
     /*------------------------------------------------------------------------*/
-    // Do greedy flips, all from the same starting point 
+    // Do greedy flips, all from the same starting point
     /*------------------------------------------------------------------------*/
 
     if(!abortManyFlipsPasses)
