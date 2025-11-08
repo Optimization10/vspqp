@@ -1362,7 +1362,7 @@ VSPINT State_Get_Wgt_Int_Part
     return (VSPINT) (Z->weight - frac_wgt + 1e-3) ;
 }
 
-
+// Assume: array is not empty
 VSPINT Get_Rand_Array_Entry
 (
     VSPINT *arr,

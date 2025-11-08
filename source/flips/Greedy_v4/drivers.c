@@ -2,6 +2,7 @@
 #include "flips_context.h"
 #include "flips_private_v4.h"
 #include "flips_private_v5.h"
+#include "shared_functions.h"
 #include "shared_macros.h"
 #include "shared_types.h"
 
@@ -159,13 +160,24 @@ static void Get_Upflip
             return ;
         }
 
-        
-    } // No strictly beneficial upflip
-    else
-    {
-
+        // Get a random flip
+        *ind_flip = Get_Rand_Array_Entry
+        (
+            z0Aw0_groups->groups[c_top],
+            z0Aw0_groups->sizes [c_top]
+        ) ;
+        return ;
     }
 
+    // No strictly beneficial upflip. Try to return a feasible neutral upflip
+    if(!IS_FEASIBLE_FLIP(0, *wgt_z, P->Graph->max_vtx_cost, u))
+    {
+        *ind_flip = EMPTY ;
+        return ;
+    }
+
+    *ind_flip = Direct_Access_List_Get_Rand_Entry(z0Aw1_list) ;
+    return ;
 }
 
 // Assume: Input point is the output of feasible beneficial flips

@@ -1,4 +1,5 @@
 #include "ds_api.h"
+#include "shared_functions.h"
 
 Direct_Access_List *Construct_Direct_Access_List(VSPINT max_size)
 {
@@ -137,6 +138,19 @@ void Direct_Access_List_Print
         }
     }
     fclose(file) ;
+}
+
+VSPINT Direct_Access_List_Get_Size(Direct_Access_List *List)
+{
+    return List->size ;
+}
+
+// If the list is empty, return EMPTY
+VSPINT Direct_Access_List_Get_Rand_Entry(Direct_Access_List *List)
+{
+    if(List->size == 0) return EMPTY ;
+    
+    return Get_Rand_Array_Entry(List->list, List->size) ;
 }
 
 void Direct_Access_List_Check

@@ -52,6 +52,10 @@ void Direct_Access_List_Delete_By_Value
     VSPINT              val_to_del
 ) ;
 
+VSPINT Direct_Access_List_Get_Rand_Entry(Direct_Access_List *List) ;
+
+VSPINT Direct_Access_List_Get_Size(Direct_Access_List *List) ;
+
 void Direct_Access_List_Reset
 (
     Direct_Access_List *list
