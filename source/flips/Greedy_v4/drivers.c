@@ -21,29 +21,28 @@ void Flips_v4
     #endif
 
     /*------------------------------------------------------------------------*/
-    // static VSPINT nums = 0 ;
-    // nums++; 
-    // if(nums == 1)
-    // {
-    //     printf("\n\nWARNING: Doing a debugging check in performance mode") ;
-    //     fflush(stdout) ;
-    // }
+    static VSPINT nums = 0 ;
+    nums++; 
+    if(nums == 1)
+    {
+        printf("\n\nWARNING: Doing a debugging check in performance mode") ;
+        fflush(stdout) ;
+    }
 
-    // for(VSPINT i = 0 ; i < problem->Graph->n ; i++)
-    // {
-    //     if(x[i] && Ay[i] >= 3)
-    //     {
-    //         printf("\nError: xi is 1 and Ayi is >= 3 in flip. Problem: %s", problem->name) ;
-    //         fflush(stdout) ;
-    //     }
+    for(VSPINT i = 0 ; i < problem->Graph->n ; i++)
+    {
+        if(x[i] && Ay[i] >= 3)
+        {
+            printf("\nError: xi is 1 and Ayi is >= 3 in flip. Problem: %s", problem->name) ;
+            fflush(stdout) ;
+        }
 
-    //     if(y[i] && Ax[i] >= 3)
-    //     {
-    //         Call_Stack_Print() ;
-    //         printf("\nError: yi is 1 and Axi is >= 3 in flips. Problem: %s", problem->name) ;
-    //         fflush(stdout) ;
-    //     }
-    // }
+        if(y[i] && Ax[i] >= 3)
+        {
+            printf("\nError: yi is 1 and Axi is >= 3 in flips. Problem: %s", problem->name) ;
+            fflush(stdout) ;
+        }
+    }
     /*------------------------------------------------------------------------*/
 
 
