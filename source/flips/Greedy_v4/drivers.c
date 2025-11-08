@@ -136,7 +136,7 @@ void Flips_v4
 // May not catch all upflips 
 static void Get_Upflip
 (
-    VSPINT                     *wgt_z,
+    VSPINT                      wgt_z,
     IdxGroupsByC        *z0Aw0_groups,
     Direct_Access_List    *z0Aw1_list,
     VSP_problem                    *P,
@@ -154,7 +154,7 @@ static void Get_Upflip
     {
         // If not feasible return. No need to check for neutral upflip as
         // that wouldn't be feasible anyway
-        if(!IS_FEASIBLE_FLIP(0, *wgt_z, c_top, u))
+        if(!IS_FEASIBLE_FLIP(0, wgt_z, c_top, u))
         {
             *ind_flip = EMPTY ;
             return ;
@@ -170,7 +170,7 @@ static void Get_Upflip
     }
 
     // No strictly beneficial upflip. Try to return a feasible neutral upflip
-    if(!IS_FEASIBLE_FLIP(0, *wgt_z, P->Graph->max_vtx_cost, u))
+    if(!IS_FEASIBLE_FLIP(0, wgt_z, P->Graph->max_vtx_cost, u))
     {
         *ind_flip = EMPTY ;
         return ;
@@ -178,6 +178,17 @@ static void Get_Upflip
 
     *ind_flip = Direct_Access_List_Get_Rand_Entry(z0Aw1_list) ;
     return ;
+}
+
+static void Get_Downflip
+(
+    IdxGroupsByC        *z1Aw2_groups,
+    IdxGroupsByC        *z1Aw1_groups,
+    VSP_problem                    *P,
+    VSPINT                  *ind_flip
+)
+{
+
 }
 
 // Assume: Input point is the output of feasible beneficial flips
@@ -209,21 +220,57 @@ void Balance_Flips
     IdxGroupsByC           *y1Ax2_groups,
     Direct_Access_List       *y0Ax1_list,
 
-    VSP_problem                 *problem,
-    VSPINT              *retNumFlipsDone
+    VSP_problem                       *P
 )
 {
-    if(*wgtx == *wgty) return ;
-    VSPINT lighter = (*wgtx < *wgty) ? X_VAR : Y_VAR ; 
+    // 1. Let z be the lighter variable and w the heavier one
+    VSPINT *z;
+    VSPINT *w;
+    VSPINT *Az;
+    VSPINT *Aw;
+    VSPINT *wgtz;
+    VSPINT *wgtw;
     
+    IdxGroupsByC *z0Aw0_groups;
+    IdxGroupsByC *z1Aw1_groups;
+    IdxGroupsByC *z1Aw2_groups;
+    Direct_Access_List *z0Aw1_list;
+    
+    IdxGroupsByC *w0Az0_groups;
+    IdxGroupsByC *w1Az1_groups;
+    IdxGroupsByC *w1Az2_groups;
+    Direct_Access_List *w0Az1_list;
+    
+    Assign_By_Weight
+    (
+        &z, &w, &Az, &Aw, &wgtz, &wgtw,
+        &z0Aw0_groups, &z1Aw1_groups, &z1Aw2_groups, &z0Aw1_list,
+        &w0Az0_groups, &w1Az1_groups, &w1Az2_groups, &w0Az1_list,
 
+        x, y, Ax, Ay, wgtx, wgty,
+        x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
+        y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list
+    ) ;
+
+
+    // Alternate flips to promote balance
+    VSPINT ind_flip ;
     while(true)
     {
-        // 1. Let z be the lighter variable and w the heavier one
+        // Identify an upflip in the lighter variable
+        Get_Upflip(*wgtz, z0Aw0_groups, z0Aw1_list, P, &ind_flip) ;
 
-        // 2. Do a neutral upflip in the lighter variable
+        // Do the upflip in the lighter variable
+        if(ind_flip != EMPTY)
+        {
+            // Do the upflip
+        }
 
         // 3. Do a neutral or strictly beneficial downflip in the heavier var
 
+
+        // Break if the lighter variable has surpassed the heavier one
+        // TODO: May want to continue going if we're improving the objective
+        if(*wgtz >= *wgtw) break ;
     }
 }
