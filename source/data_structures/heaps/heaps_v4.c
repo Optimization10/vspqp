@@ -364,7 +364,21 @@ void Min_Heap_Insert_v4
     return ;
 }
 
-
+// Return top key in the heap. If the heap is empty, return EMPTY
+VSPINT Min_Heap_See_Top_Key_v4
+(
+    Min_Heap_v4 *Heap
+)
+{
+    if(Heap->sizeHeap)
+    {
+        return Heap->heap[1] ;
+    }
+    else
+    {
+        return EMPTY ;
+    }
+}
 
 // ASSUMED: toDel is a value in the heap
 // Remark: I think this function can be made more efficient by not actually

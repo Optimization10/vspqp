@@ -180,6 +180,8 @@ static void Get_Upflip
     return ;
 }
 
+// Return a downflip with highest gain (all downflips are feasible)
+// Assume: z_i = 1 implies Aw_i <= 2
 static void Get_Downflip
 (
     IdxGroupsByC        *z1Aw2_groups,
@@ -188,7 +190,31 @@ static void Get_Downflip
     VSPINT                  *ind_flip
 )
 {
+    VSPINT c_bot = EMPTY ;
+    IdxGroupsByC *Chosen = NULL ;
 
+    c_bot = Min_Heap_See_Top_Key_v4(z1Aw2_groups->minHeap) ;
+    if(c_bot != EMPTY)
+    {
+        Chosen = z1Aw2_groups ;
+    }
+    else
+    {
+        c_bot = Min_Heap_See_Top_Key_v4(z1Aw1_groups->minHeap) ;
+    }
+
+    if(c_bot == EMPTY)
+    {
+        *ind_flip = EMPTY ;
+        return ;
+    }
+
+    *ind_flip = Get_Rand_Array_Entry
+    (
+        z1Aw2_groups->groups[c_bot],
+        z1Aw2_groups->sizes [c_bot]
+    ) ;
+    return ;
 }
 
 // Assume: Input point is the output of feasible beneficial flips

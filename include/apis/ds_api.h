@@ -857,6 +857,7 @@ void Min_Heap_Bubble_Up_v4(Min_Heap_v4 *Heap, VSPINT p, VSPINT valToBubble);
 void Min_Heap_Build_v4(Min_Heap_v4 *Heap);
 void Min_Heap_Insert_v4(Min_Heap_v4 *Heap, VSPINT valToInsert);
 void Min_Heap_Delete_v4(Min_Heap_v4 *Heap, VSPINT toDel);
+VSPINT Min_Heap_See_Top_Key_v4(Min_Heap_v4 *Heap) ;
 
 // Max Heap functions
 Max_Heap_v4 *Max_Heap_Init_v4
