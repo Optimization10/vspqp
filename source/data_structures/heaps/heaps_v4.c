@@ -830,3 +830,19 @@ void Max_Heap_Delete_v4
     #endif
     return ;
 }
+
+// Return top key in the heap. If the heap is empty, return EMPTY
+VSPINT Max_Heap_See_Top_Key_v4
+(
+    Max_Heap_v4 *Heap
+)
+{
+    if(Heap->sizeHeap)
+    {
+        return Heap->heap[1] ;
+    }
+    else
+    {
+        return EMPTY ;
+    }
+}

@@ -868,6 +868,7 @@ void Max_Heap_Bubble_Up_v4(Max_Heap_v4 *Heap, VSPINT p, VSPINT valToBubble);
 void Max_Heap_Build_v4(Max_Heap_v4 *Heap);
 void Max_Heap_Insert_v4(Max_Heap_v4 *Heap, VSPINT valToInsert);
 void Max_Heap_Delete_v4(Max_Heap_v4 *Heap, VSPINT toDel);
+VSPINT Max_Heap_See_Top_Key_v4(Max_Heap_v4 *Heap) ;
 
 /*----------------------------------------------------------------------------*/
 // IdxGroupsByC

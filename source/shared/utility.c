@@ -1361,3 +1361,13 @@ VSPINT State_Get_Wgt_Int_Part
     VSPFLOAT frac_wgt = c[Z->point->ind_frac] * Z->point->val_frac ;
     return (VSPINT) (Z->weight - frac_wgt + 1e-3) ;
 }
+
+
+VSPINT Get_Rand_Array_Entry
+(
+    VSPINT *arr,
+    VSPINT    n  // size of arr
+)
+{
+    return arr[ rand() % n ] ;
+}

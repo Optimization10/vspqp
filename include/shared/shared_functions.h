@@ -663,4 +663,10 @@ VSPINT State_Get_Wgt_Int_Part
     VSPINT    *c
 ) ;
 
+VSPINT Get_Rand_Array_Entry
+(
+    VSPINT *arr,
+    VSPINT    n  // size of arr
+) ;
+
 #endif
