@@ -283,20 +283,38 @@ void Balance_Flips
     VSPINT ind_flip ;
     while(true)
     {
-        // Identify an upflip in the lighter variable
+        bool any_flip_done = false ;
+        // Do upflip in heavier variable
         Get_Upflip(*wgtz, z0Aw0_groups, z0Aw1_list, P, &ind_flip) ;
-
-        // Do the upflip in the lighter variable
         if(ind_flip != EMPTY)
         {
-            // Do the upflip
+            // Do upflip in lighter variable
+            Upflip
+            (
+                z, Az, w, Aw, wgtz, wgtw,
+                z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
+                w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
+                ind_flip, P
+            ) ;
+            any_flip_done = true ;
         }
 
-        // 3. Do a neutral or strictly beneficial downflip in the heavier var
-
+        // Do downflip in heavier variable
+        Get_Downflip(w1Az2_groups, w1Az1_groups, P, &ind_flip) ;
+        if(ind_flip != EMPTY)
+        {
+            Downflip
+            (
+                w, Aw, z, Az, wgtw, wgtz,
+                w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
+                z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
+                ind_flip, P
+            ) ;
+            any_flip_done = true ;
+        }
 
         // Break if the lighter variable has surpassed the heavier one
         // TODO: May want to continue going if we're improving the objective
-        if(*wgtz >= *wgtw) break ;
+        if(*wgtz >= *wgtw || !any_flip_done) break ;
     }
 }
