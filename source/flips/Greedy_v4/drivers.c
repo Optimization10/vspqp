@@ -104,10 +104,14 @@ void Flips_v4
         y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
         maxNumPasses, problem
     ) ;
-    
-    // Balance Flips
 
-
+    Balance_Flips
+    (
+        x, y, Ax, Ay, wgtx, wgty,
+        x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
+        y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
+        problem
+    ) ;
 
     FeasibleBeneficialFlips
     (
@@ -201,6 +205,10 @@ static void Get_Downflip
     else
     {
         c_bot = Min_Heap_See_Top_Key_v4(z1Aw1_groups->minHeap) ;
+        if(c_bot != EMPTY)
+        {
+            Chosen = z1Aw1_groups ;
+        }
     }
 
     if(c_bot == EMPTY)
@@ -211,8 +219,8 @@ static void Get_Downflip
 
     *ind_flip = Get_Rand_Array_Entry
     (
-        z1Aw2_groups->groups[c_bot],
-        z1Aw2_groups->sizes [c_bot]
+        Chosen->groups[c_bot],
+        Chosen->sizes [c_bot]
     ) ;
     return ;
 }
@@ -223,9 +231,7 @@ static void Get_Downflip
 // Alternate between
 // 1) neutral upflip or strictly beneficial upflip in lighter variable
 // 2) beneficial downflip in heavier variable
-// until the lighter variable surpasses the heavier. Undo the last
-// move if it had better balance. Then, do any remaining strictly beneficial
-// flips
+// until the lighter variable surpasses the heavier
 // I think this should be called after the last feasible beneficial flips
 void Balance_Flips
 (
@@ -284,7 +290,7 @@ void Balance_Flips
     while(true)
     {
         bool any_flip_done = false ;
-        // Do upflip in heavier variable
+        // Do upflip in lighter variable
         Get_Upflip(*wgtz, z0Aw0_groups, z0Aw1_list, P, &ind_flip) ;
         if(ind_flip != EMPTY)
         {
