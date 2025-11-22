@@ -141,7 +141,7 @@ void Print_Neighs
     VSPINT vtx, VSPINT *Ai, VSPLONG *Ap
 )
 {
-    FILE *file = fopen("Log_Dbg.txt", "a") ;
+    FILE *file = fopen("output/Log_Dbg.txt", "a") ;
     fprintf(file, "\nNeighbors of vertex %lld :\n", (long long) vtx) ;
     for(VSPLONG p = Ap[vtx] ; p < Ap[vtx + 1] ; p++)
     {
