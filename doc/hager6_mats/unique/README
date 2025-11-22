@@ -1,5 +1,52 @@
-The tests are a partition of the 32GB.txt file into 8 (almost) equal parts
+================================================================================
+=== Program VSP-METIS.sh (main program) ========================================
+================================================================================
+First argument must be the directory where the problems are located
+problems.txt should contain the file names, one per line
 
-test_1 has the smallest 159 graphs.
-All other tests have 155 graphs.
-test_8 has the largest 155 graphs.
+Second argument (optional) is the random number generator seed. If one is not
+provided, then a random number is generated
+
+WARNING: path must include a trailing backslash
+
+Example
+./VSP-METIS.sh /home/ovi/data/symmetric/
+./VSP-METIS.sh /media/hager/datafile/symmetric/
+
+================================================================================
+=== Data Description ===========================================================
+================================================================================
+All symmetrix and pattern symmetric matrices from SuiteSparse, excluding
+matrices corresponding to complete graphs and duplicates.
+
+Duplicates were found and deleted using fdupe
+
+all.txt            - contains all these matrices
+int32-n-sorted.txt - subset of matrices whose nz fits in a 32-bit int, sorted
+                     in increasing order of the number of vertices
+int64-n-sorted.txt - subset of matrices whose nz does not fit in a 32-bit
+			         int. That is, the nz is larger than about 2.1 billion
+
+================================================================================
+=== Program vsp-metis ==========================================================
+================================================================================
+    Building:
+Pass define INT_TYPE as 32 if you want 32-bit integers.
+Otherwise, it defaults to 64-bit integers. You should name the executable
+accordingly
+
+    Input:
+When running, give the absolute path of the hager6 matrix file as the first
+argument
+
+    Output:
+Appends the following to output/results.csv
+Num Vtx   : X
+Num Edges : X
+Separator : X
+Imbalance : X
+Time      : X
+(newline)
+(newline)
+
+Appends to output/hr_results.txt

@@ -34,6 +34,7 @@ void VSP_Solve_With_Metis
     static long long unsigned count = 0 ;
     count++ ;
 
+
     /* Convert from data from VSPINT to idx_t which is used by metis */
     idx_t numVertices   = (idx_t) n ;
     idx_t numNonzeros   = (idx_t) (Ap[n]) ;
