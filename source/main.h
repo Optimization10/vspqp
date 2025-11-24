@@ -10,9 +10,8 @@
 #include "ds_api.h"
 #include <stdio.h>
 
-#if MEASURE_PERFORMANCE
-    VSP_Performance G_Performance_Struct = {0} ; 
-#endif
+VSP_Performance G_Performance_Struct = {0} ; 
+
 
 char global_matrix[70] ;
 

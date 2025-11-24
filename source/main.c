@@ -1,9 +1,10 @@
+#include "shared_api.h"
 #include "main.h"
-#include "shared_globals.h"
 #include "shared_types.h"
 // #include <cstdlib>
 #include "time.h"
 
+extern VSP_Performance G_Performance_Struct ;
 
 typedef enum
 {
@@ -171,11 +172,11 @@ int main(int argc, char** argv)
             fclose(f) ;
 
             VSP_set_default_problem_data(problem) ;
-            VSP_Solve_With_Metis
-            (
-                problem->name, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->c,
-                problem->Graph->n , 0.6, seed, &MSS
-            ) ;
+            // VSP_Solve_With_Metis
+            // (
+            //     problem->name, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->c,
+            //     problem->Graph->n , 0.6, seed, &MSS
+            // ) ;
             sumSepMetis  += MSS.costSep ;
             sumImbMetis  += ABS_DIFF( MSS.numNodesx, MSS.numNodesy) ; 
             sumTimeMetis += MSS.time ;

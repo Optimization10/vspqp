@@ -3,7 +3,6 @@
 
 void VSP_Print_Performance()
 {
-    #if MEASURE_PERFORMANCE
         FILE *file = fopen("output/performance.csv", "w") ;
         fprintf(file, ",Time,Count") ;
         fprintf(file,"\nMC,%Lf,%llu", G_Performance_Struct.MC_Seconds, G_Performance_Struct.MC_Count) ;
@@ -14,6 +13,5 @@ void VSP_Print_Performance()
         fprintf(file,"\nRelaxed_To_VSP,%Lf,%llu", G_Performance_Struct.Relaxed_To_VSP_Seconds, G_Performance_Struct.Relaxed_To_VSP_Count) ;
 
         fclose(file) ;
-    #endif
     return ;
 }

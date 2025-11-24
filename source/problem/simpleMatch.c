@@ -506,7 +506,7 @@ void Graph_Simple_Match
         {
             printf("\n\nInvalid n: %zu \n\n", (size_t) n) ;
         }
-        bool *HEM_Pair_Visited = calloc((size_t) n, sizeof(*HEM_Pair_Visited)) ;
+        bool *HEM_Pair_Visited = calloc(n, sizeof(*HEM_Pair_Visited)) ;
         if((size_t) n > 2E9 || (size_t) n <= 0)
         {
             printf("\n\nInvalid n: %zu \n\n", (size_t) n) ;

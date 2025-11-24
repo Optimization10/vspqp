@@ -57,7 +57,7 @@ void Check_Feasibility
         }
         wgty    += (VSPINT) lround( wgtFracY ) ;
     }
-
+ 
     // Check that the weights satisfy the balance constraints
     if(wgtx < 1)
     {

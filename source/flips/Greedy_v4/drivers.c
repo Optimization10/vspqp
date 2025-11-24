@@ -105,13 +105,13 @@ void Flips_v4
         maxNumPasses, problem
     ) ;
 
-    // Balance_Flips
-    // (
-    //     x, y, Ax, Ay, wgtx, wgty,
-    //     x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
-    //     y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
-    //     problem
-    // ) ;
+    Balance_Flips
+    (
+        x, y, Ax, Ay, wgtx, wgty,
+        x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
+        y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
+        problem
+    ) ;
 
     FeasibleBeneficialFlips
     (

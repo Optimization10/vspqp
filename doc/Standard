@@ -1,0 +1,6 @@
+    Structure:
+All code is in modules. Each module, like modA, should have an internal header,
+modA_internal.h, which can and should be included as #include "modA_internal.h".
+It is not needed to specify "source/modA_internal.h" because by default, the
+first place the compiler looks for headers is in the directory where the
+current source file being compiled is located.

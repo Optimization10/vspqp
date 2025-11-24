@@ -1,23 +1,15 @@
 #ifndef SHARED_API_H
 #define SHARED_API_H
 
-// Useful C library headers
-#include "stdbool.h"
-#include "stdio.h"
-#include "math.h"
-#include "stdlib.h"  
+    // Useful C library headers
+    #include "stdbool.h"
+    #include "stdio.h"
+    #include "math.h"
+    #include "stdlib.h"  
 
-// Things commonly used throughout the project
-#include "shared_types.h"
-#include "shared_functions.h"
-#include "shared_globals.h"
-#include "shared_macros.h"
-
-
-
-
-
-
-
-
+    // Things commonly used throughout the project
+    #include "shared_types.h"
+    #include "shared_functions.h"
+    #include "shared_globals.h"
+    #include "shared_macros.h"
 #endif

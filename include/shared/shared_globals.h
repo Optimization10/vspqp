@@ -1,13 +1,15 @@
 #ifndef SHARED_GLOBALS_H
 #define SHARED_GLOBALS_H
 
+
 #include "shared_types.h"
+
 extern const VSP_problem* G_P ;
 
 /******************************************************************************
     GLOBAL PERFORMANCE MEASURING STRUCT
 *******************************************************************************/
-#if MEASURE_PERFORMANCE
+
     typedef struct
     {
         long double All_Coarsening_Seconds ;
@@ -49,10 +51,6 @@ extern const VSP_problem* G_P ;
         (   (hidden_timespec_struct_end.tv_sec - hidden_timespec_struct_start.tv_sec) \
         + (hidden_timespec_struct_end.tv_nsec - hidden_timespec_struct_start.tv_nsec) / 1e9L ) ;\
     } while(0)
-#else
-    #define TIMER_START
-    #define TIMER_END
-    #define PERFORMANCE_UPDATE_TIME(PREFIX)
-#endif
+
 
 #endif

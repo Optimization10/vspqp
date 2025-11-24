@@ -1,5 +1,6 @@
 #include "shared_api.h"
 #include "Stopwatches.h"
+#include "shared_macros.h"
 
 void improve
 (
@@ -122,6 +123,11 @@ void VSP_relaxed_to_vertex_separator
         }
         else if (sum_y > 1) {
             j = ind_bad_y [num_bad_y - 1] ;
+            if(!IN_RANGE(j, 0, n))
+            {
+                printf("\n\nBADBADBAD\n\n") ;
+                fflush(stdout) ;
+            }
 
             y[j] = 0 ;
             num_bad_y -= 1 ;
