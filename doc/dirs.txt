@@ -1,0 +1,14 @@
+VSPQP:
+~/Desktop/VSP/VSPQP/output/
+
+METIS-VSP:
+~/Desktop/VSP/METIS-VSP/output/
+
+Matlab PPF data
+~/Desktop/VSP/matlab/data/
+
+Copy performance profile from VSPQP to Matlab
+cp ~/Desktop/VSP/VSPQP/output/profile_raw ~/Desktop/VSP/matlab/data/profile-new
+
+Open Matlab in terminal
+matlab -nodesktop -nosplash

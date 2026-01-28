@@ -64,7 +64,13 @@ void Solve_Level
     VSP_state *X, VSP_state *Y, VSP_problem *problem, VSP_options *options
 )
 {
-    // printf("\nStarting level level: %lld\n", (long long) problem->level) ;
+    VSPFLOAT u_ratio = 0.6 ;
+    VSPFLOAT s_ratio = 0.47 ;
+    VSPFLOAT curr_ratio ;
+    VSPINT   L = problem->coarsest_level_num ;
+
+    curr_ratio = (s_ratio - u_ratio) / L + u_ratio ;
+
     Optimize(X, Y, problem, options, true, 0) ;
     VSP_relaxed_to_vertex_separator(X, Y, problem) ;
     VSP_ResolveLevelDecideAndDo(X, Y, problem, options) ;
@@ -87,6 +93,7 @@ VSP_solve_result* VSP_solve
     Stopwatches_Stop(problem_finest->Stopwatches, "Coarsening") ;
 
     /* Multilevel Solve */
+
     VSP_state *X, *Y, *Xold, *Yold ;
     for( ; problem != NULL ; problem = problem->parent_problem)
     {
@@ -94,6 +101,7 @@ VSP_solve_result* VSP_solve
         fflush(stdout) ;
         Xold = X ; X = VSP_construct_state(problem->Graph->n) ;
         Yold = Y ; Y = VSP_construct_state(problem->Graph->n) ;
+
 
         if( Is_Coarsest_Problem(problem) ) VSP_set_initial_guess(X, Y, problem, options) ;
         else                               Uncoarsen_Point(problem, X, Y, Xold, Yold) ;

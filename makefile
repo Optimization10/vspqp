@@ -9,11 +9,15 @@ BUILD_DIR = build
 
 # --- INTEGER MODE CONFIGURATION ---
 # Default mode for VSP_INTEGERS_MODE is 0 if not explicitly set
-VSP_INTEGERS_MODE ?= 1
+# 0 --> VSPINT = int        and  VSPLONG = int
+# 1 --> VSPINT = int        and  VSPLONG = long long
+# 2 --> VSPINT = long long  and  VSPLONG = long long
+VSP_INTEGERS_MODE = 2
 
 # Source and Include Directories (ensure these paths are correct)
-SRCDIRS = source
-INCDIRS = include source
+SRCDIRS   = source
+INCDIRS   = include source
+OUTPUTDIR = output
 
 # Define common flags and optimization/debug specific flags
 COMMON_CFLAGS = -g -DVSP_INTEGERS_MODE=$(VSP_INTEGERS_MODE)
@@ -86,10 +90,9 @@ debug: $(TARGET)
 
 # VS Code Target
 # This target temporarily overrides CFLAGS to use the debug flags
-vscode_dbg: CFLAGS = $(CFLAGS_VSCODE) $(INCLUDES)
+vscode_dbg: CFLAGS = $(CFLAGS_VSCODE) $(INCLUDES) -DVSP_DEBUG
 vscode_dbg: $(TARGET)
 	@echo "Debug Build Complete."
-	./$(TARGET)
 
 # Valgrind Target: Builds with NO VSP_DEBUG, then runs through Valgrind
 valgrind: CFLAGS = $(CFLAGS_VALGRIND) $(INCLUDES)
@@ -127,4 +130,5 @@ $(BUILD_DIR)/%.o: %.c
 clean:
 	@rm -rf $(BUILD_DIR) $(TARGET)
 	@rm -f $(shell find . -name '*.d')
+	@rm ./output/*
 	@echo "Cleaned build artifacts."

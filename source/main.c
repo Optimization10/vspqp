@@ -29,10 +29,10 @@ int main(int argc, char** argv)
     // Make sure to include a trailing slash
 
     // Matrices on ovi computer
-    // char matricesDir[] = "/home/ovi/data/symmetric/" ;
+    char matricesDir[] = "/home/ovi/data/symmetric/" ;
 
     // Matrices dir on hager6 
-    char matricesDir[] = "/media/hager/datafile/symmetric/" ;
+    // char matricesDir[] = "/media/hager/datafile/symmetric/" ;
 
     // Choose between VSPQP and METIS
     SolveAlg solve = SOLVE_WITH_VSPQP ;
@@ -84,6 +84,7 @@ int main(int argc, char** argv)
 
 
     VSPINT num_graphs = 0 ;
+    double total_time = 0 ;
     if(solve == SOLVE_WITH_VSPQP)
     {
         /*--------------------------------------------------------------------*/
@@ -119,6 +120,8 @@ int main(int argc, char** argv)
 
             /* Compute total time for the VSP solver */
             elapsed_time = VSP_compute_elapsed_time(start, end) ;
+            total_time += elapsed_time ;
+
 
             // /* 4. Compute solution stats */
             VSP_solution_stats *sltn_stats =
@@ -197,6 +200,8 @@ int main(int argc, char** argv)
         /*--------------------------------------------------------------------*/
     }
     else printf("\n Error: Need to select solve alg") ;
+
+    printf("\nAA Time AA: %f\n\n", total_time) ;
 
     /* Free memory */
     VSP_destruct_options(options) ;

@@ -246,6 +246,7 @@ VSP_problem* VSP_construct_problem
     problem->invmatchmap = calloc( num_vertices, sizeof(VSPINT));
     problem->matchtype = calloc( num_vertices, sizeof(VSP_match_type));
 
+
     /* Initialize scalars */
     problem->Graph->n  = num_vertices;
     problem->Graph->nz = nz;

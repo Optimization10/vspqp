@@ -164,6 +164,7 @@ static void Steal_Match
  
     // Update matching
     matching[old] = 0 ;
+    matchtype[old] = matchtype_unmatched ;
     matching[new] = i + 1 ;
     matching[i]   = new + 1 ;
 
@@ -320,7 +321,7 @@ void Graph_Simple_Match
     VSPINT *heap_sings      = malloc((n+1) * sizeof(*heap_sings)) ;
     VSPINT  n_heap_sings    = 0 ;
 
-    VSPINT *lookup_heap     = malloc((n+1) * sizeof(*heap_sings)) ;
+    VSPINT *lookup_heap     = malloc((n+1) * sizeof(*lookup_heap)) ;
 
     // The largest cost of any 2-way or 3-way match. Used to block singleton
     // matching if the cost of such a matching would exceed gamma_coarse.
@@ -506,7 +507,7 @@ void Graph_Simple_Match
         {
             printf("\n\nInvalid n: %zu \n\n", (size_t) n) ;
         }
-        bool *HEM_Pair_Visited = calloc(n, sizeof(*HEM_Pair_Visited)) ;
+        bool *HEM_Pair_Visited = calloc(n, sizeof(bool)) ;
         if((size_t) n > 2E9 || (size_t) n <= 0)
         {
             printf("\n\nInvalid n: %zu \n\n", (size_t) n) ;

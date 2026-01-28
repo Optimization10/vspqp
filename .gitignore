@@ -22,6 +22,7 @@ output/
 
 # Object files
 build/*
+bin/*
 *.o
 *.ko
 *.obj

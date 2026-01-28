@@ -165,6 +165,7 @@ typedef enum VSP_matching_strategy_enum
 
 typedef enum VSP_match_type_enum
 {
+    matchtype_unmatched = 0,
     matchtype_orphan,
     matchtype_standard,
     matchtype_brotherly,
