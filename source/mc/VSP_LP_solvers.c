@@ -232,8 +232,8 @@ VSPFLOAT VSP_LP_solver_4
             }
         }
         /* i is in L3 */
-        // else if(ci <= Awi * gamma) /* TODO misc: consider +/- 1E-10 here */
-        else if(ci <= Awi * gamma - 1E-8) /* This seems to give better results, but it puts indices into L2 */
+        else if(ci <= Awi * gamma) /* TODO misc: consider +/- 1E-10 here */
+        // else if(ci <= Awi * gamma - 1E-8) /* This seems to give better results, but it puts indices into L2 */
         {
             /* Set zi to 0 */
             if(z_int[i] != 0)

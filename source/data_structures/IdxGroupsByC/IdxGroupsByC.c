@@ -18,12 +18,12 @@ IdxGroupsByC *IdxGroupsByC_Init
     static bool first_time = true ;
 
     FILE *fp ;
-    if(first_time)
-    {
-        fp = fopen("output/mem.csv", "w") ;
-        fprintf(fp, "name,n_curr,nz_curr,n_finest,nz_finest,level,ints_alloc,ints_over_n_finest,gb_allocated\n") ;
-    }        
-    else           fp = fopen("output/mem.csv", "a") ;
+    // if(first_time)
+    // {
+    //     fp = fopen("output/mem.csv", "w") ;
+    //     fprintf(fp, "name,n_curr,nz_curr,n_finest,nz_finest,level,ints_alloc,ints_over_n_finest,gb_allocated\n") ;
+    // }        
+    // else           fp = fopen("output/mem.csv", "a") ;
     first_time = false ;
 
     long long ints_alloc = 0 ;
@@ -85,21 +85,21 @@ IdxGroupsByC *IdxGroupsByC_Init
     Groups->gamma     = gamma ;
 
     // fprintf(fp, "name,n_curr,nz_curr,n_finest,nz_finest,level,ints_alloc,ints_over_n_finest,gb_allocated\n") ;
-    fprintf
-    (
-        fp, "%s,%lld,%lld,%lld,%lld,%lld,%lld,%f,%f\n",
-        G_P->name,
-        (long long) G_P->Graph->n,
-        (long long) G_P->Graph->nz,
-        (long long) Problem_Get_N_Finest(G_P),
-        (long long) Problem_Get_NZ_Finest(G_P),
-        (long long) G_P->level,
-        (long long) ints_alloc,
-        (double) ints_alloc / Problem_Get_N_Finest(G_P),
-        (double) ints_alloc * sizeof(VSPINT) / 1e9
-    ) ;
-    fflush(stdout) ;
-    fclose(fp) ;
+    // fprintf
+    // (
+    //     fp, "%s,%lld,%lld,%lld,%lld,%lld,%lld,%f,%f\n",
+    //     G_P->name,
+    //     (long long) G_P->Graph->n,
+    //     (long long) G_P->Graph->nz,
+    //     (long long) Problem_Get_N_Finest(G_P),
+    //     (long long) Problem_Get_NZ_Finest(G_P),
+    //     (long long) G_P->level,
+    //     (long long) ints_alloc,
+    //     (double) ints_alloc / Problem_Get_N_Finest(G_P),
+    //     (double) ints_alloc * sizeof(VSPINT) / 1e9
+    // ) ;
+    // fflush(stdout) ;
+    // fclose(fp) ;
     return Groups ;
 }
 

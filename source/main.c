@@ -243,11 +243,9 @@ int main(int argc, char** argv)
 
 static void SetCustomOptions(VSP_options *options)
 {
-
     /*------------------------------------------------------------------------*/
     /* Coarsening Options                                                     */
     /*------------------------------------------------------------------------*/
-    
     options->use_coarsening             = true ;
     options->max_size_of_coarsest_graph = 10  ;
 
@@ -297,9 +295,17 @@ static void SetCustomOptions(VSP_options *options)
     /*------------------------------------------------------------------------*/
     options->use_gamma_reduction      = true ;
 
-    options->max_num_vert_small_graph = 80 ;
+    options->max_num_vert_small_graph = 8000 ;
     options->num_gr_for_small_graphs  = 4 ;
     options->num_gr_for_large_graphs  = 1 ;
+
+
+    // trial
+    options->max_num_vert_small_graph = 16000 ;
+    options->num_gr_for_small_graphs  = 2 ;
+
+    options->max_num_vert_small_graph = 20000 ;
+    options->num_gr_for_small_graphs  = 2 ;
 
     options->num_its_for_small_graphs = 1 ;
     options->num_its_for_large_graphs = 1 ;
@@ -311,8 +317,6 @@ static void SetCustomOptions(VSP_options *options)
     options->relaxUB      = true ;
     options->ratioUBLimit = 0.47 ;
 
-    // options->relaxUB      = true ;
-    // options->ratioUBLimit = 0.4 ;
 
     // options->relaxUB      = false ; 
     // options->ratioUBLimit = 0.6 ;
@@ -321,13 +325,20 @@ static void SetCustomOptions(VSP_options *options)
     /* Starting Guess Options                                                 */
     /*------------------------------------------------------------------------*/
     options->initial_guess     = VSP_centroid_initial_guess ;
-    options->centroidVal       = 0.4 ;
-    // options->centroidVal       = 0.3 ;
+    
+    // best so far
+    // options->centroidVal       = 0.35 ;
 
     /*------------------------------------------------------------------------*/
     /* FM Options                                                             */
     /*------------------------------------------------------------------------*/
-    options->FM_Limit = 200 ;
+    // Best so far
+    options->FM_Limit = 300 ;
+
+    // options->FM_Limit = 200 ;
+    // options->FM_Limit = 250 ;
+    // options->FM_Limit = 300 ;
+    // options->FM_Limit = 350 ;
 
     /*------------------------------------------------------------------------*/
     /* Miscellaneous Options                                                  */
