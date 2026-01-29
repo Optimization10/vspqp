@@ -673,7 +673,7 @@ void SetUpperBound
     // problem->u = (VSPINT) floor( ratioUb_Curr  * problem->Graph->total_vtx_cost ) ;
     // printf("\nub: %f", problem->u / ((VSPFLOAT) problem->Graph->total_vtx_cost )) ;
 
-    return ;   
+    return ;
 }
 
 

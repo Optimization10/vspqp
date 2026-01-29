@@ -30,7 +30,9 @@ int main(int argc, char** argv)
     /*------------------------------------------------------------------------*/
      
     // Text file from which to read matrix names, one per line
-    char matricesList[] = "ManualMatsList.txt" ;
+    // char matricesList[] = "doc/mats/ManualMatsList.txt" ;
+    char matricesList[] = "doc/mats/1.txt" ;
+    // char matricesList[] = "doc/mats/int32-n-sorted.txt" ;
 
     // Absolute or relative path of directory containing the matrices
     // Make sure to include a trailing slash
@@ -49,7 +51,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        strcpy(matricesDir, "/media/hager/datafile/symmetric/");
+        strcpy(matricesDir, "/media/hager/datafile/symmetric/") ;
     }
 
     // Choose between VSPQP and METIS
@@ -195,11 +197,11 @@ int main(int argc, char** argv)
             fclose(f) ;
 
             VSP_set_default_problem_data(problem) ;
-            // VSP_Solve_With_Metis
-            // (
-            //     problem->name, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->c,
-            //     problem->Graph->n , 0.6, seed, &MSS
-            // ) ;
+            VSP_Solve_With_Metis
+            (
+                problem->name, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->c,
+                problem->Graph->n , 0.6, seed, &MSS
+            ) ;
             sumSepMetis  += MSS.costSep ;
             sumImbMetis  += ABS_DIFF( MSS.numNodesx, MSS.numNodesy) ; 
             sumTimeMetis += MSS.time ;
@@ -306,14 +308,14 @@ static void SetCustomOptions(VSP_options *options)
     /*------------------------------------------------------------------------*/
     /* Relax Upper Bound Options                                              */
     /*------------------------------------------------------------------------*/
-    // options->relaxUB      = true ;
-    // options->ratioUBLimit = 0.47 ;
+    options->relaxUB      = true ;
+    options->ratioUBLimit = 0.47 ;
 
     // options->relaxUB      = true ;
     // options->ratioUBLimit = 0.4 ;
 
-    options->relaxUB      = false ; 
-    options->ratioUBLimit = 0.6 ;
+    // options->relaxUB      = false ; 
+    // options->ratioUBLimit = 0.6 ;
 
     /*------------------------------------------------------------------------*/
     /* Starting Guess Options                                                 */

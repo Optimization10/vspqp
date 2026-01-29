@@ -4,7 +4,7 @@
 # ------------------------------------
 TARGET = build/vspqp
 CC = gcc
-LDFLAGS = -lm -lrt
+LDFLAGS = -lm -lrt -L$(HOME)/.local/lib -lmetis32 -lGKlib
 BUILD_DIR = build
 
 # --- INTEGER MODE CONFIGURATION ---
@@ -16,7 +16,7 @@ VSP_INTEGERS_MODE = 2
 
 # Source and Include Directories (ensure these paths are correct)
 SRCDIRS   = source
-INCDIRS   = include source
+INCDIRS   = include source $(HOME)/.local/include
 OUTPUTDIR = output
 
 # Define common flags and optimization/debug specific flags
