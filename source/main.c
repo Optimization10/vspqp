@@ -201,8 +201,6 @@ int main(int argc, char** argv)
     }
     else printf("\n Error: Need to select solve alg") ;
 
-    printf("\nAA Time AA: %f\n\n", total_time) ;
-
     /* Free memory */
     VSP_destruct_options(options) ;
 
