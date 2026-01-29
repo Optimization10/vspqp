@@ -306,15 +306,14 @@ static void SetCustomOptions(VSP_options *options)
     /*------------------------------------------------------------------------*/
     /* Relax Upper Bound Options                                              */
     /*------------------------------------------------------------------------*/
-    options->relaxUB      = true ;
-    options->ratioUBLimit = 0.47 ;
+    // options->relaxUB      = true ;
+    // options->ratioUBLimit = 0.47 ;
 
     // options->relaxUB      = true ;
     // options->ratioUBLimit = 0.4 ;
 
-
-    // options->relaxUB      = false ; 
-    // options->ratioUBLimit = 0.6 ;
+    options->relaxUB      = false ; 
+    options->ratioUBLimit = 0.6 ;
 
     /*------------------------------------------------------------------------*/
     /* Starting Guess Options                                                 */

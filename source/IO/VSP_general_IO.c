@@ -333,7 +333,7 @@ void Write_Performance_Profile
 
     if(count == 1)
     {
-        file = fopen("output/ppf.csv", "a") ;
+        file = fopen("output/ppf.csv", "w") ;
         fprintf(file, "id,n,nz,sep,imb,time\n") ;
     }
     else file = fopen("output/ppf.csv", "a") ;
