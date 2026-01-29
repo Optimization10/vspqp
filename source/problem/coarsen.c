@@ -790,11 +790,28 @@ VSP_problem *Problem_Recursive_Coarsen
             coarsest_P = P ;
             break ;
         }
+        // else if(coarse_P->Graph->max_vtx_cost > 0.2 * coarse_P->Graph->total_vtx_cost)
+        // {
+        //     VSP_destruct_problem(coarse_P) ;
+        //     coarsest_P = P ;
+        //     break ;
+        // }
 
         P = coarse_P ;
         l++ ;
     }
  
     coarsest_P->child_problem = NULL ;
-    return coarsest_P ; // P is coarse problem now and is being returned ####################### Since we hit second stopping criterion
+
+    /* Set upper bounds */
+    VSP_problem *pA = coarsest_P ;
+    while(pA != NULL)
+    {
+       SetUpperBound(pA, options) ;
+       pA = pA->parent_problem ;
+    }
+    
+    // P is coarse problem now and is being returned
+    // ince we hit second stopping criterion
+    return coarsest_P ;
 }

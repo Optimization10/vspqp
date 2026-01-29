@@ -327,22 +327,23 @@ void Write_Performance_Profile
     static long long unsigned count = 0 ;
     count++ ;
 
+    FILE *file ;
     char cpy_graph_name[1000] ;
     strcpy(cpy_graph_name, P->name) ;
 
     if(count == 1)
     {
-        VSP_reset_file("output/profile_raw") ;
+        file = fopen("output/ppf.csv", "a") ;
+        fprintf(file, "id,n,nz,sep,imb,time\n") ;
     }
-
-    FILE *file = fopen("output/profile_raw", "a") ;
+    else file = fopen("output/ppf.csv", "a") ;
 
     /* Write data */
-    fprintf(file, "%s "  , cpy_graph_name) ;
-    fprintf(file, "%lld ", (long long) P->Graph->n) ;
-    fprintf(file, "%lld ", (long long) P->Graph->nz  ) ;
-    fprintf(file, "%lld ", (long long) size_sep) ;
-    fprintf(file, "%lld ", llabs(wgt_x - wgt_y)) ;
+    fprintf(file, "%s,"  , cpy_graph_name) ;
+    fprintf(file, "%lld,", (long long) P->Graph->n) ;
+    fprintf(file, "%lld,", (long long) P->Graph->nz  ) ;
+    fprintf(file, "%lld,", (long long) size_sep) ;
+    fprintf(file, "%lld,", llabs(wgt_x - wgt_y)) ;
     fprintf(file, "%.8f" , time) ;
     fprintf(file, "\n") ;
 

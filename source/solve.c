@@ -82,6 +82,8 @@ VSP_solve_result* VSP_solve
     VSP_options        *options
 )
 {
+
+
     /* Preprocessing */
     VSP_check_for_complete_graph(problem_finest) ;
     VSP_preprocess_finest_problem(problem_finest, options) ;
@@ -105,6 +107,9 @@ VSP_solve_result* VSP_solve
 
         if( Is_Coarsest_Problem(problem) ) VSP_set_initial_guess(X, Y, problem, options) ;
         else                               Uncoarsen_Point(problem, X, Y, Xold, Yold) ;
+
+        printf("u: %f\n", (double) problem->u / problem->Graph->total_vtx_cost ) ;
+        fflush(stdout) ;
 
         Stopwatches_Start(problem->Stopwatches, "Level") ;
         Solve_Level(X, Y, problem, options) ;

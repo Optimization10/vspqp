@@ -169,6 +169,9 @@ VSP_solve_result *Solve_v2
     // Invariant: X_l, Y_l holds the solution at level l
     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
     {
+        // printf("u: %f\n", (double) P->u / P->Graph->total_vtx_cost) ;
+        // fflush(stdout) ;
+
         Set_Global_Problem(P) ;
 
         Stopwatches_Start(P->Stopwatches, "Total") ;

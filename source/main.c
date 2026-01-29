@@ -3,6 +3,7 @@
 #include "shared_types.h"
 // #include <cstdlib>
 #include "time.h"
+#include <sys/stat.h>
 
 extern VSP_Performance G_Performance_Struct ;
 
@@ -15,6 +16,12 @@ typedef enum
 struct timespec  G_START_TIME, G_END_TIME ;
 long double G_COMPRESS_TIME = 0, G_FLIPS_TIME = 0, G_COARSEN_TIME = 0,
 G_HEM_TIME = 0, G_BM_TIME = 0 ;
+
+int Directory_Exists(const char *path)
+{
+    struct stat sb ;
+    return stat(path, &sb) == 0 && S_ISDIR(sb.st_mode) ;
+}
 
 int main(int argc, char** argv)
 {
@@ -29,10 +36,21 @@ int main(int argc, char** argv)
     // Make sure to include a trailing slash
 
     // Matrices on ovi computer
-    char matricesDir[] = "/home/ovi/data/symmetric/" ;
+    // char matricesDir[] = "/home/ovi/data/symmetric/" ;
 
     // Matrices dir on hager6 
     // char matricesDir[] = "/media/hager/datafile/symmetric/" ;
+
+    // Set data directory
+    char matricesDir[256];
+    if (Directory_Exists("/home/ovi/data/symmetric/"))
+    {
+        strcpy(matricesDir, "/home/ovi/data/symmetric/") ;
+    }
+    else
+    {
+        strcpy(matricesDir, "/media/hager/datafile/symmetric/");
+    }
 
     // Choose between VSPQP and METIS
     SolveAlg solve = SOLVE_WITH_VSPQP ;
@@ -85,6 +103,8 @@ int main(int argc, char** argv)
 
     VSPINT num_graphs = 0 ;
     double total_time = 0 ;
+
+    
     if(solve == SOLVE_WITH_VSPQP)
     {
         /*--------------------------------------------------------------------*/
@@ -286,15 +306,15 @@ static void SetCustomOptions(VSP_options *options)
     /*------------------------------------------------------------------------*/
     /* Relax Upper Bound Options                                              */
     /*------------------------------------------------------------------------*/
-    // options->relaxUB      = true ;
-    // options->ratioUBLimit = 0.47 ;
+    options->relaxUB      = true ;
+    options->ratioUBLimit = 0.47 ;
 
     // options->relaxUB      = true ;
     // options->ratioUBLimit = 0.4 ;
 
 
-    options->relaxUB      = false ; 
-    options->ratioUBLimit = 0.6 ;
+    // options->relaxUB      = false ; 
+    // options->ratioUBLimit = 0.6 ;
 
     /*------------------------------------------------------------------------*/
     /* Starting Guess Options                                                 */
