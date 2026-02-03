@@ -83,6 +83,7 @@ VSPFLOAT VSP_minreduce_one_var
     VSPFLOAT  val_frac_w     = Aw->val_frac_z ;
     VSPFLOAT  Awi ;
     VSPFLOAT  gamma_t        = EMPTY ;
+    VSPFLOAT  gamma_second   = EMPTY ;
     bool      w_has_frac_ind = (Aw->ind_frac_z != EMPTY) ;
 
     for(i = 0 ; i < n ; i++)
@@ -91,6 +92,7 @@ VSPFLOAT VSP_minreduce_one_var
         if (z_int[i] == 0 && Awi > 0) {
             if(c[i] / Awi > gamma_t)
             {
+                gamma_second = gamma_t ;
                 gamma_t = c[i] / Awi ;
                 // if(gamma_t == 4 && problem->Graph->max_vtx_cost == 2) printf("\ni: %lld", (long long) i) ;
             }
@@ -109,5 +111,12 @@ VSPFLOAT VSP_minreduce_one_var
         }
     #endif
 
+    if(gamma_second != EMPTY) return gamma_second ;
     return gamma_t ;
+}
+
+
+static void i_am_dead_code(void)
+{
+    int x = 1;
 }

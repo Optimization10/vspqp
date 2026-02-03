@@ -214,6 +214,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     VSPINT baseRandNum = rand() ;
     VSPINT randChoice  = baseRandNum % acumm[m] ;
     VSPINT flipChoice ;
+    bool was_initialized = false ;
 
 
     for(VSPINT p = 1 ; p <= m ; p++)
@@ -221,9 +222,20 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
         if(randChoice < acumm[p])
         {
             flipChoice = maxGainFlips[p-1] ;
+            #ifdef VSP_DEBUG
+            was_initialized = true ;
+            #endif
             break ;
         }
     }
+
+    #ifdef VSP_DEBUG
+    if(!was_initialized)
+    {
+        ERR("Flip choice was not initialized!")
+        fflush(stdout) ;
+    }
+    #endif
 
     if(flipChoice == XUP)
     {

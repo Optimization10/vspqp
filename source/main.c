@@ -7,11 +7,6 @@
 
 extern VSP_Performance G_Performance_Struct ;
 
-typedef enum
-{
-    SOLVE_WITH_METIS,
-    SOLVE_WITH_VSPQP
-} SolveAlg ;
 
 struct timespec  G_START_TIME, G_END_TIME ;
 long double G_COMPRESS_TIME = 0, G_FLIPS_TIME = 0, G_COARSEN_TIME = 0,
@@ -34,15 +29,6 @@ int main(int argc, char** argv)
     char matricesList[] = "doc/mats/1.txt" ;
     // char matricesList[] = "doc/mats/int32-n-sorted.txt" ;
 
-    // Absolute or relative path of directory containing the matrices
-    // Make sure to include a trailing slash
-
-    // Matrices on ovi computer
-    // char matricesDir[] = "/home/ovi/data/symmetric/" ;
-
-    // Matrices dir on hager6 
-    // char matricesDir[] = "/media/hager/datafile/symmetric/" ;
-
     // Set data directory
     char matricesDir[256];
     if (Directory_Exists("/home/ovi/data/symmetric/"))
@@ -53,10 +39,6 @@ int main(int argc, char** argv)
     {
         strcpy(matricesDir, "/media/hager/datafile/symmetric/") ;
     }
-
-    // Choose between VSPQP and METIS
-    SolveAlg solve = SOLVE_WITH_VSPQP ;
-    // SolveAlg solve = SOLVE_WITH_METIS ;
 
     // The maximum path length of a problem
     #define MAX_MATRIX_PATH_LENGTH 1000
@@ -106,122 +88,68 @@ int main(int argc, char** argv)
     VSPINT num_graphs = 0 ;
     double total_time = 0 ;
 
-    
-    if(solve == SOLVE_WITH_VSPQP)
+
+    /*--------------------------------------------------------------------*/
+    // Solve all problems using flips
+    /*--------------------------------------------------------------------*/
+    sum_imb  = 0 ;
+    sum_sep  = 0 ;
+    sum_time = 0 ;
+
+    while(GetNextLine(matricesList, filePath, MAX_MATRIX_PATH_LENGTH))
     {
-        /*--------------------------------------------------------------------*/
-        // Solve all problems using flips
-        /*--------------------------------------------------------------------*/
-        sum_imb  = 0 ;
-        sum_sep  = 0 ;
-        sum_time = 0 ;
+        num_graphs++ ;
+        srand(seed) ;
+        WriteGlobalMatrixName(filePath) ;
 
-        while(GetNextLine(matricesList, filePath, MAX_MATRIX_PATH_LENGTH))
-        {
-            num_graphs++ ;
-            srand(seed) ;
-            WriteGlobalMatrixName(filePath) ;
+        // Append the directory path
+        Prepend(matricesDir, filePath, MAX_MATRIX_PATH_LENGTH) ;
 
-            // Append the directory path
-            Prepend(matricesDir, filePath, MAX_MATRIX_PATH_LENGTH) ;
+        VSP_restart_decide_reset(options->restart_decision) ;
 
-            VSP_restart_decide_reset(options->restart_decision) ;
+        // /* 2. Read the problem and set default data */
+        problem = Read_hager6_File(filePath, options) ;
+        VSP_set_default_problem_data(problem) ;
 
-            // /* 2. Read the problem and set default data */
-            problem = Read_hager6_File(filePath, options) ;
-            VSP_set_default_problem_data(problem) ;
+        /* 3. Solve the problem */ 
+        FILE *f = fopen("./output/SolveLog.txt", "a") ;
+        fprintf(f, "Starting problem: %s\n", problem->name) ;
+        fclose(f) ;
+        clock_gettime(CLOCK_REALTIME, &start);
+        // result = VSP_solve(problem, options) ;
+        result = Solve_v2(problem, options) ;
+        clock_gettime(CLOCK_REALTIME, &end);
 
-            /* 3. Solve the problem */ 
-            FILE *f = fopen("./output/SolveLog.txt", "a") ;
-            fprintf(f, "Starting problem: %s\n", problem->name) ;
-            fclose(f) ;
-            clock_gettime(CLOCK_REALTIME, &start);
-            // result = VSP_solve(problem, options) ;
-            result = Solve_v2(problem, options) ;
-            clock_gettime(CLOCK_REALTIME, &end);
-
-            /* Compute total time for the VSP solver */
-            elapsed_time = VSP_compute_elapsed_time(start, end) ;
-            total_time += elapsed_time ;
+        /* Compute total time for the VSP solver */
+        elapsed_time = VSP_compute_elapsed_time(start, end) ;
+        total_time += elapsed_time ;
 
 
-            // /* 4. Compute solution stats */
-            VSP_solution_stats *sltn_stats =
-            VSP_compute_solution_stats(result->x, result->y, problem, elapsed_time);
-            sum_sep += sltn_stats->num_nodes_sep ;
-            sum_imb += ABS_DIFF(sltn_stats->num_nodes_x, sltn_stats->num_nodes_y) ; 
-            sum_time += elapsed_time ;
+        // /* 4. Compute solution stats */
+        VSP_solution_stats *sltn_stats =
+        VSP_compute_solution_stats(result->x, result->y, problem, elapsed_time);
+        sum_sep += sltn_stats->num_nodes_sep ;
+        sum_imb += ABS_DIFF(sltn_stats->num_nodes_x, sltn_stats->num_nodes_y) ; 
+        sum_time += elapsed_time ;
 
-            // /* 5. Write results to a csv file */
-            VSP_write_to_csv_2(filePath, col_title, sltn_stats, problem, options) ;
-            Write_Performance_Profile
-            (
-                problem,
-                sltn_stats->num_nodes_sep,
-                sltn_stats->num_nodes_x,
-                sltn_stats->num_nodes_y,
-                sltn_stats->time
-            ) ;
+        // /* 5. Write results to a csv file */
+        VSP_write_to_csv_2(filePath, col_title, sltn_stats, problem, options) ;
+        Write_Performance_Profile
+        (
+            problem,
+            sltn_stats->num_nodes_sep,
+            sltn_stats->num_nodes_x,
+            sltn_stats->num_nodes_y,
+            sltn_stats->time
+        ) ;
 
-            // /* 6. Free memory */
-            VSP_destruct_problem(problem) ;
-            VSP_destruct_solve_result(result) ;
-            free(sltn_stats) ;
-        }
-        PrintSumOfResults(sum_sep, sum_imb, sum_time, seed, num_graphs) ;
-        VSP_Print_Performance() ;
+        // /* 6. Free memory */
+        VSP_destruct_problem(problem) ;
+        VSP_destruct_solve_result(result) ;
+        free(sltn_stats) ;
     }
-    else if(solve == SOLVE_WITH_METIS)
-    {
-        /*--------------------------------------------------------------------*/
-        // Solve all problems with METIS
-        /*--------------------------------------------------------------------*/    
-        METIS_Solution_Stats MSS ;    
-        VSPINT sumSepMetis  = 0 ;
-        long double sumTimeMetis = 0 ;
-        VSPINT sumImbMetis  = 0 ;
-        while( GetNextLine(matricesList, filePath, MAX_MATRIX_PATH_LENGTH) )
-        {
-            num_graphs++ ;
-            srand(seed) ;
-            WriteGlobalMatrixName(filePath) ;
-
-            // Append the directory path
-            Prepend(matricesDir, filePath, MAX_MATRIX_PATH_LENGTH) ;
-
-            problem = Read_hager6_File(filePath, options) ;
-
-            // Record the problem being solved
-            FILE *f = fopen("./output/SolveLog.txt", "a") ;
-            fprintf(f, "Starting problem: %s\n", problem->name) ;
-            fclose(f) ;
-
-            VSP_set_default_problem_data(problem) ;
-            VSP_Solve_With_Metis
-            (
-                problem->name, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->c,
-                problem->Graph->n , 0.6, seed, &MSS
-            ) ;
-            sumSepMetis  += MSS.costSep ;
-            sumImbMetis  += ABS_DIFF( MSS.numNodesx, MSS.numNodesy) ; 
-            sumTimeMetis += MSS.time ;
-
-            Write_Performance_Profile
-            (
-                problem,
-                MSS.costSep,
-                MSS.numNodesx,
-                MSS.numNodesy,
-                MSS.time
-            ) ;
-
-            VSP_destruct_problem(problem) ;
-        }
-        printf("\n\nMETIS:") ;
-        PrintSumOfResults(sumSepMetis, sumImbMetis, sumTimeMetis, seed, num_graphs);
-        /*--------------------------------------------------------------------*/
-    }
-    else printf("\n Error: Need to select solve alg") ;
+    PrintSumOfResults(sum_sep, sum_imb, sum_time, seed, num_graphs) ;
+    VSP_Print_Performance() ;
 
     /* Free memory */
     VSP_destruct_options(options) ;
@@ -301,11 +229,13 @@ static void SetCustomOptions(VSP_options *options)
 
 
     // trial
-    options->max_num_vert_small_graph = 16000 ;
-    options->num_gr_for_small_graphs  = 2 ;
+    // options->max_num_vert_small_graph = 16000 ;
+    // options->num_gr_for_small_graphs  = 2 ;
 
-    options->max_num_vert_small_graph = 20000 ;
-    options->num_gr_for_small_graphs  = 2 ;
+    // options->max_num_vert_small_graph = 20000 ;
+    // options->num_gr_for_small_graphs  = 2 ;
+
+
 
     options->num_its_for_small_graphs = 1 ;
     options->num_its_for_large_graphs = 1 ;
@@ -327,7 +257,7 @@ static void SetCustomOptions(VSP_options *options)
     options->initial_guess     = VSP_centroid_initial_guess ;
     
     // best so far
-    // options->centroidVal       = 0.35 ;
+    options->centroidVal       = 0.35 ;
 
     /*------------------------------------------------------------------------*/
     /* FM Options                                                             */

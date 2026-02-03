@@ -12,7 +12,7 @@ BUILD_DIR = build
 # 0 --> VSPINT = int        and  VSPLONG = int
 # 1 --> VSPINT = int        and  VSPLONG = long long
 # 2 --> VSPINT = long long  and  VSPLONG = long long
-VSP_INTEGERS_MODE = 2
+VSP_INTEGERS_MODE = 0
 
 # Source and Include Directories (ensure these paths are correct)
 SRCDIRS   = source
