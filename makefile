@@ -4,7 +4,7 @@
 # ------------------------------------
 TARGET = build/vspqp
 CC = gcc
-LDFLAGS = -lm -lrt -L$(HOME)/.local/lib -lmetis32 -lGKlib
+LDFLAGS = -lm -lrt -L$(HOME)/.local/lib
 BUILD_DIR = build
 
 # --- INTEGER MODE CONFIGURATION ---
