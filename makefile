@@ -4,7 +4,7 @@
 # ------------------------------------
 TARGET = build/vspqp
 CC = gcc
-LDFLAGS = -lm -lrt -L$(HOME)/.local/lib
+LDFLAGS = -lm -lrt -L$(HOME)/.local/lib -Wl,--start-group -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -Wl,--end-group -lgomp -lpthread -ldl -lm
 BUILD_DIR = build
 
 # --- INTEGER MODE CONFIGURATION ---
@@ -16,7 +16,7 @@ VSP_INTEGERS_MODE = 0
 
 # Source and Include Directories (ensure these paths are correct)
 SRCDIRS   = source
-INCDIRS   = include source $(HOME)/.local/include
+INCDIRS   = include source $(HOME)/.local/include /usr/include/mkl
 OUTPUTDIR = output
 
 # Define common flags and optimization/debug specific flags

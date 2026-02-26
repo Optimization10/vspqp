@@ -232,7 +232,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     #ifdef VSP_DEBUG
     if(!was_initialized)
     {
-        ERR("Flip choice was not initialized!")
+        ERR("Flip choice was not initialized!") ;
         fflush(stdout) ;
     }
     #endif

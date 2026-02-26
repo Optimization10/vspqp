@@ -1,6 +1,7 @@
 #include "shared_api.h"
 #include "shared_macros.h"
 #include "shared_types.h"
+#include <mkl.h>
 
 void VSP_GetSepCost
 (
@@ -189,6 +190,29 @@ void VSP_mat_vec_mult
     const VSPINT           n
 )
 {
+#ifdef USE_MKL
+        VSFLOAT alpha, beta ;
+        alpha = 1 ;
+        beta  = 0 ;
+
+        // Wrap the arrays in an mkl struct. Lightweight, no data copying
+        sparse_matrix_t A ;
+        struct matrix_descr descr = { SPARSE_MATRIX_TYPE_GENERAL, 0, 0 } ;
+
+        mkl_sparse_d_create_csr
+            (&A, SPARSE_INDEX_BASE_ZERO, n, n, Ap, Ap + 1, Ai, Ax) ;
+
+        // Perform the update y = alpha * Av + beta * y
+        mkl_sparse_d_mv
+            (SPARSE_OPERATION_NON_TRANSPOSE, alpha, A, descr, v, beta, Av) ;
+        
+        // Cleanup the mkl struct
+        // This does NOT destroy Ai, Ap, Ax arrays which were passed to it
+        mkl_sparse_destroy(A) ;
+        return ;
+
+#else
+
     VSPINT i, col = 0 ;
     VSPLONG p ;
     VSPLONG start, end ;
@@ -208,6 +232,7 @@ void VSP_mat_vec_mult
         }
     }
     return ;
+#endif
 }
 
 /* Update Az struct, given z as a point struct */
