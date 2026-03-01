@@ -1,5 +1,8 @@
 #include "shared_api.h"
 #include "coarsen_internal.h" // IWYU pragma: keep
+#include "shared_functions.h"
+#include "shared_macros.h"
+#include <stdio.h>
 
 
 
@@ -27,7 +30,7 @@ static void RefineOneVar
         VSP_check_state(coarseZ, coarseGraph) ;
     #endif
 
-    VSPINT fn, fu, fv, cv, fvWgt, *fc, *cz, *fz, *matchMap ;
+    VSPINT i, fn, fu, fv, cv, fvWgt, *fc, *cz, *fz, *matchMap ;
     VSPFLOAT fWgtz ;
 
     fn    = fineGraph ->Graph->n ;
@@ -37,6 +40,14 @@ static void RefineOneVar
     fu    = fineGraph->u ;
     fWgtz = 0 ;
     matchMap = fineGraph->matchmap ;
+
+    /*------------------------------------------------------------------------*/
+    // Set all entries of fine Az to 0
+    /*------------------------------------------------------------------------*/
+    VSPINT *fAz = fineZ->Az->int_part ;
+    for(i = 0 ; i < fn ; i++) fAz[i] = 0 ;
+    fineZ->Az->ind_frac_z = EMPTY ;
+    fineZ->Az->val_frac_z = 0 ;
 
 
     /*------------------------------------------------------------------------*/
@@ -52,12 +63,14 @@ static void RefineOneVar
             {
                 fz[ fv ] = 1 ;
                 fWgtz += fvWgt ;
+                VSP_Az_pm_col_of_A(fAz, fv, PLUS, fineGraph) ;
                 continue ;
             }
             else if ( fWgtz + fvWgt == fu  ) /* fv fits, but no extra room */
             {
                 fz[ fv ] = 1 ;
                 fWgtz = fu ;
+                VSP_Az_pm_col_of_A(fAz, fv, PLUS, fineGraph) ;
                 break ;
             }
             else /* fv partially fits into z */
@@ -86,7 +99,7 @@ static void RefineOneVar
     CheckForFracEntryAndRefineIt(coarseZ, fineZ, fineGraph) ;
 
     // TODO: It is probably better to compute Az above when refining
-    Compute_Az(fineZ->point, fineZ->Az, fineGraph->Graph->Ai, fineGraph->Graph->Ap, fineGraph->Graph->n) ;
+    // Compute_Az(fineZ->point, fineZ->Az, fineGraph->Graph->Ai, fineGraph->Graph->Ap, fineGraph->Graph->n) ;
 
     #ifdef VSP_DEBUG
         VSP_check_state(fineZ, fineGraph) ;
