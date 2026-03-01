@@ -1,4 +1,6 @@
 #include "shared_api.h"
+#include "shared_functions.h"
+#include "shared_globals.h"
 #include "shared_macros.h"
 #include "shared_types.h"
 #include <mkl.h>
@@ -193,6 +195,7 @@ void VSP_mat_vec_mult
     const VSPINT           n
 )
 {
+    TIMER_START ;
 #ifdef USE_MKL
     // Allocate float z, Az, and Ax
     VSPLONG nz = Ap[n] ;
@@ -235,7 +238,8 @@ void VSP_mat_vec_mult
     free(z_flt) ;
     free(Az_flt) ;
     free(Ax) ;
-    return ;
+
+    TIMER_END ;
 
 #else
 
@@ -257,7 +261,12 @@ void VSP_mat_vec_mult
             Az[col] ++ ;
         }
     }
-    return ;
+    TIMER_END ;
+    long double time = VSP_compute_elapsed_time(hidden_timespec_struct_start, hidden_timespec_struct_end) ;
+    FILE *fp = fopen("matvectime.csv", "a") ;
+    fprintf(fp, "%Lf\n", time) ;
+    fclose(fp) ;
+
 #endif
 }
 
