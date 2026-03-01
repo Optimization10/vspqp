@@ -184,6 +184,8 @@ void VSP_relaxed_to_vertex_separator
                     Y->weight = c[k] ;
                     Compute_Az(X->point, X->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
                     Compute_Az(Y->point, Y->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
+                    printf("\nCompute Az called!\n") ;
+                    fflush(stdout) ;
 
                     free(neighbors) ;
 

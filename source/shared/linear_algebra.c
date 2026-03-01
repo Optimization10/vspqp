@@ -181,35 +181,61 @@ void VSP_compute_gradient_v1
 
    On output:
    2) The vector Az is (A + I) * z */
+
+
+// #define USE_MKL
 void VSP_mat_vec_mult
 (
     const VSPINT *const    z,
     VSPINT       *const   Az,
     const VSPINT *const   Ai,
-    const VSPLONG *const   Ap,
+    const VSPLONG *const  Ap,
     const VSPINT           n
 )
 {
 #ifdef USE_MKL
-        VSFLOAT alpha, beta ;
-        alpha = 1 ;
-        beta  = 0 ;
+    // Allocate float z, Az, and Ax
+    VSPLONG nz = Ap[n] ;
+    VSPFLOAT *Ax     = malloc(nz * sizeof(*Ax)) ;
+    VSPFLOAT *z_flt  = malloc(n * sizeof(*z_flt)) ;
+    VSPFLOAT *Az_flt = malloc(n * sizeof(*Az_flt)) ;
 
-        // Wrap the arrays in an mkl struct. Lightweight, no data copying
-        sparse_matrix_t A ;
-        struct matrix_descr descr = { SPARSE_MATRIX_TYPE_GENERAL, 0, 0 } ;
+    for(VSPLONG i = 0 ; i < nz ; i++) Ax[i]    = 1 ;
+    for(VSPINT  i = 0 ; i < n  ; i++) z_flt[i] = z[i] ;
 
-        mkl_sparse_d_create_csr
-            (&A, SPARSE_INDEX_BASE_ZERO, n, n, Ap, Ap + 1, Ai, Ax) ;
 
-        // Perform the update y = alpha * Av + beta * y
-        mkl_sparse_d_mv
-            (SPARSE_OPERATION_NON_TRANSPOSE, alpha, A, descr, v, beta, Av) ;
-        
-        // Cleanup the mkl struct
-        // This does NOT destroy Ai, Ap, Ax arrays which were passed to it
-        mkl_sparse_destroy(A) ;
-        return ;
+
+    VSPFLOAT alpha, beta ;
+    alpha = 1 ;
+    beta  = 0 ;
+
+    // Wrap the arrays in an mkl struct. Lightweight, no data copying
+    sparse_matrix_t A ;
+    struct matrix_descr descr = { SPARSE_MATRIX_TYPE_GENERAL, 0, 0 } ;
+
+    mkl_sparse_d_create_csr
+        (&A, SPARSE_INDEX_BASE_ZERO, n, n, Ap, Ap + 1, Ai, Ax) ;
+
+    // Perform the update y = alpha * Av + beta * y
+    mkl_sparse_d_mv
+        (SPARSE_OPERATION_NON_TRANSPOSE, alpha, A, descr, z_flt, beta, Az_flt) ;
+    
+    // Cleanup the mkl struct
+    // This does NOT destroy Ai, Ap, Ax arrays which were passed to it
+    mkl_sparse_destroy(A) ;
+
+    // Copy Az_flt into Az. Take identity into account
+    for(VSPINT i = 0 ; i < n ; i++)
+    {
+        Az[i] = Az_flt[i] ;
+        if(z[i]) Az[i]++ ;
+    }
+
+    // Cleanup
+    free(z_flt) ;
+    free(Az_flt) ;
+    free(Ax) ;
+    return ;
 
 #else
 
