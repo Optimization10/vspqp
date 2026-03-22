@@ -36,10 +36,17 @@ extern const VSP_problem* G_P ;
 
     extern VSP_Performance G_Performance_Struct ;
 
+    #define TIMER_INIT \
+    struct timespec hidden_timespec_struct_start ; \
+    struct timespec hidden_timespec_struct_end ;
+
     #define TIMER_START \
     struct timespec hidden_timespec_struct_start ; \
     clock_gettime(CLOCK_REALTIME, &hidden_timespec_struct_start)
 
+    #define TIMER_ELAPSED \
+    (VSP_compute_elapsed_time(hidden_timespec_struct_start, hidden_timespec_struct_end))
+    
     #define TIMER_END \
     struct timespec hidden_timespec_struct_end ;   \
     clock_gettime(CLOCK_REALTIME, &hidden_timespec_struct_end)

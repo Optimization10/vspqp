@@ -8,6 +8,7 @@
 #endif
 
 #define PRINTINT long long VSPINT
+#define PRI(A) ( (long long int) A )
 
 #define NUMLPS 2
 #define PLUS 1

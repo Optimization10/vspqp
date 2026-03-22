@@ -2,6 +2,8 @@
 #include "mc_internal.h"
 #include "Stopwatches.h"
 #include "shared_functions.h"
+#include "shared_globals.h"
+#include <stdio.h>
 
 #define VSP_EPS (1E-10)
 
@@ -126,10 +128,10 @@ void VSP_mountain_climbing
 
     /*** Orthogonal Phase *****************************************************/
     VSPFLOAT old_obj = VSP_compute_obj(X, Y, problem, gamma);
+    VSPINT mc_count = 0 ;
     while (true)
     {
         VSPFLOAT new_obj;
-        loop++;
 
         if (optimal_var == 'x')
         {
@@ -148,6 +150,8 @@ void VSP_mountain_climbing
             // TEMP
             // VSPFLOAT obj_dbg = VSP_compute_obj(VSP_state *X, VSP_state *Y, VSP_problem *problem, VSPFLOAT gamma)
         }
+
+        if(mc_count > 8) break ;
 
         new_obj = MAX(old_obj, new_obj);
 
@@ -189,8 +193,23 @@ void VSP_mountain_climbing
 
         old_obj = new_obj;
     }
-
     TIMER_END ;
+
+    // printf("level: %lld  n: %lld  nz: %lld gamma_org: %lld gamma_used: %f mc_count: %lld  mc_time: %Lf\n",
+    // PRI(problem->level), PRI(n), PRI(problem->Graph->nz), PRI(problem->Graph->max_vtx_cost),
+    // gamma, PRI(mc_count),
+    // TIMER_ELAPSED ) ;
+
+    // if(!is_gamma_org)
+    // {
+    //     printf("%s,%lld,%lld,%lld,%lld,%f,%lld,%Lf\n",
+    //     problem->name, PRI(problem->level), PRI(problem->Graph->n),PRI(problem->Graph->nz),
+    //     PRI(problem->Graph->max_vtx_cost), gamma, 
+    //     PRI(mc_count),TIMER_ELAPSED) ;
+    // }
+    // fflush(stdout) ;
+
+    
     PERFORMANCE_UPDATE_TIME(MC) ;
 
     if( is_gamma_org )
