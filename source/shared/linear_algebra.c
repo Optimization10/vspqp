@@ -3,7 +3,6 @@
 #include "shared_globals.h"
 #include "shared_macros.h"
 #include "shared_types.h"
-#include <mkl.h>
 
 void VSP_GetSepCost
 (
@@ -196,52 +195,7 @@ void VSP_mat_vec_mult
 )
 {
     TIMER_START ;
-#ifdef USE_MKL
-    // Allocate float z, Az, and Ax
-    VSPLONG nz = Ap[n] ;
-    VSPFLOAT *Ax     = malloc(nz * sizeof(*Ax)) ;
-    VSPFLOAT *z_flt  = malloc(n * sizeof(*z_flt)) ;
-    VSPFLOAT *Az_flt = malloc(n * sizeof(*Az_flt)) ;
 
-    for(VSPLONG i = 0 ; i < nz ; i++) Ax[i]    = 1 ;
-    for(VSPINT  i = 0 ; i < n  ; i++) z_flt[i] = z[i] ;
-
-
-
-    VSPFLOAT alpha, beta ;
-    alpha = 1 ;
-    beta  = 0 ;
-
-    // Wrap the arrays in an mkl struct. Lightweight, no data copying
-    sparse_matrix_t A ;
-    struct matrix_descr descr = { SPARSE_MATRIX_TYPE_GENERAL, 0, 0 } ;
-
-    mkl_sparse_d_create_csr
-        (&A, SPARSE_INDEX_BASE_ZERO, n, n, Ap, Ap + 1, Ai, Ax) ;
-
-    // Perform the update y = alpha * Av + beta * y
-    mkl_sparse_d_mv
-        (SPARSE_OPERATION_NON_TRANSPOSE, alpha, A, descr, z_flt, beta, Az_flt) ;
-    
-    // Cleanup the mkl struct
-    // This does NOT destroy Ai, Ap, Ax arrays which were passed to it
-    mkl_sparse_destroy(A) ;
-
-    // Copy Az_flt into Az. Take identity into account
-    for(VSPINT i = 0 ; i < n ; i++)
-    {
-        Az[i] = Az_flt[i] ;
-        if(z[i]) Az[i]++ ;
-    }
-
-    // Cleanup
-    free(z_flt) ;
-    free(Az_flt) ;
-    free(Ax) ;
-
-    TIMER_END ;
-
-#else
 
     VSPINT i, col = 0 ;
     VSPLONG p ;
@@ -262,12 +216,6 @@ void VSP_mat_vec_mult
         }
     }
     TIMER_END ;
-    long double time = VSP_compute_elapsed_time(hidden_timespec_struct_start, hidden_timespec_struct_end) ;
-    FILE *fp = fopen("matvectime.csv", "a") ;
-    fprintf(fp, "%Lf\n", time) ;
-    fclose(fp) ;
-
-#endif
 }
 
 /* Update Az struct, given z as a point struct */

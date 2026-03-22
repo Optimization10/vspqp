@@ -427,6 +427,18 @@ void Graph_Simple_Match
             }
         }
 
+        if(matchtype[node_pivot] == matchtype_3way)
+        {
+            printf("\nWARNING\n") ;
+            fflush(stdout) ;
+        }
+
+        if(matchtype[node_pivot] != matchtype_HEM)
+        {
+            printf("\nWARNING2\n") ;
+            fflush(stdout) ;
+        }
+
         // Match neighbors of the pivot, prioritizing matches between perfect
         // vertices
         if (node_pivot != EMPTY)
