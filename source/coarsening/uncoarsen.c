@@ -98,9 +98,6 @@ static void RefineOneVar
     /*------------------------------------------------------------------------*/
     CheckForFracEntryAndRefineIt(coarseZ, fineZ, fineGraph) ;
 
-    // TODO: It is probably better to compute Az above when refining
-    // Compute_Az(fineZ->point, fineZ->Az, fineGraph->Graph->Ai, fineGraph->Graph->Ap, fineGraph->Graph->n) ;
-
     #ifdef VSP_DEBUG
         VSP_check_state(fineZ, fineGraph) ;
     #endif

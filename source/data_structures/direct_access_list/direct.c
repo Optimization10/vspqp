@@ -52,8 +52,6 @@ void Direct_Access_List_Delete_By_Idx
     VSPINT last = list->list[ list->size - 1 ] ;
     list->list[ idx_to_del ] = last ;
     list->lookup[ last ]     = idx_to_del ;
-
-    // TODO: This whole situation can be done better
     list->lookup[ node_to_del ] = EMPTY ;
 
     list->size-- ;
@@ -63,8 +61,8 @@ void Direct_Access_List_Delete_By_Idx
 // ASSUMED: Value is in the list
 void Direct_Access_List_Delete_By_Value
 (
-    Direct_Access_List       *list,
-    VSPINT              val_to_del
+    Direct_Access_List  *list,
+    VSPINT               val_to_del
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -72,9 +70,14 @@ void Direct_Access_List_Delete_By_Value
     VSP_ASSERT(0 <= list->lookup[val_to_del]
                  && list->lookup[val_to_del] < list->max_size) ;
 
-    // TODO: Probably it's better to do this manually instead of calling
-    // this function
-    Direct_Access_List_Delete_By_Idx(list, list->lookup[val_to_del]) ;
+    VSPINT idx_to_del = list->lookup[val_to_del] ;
+    VSPINT last       = list->list[list->size - 1] ;
+
+    list->list[idx_to_del] = last ;
+    list->lookup[last]     = idx_to_del ;
+    list->lookup[val_to_del] = EMPTY ;
+
+    list->size-- ;
 }
 
 
