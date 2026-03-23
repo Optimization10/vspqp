@@ -151,7 +151,8 @@ void VSP_mountain_climbing
             // VSPFLOAT obj_dbg = VSP_compute_obj(VSP_state *X, VSP_state *Y, VSP_problem *problem, VSPFLOAT gamma)
         }
 
-        if(mc_count > 8) break ;
+        mc_count++ ;
+        if(mc_count > 3) break ;
 
         new_obj = MAX(old_obj, new_obj);
 
