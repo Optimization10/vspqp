@@ -7,9 +7,7 @@
 #include "shared_macros.h"
 #include "shared_types.h"
 
-#ifdef VSP_DEBUG
-    extern char global_matrix[70] ;
-#endif
+
 
 bool Is_Coarsest_Problem(VSP_problem *problem)
 {
@@ -583,7 +581,6 @@ void VSP_error
         if(error_count <= 10000)
         {
             fprintf(file, "\n\n ERROR: %s", msg) ;
-            fprintf(file, "\n Graph name  : %s", global_matrix) ;
             fprintf(file, "\n File name   : %s", file_name) ;
             fprintf(file, "\n Line number : %lld", (long long) line_num) ;
             fprintf(file, "\n Count : %llu", count) ;

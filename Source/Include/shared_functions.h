@@ -325,8 +325,7 @@ void VSP_destruct_options(VSP_options* options);
 VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz) ;
 void Destroy_Graph(VSP_Graph *Graph) ;
 
-VSP_problem* VSP_construct_problem(VSPINT numvertices, VSPLONG numedges,
-                                                        VSP_options* options);
+
 
 
 void VSP_destruct_problem(VSP_problem* problem);
@@ -417,7 +416,7 @@ void Compute_ObjValDbg
     VSPINT       *retObjVal
 ) ;
 
-VSP_coarsen_dec *VSP_construct_coarsen_dec(VSP_coarsen_dec_type decType) ;
+
 
 
 void DumpPoint(VSP_point *z, char *outName) ;

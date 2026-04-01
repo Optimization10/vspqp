@@ -91,10 +91,7 @@ VSP_dyn_stk *VSP_dyn_stk_copy(VSP_dyn_stk *stack_in) ;
 
 VSP_levels* VSP_levels_copy(VSP_levels* levels_in) ;
 
-VSP_levels* VSP_construct_levels
-(
-    VSP_levels_selection_type selection_type
-) ;
+
 
 void VSP_destruct_levels
 (
@@ -111,12 +108,6 @@ void VSP_levels_select
 (
     VSPINT       level_num,
     VSP_levels  *levels
-) ;
-
-void VSP_levels_unselect
-(
-    VSPINT     level_num,
-    VSP_levels   *levels
 ) ;
 
 void VSP_levels_select_top
@@ -771,10 +762,6 @@ void VSP_min_heap_build_v3
 
 
 
-
-
-
-VSP_restart_decision *VSP_construct_restart_decision() ;
 void VSP_destruct_restart_decision(VSP_restart_decision *dec) ;
 
 /* If using the rule, and if it returns true, then it also increments

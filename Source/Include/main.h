@@ -12,7 +12,7 @@
 
 
 
-char global_matrix[70] ;
+
 
 typedef struct
 {

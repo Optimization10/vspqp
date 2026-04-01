@@ -52,42 +52,6 @@ typedef enum
     NOT_N1_OPTIMAL         // At least one feasible, strictly beneficial flip
 } VSP_N1_Optimality ;
 
-/* Usage:
-
-    First, create a VSP_levels_selection_type variable with the desired
-    selection type, and then create a call the constructor of VSP_levels
-    and store the result in a variable, called, let's say, levels.
-
-    TOP_LEVELS: Then the top (levels->num_top_levels). Note that if this is 0,
-                then no level is selected.
-
-    BOT_LEVELS: Then the bottom (levels->num_bot_levels). Note that if this is
-                0, then no level is selected.
-
-    ALL_LEVELS: Then all levels are selected.
-
-    NO_LEVELS: Then no levels are selected.
-
-    SPECIFY_SELECTED_LEVELS: Then the levels_selected stack should be filled
-                             with the levels to be selected. This stack is
-                             added to using the VSP_levels_select function.
-
-    SPECIFY_UNSELECTED_LEVELS: Then the levels_not_selected stack should be
-                               filled with the levels to be unselected. This
-                               stack is added to using the VSP_levels_unselect
-                               function.
-*/
-typedef enum
-{
-    TOP_LEVELS,
-    BOT_LEVELS,
-    ALL_LEVELS,
-    NO_LEVELS,
-    SPECIFY_SELECTED_LEVELS,
-    SPECIFY_UNSELECTED_LEVELS
-} VSP_levels_selection_type ;
-
-
 
 typedef struct {
 
