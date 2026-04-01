@@ -10,6 +10,8 @@
 
 #define MAX_MATRIX_PATH_LENGTH 1000
 
+#define ABS_DIFF(a, b) ( ((a) > (b)) ? ( (a) - (b) ) : ( (b) - (a) ) )
+
 struct timespec  G_START_TIME, G_END_TIME ;
 long double G_COMPRESS_TIME = 0, G_FLIPS_TIME = 0, G_COARSEN_TIME = 0,
 G_HEM_TIME = 0, G_BM_TIME = 0 ;
@@ -20,6 +22,21 @@ int Directory_Exists(const char *path)
     return stat(path, &sb) == 0 && S_ISDIR(sb.st_mode) ;
 }
 
+typedef struct {
+
+    VSPINT num_nodes_total ;
+    VSPINT num_edges_total ;
+
+    VSPINT num_nodes_x ;
+    VSPINT num_nodes_y ;
+    VSPINT num_nodes_sep ;
+
+    VSPFLOAT percent_nodes_x ;
+    VSPFLOAT percent_nodes_y ;
+    VSPFLOAT percent_nodes_sep ;
+
+    VSPFLOAT time ;
+} VSP_solution_stats ;
 
 VSP_solution_stats* VSP_compute_solution_stats
 (
@@ -293,6 +310,58 @@ VSPINT Prepend
 
 
 /******************************************************************************/
+
+
+void VSP_write_to_csv_2
+(
+    char                *graph_name,
+    char                *col_title_given, /* If empty string, a title is
+                                             generated from the options       */
+    VSP_solution_stats  *solStats,
+    VSP_problem          *problem,
+    VSP_options          *options
+)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+
+    char col_title_actual[500] = {'\0'} ;
+    getColTitle(col_title_given, col_title_actual) ;
+
+    char cpy_graph_name[MAX_LEN_GRAPH_NAME] ;
+    strcpy(cpy_graph_name, graph_name) ;
+    cleanupGraphName(cpy_graph_name) ;
+
+    FILE *file ;
+    if(count == 1)
+    {
+        file = fopen("output/Numerical_Results.csv", "w") ;
+
+        /* Write column titles */
+        fprintf(file, "Graph," ) ;
+        fprintf(file, "Vert,") ;
+        fprintf(file, "Edges,") ;
+        fprintf(file, "%s,", col_title_actual) ;
+        fprintf(file, "Imbal,") ;
+        fprintf(file, "Time\n") ;
+    }
+    else
+    {
+        file = fopen("output/Numerical_Results.csv", "a") ;
+    }
+
+    /* Write data */
+    fprintf(file, "%s,", cpy_graph_name) ;
+    fprintf(file, "%lld,", (long long) solStats->num_nodes_total) ;
+    fprintf(file, "%lld,", (long long) solStats->num_edges_total) ;
+    fprintf(file, "%lld,", (long long) solStats->num_nodes_sep) ;
+    fprintf(file, "%lld,", (long long) labs((long long) solStats->num_nodes_x - (long long) solStats->num_nodes_y)) ;
+    fprintf(file, "%.6f\n", solStats->time) ;
+
+    fclose(file) ;
+    return ;
+}
+
 
 static void SetCustomOptions(VSP_options *options)
 {

@@ -16,26 +16,6 @@ void VSP_dump_graph
 ) ;
 
 
-
-void VSP_write_to_csv
-(
-    char                *graph_name,
-    char                *col_title_given, /* If empty string, a title is
-                                             generated from the options       */
-    VSP_solution_stats  *stats,
-    VSP_options         *options
-) ;
-
-void VSP_write_to_csv_2
-(
-    char                *graph_name,
-    char                *col_title_given, /* If empty string, a title is
-                                             generated from the options       */
-    VSP_solution_stats  *solStats,
-    VSP_problem          *problem,
-    VSP_options          *options
-) ;
-
 void VSP_print_solution_stats
 (
     VSPINT            *x,

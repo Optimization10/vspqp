@@ -6,118 +6,16 @@
 #define BUFFER_SIZE 100000
 #define MAX_LEN_GRAPH_NAME 1000
 
-static void getColTitle
-(
-    char           *titleGiven,
-    char         *titleToWrite
-) ;
-
 void cleanupGraphName(char *graph_name) ;
 
 /*----------------------------------------------------------------------------*/
 /*   Write to Numerical_Results.csv                                           */
 /*----------------------------------------------------------------------------*/
 
-void VSP_write_to_csv
-(
-    char                *graph_name,
-    char                *col_title_given, /* If empty string, a title is
-                                             generated from the options       */
-    VSP_solution_stats  *solStats,
-    VSP_options         *options
-)
-{
-    static long long unsigned count = 0 ;
-    count++ ;
-
-    char col_title_actual[500] = {'\0'} ;
-    getColTitle(col_title_given, col_title_actual) ;
-
-    char cpy_graph_name[MAX_LEN_GRAPH_NAME] ;
-    strcpy(cpy_graph_name, graph_name) ;
-    cleanupGraphName(cpy_graph_name) ;
-
-    FILE *file ;
-    if(count == 1)
-    {
-        file = fopen("output/Numerical_Results.csv", "w") ;
-
-        /* Write column titles */
-        fprintf(file, "Graph, " ) ;
-        fprintf(file, "Vert, ") ;
-        fprintf(file, "Edges, ") ;
-        fprintf(file, "%s,", col_title_actual) ;
-        fprintf(file, "Time\n") ;
-    }
-    else
-    {
-        file = fopen("output/Numerical_Results.csv", "a") ;
-    }
-
-    /* Write data */
-    fprintf(file, "%s, ", cpy_graph_name) ;
-    fprintf(file, "%lld, ", (long long) solStats->num_nodes_total) ;
-    fprintf(file, "%lld, ", (long long) solStats->num_edges_total) ;
-    fprintf(file, "%lld, ", (long long) solStats->num_nodes_sep) ;
-    fprintf(file, "%.5f\n", solStats->time) ;
-
-
-    fclose(file) ;
-    return ;
-}
 
 
 
 
-void VSP_write_to_csv_2
-(
-    char                *graph_name,
-    char                *col_title_given, /* If empty string, a title is
-                                             generated from the options       */
-    VSP_solution_stats  *solStats,
-    VSP_problem          *problem,
-    VSP_options          *options
-)
-{
-    static long long unsigned count = 0 ;
-    count++ ;
-
-    char col_title_actual[500] = {'\0'} ;
-    getColTitle(col_title_given, col_title_actual) ;
-
-    char cpy_graph_name[MAX_LEN_GRAPH_NAME] ;
-    strcpy(cpy_graph_name, graph_name) ;
-    cleanupGraphName(cpy_graph_name) ;
-
-    FILE *file ;
-    if(count == 1)
-    {
-        file = fopen("output/Numerical_Results.csv", "w") ;
-
-        /* Write column titles */
-        fprintf(file, "Graph," ) ;
-        fprintf(file, "Vert,") ;
-        fprintf(file, "Edges,") ;
-        fprintf(file, "%s,", col_title_actual) ;
-        fprintf(file, "Imbal,") ;
-        fprintf(file, "Time\n") ;
-    }
-    else
-    {
-        file = fopen("output/Numerical_Results.csv", "a") ;
-    }
-
-    /* Write data */
-    fprintf(file, "%s,", cpy_graph_name) ;
-    fprintf(file, "%lld,", (long long) solStats->num_nodes_total) ;
-    fprintf(file, "%lld,", (long long) solStats->num_edges_total) ;
-    fprintf(file, "%lld,", (long long) solStats->num_nodes_sep) ;
-    fprintf(file, "%lld,", (long long) labs((long long) solStats->num_nodes_x - (long long) solStats->num_nodes_y)) ;
-    fprintf(file, "%.6f\n", solStats->time) ;
-
-    fclose(file) ;
-    return ;
-}
 
 
 

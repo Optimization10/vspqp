@@ -53,22 +53,6 @@ typedef enum
 } VSP_N1_Optimality ;
 
 
-typedef struct {
-
-    VSPINT num_nodes_total ;
-    VSPINT num_edges_total ;
-
-    VSPINT num_nodes_x ;
-    VSPINT num_nodes_y ;
-    VSPINT num_nodes_sep ;
-
-    VSPFLOAT percent_nodes_x ;
-    VSPFLOAT percent_nodes_y ;
-    VSPFLOAT percent_nodes_sep ;
-
-    VSPFLOAT time ;
-} VSP_solution_stats ;
-
 
 
 
