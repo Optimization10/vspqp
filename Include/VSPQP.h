@@ -387,7 +387,7 @@ VSP_levels* VSP_construct_levels
     VSP_levels_selection_type selection_type
 ) ;
 
-VSP_solve_result* Solve_v2
+VSP_solve_result* VSP_Solve
 (
     VSP_problem *probFinest,
     VSP_options    *options

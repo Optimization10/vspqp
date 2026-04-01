@@ -686,7 +686,7 @@ int main(int argc, char** argv)
         fclose(f) ;
         clock_gettime(CLOCK_REALTIME, &start);
         // result = VSP_solve(problem, options) ;
-        result = Solve_v2(problem, options) ;
+        result = VSP_Solve(problem, options) ;
         clock_gettime(CLOCK_REALTIME, &end);
 
         /* Compute total time for the VSP solver */
