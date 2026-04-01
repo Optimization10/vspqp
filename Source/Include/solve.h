@@ -16,11 +16,7 @@ void VSP_ResolveLevelDecideAndDo
     VSP_options     *options
 ) ;
 
-// whereToUseFMFlips:
-// 0 - FMv2 disabled (or anything besides 1, 2, 3)
-// 1 - FMv2 only during first optimization
-// 2 - FMv2 during gamma reduction
-// 3 - FMv2 in both locations
+
 void Optimize
 (
     VSP_state                     *X,

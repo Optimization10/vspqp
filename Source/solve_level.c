@@ -72,11 +72,7 @@ bool Early_Exit(VSP_state *X, VSP_state *Y, VSP_problem *P)
     return ret ;
 }
 
-// whereToUseFMFlips:
-// 0 - FMv2 disabled (or anything besides 1, 2, 3)
-// 1 - FMv2 only during first optimization
-// 2 - FMv2 during gamma reduction
-// 3 - FMv2 in both locations
+
 void Optimize
 (
     VSP_state                     *X,
@@ -184,12 +180,7 @@ void Optimize
 
         FM_Metis(Xstar, Ystar, problem, options, n_passes) ;
 
-        /*--------------------------------------------------------------------*/
-        if(whereToUseFMFlips == 2 || whereToUseFMFlips == 3)
-        {          
-            FM_Flips(Xstar, Ystar, problem) ;
-        }
-        /*--------------------------------------------------------------------*/
+
 
         /*--------------------------------------------------------------------*/
         /* Swap (x*, y*) with (x, y) if it is beneficial to do so             */
@@ -299,29 +290,29 @@ void Flips
     G_FLIPS_TIME += VSP_compute_elapsed_time(G_START_TIME, G_END_TIME) ;
 }
 
-void FM_Flips
-(
-    VSP_state         *X,
-    VSP_state         *Y,
-    VSP_problem *problem
-)
-{
-    #ifdef VSP_DEBUG
-        VSP_check_states(X, Y, problem) ;
-    #endif
+// void FM_Flips
+// (
+//     VSP_state         *X,
+//     VSP_state         *Y,
+//     VSP_problem *problem
+// )
+// {
+//     #ifdef VSP_DEBUG
+//         VSP_check_states(X, Y, problem) ;
+//     #endif
 
-    if(problem->level >= 0)
-    {
-        // FM_Flips_API_v2(X, Y, problem, options) ; 
-        FM_Flips_v7(X, Y, problem, 8) ;
-        // FM_Flips_v8(X, Y, problem, 4) ;
-        // FM_Flips_v9(X, Y, problem, 4) ;
-    }
+//     if(problem->level >= 0)
+//     {
+//         // FM_Flips_API_v2(X, Y, problem, options) ; 
+//         FM_Flips_v7(X, Y, problem, 8) ;
+//         // FM_Flips_v8(X, Y, problem, 4) ;
+//         // FM_Flips_v9(X, Y, problem, 4) ;
+//     }
 
-    #ifdef VSP_DEBUG
-        VSP_check_states(X, Y, problem) ;
-    #endif
-}
+//     #ifdef VSP_DEBUG
+//         VSP_check_states(X, Y, problem) ;
+//     #endif
+// }
 
 static void Best_Of_MC_And_Greedy_Flips
 (
