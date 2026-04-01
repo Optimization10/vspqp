@@ -52,6 +52,7 @@ clean:
 	rm -f $(VSPATH)/Demo/example
 	rm -f $(VSPATH)/Demo/example.d
 	rm -f $(VSPQP_CONFIG_H)
+	rm -f output/*
 
 
 # =============================================================================

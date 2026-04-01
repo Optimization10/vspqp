@@ -214,7 +214,7 @@ void Destroy_Graph(VSP_Graph *Graph)
 VSP_problem* VSP_construct_problem
 (
     VSPINT       num_vertices,
-    VSPLONG nz,
+    VSPLONG                nz,
     VSP_options      *options
 )
 {

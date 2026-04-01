@@ -712,7 +712,7 @@ int main(int argc, char** argv)
         free(sltn_stats) ;
     }
     PrintSumOfResults(sum_sep, sum_imb, sum_time, seed, num_graphs) ;
-    VSP_Print_Performance() ;
+
 
     /* Free memory */
     VSP_destruct_options(options) ;
@@ -722,9 +722,9 @@ int main(int argc, char** argv)
     printf("BM time: %Lf\n", G_BM_TIME) ;
     printf("Coarsen time: %Lf\n", G_COARSEN_TIME) ;
 
-    printf("Matching time: %Lf\n", G_Performance_Struct.Matching_Seconds) ;
+    // printf("Matching time: %Lf\n", G_Performance_Struct.Matching_Seconds) ;
 
-    VSP_Print_Performance() ;
+
 
     return 0 ;
 }

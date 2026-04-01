@@ -46,10 +46,6 @@ void VSP_Solve_With_Metis
     METIS_Solution_Stats       *MSS // Ignored if NULL
 ) ;
 
-void VSP_Print_Performance
-(
-
-) ;
 
 VSPINT Prepend
 (

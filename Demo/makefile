@@ -10,13 +10,13 @@ include $(VSPATH)/Config/internal.mk
 example: $(VSPATH)/Demo/example
 
 
-$(EXAMPLE): $(VSPATH)/Demo/example.c $(LIB_VSSTARTUP)
+$(EXAMPLE): $(VSPATH)/Demo/example.c $(LIB_VSPQP)
 	@echo ""
 	@echo "Building executable $@..."
-	$(CC) $(CFLAGS) $< $(LIB_VSSTARTUP) $(LIBS) -o $@
+	$(CC) $(CFLAGS) $< $(LIB_VSPQP) $(LIBS) -o $@
 	@echo "Success!"
 
-$(LIB_VSSTARTUP): FORCE
+$(LIB_VSPQP): FORCE
 	$(MAKE) -C $(VSPATH)/Lib
 
 FORCE:
