@@ -50,7 +50,17 @@ void Final_Cleanup
     VSP_state *X, VSP_state *Y, VSP_problem *problemFinest, VSP_solve_result *result
 ) ;
 
-void Destroy_Coarse_Problems(VSP_problem *problemFinest) ;
+void Destroy_Coarse_Problems(VSP_problem *problemFinest)
+{
+    VSP_problem *cp, *p = problemFinest->child_problem ;
+    while(p != NULL)
+    {
+        cp = p->child_problem ;
+        VSP_destruct_problem(p) ;
+        p = cp ;
+    }
+    return ;
+}
 
 VSP_problem *Problem_Recursive_Coarsen
 (

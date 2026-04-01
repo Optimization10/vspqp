@@ -25,17 +25,17 @@ Logger LOG_G ;
 
 
 
-void Destroy_Coarse_Problems(VSP_problem *problemFinest)
-{
-    VSP_problem *cp, *p = problemFinest->child_problem ;
-    while(p != NULL)
-    {
-        cp = p->child_problem ;
-        VSP_destruct_problem(p) ;
-        p = cp ;
-    }
-    return ;
-}
+void Destroy_Coarse_Problems(VSP_problem *problemFinest) ;
+// {
+//     VSP_problem *cp, *p = problemFinest->child_problem ;
+//     while(p != NULL)
+//     {
+//         cp = p->child_problem ;
+//         VSP_destruct_problem(p) ;
+//         p = cp ;
+//     }
+//     return ;
+// }
 
 // Store x, y into result and free remaining memory
 void Final_Cleanup
