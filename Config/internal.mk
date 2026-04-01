@@ -22,7 +22,7 @@ EXAMPLE = $(VSPATH)/Demo/example
 # =============================================================================
 # Basic Flags
 # =============================================================================
-CFLAGS = $(ADDITIONAL_DEFS)
+CFLAGS = $(USER_FLAGS)
 
 ifeq ($(EXTRA_WARNINGS),enabled)
 WARNINGS = -W -Wall -pedantic -Wmissing-prototypes \
