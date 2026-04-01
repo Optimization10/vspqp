@@ -21,6 +21,48 @@ int Directory_Exists(const char *path)
 }
 
 
+VSP_solution_stats* VSP_compute_solution_stats
+(
+    VSPINT            *x,
+    VSPINT            *y,
+    VSP_problem *problem,
+    VSPFLOAT        time
+)
+{
+    /* Local vars */
+    VSPINT i ;
+    VSPINT n = problem->Graph->n ;
+    VSPINT num_nodes_x = 0 ;
+    VSPINT num_nodes_y = 0 ;
+
+    /* Allocate memory */
+    VSP_solution_stats *stats = calloc(1, sizeof(*stats)) ;
+
+    /* Compute number of nodes in x and y */
+    for(i = 0 ; i < n ; i++) {
+        num_nodes_x += x[i] ;
+        num_nodes_y += y[i] ;
+    }
+
+    /* Fill out number of nodes in stats struct */
+    stats->num_nodes_total = n ;
+    stats->num_nodes_x     = num_nodes_x ;
+    stats->num_nodes_y     = num_nodes_y ;
+    stats->num_nodes_sep   = n - num_nodes_x - num_nodes_y ;
+
+    stats->num_edges_total = problem->Graph->nz / 2 ;
+
+    /* Fill out percentages in stats struct */
+    stats->percent_nodes_x   = (VSPFLOAT) num_nodes_x * 100 / n ;
+    stats->percent_nodes_y   = (VSPFLOAT) num_nodes_y * 100 / n ;
+    stats->percent_nodes_sep = (VSPFLOAT) stats->num_nodes_sep * 100 / n ;
+
+    /* Fill out the time */
+    stats->time = time ;
+
+    return stats ;
+}
+
 
 void VSP_reset_file(char* name)
 {

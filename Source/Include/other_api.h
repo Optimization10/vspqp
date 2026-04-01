@@ -10,7 +10,7 @@ void VSP_set_initial_guess(
 ) ;
 
 VSP_options* VSP_construct_options() ;
-void VSP_set_default_problem_data(VSP_problem* problem) ;
+
 
 void VSP_preprocess_finest_problem
 (

@@ -45,11 +45,5 @@ void VSP_print_solution_stats
     VSPFLOAT        time
 ) ;
 
-VSP_solution_stats* VSP_compute_solution_stats(
-    VSPINT            *x,
-    VSPINT            *y,
-    VSP_problem *problem,
-    VSPFLOAT        time
-) ;
 
 #endif

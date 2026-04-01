@@ -1,5 +1,7 @@
 #include "shared_api.h"
 
+
+
 void VSP_set_default_options(VSP_options* options)
 {
     /* Coarsening */

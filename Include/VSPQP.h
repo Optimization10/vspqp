@@ -392,6 +392,9 @@ VSP_solve_result* Solve_v2
     VSP_options    *options
 ) ;
 
+
+void VSP_restart_decide_reset(VSP_restart_decision *dec) ;
+
 VSP_options* VSP_construct_options() ;
 void VSP_set_default_options(VSP_options* options) ;
 
@@ -401,5 +404,9 @@ VSP_problem* VSP_construct_problem
     VSPLONG numedges,
     VSP_options* options
 ) ;
+
+void VSP_set_default_problem_data(VSP_problem* problem) ;
+
+long double VSP_compute_elapsed_time(struct timespec start, struct timespec end) ;
 
 #endif

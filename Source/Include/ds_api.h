@@ -774,7 +774,6 @@ bool VSP_restart_decide
     VSP_problem            *problem  /* If using levels, this is ignored   */
 ) ;
 
-void VSP_restart_decide_reset(VSP_restart_decision *dec) ;
 
 
 /*----------------------------------------------------------------------------*/

@@ -253,7 +253,7 @@ void VSP_copy_point(
 
 int VSP_comparison_increasing(const void *a, const void *b) ;
 
-long double VSP_compute_elapsed_time(struct timespec start, struct timespec end) ;
+
 
 int VSP_compare_value_index_floats(const void *a, const void *b) ;
 
