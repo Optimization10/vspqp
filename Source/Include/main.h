@@ -24,7 +24,6 @@ typedef struct
 } METIS_Solution_Stats ;
 
 static void SetCustomOptions(VSP_options *options) ;
-static void WriteGlobalMatrixName(char* name) ;
 static void SaveRndSeed(time_t seed) ;
 static void PrintSumOfResults
 (

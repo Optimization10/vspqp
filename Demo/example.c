@@ -457,7 +457,6 @@ int main(int argc, char** argv)
     {
         num_graphs++ ;
         srand(seed) ;
-        WriteGlobalMatrixName(filePath) ;
 
         // Append the directory path
         Prepend(matricesDir, filePath, MAX_MATRIX_PATH_LENGTH) ;
