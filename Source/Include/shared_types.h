@@ -5,20 +5,20 @@
 
 typedef struct Stopwatches Stopwatches ;
 
-#if VSP_INTEGERS_MODE == 0
-    typedef int VSPINT ;
-    typedef int VSPLONG ;
-#elif VSP_INTEGERS_MODE == 1
-    typedef int VSPINT ;
-    typedef long long VSPLONG ;
-#elif VSP_INTEGERS_MODE == 2
-    typedef long long VSPINT ;
-    typedef long long VSPLONG ;
-#else
-    #error "Invalid VSP_INTEGERS_MODE"
-#endif
+// #if VSP_INTEGERS_MODE == 0
+//     #define VSPINT int ;
+//     #define VSPLONG int ;
+// #elif VSP_INTEGERS_MODE == 1
+//     #define VSPINT int ;
+//     #define VSPLONG long long ;
+// #elif VSP_INTEGERS_MODE == 2
+//     #define VSPINT long long ;
+//     #define VSPLONG long long ;
+// #else
+//     #error "Invalid VSP_INTEGERS_MODE"
+// #endif
 
-typedef double VSPFLOAT ;
+// typedef double VSPFLOAT ;
 
 typedef enum
 {

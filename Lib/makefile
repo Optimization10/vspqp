@@ -1,5 +1,5 @@
 #===============================================================================
-# VS/Lib/Makefile: for compiling the static VS library
+# VS/Lib/Makefile: for compiling the static VSPQP library
 #===============================================================================
 
 include $(VSPATH)/Config/internal.mk

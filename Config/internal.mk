@@ -1,4 +1,5 @@
 # =============================================================================
+# Config/internal.mk
 # DO NOT EDIT - Internal build configuration
 # Edit user_config.mk for user-configurable options
 # =============================================================================
@@ -49,7 +50,7 @@ endif
 # Types and MKL
 # =============================================================================
 ifeq ($(USE_MKL),true)
-	CFLAGS += -DUSE_MKL -DVSFLOAT=double -I$(MKL_INCLUDE) -fopenmp
+	CFLAGS += -DUSE_MKL -DVSPFLOAT=double -I$(MKL_INCLUDE) -fopenmp
 	LIBS += -lpthread -ldl
 
 #   Use GNU threading layer for gcc, Intel threading layer for clang/icx
@@ -62,11 +63,11 @@ ifeq ($(USE_MKL),true)
 	endif
 
 	ifeq ($(LONG),true)
-		CFLAGS += -DVSINT="long long int" -DVSLINT="long long int" -DMKL_ILP64
+		CFLAGS += -DVSPINT="long long int" -DVSPLONG="long long int" -DMKL_ILP64
 		MKL_LIBS = -Wl,--start-group -lmkl_intel_ilp64 $(MKL_THREAD) \
 		-lmkl_core -Wl,--end-group $(MKL_OMP)
 	else
-		CFLAGS += -DVSINT=int -DVSLINT=int
+		CFLAGS += -DVSPINT=int -DVSPLONG=int
 		MKL_LIBS = -Wl,--start-group -lmkl_intel_lp64 $(MKL_THREAD) \
 		-lmkl_core -Wl,--end-group $(MKL_OMP)
 	endif
@@ -75,28 +76,28 @@ ifeq ($(USE_MKL),true)
 
 else
 #   Set the float type as defined by user, or to double if undefined
-	ifndef VSFLOAT
-		CFLAGS += -DVSFLOAT=double
+	ifndef VSPFLOAT
+		CFLAGS += -DVSPFLOAT=double
 	else
-		CFLAGS += -DVSFLOAT=$(VSFLOAT)
+		CFLAGS += -DVSPFLOAT=$(VSPFLOAT)
 	endif
 
 #   Set the integer types
 	ifeq ($(LONG),true)
-		CFLAGS += -DVSINT="long long int" -DVSLINT="long long int"
+		CFLAGS += -DVSPINT="long long int" -DVSPLONG="long long int"
 	else
-#       Define VSINT set by the user. If user did not set, default it to int
-		ifndef VSINT
-			CFLAGS += -DVSINT=int
+#       Define VSPINT set by the user. If user did not set, default it to int
+		ifndef VSPINT
+			CFLAGS += -DVSPINT=int
 		else
-			CFLAGS += -DVSINT=$(VSINT)
+			CFLAGS += -DVSPINT=$(VSPINT)
 		endif
 
-#       Define VSLINT set by the user. If user did not set, default it to int
-		ifndef VSLINT
-			CFLAGS += -DVSLINT=int
+#       Define VSPLONG set by the user. If user did not set, default it to int
+		ifndef VSPLONG
+			CFLAGS += -DVSPLONG=int
 		else
-			CFLAGS += -DVSLINT=$(VSLINT)
+			CFLAGS += -DVSPLONG=$(VSPLONG)
 		endif
 	endif
 endif
