@@ -1,5 +1,7 @@
 #include "VSPQP.h"
-#include "main.h"
+// #include "main.h"
+#include <stdio.h>
+#include <string.h>
 
 // #include <cstdlib>
 #include "time.h"
@@ -17,6 +19,22 @@ int Directory_Exists(const char *path)
     struct stat sb ;
     return stat(path, &sb) == 0 && S_ISDIR(sb.st_mode) ;
 }
+
+void VSP_reset_file(char* name)
+{
+    FILE* file = fopen(name, "w") ;
+    fclose(file) ;
+    return ;
+}
+
+void VSP_reset_output_files()
+{
+    VSP_reset_file("output/VSP_results.txt") ;
+    VSP_reset_file("output/VSP_error_log.txt") ;
+    VSP_reset_file("output/VSP_stats.txt") ;
+    return ;
+}
+
 
 int main(int argc, char** argv)
 {
@@ -45,7 +63,7 @@ int main(int argc, char** argv)
     /*------------------------------------------------------------------------*/
 
 
-    SuiteSparse_start() ;
+    // SuiteSparse_start() ;
     VSP_reset_output_files() ; 
     unsigned int seed ;
 

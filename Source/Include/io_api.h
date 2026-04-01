@@ -4,8 +4,6 @@
 #include "shared_api.h"
 
 
-void VSP_reset_output_files() ;
-void VSP_reset_file(char* name) ;
 VSP_problem* VSP_read_problem(char* file_name, VSP_options* options) ;
 void VSP_print_stats(VSP_stats *stats) ;
 

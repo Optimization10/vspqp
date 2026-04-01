@@ -51,20 +51,7 @@ VSP_solution_stats* VSP_compute_solution_stats
 
 
 
-void VSP_reset_file(char* name)
-{
-    FILE* file = fopen(name, "w") ;
-    fclose(file) ;
-    return ;
-}
 
-void VSP_reset_output_files()
-{
-    VSP_reset_file("output/VSP_results.txt") ;
-    VSP_reset_file("output/VSP_error_log.txt") ;
-    VSP_reset_file("output/VSP_stats.txt") ;
-    return ;
-}
 
 /* Dump a graph in coordinate form. Make the indexing 1-based */
 void VSP_dump_graph
