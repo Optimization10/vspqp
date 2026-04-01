@@ -76,57 +76,6 @@ void Solve_Level
     VSP_ResolveLevelDecideAndDo(X, Y, problem, options) ;
 }
 
-VSP_solve_result* VSP_solve
-(
-    VSP_problem *problem_finest,
-    VSP_options        *options
-)
-{
-
-
-    /* Preprocessing */
-    VSP_check_for_complete_graph(problem_finest) ;
-    VSP_preprocess_finest_problem(problem_finest, options) ;
-    LoggerInit(false) ;
-
-    /* Coarsening */
-    Stopwatches_Start(problem_finest->Stopwatches, "Coarsening") ;
-    VSP_problem *problem = VSP_coarsen_all_the_way_down(problem_finest, options) ;
-    Stopwatches_Stop(problem_finest->Stopwatches, "Coarsening") ;
-
-    /* Multilevel Solve */
-
-    VSP_state *X, *Y, *Xold, *Yold ;
-    for( ; problem != NULL ; problem = problem->parent_problem)
-    {
-        // printf("\nStarting level %li", CAST(problem->level, long)) ;
-        fflush(stdout) ;
-        Xold = X ; X = VSP_construct_state(problem->Graph->n) ;
-        Yold = Y ; Y = VSP_construct_state(problem->Graph->n) ;
-
-
-        if( Is_Coarsest_Problem(problem) ) VSP_set_initial_guess(X, Y, problem, options) ;
-        else                               Uncoarsen_Point(problem, X, Y, Xold, Yold) ;
-
-        printf("u: %f\n", (double) problem->u / problem->Graph->total_vtx_cost ) ;
-        fflush(stdout) ;
-
-        Stopwatches_Start(problem->Stopwatches, "Level") ;
-        Solve_Level(X, Y, problem, options) ;
-        Stopwatches_Stop(problem->Stopwatches, "Level") ;
-
-        // Print the stopwatch
-        Stopwatches_Print(problem->Stopwatches) ;
-    }
-
-    /* Cleanup and return */
-    VSP_relaxed_to_vertex_separator(X, Y, problem_finest) ;
-    VSP_solve_result *result = malloc( sizeof(*result) ) ;
-    Final_Cleanup(X, Y, problem_finest, result) ;
-    LoggerDestroy() ;
-
-    return result ;
-}
 
 
 /* Determine if we should resolve, and if so, do it */

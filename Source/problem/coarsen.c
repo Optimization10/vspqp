@@ -94,7 +94,7 @@ VSP_Graph* Graph_Coarsen
     // A: No. The fine nz should be an upper bound on the coarse nz. And later
     //    on, we set problem_coarse->Graph->nz = munch, which is the true coarse nz
     // VSP_problem* problem_coarse = VSP_construct_problem(n_coarse, GraphFine->nz, options) ;
-    VSP_Graph *Graph_Coarse = Construct_Graph(n_coarse, GraphFine->nz) ;
+    VSP_Graph *Graph_Coarse = Construct_Graph(n_coarse, GraphFine->nz, NULL, NULL, NULL) ;
 
     VSPLONG *Ap_coarse = Graph_Coarse->Ap;
     VSPINT *Ai_coarse = Graph_Coarse->Ai;
@@ -458,6 +458,7 @@ VSP_problem *Problem_Coarsen
     (
         Graph_Coarse->n,
         Graph_Coarse->nz,
+        NULL, NULL, NULL,
         options
     ) ;
 

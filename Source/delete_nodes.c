@@ -17,7 +17,7 @@ VSP_Graph *Compress_Graph
     nzOrg = GraphOrg->nz ;
 
     // Construct reduced graph to be returned
-    VSP_Graph *ret = Construct_Graph(nOrg, nzOrg) ;    
+    VSP_Graph *ret = Construct_Graph(nOrg, nzOrg, NULL, NULL, NULL) ;    
     
     // Arrays containing original graph
     VSPLONG *ApOrg = GraphOrg->Ap ;

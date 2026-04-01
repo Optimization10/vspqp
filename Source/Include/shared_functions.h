@@ -320,7 +320,7 @@ void VSP_destruct_state(VSP_state* state);
 VSP_options* VSP_construct_options();
 void VSP_destruct_options(VSP_options* options);
 
-VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz) ;
+VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae) ;
 void Destroy_Graph(VSP_Graph *Graph) ;
 
 

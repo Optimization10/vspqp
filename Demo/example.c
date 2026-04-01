@@ -135,13 +135,13 @@ VSP_solution_stats* VSP_compute_solution_stats
 (
     VSPINT            *x,
     VSPINT            *y,
-    VSP_problem *problem,
+    VSPINT             n,
+    VSPLONG           nz,
     VSPFLOAT        time
 )
 {
     /* Local vars */
     VSPINT i ;
-    VSPINT n = problem->Graph->n ;
     VSPINT num_nodes_x = 0 ;
     VSPINT num_nodes_y = 0 ;
 
@@ -160,7 +160,7 @@ VSP_solution_stats* VSP_compute_solution_stats
     stats->num_nodes_y     = num_nodes_y ;
     stats->num_nodes_sep   = n - num_nodes_x - num_nodes_y ;
 
-    stats->num_edges_total = problem->Graph->nz / 2 ;
+    stats->num_edges_total = nz / 2 ;
 
     /* Fill out percentages in stats struct */
     stats->percent_nodes_x   = (VSPFLOAT) num_nodes_x * 100 / n ;
@@ -218,7 +218,16 @@ void VSP_reset_output_files()
 // Output: problem struct. Obtained by calling constructor, freeing its Ai,
 //         Ap arrays, and setting them to the Ai and Ap arrays set in this
 //         program
-VSP_problem *Read_hager6_File(char *path, VSP_options *options)
+void Read_hager6_File
+(
+    char           *path,
+    VSP_options *options,
+
+    // Output
+    VSPINT    *n,
+    VSPINT  **Ai,
+    VSPLONG **Ap
+)
 {
 
     FILE *fp = fopen(path, "rb") ;
@@ -226,7 +235,7 @@ VSP_problem *Read_hager6_File(char *path, VSP_options *options)
     {
         printf("\nERROR: Could not open file: %s", path) ;
         fflush(stdout) ;
-        return NULL ;
+        // return NULL ;
     }
 
     struct timespec start, end;
@@ -239,7 +248,7 @@ VSP_problem *Read_hager6_File(char *path, VSP_options *options)
     fread(&nztemp, sizeof(int64_t), 1, fp) ;
 
     int32_t *tempAi = malloc(nztemp * sizeof(int32_t)) ;
-    if (!tempAi) return NULL ;
+    // if (!tempAi) return NULL ;
 
     fread(tempAi, sizeof(int32_t), nztemp, fp);
 
@@ -247,7 +256,7 @@ VSP_problem *Read_hager6_File(char *path, VSP_options *options)
     if (!tempAp)
     {
         free(tempAi) ;
-        return NULL ;
+        // return NULL ;
     }
 
     fread(tempAp, sizeof(int64_t), ntemp + 1, fp);
@@ -280,49 +289,29 @@ VSP_problem *Read_hager6_File(char *path, VSP_options *options)
     }
 
     // Convert Ai array to VSPINTs
-    VSPINT *Ai = malloc(nztemp * sizeof(*Ai));
+    *Ai = malloc(nztemp * sizeof(*Ai));
     if (!Ai)
     {
         free(tempAi);
         free(tempAp);
-        return NULL ;
+        // return NULL ;
     }
-    for (int64_t i = 0; i < nztemp; i++) Ai[i] = tempAi[i];
+    for (int64_t i = 0; i < nztemp; i++) (*Ai)[i] = tempAi[i];
 
     // Convert Ap array to VSPLONGs
-    VSPLONG *Ap = malloc((ntemp + 1) * sizeof(*Ap) );
+    *Ap = malloc((ntemp + 1) * sizeof(*Ap) );
     if (!Ap)
     {
         free(Ai) ;
         free(tempAi) ;
         free(tempAp) ;
-        return NULL ;
+        // return NULL ;
     }
-    for (int32_t i = 0 ; i <= ntemp ; i++) Ap[i] = tempAp[i] ;
+    for (int32_t i = 0 ; i <= ntemp ; i++) (*Ap)[i] = tempAp[i] ;
 
     // Free memory
     free(tempAi);
     free(tempAp);
-
-
-    // Set up problem to return
-    VSPINT  n  = (VSPINT) ntemp ;
-    VSPLONG nz = (VSPLONG) nztemp ;
-
-
-    VSP_problem *problem = VSP_construct_problem(n, Ap[n], options) ;
-    free(problem->Graph->Ai) ;
-    free(problem->Graph->Ap) ;
-    problem->Graph->Ai = Ai ;
-    problem->Graph->Ap = Ap ;
-
-    problem->Graph->Ai = Ai ;
-    problem->Graph->Ap = Ap ;
-
-    // Write file name
-    strcpy(problem->name, fileName) ;
-
-    return problem ;
 }
 
 
@@ -420,7 +409,6 @@ void VSP_write_to_csv_2
     char                *col_title_given, /* If empty string, a title is
                                              generated from the options       */
     VSP_solution_stats  *solStats,
-    VSP_problem          *problem,
     VSP_options          *options
 )
 {
@@ -633,7 +621,6 @@ int main(int argc, char** argv)
     struct timespec     start, end ;
     long double       elapsed_time ;
     VSP_options           *options ;
-    VSP_problem           *problem ;
     VSP_solve_result       *result = NULL ;
 
     /*** Options **************************************************************/
@@ -666,6 +653,8 @@ int main(int argc, char** argv)
     sum_sep  = 0 ;
     sum_time = 0 ;
 
+    VSPINT n, *Ai ;
+    VSPLONG *Ap ;
     while(GetNextLine(matricesList, filePath, MAX_MATRIX_PATH_LENGTH))
     {
         num_graphs++ ;
@@ -677,17 +666,21 @@ int main(int argc, char** argv)
         VSP_restart_decide_reset(options->restart_decision) ;
 
         // /* 2. Read the problem and set default data */
-        problem = Read_hager6_File(filePath, options) ;
-        VSP_set_default_problem_data(problem) ;
+        Read_hager6_File(filePath, options, &n, &Ai, &Ap) ;
 
         /* 3. Solve the problem */ 
-        FILE *f = fopen("./output/SolveLog.txt", "a") ;
-        fprintf(f, "Starting problem: %s\n", problem->name) ;
-        fclose(f) ;
-        clock_gettime(CLOCK_REALTIME, &start);
-        // result = VSP_solve(problem, options) ;
-        result = VSP_Solve(problem, options) ;
+        // FILE *f = fopen("./output/SolveLog.txt", "a") ;
+        // fprintf(f, "Starting problem: %s\n", problem->name) ;
+        // fclose(f) ;
+
+
+        VSPINT *Ae = malloc(Ap[n] * sizeof(*Ae)) ;
+        
+        for(VSPLONG i = 0 ; i < Ap[n] ; i++) Ae[i] = 1 ;
+        clock_gettime(CLOCK_REALTIME, &start) ;
+        result = VSP_Solve(n, Ap, Ai, Ae, options) ;
         clock_gettime(CLOCK_REALTIME, &end);
+
 
         /* Compute total time for the VSP solver */
         elapsed_time = VSP_compute_elapsed_time(start, end) ;
@@ -696,17 +689,19 @@ int main(int argc, char** argv)
 
         // /* 4. Compute solution stats */
         VSP_solution_stats *sltn_stats =
-        VSP_compute_solution_stats(result->x, result->y, problem, elapsed_time);
+        VSP_compute_solution_stats(result->x, result->y, n, Ap[n], elapsed_time);
         sum_sep += sltn_stats->num_nodes_sep ;
         sum_imb += ABS_DIFF(sltn_stats->num_nodes_x, sltn_stats->num_nodes_y) ; 
         sum_time += elapsed_time ;
 
         // /* 5. Write results to a csv file */
-        VSP_write_to_csv_2(filePath, col_title, sltn_stats, problem, options) ;
+        VSP_write_to_csv_2(filePath, col_title, sltn_stats, options) ;
 
 
         // /* 6. Free memory */
-        VSP_destruct_problem(problem) ;
+        free(Ai) ;
+        free(Ap) ;
+        free(Ae) ;
         VSP_destruct_solve_result(result) ;
         free(sltn_stats) ;
     }

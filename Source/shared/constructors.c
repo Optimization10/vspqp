@@ -183,20 +183,32 @@ void VSP_destruct_options(VSP_options* options)
 }
 
 
-// Allocates memory but does NOT set it to anything
-// The max vertex cost, min vertex cost, and total vertex cost are set to 0
-VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz)
+VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae)
 {
     VSP_Graph *Graph = calloc(1, sizeof(*Graph)) ;
 
     Graph->n         = n  ;
     Graph->nz        = nz ;
 
-    Graph->Ae        = malloc(  nz     * sizeof(VSPINT) ) ;
-    Graph->Ai        = malloc(  nz     * sizeof(VSPINT) ) ;
-    Graph->Ap        = malloc( (n + 1) * sizeof(VSPLONG)  ) ;
+    if(Ae == NULL)
+    {
+        Graph->Ae = malloc(  nz     * sizeof(VSPINT) ) ;
+    }
+    else Graph->Ae = Ae ;
 
-    Graph->c         = malloc(  n      * sizeof(VSPINT)  ) ;
+    if(Ai == NULL)
+    {
+        Graph->Ai = malloc(  nz     * sizeof(VSPINT) ) ;
+    }
+    else Graph->Ai = Ai ;
+
+    if(Ap == NULL)
+    {
+        Graph->Ap = malloc( (n + 1) * sizeof(VSPLONG)  ) ;
+    }
+    else Graph->Ap = Ap ;
+
+    Graph->c = malloc(  n      * sizeof(VSPINT)  ) ;
     return Graph ;
 }
 
@@ -215,6 +227,9 @@ VSP_problem* VSP_construct_problem
 (
     VSPINT       num_vertices,
     VSPLONG                nz,
+    VSPINT                *Ai, // If NULL, then this is allocated
+    VSPLONG               *Ap, // If NULL, then this is allocated
+    VSPINT                *Ae, // If NULL, then this is allocated
     VSP_options      *options
 )
 {
@@ -231,7 +246,7 @@ VSP_problem* VSP_construct_problem
     problem->name[0] = '\0' ;
 
     /* Construct adjacency matrix */
-    problem->Graph     = Construct_Graph(num_vertices, nz) ;
+    problem->Graph     = Construct_Graph(num_vertices, nz, Ap, Ai, Ae) ;
 
     /* Construct matching arrays. Need to use calloc */
     problem->matching = calloc( num_vertices, sizeof(VSPINT));

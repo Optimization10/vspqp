@@ -387,10 +387,13 @@ VSP_levels* VSP_construct_levels
     VSP_levels_selection_type selection_type
 ) ;
 
-VSP_solve_result* VSP_Solve
+VSP_solve_result *VSP_Solve
 (
-    VSP_problem *probFinest,
-    VSP_options    *options
+    VSPINT             n,
+    VSPLONG          *Ap,
+    VSPINT           *Ai,
+    VSPINT *          Ae, // Temporary argument while I'm refactoring
+    VSP_options *options
 ) ;
 
 void VSP_destruct_options(VSP_options* options) ;
@@ -402,9 +405,12 @@ void VSP_set_default_options(VSP_options* options) ;
 
 VSP_problem* VSP_construct_problem
 (
-    VSPINT numvertices,
-    VSPLONG numedges,
-    VSP_options* options
+    VSPINT       num_vertices,
+    VSPLONG                nz,
+    VSPINT                *Ai, // If NULL, then this is allocated
+    VSPLONG               *Ap, // If NULL, then this is allocated
+    VSPINT                *Ae, // If NULL, then this is allocated
+    VSP_options      *options
 ) ;
 
 void Destroy_Graph(VSP_Graph *Graph) ;

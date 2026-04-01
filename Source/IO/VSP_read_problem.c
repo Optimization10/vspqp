@@ -67,60 +67,6 @@ VSP_problem* VSP_read_problem(char* file_name, VSP_options* options) {
 // 56
 
 /*------------------------------------------------------------------------*/
-VSP_problem *Read_Dot_Ovi_File
-(
-    const char* filename,
-    VSP_options* options
-)
-{
-    FILE* filein = fopen(filename, "r");
-    if (!filein) {
-        perror("Failed to open file");
-        exit(1);
-    }
-
-    long long n_ovi_long, nz_ovi_long ;
-    char line[256];
-    
-    // Read n and nz. Always read them as long long. If not, the fscanf call is
-    // tricky to make if n and nz are declared as VSPINTs or VSPLONGs, since
-    // these can switch between int and long long 
-    VSPINT result = fscanf(filein, "n: %lld nz: %lld\n", &n_ovi_long, &nz_ovi_long) ; // silence unused result warning with void
-    if(result != 2)
-    {
-        printf("\n\nError in reading problem\n\n") ;
-    }
-
-    // Construct problem
-    VSP_problem *problem = VSP_construct_problem( (VSPINT) n_ovi_long, (VSPLONG) nz_ovi_long, options) ;
-    VSPLONG *apNumbers = problem->Graph->Ap ;
-    VSPINT *aiNumbers = problem->Graph->Ai ;
-
-
-    /* Read Ap numbers */
-    VSPINT ap_count = 0 ;
-    fgets(line, sizeof(line), filein); // Skip "Ap:" line
-    while (fgets(line, sizeof(line), filein))
-    {
-        if (strncmp(line, "Ai:", 3) == 0) break;
-        long long number;
-        if (sscanf(line, "%lld", &number) == 1) {
-            apNumbers[ap_count++] = (VSPLONG) number;
-        }
-    }
-
-    /* Read Ai numbers */
-    VSPLONG ai_count = 0;
-    while (fgets(line, sizeof(line), filein)) {
-        long long number;
-        if (sscanf(line, "%lld", &number) == 1) {
-            aiNumbers[ai_count++] = (VSPINT) number;
-        }
-    }
-
-    fclose(filein) ;
-    return problem ;
-}
 
 VSP_problem* VSP_read_MM_file(const char* filename, VSP_options* options)
 {
@@ -269,6 +215,7 @@ VSP_problem* VSP_read_MM_file(const char* filename, VSP_options* options)
                                 (
                                     compressed_A_symmetrized->n,
                                     compressed_A_symmetrized->nz,
+                                    NULL, NULL, NULL,
                                     options
                                 ) ;
         
@@ -308,7 +255,7 @@ VSP_problem* VSP_read_MM_file(const char* filename, VSP_options* options)
 
     VSP_problem* problem = VSP_construct_problem
                             ((VSPINT) sanitized_A->n, (VSPINT) sanitized_A->nz,
-                                                                    options);
+                             NULL, NULL, NULL, options);
 
     for(VSPINT i = 0; i < problem->Graph->n + 1; i++){
         problem->Graph->Ap[i] = (VSPINT) sanitized_A->p[i];

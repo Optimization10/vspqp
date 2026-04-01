@@ -1,4 +1,5 @@
 #include "Stopwatches.h"
+#include "VSPQP.h"
 #include "coarsen_api.h"
 #include "shared_api.h"
 #include "delete_nodes.h"
@@ -120,18 +121,23 @@ static void Graph_Compute_Costs
 
 VSP_solve_result *VSP_Solve
 (
-    VSP_problem *probFinest,
-    VSP_options    *options
+    VSPINT             n,
+    VSPLONG          *Ap,
+    VSPINT           *Ai,
+    VSPINT *          Ae, // Temporary argument while I'm refactoring
+    VSP_options *options
 )
 {
     static long long unsigned count = 0 ;
     count++ ;
 
+    VSP_problem *probFinest, *probCoarsest, *P ;
 
- 
-    VSP_problem *probCoarsest, *P ;
+    probFinest = VSP_construct_problem(n, Ap[n], Ai, Ap, Ae, options) ;
+    VSP_set_default_problem_data(probFinest) ;
 
     /* Preprocessing */
+    VSP_construct_problem(n, Ap[n], Ai, Ap, NULL, options) ;
     VSP_check_for_complete_graph(probFinest) ;
     VSP_preprocess_finest_problem(probFinest, options) ;
 
