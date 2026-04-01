@@ -15,7 +15,7 @@ BUILD_DIR = $(VSPATH)/Build
 SRCS = $(shell find $(SRC_DIR) -name '*.c')
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
 
-LIB_VSSTARTUP = $(VSPATH)/Lib/libVSstartup.a
+LIB_VSPQP = $(VSPATH)/Lib/libVSPQP.a
 EXAMPLE = $(VSPATH)/Demo/example
 
 # =============================================================================

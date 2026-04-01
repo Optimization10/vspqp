@@ -4,7 +4,7 @@
 
 include $(VSPATH)/Config/internal.mk
 
-$(LIB_VSSTARTUP): $(OBJS)
+$(LIB_VSPQP): $(OBJS)
 	@echo ""
 	@echo "Building library $@..."
 	ar rcs $@ $(OBJS)

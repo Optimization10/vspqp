@@ -45,6 +45,6 @@ valgrind: example
 
 clean:
 	rm -rf $(BUILD_DIR)
-	rm -f $(VSPATH)/Lib/libVSstartup.a
+	rm -f $(LIB_VSPQP)
 	rm -f $(VSPATH)/Demo/example
 	rm -f $(VSPATH)/Demo/example.d

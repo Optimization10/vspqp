@@ -49,7 +49,7 @@ Rmk 2: When we say "do all feasible, strictly beneficial flips", it is only
 
 ------------------------------------------------------------------------------*/
 
-#include "neutral_strategies.h"
+#include "neutral_strategies_v5.h"
 
 
 void Neutral_Flips_Strategy_1_v5
