@@ -3,8 +3,12 @@
 
 #include <time.h>
 #include <stdbool.h>
-// #include "VSPQP.h"
+#include "VSPQP.h"
 
+/* ========================================================================== */
+// Core Macros
+/* ========================================================================== */
+#define EMPTY -1
 
 /* ========================================================================== */
 // Core Types
@@ -43,23 +47,9 @@ typedef struct
     VSPINT total_vtx_cost ;
 } VSP_Graph ;
 
-typedef struct Stopwatch
-{
-    char           *name ;
-    struct timespec start ;
-    struct timespec end ;
-    bool            inProgress ;
-    long double     accumTime ;
-    long long   counter ; // Number of times the sw has been start/stopped
-} Stopwatch ;
 
-typedef struct Stopwatches
-{
-    size_t        numWatches ;
-    size_t        maxNumWatches ;
-    Stopwatch   **watches ;
-    VSP_problem  *problem ; // Associated with this collection of stopwatches
-} Stopwatches ;
+
+
 
 typedef struct VSP_problem_struct
 {
@@ -106,11 +96,40 @@ typedef struct VSP_problem_struct
     /* The maximum degree in the graph */
     VSPINT maxDegree ;
 
-    VSP_stats *stats ;
-
-    Stopwatches *Stopwatches ;
-
 } VSP_problem ;
+
+/* Store an almost binary point.                                              */
+typedef struct {
+    VSPINT    *int_part ; /* Integer part*/
+    VSPINT     ind_frac ; /* Index of fractional entry. EMPTY if none.        */
+    VSPFLOAT   val_frac ; /* Value of fractional entry. No guarantees
+                             if ind_frac is EMPTY.                            */
+    VSPINT            n ; /* Number of entries in the point                   */
+} VSP_point ;
+
+
+/* Store Az where A is a binary matrix and z has at most one fractional entry
+   Entry i in Az is
+   int_part[i] + val_frac_z * ( col_frac_z[i] == one ) * (ind_frac_z != EMPTY)*/
+typedef struct {
+    VSPINT     *int_part ; /* A times the integer part of z                   */
+    VSPINT    ind_frac_z ; /* Index of fractional entry in z. EMPTY if none.  */
+    VSPFLOAT  val_frac_z ; /* Value of fractional entry in z. No guarantees if
+                              if ind_frac_z is EMPTY.                       */
+    VSPINT   *col_frac_z ; /* Column of A corresponding to frac index in z. No
+                              guarantees if ind_frac_z is EMPTY.              */
+    VSPINT           one ;    /* Largest integer in col_frac_v. Represents the
+                              1'S in that column. All smaller integers represent
+                              zeros.                                          */
+    VSPINT             n ; /* Number of entries in Az.                        */
+} VSP_Az ;
+
+/* Container for all the information pertaining to x or y */
+typedef struct {
+    VSP_point         *point ; /* x or y                                      */
+    VSP_Az               *Az ; /* Ax or Ay                                    */
+    VSPINT            weight ; /* c'x or c'y                                  */
+} VSP_state ;
 
 /* ========================================================================== */
 // Constructors and Destructors for Core Types

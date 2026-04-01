@@ -1,3 +1,4 @@
+#include "core.h"
 #include "ds_api.h"
 
 Dynamic_Heap *Dynamic_Heap_Init

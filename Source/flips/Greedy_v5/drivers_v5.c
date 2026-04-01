@@ -1,3 +1,4 @@
+#include "core.h"
 #include "flips_private_v5.h"
 
 VSPINT g_num_vert_curr_lvl_v5 ;

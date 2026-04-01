@@ -22,7 +22,7 @@
 #define TRUE 1
 #define FALSE 0
 
-#define EMPTY -1
+
 
 #define VSP_ZERO 1E-6
 #define ERR_MSG_LEN 300

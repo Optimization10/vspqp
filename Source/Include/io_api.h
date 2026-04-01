@@ -5,7 +5,6 @@
 
 
 VSP_problem* VSP_read_problem(char* file_name, VSP_options* options) ;
-void VSP_print_stats(VSP_stats *stats) ;
 
 /* Dump graph to a file in coordinate format */
 void VSP_dump_graph

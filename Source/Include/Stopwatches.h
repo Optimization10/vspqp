@@ -4,7 +4,13 @@
 #include "Stopwatch.h"
 #include "shared_api.h"
 
-typedef struct Stopwatches Stopwatches ;
+typedef struct Stopwatches
+{
+    size_t        numWatches ;
+    size_t        maxNumWatches ;
+    Stopwatch   **watches ;
+    VSP_problem  *problem ; // Associated with this collection of stopwatches
+} Stopwatches ;
 
 Stopwatches *Stopwatches_Construct(size_t maxNumWatches, VSP_problem *problem) ;
 void Stopwatches_Destroy(Stopwatches *SWS) ;

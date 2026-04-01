@@ -5,10 +5,6 @@
 #include "shared_types.h"
 #include "time.h"
 
-
-void Print_Num_Flips(VSP_problem *P) ;
-
-
 void VSP_set_centroid
 (
     VSP_state         *X,
@@ -318,7 +314,7 @@ VSPINT** VSP_construct_explicit_matrix (
 ) ;
 
 void VSP_destruct_explicit_matrix( VSPINT** A, VSPINT n ) ;
-                                            */
+                                        
 
 VSPFLOAT VSP_compute_LP_objective(
     VSP_point    *z,

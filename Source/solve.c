@@ -2,7 +2,6 @@
    is meant to call. This function handles coarsening the graph, refining the
    graph, and solving the VSP at each level                                   */
 
-#include "Stopwatches.h"
 #include "shared_api.h"
 #include "solve.h"
 #include "FM_api.h"

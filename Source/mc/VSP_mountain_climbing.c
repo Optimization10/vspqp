@@ -1,6 +1,5 @@
 #include "shared_api.h"
 #include "mc_internal.h"
-#include "Stopwatches.h"
 #include "shared_functions.h"
 #include "shared_globals.h"
 #include <stdio.h>
@@ -36,14 +35,6 @@ void VSP_mountain_climbing
         }
     #endif
 
-    if( is_gamma_org )
-    {
-        Stopwatches_Start(problem->Stopwatches, "MC_OrgGamma") ;
-    }
-    else
-    {
-        Stopwatches_Start(problem->Stopwatches, "MC_RedGamma") ;
-    }
 
     TIMER_START ;
 
@@ -213,14 +204,6 @@ void VSP_mountain_climbing
     
     PERFORMANCE_UPDATE_TIME(MC) ;
 
-    if( is_gamma_org )
-    {
-        Stopwatches_Stop(problem->Stopwatches, "MC_OrgGamma") ;
-    }
-    else
-    {
-        Stopwatches_Stop(problem->Stopwatches, "MC_RedGamma") ;
-    }
     return;
 }
 

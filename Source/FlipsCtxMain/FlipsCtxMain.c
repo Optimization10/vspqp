@@ -1,3 +1,4 @@
+#include "core.h"
 #include "FlipsCtxMain.h"
 #include "ds_api.h"
 

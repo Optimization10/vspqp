@@ -1,4 +1,3 @@
-#include "Stopwatches.h"
 #include "VSPQP.h"
 #include "coarsen_api.h"
 #include "shared_api.h"
@@ -69,6 +68,8 @@ VSP_problem *Problem_Recursive_Coarsen
     VSP_options    *options
 ) ;
 
+
+void VSP_set_default_problem_data(VSP_problem* problem) ;
 
 static void Open_Log_File
 (
@@ -177,12 +178,8 @@ VSP_solve_result *VSP_Solve
 
     Set_Global_Problem(P) ;
 
-    Stopwatches_Start(P->Stopwatches, "Total") ;
     Solve_Level(X_lp1, Y_lp1, P, options) ;
-    Stopwatches_Stop(P->Stopwatches, "Total") ;
 
-    // Print the stopwatch
-    Stopwatches_Print(P->Stopwatches) ;
 
     // Invariant: X_l, Y_l holds the solution at level l
     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
@@ -192,14 +189,14 @@ VSP_solve_result *VSP_Solve
 
         Set_Global_Problem(P) ;
 
-        Stopwatches_Start(P->Stopwatches, "Total") ;
+
 
         // Uncoarsen point from level l+1
-        Stopwatches_Start(P->Stopwatches, "UncoarsenPoint") ;
+
         X_l = VSP_construct_state(P->Graph->n) ;
         Y_l = VSP_construct_state(P->Graph->n) ;
         Uncoarsen_Point(P, X_l, Y_l, X_lp1, Y_lp1) ;
-        Stopwatches_Stop(P->Stopwatches, "UncoarsenPoint") ;
+
 
         // Solve level l
         Solve_Level(X_l, Y_l, P, options) ;
@@ -207,12 +204,6 @@ VSP_solve_result *VSP_Solve
 
         X_lp1 = X_l ;
         Y_lp1 = Y_l ;
-
-        Stopwatches_Stop(P->Stopwatches, "Total") ;
-
-        // Print the stopwatch and number of flips
-        Stopwatches_Print(P->Stopwatches) ;
-        Print_Num_Flips(P) ;
     }
 
     // X_0, Y_0 is the solution at the finest, uncompressed level

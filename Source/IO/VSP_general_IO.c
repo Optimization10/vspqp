@@ -230,30 +230,3 @@ void IO_Dump_Partition_int32
     fclose(fp) ;
     return ;
 }
-
-void Print_Num_Flips(VSP_problem *P)
-{
-    static long long unsigned count = 0 ;
-    count++ ;
-
-    FILE *file ;
-    if(count == 1)
-    {
-        file = fopen("output/Num_Flips.csv", "w") ;
-        fprintf(file, "ProbName,n,nz,ProbLevel,NumFlips") ;
-    }
-    else file = fopen("output/Num_Flips.csv", "a") ;
-
-    fprintf
-    (
-        file, "\n%s,%llu,%llu,%llu,%llu",
-        P->name,
-        CAST(P->Graph->n , long long unsigned),
-        CAST(P->Graph->nz, long long unsigned),
-        CAST(P->level, long long unsigned),
-        CAST(P->stats->num_flips, long long unsigned)
-    ) ;
-
-    fclose(file) ;
-    return ;
-}

@@ -1,7 +1,7 @@
+#include "core.h"
 #include "FM_internal.h"
 #include "ds_api.h"
 #include "shared_api.h"
-#include "Stopwatches.h"
 
 /*----------------------------------------------------------------------------*/
 /*      Static Functions Prototypes                                           */
@@ -360,7 +360,6 @@ void FM_Metis
     // printf("\nStarting FM_METIS") ;
     fflush(stdout) ;
 
-    Stopwatches_Start(problem->Stopwatches, "FM_METIS") ;
     TIMER_START ;
 
     #ifdef VSP_DEBUG
@@ -830,7 +829,7 @@ void FM_Metis
 
     TIMER_END ;
     PERFORMANCE_UPDATE_TIME(FM) ;
-    Stopwatches_Stop(problem->Stopwatches, "FM_METIS") ;
+
     return ;
 }
 

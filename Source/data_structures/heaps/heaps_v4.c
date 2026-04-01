@@ -1,3 +1,4 @@
+#include "core.h"
 #include "ds_api.h"
 
 #define INSERT_IN_LIST(newListMem, insertLoc, list, pointers) \

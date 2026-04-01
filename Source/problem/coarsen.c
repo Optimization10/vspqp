@@ -9,7 +9,7 @@
 #include <string.h>
 #include <time.h>
 #include "simplematch.h"
-#include "Stopwatches.h"
+
 
 static void RecordCoarsestLvlNum
 (
@@ -743,7 +743,6 @@ VSP_problem *Problem_Recursive_Coarsen
     while( 1 )
     {
         // Match P
-        Stopwatches_Start(P->Stopwatches, "Coarsening") ;
         Graph_Simple_Match
         (
             P->Graph,
@@ -768,8 +767,6 @@ VSP_problem *Problem_Recursive_Coarsen
         // Link the child and parent problems
         coarse_P->parent_problem = P ;
         P       ->child_problem  = coarse_P ;    
-
-        Stopwatches_Stop(P->Stopwatches, "Coarsening") ;
 
         // // Check stopping criteria
         // if(Stop_Coarsening(P, options))

@@ -1,3 +1,4 @@
+#include "core.h"
 /******************************************************************************
 VERSION 0
 These are simple min/max heap functions that are designed to be flexible by

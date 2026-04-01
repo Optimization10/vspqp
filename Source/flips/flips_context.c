@@ -1,3 +1,4 @@
+#include "core.h"
 /*----------------------------------------------------------------------------*/
 // flips_context module
 // PURPOSE: Store and keep updated all the data pertaining to the point we

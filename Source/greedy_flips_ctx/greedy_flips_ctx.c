@@ -1,3 +1,4 @@
+#include "core.h"
 #include "greedy_flips_ctx.h"
 #include "ds_api.h"
 

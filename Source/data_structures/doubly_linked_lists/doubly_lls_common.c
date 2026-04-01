@@ -1,3 +1,4 @@
+#include "core.h"
 // Functions that take primitive data types and can be re-used in many places
 #include "ds_api.h"
 

@@ -1,3 +1,4 @@
+#include "core.h"
 #include "dynamic_stack.h"
 
 struct DynamicStack

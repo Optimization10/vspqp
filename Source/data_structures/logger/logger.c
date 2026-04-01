@@ -1,3 +1,4 @@
+#include "core.h"
 #include "logger.h"
 #include "shared_api.h"
 #include <stdarg.h>

@@ -1,5 +1,5 @@
 #include "core.h"
-
+#include <stdio.h>
 
 
 /**************** VSP_point ***************************************************/
@@ -163,11 +163,6 @@ VSP_problem* VSP_construct_problem
     problem->resolveTried   = false ;
     problem->resolveSuccess = false ;
 
-    problem->stats = VSP_construct_stats() ;
-
-    // Construct Stopwatches
-    problem->Stopwatches = Stopwatches_Construct(30, problem) ;
-
     /* The graph is assumed to be uncompressed */
     problem->Graph         = problem->Graph ;
 
@@ -186,10 +181,6 @@ void VSP_destruct_problem(VSP_problem* problem)
     free(problem->matchmap);
     free(problem->invmatchmap);
     free(problem->matchtype);
-
-
-    VSP_destruct_stats(problem->stats) ;
-    Stopwatches_Destroy(problem->Stopwatches) ;
 
     /* Free the struct itself */
     /* Note: we are not freeing cproblem, since each problem frees itself*/

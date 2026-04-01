@@ -1,3 +1,4 @@
+#include "core.h"
 #include "ds_api.h"
 #include "shared_functions.h"
 

@@ -1,3 +1,4 @@
+#include "core.h"
 /*----------------------------------------------------------------------------*/
 // states_manager module
 // Purpose: In several parts of the program I want to start from some initial

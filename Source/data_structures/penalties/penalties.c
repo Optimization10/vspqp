@@ -1,3 +1,4 @@
+#include "core.h"
 #include "shared_api.h"
 // #include "flips_internal_v1.h"
 #include "ds_api.h"

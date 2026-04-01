@@ -1,3 +1,4 @@
+#include "core.h"
 /*------------------------------------------------------------------------------
 This file is for the following strategy of neutral flips:
 

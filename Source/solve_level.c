@@ -1,4 +1,3 @@
-#include "Stopwatches.h"
 #include "shared_api.h"
 #include "ds_api.h"
 #include "gr_api.h"
@@ -250,7 +249,6 @@ void Flips
     clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
 
     SET_FUNCTION_COUNTER ;
-    Stopwatches_Start(problem->Stopwatches, "Flips") ;
     Force_To_Binary_Point(X, Y, problem) ;
 
     VSPINT *x  = X->point->int_part ;
@@ -283,8 +281,6 @@ void Flips
             printf("\nError: Did not select correct flips version") ;
             break ;
     }
-
-    Stopwatches_Stop(problem->Stopwatches, "Flips") ;
 
     clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;
     G_FLIPS_TIME += VSP_compute_elapsed_time(G_START_TIME, G_END_TIME) ;
