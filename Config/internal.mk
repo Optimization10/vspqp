@@ -22,6 +22,7 @@ EXAMPLE = $(VSPATH)/Demo/example
 # =============================================================================
 # Basic Flags
 # =============================================================================
+CFLAGS = $(ADDITIONAL_DEFS)
 
 ifeq ($(EXTRA_WARNINGS),enabled)
 WARNINGS = -W -Wall -pedantic -Wmissing-prototypes \
@@ -30,7 +31,7 @@ WARNINGS = -W -Wall -pedantic -Wmissing-prototypes \
 	-Winline -Wstrict-prototypes -Wno-unknown-pragmas
 endif
 
-CFLAGS = -g3 $(WARNINGS) -I$(VSPATH)/Include -I$(VSPATH)/Source/Include
+CFLAGS += -g3 $(WARNINGS) -I$(VSPATH)/Include -I$(VSPATH)/Source/Include
 
 # Used to handle dependency of object files on headers
 CFLAGS += -MMD -MP
