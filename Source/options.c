@@ -1,6 +1,9 @@
 #include "core.h"
-#include "shared_api.h"
-#include "ds_api.h" // IWYU pragma: keep
+#include "options.h"
+#include "VSPQP.h"
+#include "stdio.h"
+
+
 
 
 VSP_levels* VSP_construct_levels
@@ -253,46 +256,234 @@ void VSP_levels_select_bot
     return ;
 }
 
-/* Create a deep copy */
-VSP_levels* VSP_levels_copy(VSP_levels* levels_in)
+
+
+
+/*----------------------------------------------------------------------------*/
+/* Dynamic Stack Definitions */
+/*----------------------------------------------------------------------------*/
+
+/* Construct a dynamic stack. Initial size is 32 elements */
+VSP_dyn_stk *VSP_construct_dyn_stk()
 {
-    VSP_levels *levels_copy = malloc(sizeof(*levels_copy)) ;
-    levels_copy->top_levels                = levels_in->top_levels ;
-    levels_copy->bot_levels                = levels_in->bot_levels ;
-    levels_copy->all_levels                = levels_in->all_levels ;
-    levels_copy->no_levels                 = levels_in->no_levels ;
-    levels_copy->specify_selected_levels   
-        = levels_in->specify_selected_levels ;
-    levels_copy->specify_unselected_levels 
-        = levels_in->specify_unselected_levels ;
+    VSP_dyn_stk *ds  = malloc(sizeof(*ds)) ;
+    ds->max_size = 32 ;
+    ds->stack     = malloc( (ds->max_size) * sizeof(VSPINT) ) ;
+    ds->n_stack   = 0 ;
 
-    levels_copy->num_top_levels            = levels_in->num_top_levels ;
-    levels_copy->num_bot_levels            = levels_in->num_bot_levels ;
+    return ds ;
+}
 
-    if(levels_copy->specify_selected_levels)
+void VSP_destruct_dyn_stk(VSP_dyn_stk* ds)
+{
+    free(ds->stack) ;
+    free(ds) ;
+}
+
+void VSP_dyn_stk_push(VSP_dyn_stk* ds, VSPINT to_push)
+{
+    if (ds->n_stack == ds->max_size)
     {
-        levels_copy->levels_selected = VSP_dyn_stk_copy
-                                        (
-                                            levels_in->levels_selected
-                                        ) ;
+        ds->max_size *= 2 ;
+        ds->stack = realloc(ds->stack, ds->max_size * sizeof(VSPINT)) ;
     }
-    else
+
+    ds->stack[ds->n_stack] = to_push ;
+    ds->n_stack++ ;
+}
+
+bool VSP_dyn_stk_is_member(VSPINT i, VSP_dyn_stk* ds)
+{
+    for (VSPINT j = 0 ; j < ds->n_stack ; j++)
     {
-        levels_copy->levels_selected = NULL ;
+        if (ds->stack[j] == i)
+        {
+            return true ;
+        }
+    }
+
+    return false ;
+}
+
+/* Create a deep copy */
+VSP_dyn_stk *VSP_dyn_stk_copy(VSP_dyn_stk *stack_in)
+{
+    VSP_dyn_stk *stack_out = VSP_construct_dyn_stk() ;
+
+    for (VSPINT i = 0 ; i < stack_in->n_stack ; i++)
+    {
+        VSP_dyn_stk_push(stack_out, stack_in->stack[i]) ;
+    }
+
+    return stack_out ;
+}
+
+
+
+
+
+/* Just construct and set everything to empty */
+VSP_restart_decision *VSP_construct_restart_decision()
+{
+    VSP_restart_decision *ret = malloc(sizeof(*ret)) ;
+
+    /* Levels */
+    ret->use_levels = false ;
+    ret->levels     = NULL ;
+
+    /* Rule */
+    ret->use_rule             = false ;
+    ret->restarts_done        = 0 ;
+    ret->restarts_allowed     = 0 ;
+    ret->rule_param           = 0 ;
+    ret->finest_level_allowed = 0 ;
+
+    return ret ;
+}
+
+void VSP_destruct_restart_decision(VSP_restart_decision *dec)
+{
+    if (dec->levels != NULL)
+    {
+        VSP_destruct_levels(dec->levels) ;
+    }
+
+    free(dec) ;
+
+    return ;
+}
+
+/* If using the rule, and if it returns true, then it also increments
+   dec->restarts_done. */
+bool VSP_restart_decide
+(
+    VSP_restart_decision       *dec,
+    VSPFLOAT                  objIn, /* If not using rule, this is ignored */
+    VSPFLOAT                 objOut, /* If not using rule, this is ignored */
+    VSP_problem            *problem  /* If using levels, this is ignored   */
+)
+{
+    #ifdef VSP_DEBUG
+        static long long unsigned count = 0 ;
+        count++ ;
+
+        if(dec->use_levels + dec->use_rule != 1)
+        {
+            VSP_error("Error in restart decision", DBG_INFO) ;
+        }
+
+        if(dec->use_rule)
+        {
+            if(dec->restarts_done > dec->restarts_allowed)
+            {
+                VSP_error("Error in restart decision", DBG_INFO) ;
+            }
+
+            if(objOut < objIn)
+            {
+                VSP_error("Probable error. Final objective worse.", DBG_INFO) ;
+            }
+        }
+        else
+        {
+            if(dec->levels == NULL)
+            {
+                VSP_error("Error in restart decision", DBG_INFO) ;
+            }
+        }
+    #endif
+
+
+
+    if (dec->use_levels)
+    {
+        return VSP_levels_is_member(problem, dec->levels) ;
+    }
+    else if (dec->use_rule)
+    {
+        if(dec->restarts_done >= dec->restarts_allowed
+            || problem->level < dec->finest_level_allowed)
+        {
+            return false ;
+        }
+
+        /* Check if we should restart */
+        VSPFLOAT rel_change = (objOut - objIn) / objIn ;
+        if (rel_change <= dec->rule_param)
+        {
+            dec->restarts_done++ ;
+            return true ;
+        }
+        else
+        {
+            return false ;
+        }
+    }
+
+    return false ;
+}
+
+void VSP_restart_decide_reset(VSP_restart_decision *dec)
+{
+    dec->restarts_done = 0 ;
+    return ;
+}
+
+
+
+
+
+
+/* Modify options to reflect the decision */
+void VSP_DecideComm
+(
+    VSP_problem       *problem,
+    VSP_options       *options
+)
+{
+    options->do_community_match = (problem->level <= 3) ? false : true ;
+    return ;
+}
+
+
+/***************** VSP_coarsen_dec ********************************************/
+/* Does NOT construct levels struct */
+VSP_coarsen_dec *VSP_construct_coarsen_dec(VSP_coarsen_dec_type decType)
+{
+    VSP_coarsen_dec *ret = calloc( 1, sizeof(*ret) ) ;
+    ret->decType = decType ;
+    ret->levels  = NULL ;
     
+    return ret ;
+}
+
+void VSP_destruct_coarsen_dec(VSP_coarsen_dec *dec)
+{
+    if(dec->levels != NULL)
+    {
+        VSP_destruct_levels(dec->levels) ;
+    }
+    free(dec) ;
+}
+
+
+/***************** VSP_options ************************************************/
+VSP_options* VSP_construct_options()
+{
+    VSP_options* options = malloc(sizeof(VSP_options));
+    options->restart_decision     = NULL ;
+    return options;
+}
+
+
+void VSP_destruct_options(VSP_options* options)
+{
+    if(options->restart_decision != NULL)
+    {
+        VSP_destruct_restart_decision(options->restart_decision) ;
     }
 
-    if(levels_copy->specify_unselected_levels)
-    {
-        levels_copy->levels_not_selected = VSP_dyn_stk_copy
-                                            (
-                                                levels_in->levels_not_selected
-                                            ) ;
-    }
-    else
-    {
-        levels_copy->levels_not_selected = NULL ;
-    }
 
-    return levels_copy ;
+    /* Free the struct itself */
+    free(options);
 }

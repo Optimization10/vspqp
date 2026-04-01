@@ -9,10 +9,6 @@ void VSP_set_default_options(VSP_options* options)
     options->max_size_of_coarsest_graph = 10;
     options->do_community_match         = true ;
     options->matching_strategy          = HEMSR ;
-
-    options->coarsenDec = NULL ;
-
-
     // Value by which coarsening should compress the graph
     options->compress_threshold = 0.7 ;
 

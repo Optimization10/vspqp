@@ -469,9 +469,6 @@ static void SetCustomOptions(VSP_options *options)
     options->matching_strategy          = HEMSR ;
     options->do_community_match         = true ;
 
-    options->coarsenDec = VSP_construct_coarsen_dec(CRSN_DEC_useCommWithBoundary) ;
-    options->coarsenDec->decBounday = 0.6 ;
-
     /*------------------------------------------------------------------------*/
     // Low gamma matching
     /*------------------------------------------------------------------------*/

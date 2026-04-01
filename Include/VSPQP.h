@@ -7,50 +7,36 @@
 #include <stdlib.h>
 
 
+typedef struct VSP_levels_struct VSP_levels ;
+typedef struct VSP_coarsen_dec_struct VSP_coarsen_dec ;
 
-
-
-typedef struct
+typedef enum VSP_coarsen_dec_type_enum
 {
-    /* Public */
-    VSPINT *stack     ;
-    VSPINT  n_stack   ;
+    CRSN_DEC_useCommAtAllLevels,
+    CRSN_DEC_useCommAtNoLevels,
+    CRSN_DEC_useCommAtCertainLevels,
+    CRSN_DEC_useCommWithBoundary
+} VSP_coarsen_dec_type ;
 
-    /* Private */
-    VSPINT max_size ;
-} VSP_dyn_stk ;
 
-typedef struct
+
+typedef enum VSP_initial_guess_enum
 {
-    /* Options. Precisely one of the following should be true at any time */
-    bool top_levels ;
-    bool bot_levels ;
-    bool all_levels ;
-    bool no_levels ;
-    bool specify_selected_levels ;
-    bool specify_unselected_levels ;
+    VSP_centroid_initial_guess,
+    VSP_random_initial_guess,
+    VSP_manual_initial_guess
+} VSP_initial_guess ;
 
-    /* If 1, only the top (i.e. finest) level. If 0, no level */
-    VSPINT num_top_levels ; 
-    /* If 1, only the bottom (i.e. coarsest) level. If 0, no level */
-    VSPINT num_bot_levels ;
+typedef enum VSP_matching_strategy_enum
+{
+    HEM    = 0,
+    HEMSR  = 1,
+    LOW_GAMMA_MATCHING,
 
-    /* Must be empty unless specify_selected_levels == true */
-    VSP_dyn_stk *levels_selected ;
-
-     /* Must be empty unless specify_unselected_levels == true */
-    VSP_dyn_stk *levels_not_selected ;
-
-} VSP_levels ;
+} VSP_matching_strategy ;
 
 
-/*----------------------------------------------------------------------------*/
-/* Restart Decision */
-/*----------------------------------------------------------------------------*/
-/* Choose when to restart solving a level from some new point, like the
-   centroid. When constructed, everything is off by default. The user
-   must make some selection */
-typedef struct
+typedef struct VSP_restart_decision_struct
 {
     /* Only one of use_levels, use_rule should be true */
     bool        use_levels ;
@@ -66,42 +52,6 @@ typedef struct
 
 } VSP_restart_decision ;
 
-typedef enum VSP_coarsen_dec_type_enum
-{
-    CRSN_DEC_useCommAtAllLevels,
-    CRSN_DEC_useCommAtNoLevels,
-    CRSN_DEC_useCommAtCertainLevels,
-    CRSN_DEC_useCommWithBoundary
-} VSP_coarsen_dec_type ;
-
-typedef enum VSP_initial_guess_enum
-{
-    VSP_centroid_initial_guess,
-    VSP_random_initial_guess,
-    VSP_manual_initial_guess
-} VSP_initial_guess ;
-
-typedef struct
-{
-    VSP_coarsen_dec_type decType ;
-
-    /* Used for useCommunityAtCertainLevels. The levels where comm is ENABLED */
-    VSP_levels *levels ;
-
-    /*  If problem->ratioMaxCostNodes > decBoundary, coarsen this problem
-        WITHOUT community matching. Otherwise, use community matching.  */
-    VSPFLOAT decBounday ;
-
-} VSP_coarsen_dec ;
-
-typedef enum VSP_matching_strategy_enum
-{
-    HEM    = 0,
-    HEMSR  = 1,
-    LOW_GAMMA_MATCHING,
-
-} VSP_matching_strategy ;
-
 typedef struct VSP_options_struct
 {
 
@@ -111,7 +61,6 @@ typedef struct VSP_options_struct
     VSPINT                  max_size_of_coarsest_graph ;
     bool                    do_community_match ;
     VSP_matching_strategy   matching_strategy;
-    VSP_coarsen_dec        *coarsenDec ;
 
     // Value by which coarsening should compress the graph
     VSPFLOAT compress_threshold ;
@@ -191,7 +140,6 @@ typedef struct VSP_options_struct
 } VSP_options;
 
 
-
 typedef struct {
     VSPINT  weight_x ;
     VSPINT  weight_y ;
@@ -200,31 +148,7 @@ typedef struct {
     VSPINT *y ;
 } VSP_solve_result ;
 
-/* Usage:
 
-    First, create a VSP_levels_selection_type variable with the desired
-    selection type, and then create a call the constructor of VSP_levels
-    and store the result in a variable, called, let's say, levels.
-
-    TOP_LEVELS: Then the top (levels->num_top_levels). Note that if this is 0,
-                then no level is selected.
-
-    BOT_LEVELS: Then the bottom (levels->num_bot_levels). Note that if this is
-                0, then no level is selected.
-
-    ALL_LEVELS: Then all levels are selected.
-
-    NO_LEVELS: Then no levels are selected.
-
-    SPECIFY_SELECTED_LEVELS: Then the levels_selected stack should be filled
-                             with the levels to be selected. This stack is
-                             added to using the VSP_levels_select function.
-
-    SPECIFY_UNSELECTED_LEVELS: Then the levels_not_selected stack should be
-                               filled with the levels to be unselected. This
-                               stack is added to using the VSP_levels_unselect
-                               function.
-*/
 typedef enum
 {
     TOP_LEVELS,
@@ -235,6 +159,12 @@ typedef enum
     SPECIFY_UNSELECTED_LEVELS
 } VSP_levels_selection_type ;
 
+VSP_restart_decision *VSP_construct_restart_decision() ;
+VSP_levels* VSP_construct_levels
+(
+    VSP_levels_selection_type selection_type
+) ;
+
 void VSP_levels_unselect
 (
     VSPINT     level_num,
@@ -242,14 +172,11 @@ void VSP_levels_unselect
 ) ;
 
 
+
+
+
+
 VSP_coarsen_dec *VSP_construct_coarsen_dec(VSP_coarsen_dec_type decType) ;
-
-VSP_restart_decision *VSP_construct_restart_decision() ;
-
-VSP_levels* VSP_construct_levels
-(
-    VSP_levels_selection_type selection_type
-) ;
 
 VSP_solve_result *VSP_Solve
 (

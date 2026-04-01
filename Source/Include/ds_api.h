@@ -74,16 +74,7 @@ void Direct_Access_List_Check
     Direct_Access_List *List
 ) ;
 
-/*----------------------------------------------------------------------------*/
-/* Dynamic Stack */
-/*----------------------------------------------------------------------------*/
 
-
-VSP_dyn_stk *VSP_construct_dyn_stk() ;
-void VSP_destruct_dyn_stk(VSP_dyn_stk* ds) ;
-void VSP_dyn_stk_push(VSP_dyn_stk* ds, VSPINT to_push) ;
-bool VSP_dyn_stk_is_member(VSPINT i, VSP_dyn_stk* ds) ;
-VSP_dyn_stk *VSP_dyn_stk_copy(VSP_dyn_stk *stack_in) ;
 
 /*----------------------------------------------------------------------------*/
 /* Levels */

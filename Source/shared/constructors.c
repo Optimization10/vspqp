@@ -40,52 +40,6 @@ void VSP_destruct_flips_dec(VSP_flips_dec *dec)
 
 
 
-/***************** VSP_coarsen_dec ********************************************/
-/* Does NOT construct levels struct */
-VSP_coarsen_dec *VSP_construct_coarsen_dec(VSP_coarsen_dec_type decType)
-{
-    VSP_coarsen_dec *ret = calloc( 1, sizeof(*ret) ) ;
-    ret->decType = decType ;
-    ret->levels  = NULL ;
-    
-    return ret ;
-}
-
-void VSP_destruct_coarsen_dec(VSP_coarsen_dec *dec)
-{
-    if(dec->levels != NULL)
-    {
-        VSP_destruct_levels(dec->levels) ;
-    }
-    free(dec) ;
-}
-
-
-/***************** VSP_options ************************************************/
-VSP_options* VSP_construct_options()
-{
-    VSP_options* options = malloc(sizeof(VSP_options));
-    options->restart_decision     = NULL ;
-    return options;
-}
-
-
-void VSP_destruct_options(VSP_options* options)
-{
-    if(options->restart_decision != NULL)
-    {
-        VSP_destruct_restart_decision(options->restart_decision) ;
-    }
-
-    if(options->coarsenDec != NULL)
-    {
-        VSP_destruct_coarsen_dec(options->coarsenDec) ;
-    }
-
-    /* Free the struct itself */
-    free(options);
-}
-
 
 
 
