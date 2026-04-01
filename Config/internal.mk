@@ -29,7 +29,7 @@ WARNINGS = -W -Wall -pedantic -Wmissing-prototypes \
 	-Winline -Wstrict-prototypes -Wno-unknown-pragmas
 endif
 
-CFLAGS = -g3 $(WARNINGS) -I$(VSPATH)/Include
+CFLAGS = -g3 $(WARNINGS) -I$(VSPATH)/Source/Include
 
 # Used to handle dependency of object files on headers
 CFLAGS += -MMD -MP
