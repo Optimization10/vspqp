@@ -1,3 +1,4 @@
+#include "VSPQP.h"
 #include "ds_api.h"
 // #include "flips_context.h"
 #include "flips_private_v4.h"

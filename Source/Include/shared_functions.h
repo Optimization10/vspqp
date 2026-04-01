@@ -1,20 +1,13 @@
 #ifndef SHARED_FUNCTIONS_H
 #define SHARED_FUNCTIONS_H
 
+#include "VSPQP.h"
 #include "shared_types.h"
 #include "time.h"
 
+
 void Print_Num_Flips(VSP_problem *P) ;
 
-VSP_problem* VSP_transpose
-(
-    VSPINT           *Ai, /* Row indices of non-zeros  */
-    VSPLONG *Ap, /* Column pointers           */
-    VSPINT           *Ae, /* Entries                   */
-    VSPLONG nz, /* Number of rows/columns    */
-    VSPINT             n, /* Number of nonzeros        */
-    VSP_options* options
-) ;
 
 void VSP_set_centroid
 (

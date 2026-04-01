@@ -3,7 +3,7 @@
 #define VSPQP_CONFIG_H
 
 #define VSPFLOAT double
-#define VSPINT long long int
-#define VSPLONG long long int
+#define VSPINT int
+#define VSPLONG int
 
 #endif
