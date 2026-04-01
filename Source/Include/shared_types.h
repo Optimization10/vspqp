@@ -466,8 +466,6 @@ typedef struct VSP_options_struct
     // To disable Hager BM always, set compression_threshold = 1
     VSPFLOAT compression_threshold ;
 
-
-
 } VSP_options;
 
 void LoggerInit(bool enable);
