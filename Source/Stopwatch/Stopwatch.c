@@ -3,15 +3,7 @@
 #include"Stopwatch.h"
 
 
-typedef struct Stopwatch
-{
-    char           *name ;
-    struct timespec start ;
-    struct timespec end ;
-    bool            inProgress ;
-    long double     accumTime ;
-    long long   counter ; // Number of times the sw has been start/stopped
-} Stopwatch ;
+
 
 Stopwatch *Stopwatch_Construct(char *SWname)
 {

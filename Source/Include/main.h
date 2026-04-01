@@ -90,11 +90,7 @@ VSPINT GetNextLine(const char* fileName, char* output, size_t outputSize) ;
 double G_ROLLBACK_TIME = 0 ;
 
 
-VSP_solve_result* Solve_v2
-(
-    VSP_problem *probFinest,
-    VSP_options    *options
-) ;
+
 
 void Write_Performance_Profile
 (

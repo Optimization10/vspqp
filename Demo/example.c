@@ -1,6 +1,6 @@
-#include "shared_api.h"
+#include "VSPQP.h"
 #include "main.h"
-#include "shared_types.h"
+
 // #include <cstdlib>
 #include "time.h"
 #include <sys/stat.h>

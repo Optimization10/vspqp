@@ -1,16 +1,11 @@
+#include "VSPQP.h"
 #include "Stopwatch.h"
 #include "shared_api.h"
 #include <stdlib.h>
 #include "Stopwatches.h"
 #include <string.h>
 
-typedef struct Stopwatches
-{
-    size_t        numWatches ;
-    size_t        maxNumWatches ;
-    Stopwatch   **watches ;
-    VSP_problem  *problem ; // Associated with this collection of stopwatches
-} Stopwatches ;
+
 
 Stopwatches *Stopwatches_Construct(size_t maxNumWatches, VSP_problem *problem)
 {
