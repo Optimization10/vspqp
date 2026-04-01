@@ -16,6 +16,49 @@ struct timespec  G_START_TIME, G_END_TIME ;
 long double G_COMPRESS_TIME = 0, G_FLIPS_TIME = 0, G_COARSEN_TIME = 0,
 G_HEM_TIME = 0, G_BM_TIME = 0 ;
 
+
+/* The cleanup is done in-place */
+void cleanupGraphName(char *graph_name)
+{
+    /* Remove directories */
+    char *last_slash = strrchr(graph_name, '/');
+    if (last_slash != NULL)
+    {
+        memmove(graph_name, last_slash + 1, strlen(last_slash + 1) + 1);
+    }
+
+    /* Remove extension */
+    char *last_dot = strrchr(graph_name, '.');
+    if (last_dot != NULL)
+    {
+        *last_dot = '\0';
+    }
+
+    return ;
+}
+
+static void getColTitle
+(
+    char           *titleGiven,
+    char         *titleToWrite
+)
+{
+    if(*titleGiven == '\0')
+    {
+        strcpy(titleToWrite, "Ovi ") ;
+    }
+    else
+    {
+        if( strchr(titleGiven, ',') != NULL)
+        {
+            printf("\nError: No comma allowed in column title.\n") ;
+            exit(1) ;
+        }
+        strcpy(titleToWrite, titleGiven) ;
+    }
+    return ;
+}
+
 int Directory_Exists(const char *path)
 {
     struct stat sb ;
@@ -601,14 +644,7 @@ int main(int argc, char** argv)
 
         // /* 5. Write results to a csv file */
         VSP_write_to_csv_2(filePath, col_title, sltn_stats, problem, options) ;
-        Write_Performance_Profile
-        (
-            problem,
-            sltn_stats->num_nodes_sep,
-            sltn_stats->num_nodes_x,
-            sltn_stats->num_nodes_y,
-            sltn_stats->time
-        ) ;
+
 
         // /* 6. Free memory */
         VSP_destruct_problem(problem) ;

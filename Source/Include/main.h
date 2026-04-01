@@ -87,14 +87,3 @@ VSPINT GetNextLine(const char* fileName, char* output, size_t outputSize) ;
 
 double G_ROLLBACK_TIME = 0 ;
 
-
-
-
-void Write_Performance_Profile
-(
-    VSP_problem        *P,
-    VSPINT       size_sep,
-    VSPINT          wgt_x,
-    VSPINT          wgt_y,
-    VSPFLOAT         time
-) ;
