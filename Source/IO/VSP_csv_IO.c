@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 #define BUFFER_SIZE 100000
-#define MAX_LEN_GRAPH_NAME 1000
+
 
 
 /*----------------------------------------------------------------------------*/

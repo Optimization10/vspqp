@@ -9,8 +9,10 @@
 #include <sys/stat.h>
 
 #define MAX_MATRIX_PATH_LENGTH 1000
+#define MAX_LEN_GRAPH_NAME 1000
 
 #define ABS_DIFF(a, b) ( ((a) > (b)) ? ( (a) - (b) ) : ( (b) - (a) ) )
+#define CAST(arg, type) ( ((type) (arg)) )
 
 struct timespec  G_START_TIME, G_END_TIME ;
 long double G_COMPRESS_TIME = 0, G_FLIPS_TIME = 0, G_COARSEN_TIME = 0,
@@ -59,6 +61,21 @@ static void getColTitle
     return ;
 }
 
+void VSP_Print_Performance()
+{
+        FILE *file = fopen("output/performance.csv", "w") ;
+        fprintf(file, ",Time,Count") ;
+        fprintf(file,"\nMC,%Lf,%llu", G_Performance_Struct.MC_Seconds, G_Performance_Struct.MC_Count) ;
+        fprintf(file,"\nFM,%Lf,%llu", G_Performance_Struct.FM_Seconds, G_Performance_Struct.FM_Count) ;
+        fprintf(file,"\nFlips,%Lf,%llu",G_Performance_Struct.Flips_Seconds, G_Performance_Struct.Flips_Count) ;
+        fprintf(file,"\nAll Coarsening,%Lf,%llu", G_Performance_Struct.All_Coarsening_Seconds, G_Performance_Struct.All_Coarsening_Count) ;
+        fprintf(file,"\nFM_Flips,%Lf, %llu", G_Performance_Struct.FM_Flips_Seconds, G_Performance_Struct.FM_Flips_Count) ;
+        fprintf(file,"\nRelaxed_To_VSP,%Lf,%llu", G_Performance_Struct.Relaxed_To_VSP_Seconds, G_Performance_Struct.Relaxed_To_VSP_Count) ;
+
+        fclose(file) ;
+    return ;
+}
+
 int Directory_Exists(const char *path)
 {
     struct stat sb ;
@@ -80,6 +97,40 @@ typedef struct {
 
     VSPFLOAT time ;
 } VSP_solution_stats ;
+
+
+
+static void PrintSumOfResults
+(
+    VSPINT           num_sep,
+    VSPINT           sum_imb,
+    long double         time,
+    unsigned int        seed,
+    VSPINT        num_graphs
+)
+{
+    printf("\nNum Graphs  : %llu" , CAST(num_graphs, long long unsigned)) ;
+    printf("\nSep  : %llu" , CAST(num_sep, long long unsigned)) ;
+    printf("\nImb  : %llu" , CAST(sum_imb, long long unsigned)) ;
+    printf("\nTime : %.2Lf\n\n", time) ;
+
+    FILE *fp = fopen("output/aggregate.txt", "w") ;
+    if(fp == NULL)
+    {
+        printf("\nError: Could not open aggregate file") ;
+        return ;
+    }
+    
+    fprintf(fp, "Num Graphs  : %llu" , CAST(num_graphs, long long unsigned)) ;
+    fprintf(fp, "\nSep  : %llu" , CAST(num_sep, long long unsigned)) ;
+    fprintf(fp, "\nImb  : %llu" , CAST(sum_imb, long long unsigned)) ;
+    fprintf(fp, "\nTime : %.2Lf", time) ;
+    fprintf(fp, "\nSeed : %llu" , CAST(seed, long long unsigned)) ;
+    
+
+    fclose(fp) ;
+    return ;
+}
 
 VSP_solution_stats* VSP_compute_solution_stats
 (
@@ -140,6 +191,15 @@ static void SaveRndSeed(time_t seed)
     file = fopen("output/random_seed.txt", "w") ;
     fprintf(file, "Seed: %li", seed) ;
     fclose(file) ;
+    return ;
+}
+
+void VSP_destruct_solve_result(VSP_solve_result *result)
+{
+    free(result->x) ;
+    free(result->y) ;
+    free(result) ;
+
     return ;
 }
 
@@ -671,34 +731,3 @@ int main(int argc, char** argv)
 
 
 
-static void PrintSumOfResults
-(
-    VSPINT           num_sep,
-    VSPINT           sum_imb,
-    long double         time,
-    unsigned int        seed,
-    VSPINT        num_graphs
-)
-{
-    printf("\nNum Graphs  : %llu" , CAST(num_graphs, long long unsigned)) ;
-    printf("\nSep  : %llu" , CAST(num_sep, long long unsigned)) ;
-    printf("\nImb  : %llu" , CAST(sum_imb, long long unsigned)) ;
-    printf("\nTime : %.2Lf\n\n", time) ;
-
-    FILE *fp = fopen("output/aggregate.txt", "w") ;
-    if(fp == NULL)
-    {
-        printf("\nError: Could not open aggregate file") ;
-        return ;
-    }
-    
-    fprintf(fp, "Num Graphs  : %llu" , CAST(num_graphs, long long unsigned)) ;
-    fprintf(fp, "\nSep  : %llu" , CAST(num_sep, long long unsigned)) ;
-    fprintf(fp, "\nImb  : %llu" , CAST(sum_imb, long long unsigned)) ;
-    fprintf(fp, "\nTime : %.2Lf", time) ;
-    fprintf(fp, "\nSeed : %llu" , CAST(seed, long long unsigned)) ;
-    
-
-    fclose(fp) ;
-    return ;
-}

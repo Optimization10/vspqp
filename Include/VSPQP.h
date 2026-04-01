@@ -4,6 +4,7 @@
 #include "VSPQP_config.h"
 #include <stdbool.h>
 #include <time.h>
+#include <stdlib.h>
 
 
 
@@ -392,6 +393,7 @@ VSP_solve_result* Solve_v2
     VSP_options    *options
 ) ;
 
+void VSP_destruct_options(VSP_options* options) ;
 
 void VSP_restart_decide_reset(VSP_restart_decision *dec) ;
 
@@ -405,6 +407,8 @@ VSP_problem* VSP_construct_problem
     VSP_options* options
 ) ;
 
+void Destroy_Graph(VSP_Graph *Graph) ;
+void VSP_destruct_problem(VSP_problem* problem) ;
 void VSP_set_default_problem_data(VSP_problem* problem) ;
 
 long double VSP_compute_elapsed_time(struct timespec start, struct timespec end) ;

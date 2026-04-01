@@ -276,8 +276,6 @@ void VSP_copy_state
     VSP_state        *to
 ) ;
 
-void VSP_destruct_solve_result(VSP_solve_result *result) ;
-
 void VSP_compute_weight(VSP_point *Z, VSPINT *weight_z, VSPINT *c) ;
 
 int VSP_comparison_increasing(const void *a, const void *b) ;

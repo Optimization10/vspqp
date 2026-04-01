@@ -39,14 +39,7 @@ void VSP_destruct_stats(VSP_stats *stats)
 
 
 /**************** VSP_solve_result ********************************************/
-void VSP_destruct_solve_result(VSP_solve_result *result)
-{
-    free(result->x) ;
-    free(result->y) ;
-    free(result) ;
 
-    return ;
-}
 
 /**************** VSP_point ***************************************************/
 VSP_point* VSP_construct_point(VSPINT n) {
