@@ -7,7 +7,6 @@
 #include "time.h"
 #include <sys/stat.h>
 
-extern VSP_Performance G_Performance_Struct ;
 #define MAX_MATRIX_PATH_LENGTH 1000
 
 struct timespec  G_START_TIME, G_END_TIME ;

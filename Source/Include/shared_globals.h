@@ -10,31 +10,7 @@ extern const VSP_problem* G_P ;
     GLOBAL PERFORMANCE MEASURING STRUCT
 *******************************************************************************/
 
-    typedef struct
-    {
-        long double All_Coarsening_Seconds ;
-        long long unsigned All_Coarsening_Count ;
 
-        long double MC_Seconds ;
-        long long unsigned MC_Count ;
-
-        long double FM_Seconds ;
-        long long unsigned FM_Count ;
-
-        long double Flips_Seconds ;
-        long long unsigned Flips_Count ;
-
-        long double FM_Flips_Seconds ;
-        long long unsigned FM_Flips_Count ;
-
-        long double Relaxed_To_VSP_Seconds ;
-        long long unsigned Relaxed_To_VSP_Count ;
-
-        long double Matching_Seconds ;
-        long long unsigned Matching_Count ;
-    } VSP_Performance ;
-
-    extern VSP_Performance G_Performance_Struct ;
 
     #define TIMER_INIT \
     struct timespec hidden_timespec_struct_start ; \

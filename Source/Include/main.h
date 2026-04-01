@@ -10,7 +10,6 @@
 #include "ds_api.h"
 #include <stdio.h>
 
-VSP_Performance G_Performance_Struct = {0} ; 
 
 
 char global_matrix[70] ;
