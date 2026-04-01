@@ -1,0 +1,18 @@
+{
+   omp_leak
+   Memcheck:Leak
+   ...
+   obj:*/libomp.so*
+}
+{
+   dl_leak
+   Memcheck:Leak
+   ...
+   fun:_dl_*
+}
+{
+   mkl_leak
+   Memcheck:Leak
+   ...
+   obj:*/libmkl_*
+}

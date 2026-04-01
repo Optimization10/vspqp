@@ -304,29 +304,11 @@ bool VSP_lteq
     VSPFLOAT b
 ) ;
 
-VSP_state* VSP_construct_state(VSPINT n) ;
-void VSP_destruct_state(VSP_state* Z) ;
 
-
-VSP_Az* VSP_construct_Az(VSPINT n) ;
-void VSP_destruct_Az(VSP_Az* Az) ;
-
-VSP_point* VSP_construct_point(VSPINT n ) ;
-void VSP_destruct_point(VSP_point* point) ;
-
-VSP_state* VSP_construct_state(VSPINT n);
-void VSP_destruct_state(VSP_state* state);
 
 VSP_options* VSP_construct_options();
 void VSP_destruct_options(VSP_options* options);
 
-VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae) ;
-void Destroy_Graph(VSP_Graph *Graph) ;
-
-
-
-
-void VSP_destruct_problem(VSP_problem* problem);
 
 VSP_flips_dec *VSP_construct_flips_dec(VSP_flips_dec_type decType) ;
 void VSP_destruct_flips_dec(VSP_flips_dec *dec) ;
@@ -336,10 +318,7 @@ VSPINT** VSP_construct_explicit_matrix (
 ) ;
 
 void VSP_destruct_explicit_matrix( VSPINT** A, VSPINT n ) ;
-
-/* Compute (c - gamma * Aw)' z                                                */
-VSP_stats *VSP_construct_stats() ;
-void VSP_destruct_stats(VSP_stats *stats) ;
+                                            */
 
 VSPFLOAT VSP_compute_LP_objective(
     VSP_point    *z,

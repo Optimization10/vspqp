@@ -22,7 +22,7 @@
         {
             "label": "prelaunch",
             "type": "shell",
-            "command": "make vscode_dbg",
+            "command": "make example",
             "group": {
                 "kind": "build",
                 "isDefault": true

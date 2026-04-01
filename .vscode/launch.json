@@ -5,7 +5,7 @@
             "name": "gdb Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/vspqp",
+            "program": "${workspaceFolder}/Demo/example",
             "args": 
             [
                 "data/issue/vsp_bcsstk30_500sep_10in_1Kout.mtx"

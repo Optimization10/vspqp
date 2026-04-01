@@ -191,142 +191,6 @@ typedef struct VSP_options_struct
 } VSP_options;
 
 
-typedef struct
-{
-    VSPINT  n ;
-    VSPLONG nz ;
-
-    VSPINT  *Ai ;
-    VSPLONG *Ap ;
-    VSPINT  *Ae ;
-
-    VSPINT *c ;
-    VSPINT min_vtx_cost ;
-    VSPINT max_vtx_cost ;
-    VSPINT total_vtx_cost ;
-} VSP_Graph ;
-
-
-typedef enum VSP_match_type_enum
-{
-    matchtype_unmatched = 0,
-    matchtype_orphan,
-    matchtype_standard,
-    matchtype_brotherly,
-    matchtype_community,
-
-    // Matchtypes for even coarsening
-    matchtype_selfMatch,
-    matchtype_singleton,
-    matchtype_HEM,
-    matchtype_3way
-} VSP_match_type ;
-
-typedef struct
-{
-    /*--- Generic Info -------------------------------------------------------*/
-    VSPINT n  ;      /* Number of vertices */
-    VSPLONG nz ;      /* Twice the number of edges */
-    char name[200] ; /* Name of the graph */
-
-    /*--- Resolve from Centroid ----------------------------------------------*/
-    /* The levels where we tried re-solving */
-    VSP_dyn_stk *resolve_tried ;
-
-    /* Stack containing the levels where re-solving a level
-       gave a better point than the current best */
-    VSP_dyn_stk *resolve_better ;
-
-    /* Stack containing the initial objective at a level */
-    VSP_dyn_stk *objIn  ;
-
-    /* Stack containing the final objective at a level */
-    VSP_dyn_stk *objOut ;
-
-    /* Stack containing the value of x'Ay */
-    VSP_dyn_stk *numPen ;
-
-    /* Stack containing the sum of all the costs in the separator */
-    VSP_dyn_stk *sepIn ;
-
-    /* Stack containing the sum of all the costs in the separator */
-    VSP_dyn_stk *sepOut ;
-
-    // The number of flips done in the problem
-    long long unsigned num_flips ;
-
-} VSP_stats ;
-
-typedef struct VSP_problem_struct VSP_problem;
-
-typedef struct Stopwatch
-{
-    char           *name ;
-    struct timespec start ;
-    struct timespec end ;
-    bool            inProgress ;
-    long double     accumTime ;
-    long long   counter ; // Number of times the sw has been start/stopped
-} Stopwatch ;
-
-typedef struct Stopwatches
-{
-    size_t        numWatches ;
-    size_t        maxNumWatches ;
-    Stopwatch   **watches ;
-    VSP_problem  *problem ; // Associated with this collection of stopwatches
-} Stopwatches ;
-
-typedef struct VSP_problem_struct
-{
-    // This is the graph which is being solved
-    VSP_Graph             *Graph ;
-
-    char                   *name ;  /* name of the graph                      */
-
-    /* Further problem info */
-    VSPINT                     u ;  /* upper balance constraint               */
-
-    /* Info for matching */
-    VSPINT             *matching ;
-    VSPINT             *matchmap ;
-    VSPINT          *invmatchmap ;
-    VSP_match_type    *matchtype ;
-    VSPINT             singleton ;
-
-    /* Coarser graph size */
-    VSPINT                    cn ;
-    VSPLONG                   cnz ;
-
-    /* Link to parent problem. NULL if this is finest graph */
-    struct VSP_problem_struct* parent_problem ;
-    bool was_coarsened_w_comm ;
-
-    /* Link to child problem. NULL if this is the coarsest graph */
-    struct VSP_problem_struct* child_problem ;
-
-    /* The number of coarsenings which were done to reach this Graph-> The
-       finest problem is at level 0 */
-    VSPINT level ;
-    VSPINT coarsest_level_num ; /* The level of the coarsest problem */
-
-    /* Re-solve */
-    bool resolveTried ;
-    bool resolveSuccess ;
-
-    VSPINT ubFinest ;
-
-    /* The ratio of nodes which have maximal cost*/
-    VSPFLOAT ratioMaxCostNodes ;
-
-    /* The maximum degree in the graph */
-    VSPINT maxDegree ;
-
-    VSP_stats *stats ;
-
-    Stopwatches *Stopwatches ;
-
-} VSP_problem ;
 
 typedef struct {
     VSPINT  weight_x ;
@@ -403,18 +267,9 @@ void VSP_restart_decide_reset(VSP_restart_decision *dec) ;
 VSP_options* VSP_construct_options() ;
 void VSP_set_default_options(VSP_options* options) ;
 
-VSP_problem* VSP_construct_problem
-(
-    VSPINT       num_vertices,
-    VSPLONG                nz,
-    VSPINT                *Ai, // If NULL, then this is allocated
-    VSPLONG               *Ap, // If NULL, then this is allocated
-    VSPINT                *Ae, // If NULL, then this is allocated
-    VSP_options      *options
-) ;
 
-void Destroy_Graph(VSP_Graph *Graph) ;
-void VSP_destruct_problem(VSP_problem* problem) ;
+
+
 void VSP_set_default_problem_data(VSP_problem* problem) ;
 
 long double VSP_compute_elapsed_time(struct timespec start, struct timespec end) ;

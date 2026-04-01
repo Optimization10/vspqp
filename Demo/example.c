@@ -215,9 +215,6 @@ void VSP_reset_output_files()
 // Read Hager6 File
 /******************************************************************************/
 // Input:  a file to open (absolute or relative path. Prefer absolute)
-// Output: problem struct. Obtained by calling constructor, freeing its Ai,
-//         Ap arrays, and setting them to the Ai and Ap arrays set in this
-//         program
 void Read_hager6_File
 (
     char           *path,
@@ -287,6 +284,9 @@ void Read_hager6_File
     {
         printf("\nCould not read file size") ;
     }
+
+    // Write n
+    *n = ntemp ;
 
     // Convert Ai array to VSPINTs
     *Ai = malloc(nztemp * sizeof(*Ai));
