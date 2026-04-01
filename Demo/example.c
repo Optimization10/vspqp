@@ -2,6 +2,7 @@
 // #include "main.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 // #include <cstdlib>
 #include "time.h"
@@ -26,11 +27,145 @@ void VSP_reset_file(char* name)
     return ;
 }
 
+static void SaveRndSeed(time_t seed)
+{
+    FILE* file = fopen("output/VSP_error_log.txt", "w") ;
+    fprintf(file, "Seed: %li", seed) ;
+    fclose(file) ;
+
+    file = fopen("output/random_seed.txt", "w") ;
+    fprintf(file, "Seed: %li", seed) ;
+    fclose(file) ;
+    return ;
+}
+
 void VSP_reset_output_files()
 {
     VSP_reset_file("output/VSP_results.txt") ;
     VSP_reset_file("output/VSP_error_log.txt") ;
     VSP_reset_file("output/VSP_stats.txt") ;
+    return ;
+}
+
+static void SetCustomOptions(VSP_options *options)
+{
+    /*------------------------------------------------------------------------*/
+    /* Coarsening Options                                                     */
+    /*------------------------------------------------------------------------*/
+    options->use_coarsening             = true ;
+    options->max_size_of_coarsest_graph = 10  ;
+
+    options->compress_threshold = 0.7 ;
+
+    /*------------------------------------------------------------------------*/
+    // Tim Davis Coarsening with Boundary for Community Matching
+    /*------------------------------------------------------------------------*/
+    options->matching_strategy          = HEMSR ;
+    options->do_community_match         = true ;
+
+    options->coarsenDec = VSP_construct_coarsen_dec(CRSN_DEC_useCommWithBoundary) ;
+    options->coarsenDec->decBounday = 0.6 ;
+
+    /*------------------------------------------------------------------------*/
+    // Low gamma matching
+    /*------------------------------------------------------------------------*/
+    // options->matching_strategy = LOW_GAMMA_MATCHING ;
+
+
+
+    /*------------------------------------------------------------------------*/
+    /* Restart Level Options                                                  */
+    /*------------------------------------------------------------------------*/
+    options->restart_decision = VSP_construct_restart_decision() ;
+
+    // /* All levels in [2, infty) */
+    options->restart_decision->use_levels = true ;
+    options->restart_decision->levels     = VSP_construct_levels(SPECIFY_UNSELECTED_LEVELS) ;
+    VSP_levels_unselect(0, options->restart_decision->levels) ;
+    VSP_levels_unselect(1, options->restart_decision->levels) ;
+
+    /* Using Rule */
+    // WARNING!!!! RULE UNSUPPORTED RIGHT NOW
+    // options->restart_decision->use_rule = true ;
+    // options->restart_decision->restarts_allowed      = 1 ;
+    // options->restart_decision->rule_param            = 0.04 ;
+    // options->restart_decision->finest_level_allowed  = 2 ;
+
+
+    // /* Disable restarts */
+    // options->restart_decision->use_levels = true ;
+    // options->restart_decision->levels = VSP_construct_levels(NO_LEVELS) ;
+
+    /*------------------------------------------------------------------------*/
+    /* Gamma Reduction Options                                                */
+    /*------------------------------------------------------------------------*/
+    options->use_gamma_reduction      = true ;
+
+    options->max_num_vert_small_graph = 8000 ;
+    options->num_gr_for_small_graphs  = 4 ;
+    options->num_gr_for_large_graphs  = 1 ;
+
+
+    // trial
+    // options->max_num_vert_small_graph = 16000 ;
+    // options->num_gr_for_small_graphs  = 2 ;
+
+    // options->max_num_vert_small_graph = 20000 ;
+    // options->num_gr_for_small_graphs  = 2 ;
+
+
+
+    options->num_its_for_small_graphs = 1 ;
+    options->num_its_for_large_graphs = 1 ;
+
+
+    /*------------------------------------------------------------------------*/
+    /* Relax Upper Bound Options                                              */
+    /*------------------------------------------------------------------------*/
+    options->relaxUB      = true ;
+    options->ratioUBLimit = 0.47 ;
+
+
+    // options->relaxUB      = false ; 
+    // options->ratioUBLimit = 0.6 ;
+
+    /*------------------------------------------------------------------------*/
+    /* Starting Guess Options                                                 */
+    /*------------------------------------------------------------------------*/
+    options->initial_guess     = VSP_centroid_initial_guess ;
+    
+    // best so far
+    options->centroidVal       = 0.35 ;
+
+    /*------------------------------------------------------------------------*/
+    /* FM Options                                                             */
+    /*------------------------------------------------------------------------*/
+    // Best so far
+    options->FM_Limit = 300 ;
+
+    // options->FM_Limit = 200 ;
+    // options->FM_Limit = 250 ;
+    // options->FM_Limit = 300 ;
+    // options->FM_Limit = 350 ;
+
+    /*------------------------------------------------------------------------*/
+    /* Miscellaneous Options                                                  */
+    /*------------------------------------------------------------------------*/
+    options->sep_at_each_level = false ;
+
+
+    /* ====================================================================== */
+    // Mountain Climbing Options
+    /* ====================================================================== */
+    options->tol_LP_opt_checker = 1E-10 ;
+
+    /* ====================================================================== */
+    // Simple Coarsening options
+    /* ====================================================================== */
+    options->max_density     = 0.8 ;
+    options->limit_num_nodes = 100 ;
+    options->compression_threshold = 0.51 ;
+
     return ;
 }
 
@@ -186,127 +321,7 @@ int main(int argc, char** argv)
 
 
 
-static void SetCustomOptions(VSP_options *options)
-{
-    /*------------------------------------------------------------------------*/
-    /* Coarsening Options                                                     */
-    /*------------------------------------------------------------------------*/
-    options->use_coarsening             = true ;
-    options->max_size_of_coarsest_graph = 10  ;
 
-    options->compress_threshold = 0.7 ;
-
-    /*------------------------------------------------------------------------*/
-    // Tim Davis Coarsening with Boundary for Community Matching
-    /*------------------------------------------------------------------------*/
-    options->matching_strategy          = HEMSR ;
-    options->do_community_match         = true ;
-
-    options->coarsenDec = VSP_construct_coarsen_dec(CRSN_DEC_useCommWithBoundary) ;
-    options->coarsenDec->decBounday = 0.6 ;
-
-    /*------------------------------------------------------------------------*/
-    // Low gamma matching
-    /*------------------------------------------------------------------------*/
-    // options->matching_strategy = LOW_GAMMA_MATCHING ;
-
-
-
-    /*------------------------------------------------------------------------*/
-    /* Restart Level Options                                                  */
-    /*------------------------------------------------------------------------*/
-    options->restart_decision = VSP_construct_restart_decision() ;
-
-    // /* All levels in [2, infty) */
-    options->restart_decision->use_levels = true ;
-    options->restart_decision->levels     = VSP_construct_levels(SPECIFY_UNSELECTED_LEVELS) ;
-    VSP_levels_unselect(0, options->restart_decision->levels) ;
-    VSP_levels_unselect(1, options->restart_decision->levels) ;
-
-    /* Using Rule */
-    // WARNING!!!! RULE UNSUPPORTED RIGHT NOW
-    // options->restart_decision->use_rule = true ;
-    // options->restart_decision->restarts_allowed      = 1 ;
-    // options->restart_decision->rule_param            = 0.04 ;
-    // options->restart_decision->finest_level_allowed  = 2 ;
-
-
-    // /* Disable restarts */
-    // options->restart_decision->use_levels = true ;
-    // options->restart_decision->levels = VSP_construct_levels(NO_LEVELS) ;
-
-    /*------------------------------------------------------------------------*/
-    /* Gamma Reduction Options                                                */
-    /*------------------------------------------------------------------------*/
-    options->use_gamma_reduction      = true ;
-
-    options->max_num_vert_small_graph = 8000 ;
-    options->num_gr_for_small_graphs  = 4 ;
-    options->num_gr_for_large_graphs  = 1 ;
-
-
-    // trial
-    // options->max_num_vert_small_graph = 16000 ;
-    // options->num_gr_for_small_graphs  = 2 ;
-
-    // options->max_num_vert_small_graph = 20000 ;
-    // options->num_gr_for_small_graphs  = 2 ;
-
-
-
-    options->num_its_for_small_graphs = 1 ;
-    options->num_its_for_large_graphs = 1 ;
-
-
-    /*------------------------------------------------------------------------*/
-    /* Relax Upper Bound Options                                              */
-    /*------------------------------------------------------------------------*/
-    options->relaxUB      = true ;
-    options->ratioUBLimit = 0.47 ;
-
-
-    // options->relaxUB      = false ; 
-    // options->ratioUBLimit = 0.6 ;
-
-    /*------------------------------------------------------------------------*/
-    /* Starting Guess Options                                                 */
-    /*------------------------------------------------------------------------*/
-    options->initial_guess     = VSP_centroid_initial_guess ;
-    
-    // best so far
-    options->centroidVal       = 0.35 ;
-
-    /*------------------------------------------------------------------------*/
-    /* FM Options                                                             */
-    /*------------------------------------------------------------------------*/
-    // Best so far
-    options->FM_Limit = 300 ;
-
-    // options->FM_Limit = 200 ;
-    // options->FM_Limit = 250 ;
-    // options->FM_Limit = 300 ;
-    // options->FM_Limit = 350 ;
-
-    /*------------------------------------------------------------------------*/
-    /* Miscellaneous Options                                                  */
-    /*------------------------------------------------------------------------*/
-    options->sep_at_each_level = false ;
-
-
-    /* ====================================================================== */
-    // Mountain Climbing Options
-    /* ====================================================================== */
-    options->tol_LP_opt_checker = 1E-10 ;
-
-    /* ====================================================================== */
-    // Simple Coarsening options
-    /* ====================================================================== */
-    options->max_density     = 0.8 ;
-    options->limit_num_nodes = 100 ;
-    options->compression_threshold = 0.51 ;
-
-    return ;
-}
 
 
 
@@ -317,17 +332,7 @@ static void WriteGlobalMatrixName(char* name)
     return ;
 }
 
-static void SaveRndSeed(time_t seed)
-{
-    FILE* file = fopen("output/VSP_error_log.txt", "w") ;
-    fprintf(file, "Seed: %li", seed) ;
-    fclose(file) ;
 
-    file = fopen("output/random_seed.txt", "w") ;
-    fprintf(file, "Seed: %li", seed) ;
-    fclose(file) ;
-    return ;
-}
 
 static void PrintSumOfResults
 (

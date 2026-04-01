@@ -343,4 +343,7 @@ VSP_solve_result* Solve_v2
     VSP_options    *options
 ) ;
 
+VSP_options* VSP_construct_options() ;
+void VSP_set_default_options(VSP_options* options) ;
+
 #endif
