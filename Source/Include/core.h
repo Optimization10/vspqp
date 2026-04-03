@@ -11,28 +11,57 @@
 /* ========================================================================== */
 #define EMPTY -1
 
-    #define TIMER_INIT \
-    struct timespec hidden_timespec_struct_start ; \
-    struct timespec hidden_timespec_struct_end ;
+#define PLUS   1
+#define MINUS -1
 
-    #define TIMER_START \
-    struct timespec hidden_timespec_struct_start ; \
-    clock_gettime(CLOCK_REALTIME, &hidden_timespec_struct_start)
+#define UP    1
+#define DOWN -1
 
-    #define TIMER_ELAPSED \
-    (compute_elapsed_time(hidden_timespec_struct_start, hidden_timespec_struct_end))
-    
-    #define TIMER_END \
-    struct timespec hidden_timespec_struct_end ;   \
-    clock_gettime(CLOCK_REALTIME, &hidden_timespec_struct_end)
+#define ZERO 1E-6
 
-    #define PERFORMANCE_UPDATE_TIME(PREFIX) \
-    // do { \
-    //     G_Performance_Struct.PREFIX##_Count++; \
-    //     G_Performance_Struct.PREFIX##_Seconds += \
-    //     (   (hidden_timespec_struct_end.tv_sec - hidden_timespec_struct_start.tv_sec) \
-    //     + (hidden_timespec_struct_end.tv_nsec - hidden_timespec_struct_start.tv_nsec) / 1e9L ) ;\
-    // } while(0)
+#define TRUE  1
+#define FALSE 0
+
+#define ERR_MSG_LEN 300
+
+#define PRI(A) ( (long long int) A )
+
+#ifdef DEBUG
+    #define IFDBG(someCode) ( someCode )
+#else
+    #define IFDBG(some_code)
+#endif
+
+
+
+
+
+
+
+
+
+#define TIMER_INIT \
+struct timespec hidden_timespec_struct_start ; \
+struct timespec hidden_timespec_struct_end ;
+
+#define TIMER_START \
+struct timespec hidden_timespec_struct_start ; \
+clock_gettime(CLOCK_REALTIME, &hidden_timespec_struct_start)
+
+#define TIMER_ELAPSED \
+(compute_elapsed_time(hidden_timespec_struct_start, hidden_timespec_struct_end))
+
+#define TIMER_END \
+struct timespec hidden_timespec_struct_end ;   \
+clock_gettime(CLOCK_REALTIME, &hidden_timespec_struct_end)
+
+#define PERFORMANCE_UPDATE_TIME(PREFIX) \
+// do { \
+//     G_Performance_Struct.PREFIX##_Count++; \
+//     G_Performance_Struct.PREFIX##_Seconds += \
+//     (   (hidden_timespec_struct_end.tv_sec - hidden_timespec_struct_start.tv_sec) \
+//     + (hidden_timespec_struct_end.tv_nsec - hidden_timespec_struct_start.tv_nsec) / 1e9L ) ;\
+// } while(0)
 
 /* ========================================================================== */
 // Core Types

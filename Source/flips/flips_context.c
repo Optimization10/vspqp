@@ -11,6 +11,17 @@
 #include "flips_context.h"
 #include "flips_common_api.h"
 
+#define Z_VAR   0
+#define W_VAR   1
+
+// var    = X_VAR or Y_VAR
+// valVar = 0 or 1
+// 0, 0 -> 0 = X0
+// 0, 1 -> 2 = X1
+// 1, 0 -> 1 = Y0
+// 1, 1 -> 3 = Y1
+#define GET_ENCODING(var, valVar) ( var + 2 * valVar ) 
+
 struct FlipsCtx
 {
     VSPINT *vars [2] ;

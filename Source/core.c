@@ -44,7 +44,8 @@ Az* construct_Az(VSPINT n) {
     return Az ;
 }
 
-void destruct_Az(Az* Az) {
+void destruct_Az(Az* Az)
+{
     free(Az->int_part) ;
     free(Az->col_frac_z) ;
     free(Az) ;

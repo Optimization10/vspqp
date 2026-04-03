@@ -1,34 +1,10 @@
 #ifndef SHARED_MACROS_H
 #define SHARED_MACROS_H
 
-#ifdef DEBUG
-    #define IFDBG(someCode) ( someCode )
-#else
-    #define IFDBG(some_code)
-#endif
-
-#define PRINTINT long long VSPINT
-#define PRI(A) ( (long long int) A )
-
-#define NUMLPS 2
-#define PLUS 1
-#define MINUS -1
-
-#define MAX_FILE_SIZE (50 * 1024 * 1024) // 50 MB
-
-#define UP 1
-#define DOWN -1
-
-#define TRUE 1
-#define FALSE 0
 
 
 
-#define ZERO 1E-6
-#define ERR_MSG_LEN 300
 
-#define MAX_HEAP 1
-#define MIN_HEAP -1
 
 #define NO_FLIP -1
 #define XUP 0
@@ -36,13 +12,7 @@
 #define XDN 2
 #define YDN 3
 
-// var    = X_VAR or Y_VAR
-// valVar = 0 or 1
-// 0, 0 -> 0 = X0
-// 0, 1 -> 2 = X1
-// 1, 0 -> 1 = Y0
-// 1, 1 -> 3 = Y1
-#define GET_ENCODING(var, valVar) ( var + 2 * valVar ) 
+
 
 #define NONE -1
 #define X0 0
@@ -53,19 +23,6 @@
 #define NO_VAR -1
 #define X_VAR   0
 #define Y_VAR   1
-
-#define Z_VAR   0
-#define W_VAR   1
-
-// 0 --> 0 = X0
-// 1 --> 2 = X1
-#define GET_X_ENCODING(xi) (2 * (xi))
-
-// 0 --> 1 = Y0
-// 1 --> 3 = Y1
-#define GET_Y_ENCODING(xi) (1 + 2 * (xi))
-
-
 
 // Given a variable 0 or 1, and its value in an entry 0 or 1, get the encoding
 // associated that entry
@@ -151,11 +108,6 @@
 // zi = 1 --> -1
 #define DIR_FLIP(zi) ( 1 - 2 * (zi) )
 
-// #define IS_VALID_T(k, T) ( ( GET_DIR(k) == UP) ? (T) < n + 1 : (T) > -1 )
-
-// If zi is 1, then we're looking for max so invalid T is -1
-#define IS_VALID_T(zi, T) ( (zi) ? ( (T) > -1) : ((T) < n + 1) )
-
 
 #define UNUSED __attribute__((unused))
 
@@ -202,10 +154,5 @@
     #define SET_FUNCTION_COUNTER
 #endif
 
-#define PERMANENT_COUNTER static long long unsigned count = 0 ; count++
-
-#define DBG_FN_BOILERPLATE static long long unsigned count = 0 ; \
-                           count++ ; \
-                           WARN_IF_NOT_DEBUG_MODE
 
 #endif

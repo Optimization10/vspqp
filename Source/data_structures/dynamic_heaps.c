@@ -1,12 +1,16 @@
 #include "core.h"
 #include "ds_api.h"
+#include "shared_macros.h"
+
+#define MAX_HEAP 1
+#define MIN_HEAP -1
 
 Dynamic_Heap *Dynamic_Heap_Init
 (
     VSPINT                  *c,
     VSPINT               *ptrs,
     VSPINT          maxNumVals,
-    VSPINT               minOrMax  // 1 for max, -1 for min
+    VSPINT            minOrMax  // 1 for max, -1 for min
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -215,7 +219,9 @@ void Dynamic_Heap_Check
     Dynamic_Heap *Heap
 )
 {
-    DBG_FN_BOILERPLATE ;
+    #ifdef DEBUG
+    SET_FUNCTION_COUNTER ;
+    WARN_IF_NOT_DEBUG_MODE ;
     VSP_ASSERT(Heap->maxNumVals > 0) ;
     
 
@@ -229,6 +235,7 @@ void Dynamic_Heap_Check
     }
     else
     {
+        
         ERR("Dynamic heap flag is neither min nor max") ;
     }
 
@@ -237,4 +244,5 @@ void Dynamic_Heap_Check
         ERR("Bad number of values in dynamic heap") ;
     }
     return ;
+    #endif
 }
