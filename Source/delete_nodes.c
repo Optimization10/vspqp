@@ -4,9 +4,9 @@
 #include "core.h"
 
 // Return NULL if the input graph is all singletons
-VSP_Graph *Compress_Graph
+Graph *Compress_Graph
 (
-    VSP_Graph *GraphOrg,
+    Graph *GraphOrg,
     VSPINT        *keep,   // keep[i] = 1 if to keep i, 0 if to not keep i
     VSPINT    *newIndex    // Output
 )
@@ -17,7 +17,7 @@ VSP_Graph *Compress_Graph
     nzOrg = GraphOrg->nz ;
 
     // Construct reduced graph to be returned
-    VSP_Graph *ret = Construct_Graph(nOrg, nzOrg, NULL, NULL, NULL) ;    
+    Graph *ret = Construct_Graph(nOrg, nzOrg, NULL, NULL, NULL) ;    
     
     // Arrays containing original graph
     VSPLONG *ApOrg = GraphOrg->Ap ;
@@ -94,7 +94,7 @@ VSP_Graph *Compress_Graph
 
 State *Compress_Binary_State
 (
-    VSP_Graph        *compGraph,
+    Graph        *compGraph,
     VSPINT            *newIndex,
     State             *Zorg
 )
@@ -108,7 +108,7 @@ State *Compress_Binary_State
     VSPINT norg = Zorg->point->n ;
     VSPINT ncmp = compGraph->n ;
 
-    State *Zcmpr = VSP_construct_state(ncmp) ;
+    State *Zcmpr = construct_state(ncmp) ;
 
     VSPINT i, j,
     *zorg     = Zorg->point->int_part,
@@ -137,7 +137,7 @@ State *Compress_Binary_State
     VSPINT  *Aicmp = compGraph->Ai ;
     VSPLONG *Apcmp = compGraph->Ap ;
 
-    VSP_mat_vec_mult(zcmpr, Azcmp, Aicmp, Apcmp, ncmp) ;
+    mat_vec_mult(zcmpr, Azcmp, Aicmp, Apcmp, ncmp) ;
 
     return Zcmpr ;
 }
@@ -150,7 +150,7 @@ State *Compress_Binary_State
 // the separator 
 State *Uncompress_State
 (
-    VSP_Graph        *compGraph,
+    Graph        *compGraph,
     VSPINT            *newIndex,
     State             *Zcmp,
     VSPINT               *AiOrg,
@@ -164,7 +164,7 @@ State *Uncompress_State
     /*------------------------------------------------------------------------*/
     // Allocate memory for uncompressed state
     /*------------------------------------------------------------------------*/
-    State *ret = VSP_construct_state(nOrg) ;
+    State *ret = construct_state(nOrg) ;
     zOrg = ret->point->int_part ;
     
 

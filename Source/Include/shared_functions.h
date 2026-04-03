@@ -5,7 +5,7 @@
 #include "VSPQP.h"
 #include "time.h"
 
-void VSP_set_centroid
+void set_centroid
 (
     State         *X,
     State         *Y,
@@ -18,7 +18,7 @@ bool Is_Complete_Graph
     VSPINT n, VSPLONG nz
 ) ;
 
-VSPFLOAT VSP_zAw
+VSPFLOAT zAw
 (
     State *X,
     State *Y
@@ -31,7 +31,7 @@ void Force_To_Binary_Point
     Problem   *problem
 ) ;
 
-VSPINT VSP_penalty_term
+VSPINT penalty_term
 (
     VSPINT  *z,
     VSPINT *Aw,
@@ -47,23 +47,23 @@ VSPINT Are_Neighbors
 ) ;
 
 
-void VSP_ResetDumpFile() ;
+void ResetDumpFile() ;
 
-void VSP_PrintNeighs(VSPINT i, VSPINT *Ai, VSPLONG *Ap) ;
+void PrintNeighs(VSPINT i, VSPINT *Ai, VSPLONG *Ap) ;
 
-VSPINT VSP_count_nzs(VSPINT *array, VSPINT n) ;
+VSPINT count_nzs(VSPINT *array, VSPINT n) ;
 
-VSPFLOAT VSP_Azi
+VSPFLOAT Azi
 (
     VSPINT i,
-    VSP_Az *Az
+    Az *Az
 ) ;
 
 /* Compute c[i] - gamma * Az[i] */
-VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az) ;
+VSPFLOAT Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, Az *Az) ;
 
 
-void VSP_GetSepCost
+void GetSepCost
 (
     State          *X,
     State          *Y,
@@ -71,14 +71,14 @@ void VSP_GetSepCost
     VSPINT       *sepCost   /* Output*/
 ) ;
 
-void VSP_copy_array_int
+void copy_array_int
 (
     VSPINT *from,
     VSPINT *to,
     VSPINT  n
 ) ;
 
-VSPINT VSP_bin_points_diff
+VSPINT bin_points_diff
 (
     VSPINT *a,
     VSPINT *b,
@@ -86,7 +86,7 @@ VSPINT VSP_bin_points_diff
 ) ;
 
 
-void VSP_xAy
+void xAy
 (
     State         *X,
     State         *Y,
@@ -94,13 +94,13 @@ void VSP_xAy
     VSPFLOAT        *xAy
 ) ;
 
-VSPLONG VSP_partial_sums_of_array(
+VSPLONG partial_sums_of_array(
     VSPLONG          *arr,
     VSPLONG *partial_sums,
     VSPINT             n
 ) ;
 
-Problem* VSP_transpose(
+Problem* transpose(
     VSPINT           *Ai, /* Row indices of non-zeros  */
     VSPLONG *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
@@ -111,15 +111,15 @@ Problem* VSP_transpose(
 
 
 
-void VSP_array_to_point(
+void array_to_point(
     VSPFLOAT  *z_float,
     Point       *z
 ) ;
 
-VSPFLOAT* VSP_Az_struct_to_array (VSP_Az *Az) ;
+VSPFLOAT* Az_struct_to_array (Az *Az) ;
 
 
-void VSP_check_against_target_weight (
+void check_against_target_weight (
     VSPINT* x,
     VSPINT ind_frac,
     VSPFLOAT val_frac,
@@ -136,7 +136,7 @@ void Check_Array_Is_Binary
 ) ;
 
 
-void VSP_check_linear_constraint (
+void check_linear_constraint (
     VSPINT* int_part,
     VSPINT ind_frac,
     VSPFLOAT val_frac,
@@ -145,7 +145,7 @@ void VSP_check_linear_constraint (
     VSPINT n
 ) ;
 
-VSPINT VSP_check_problem(
+VSPINT check_problem(
     Problem* problem,
     Options* options
 ) ;
@@ -164,21 +164,21 @@ void Log
     ...
 ) ;
 
-void VSP_check_weight(State *Z, VSPINT *c) ;
+void check_weight(State *Z, VSPINT *c) ;
 
-void VSP_check_max_of_array(
+void check_max_of_array(
     VSPINT        *c,
     VSPINT         n, /* Length of c */
     VSPINT max_given /* Purported maximum value of c */
 ) ;
 
-void VSP_check_Az(
+void check_Az(
     Point         *z,
-    VSP_Az           *Az,
+    Az           *Az,
     Problem *problem
 ) ;
 
-void VSP_check_arrays_are_equal
+void check_arrays_are_equal
 (
     const VSPINT *const u, /* Check that vector u equals vector v */
     const VSPINT *const v,
@@ -192,7 +192,7 @@ void Check_Arrays_Are_Equal_VSPLONG
     const VSPINT  n  /* Size of u and v */
 ) ;
 
-void VSP_check_entries_are_between_bounds
+void check_entries_are_between_bounds
 (
     VSPINT*  v,
     VSPINT   n, /* Length of v */
@@ -200,7 +200,7 @@ void VSP_check_entries_are_between_bounds
     VSPINT  up
 ) ;
 
-void VSP_check_permutation
+void check_permutation
 (
     VSPINT* arr_1,
     VSPINT* arr_2,
@@ -208,9 +208,9 @@ void VSP_check_permutation
 ) ;
 
 
-void VSP_check_state(State *Z, Problem *problem) ;
+void check_state(State *Z, Problem *problem) ;
 
-void VSP_check_states(State *X, State *Y, Problem *problem) ;
+void check_states(State *X, State *Y, Problem *problem) ;
 
 void Check_Part
 (
@@ -225,38 +225,38 @@ void Check_Part
 
 
 
-void VSP_check_point(Point *z) ;
+void check_point(Point *z) ;
 
 
-void VSP_light_check_Az
+void light_check_Az
 (
-    VSP_Az *Az
+    Az *Az
 ) ;
 
 
-void VSP_relaxed_to_vertex_separator(
+void relaxed_to_vertex_separator(
     State* X,
     State* Y,
     Problem* problem
 ) ;
 
-void VSP_copy_point(
+void copy_point(
     Point* from,
     Point* to,
     VSPINT n
 ) ;
 
 
-int VSP_comparison_increasing(const void *a, const void *b) ;
+int comparison_increasing(const void *a, const void *b) ;
 
 
 
-int VSP_compare_value_index_floats(const void *a, const void *b) ;
+int compare_value_index_floats(const void *a, const void *b) ;
 
-VSPINT VSP_compare_val_ind_structs_inc(const void *a, const void *b) ;
+VSPINT compare_val_ind_structs_inc(const void *a, const void *b) ;
 
 
-void VSP_extract_matrix_col(
+void extract_matrix_col(
     VSPINT           *Ak, /* Array to store the column */
     VSPINT             k, /* Index of column to extract */
     VSPINT           one, /* Representative of 1's */
@@ -266,17 +266,17 @@ void VSP_extract_matrix_col(
 
 VSPFLOAT* Point_to_array(Point *z) ;
 
-void VSP_copy_state
+void copy_state
 (
     State      *from,
     State        *to
 ) ;
 
-void VSP_compute_weight(Point *Z, VSPINT *weight_z, VSPINT *c) ;
+void compute_weight(Point *Z, VSPINT *weight_z, VSPINT *c) ;
 
-int VSP_comparison_increasing(const void *a, const void *b) ;
+int comparison_increasing(const void *a, const void *b) ;
 
-void VSP_resolve_frac_entry(State *Z, State *W, Problem *problem) ;
+void resolve_frac_entry(State *Z, State *W, Problem *problem) ;
 
 VSPINT Is_Array_Member
 (
@@ -287,14 +287,14 @@ VSPINT Is_Array_Member
 ) ;
 
 
-bool VSP_equal
+bool equal
 (
     VSPFLOAT a,
     VSPFLOAT b
 ) ;
 
 /* Check that a <= b */
-bool VSP_lteq
+bool lteq
 (
     VSPFLOAT a,
     VSPFLOAT b
@@ -302,26 +302,26 @@ bool VSP_lteq
 
 
 
-Options* VSP_construct_options();
-void VSP_destruct_options(Options* options);
+Options* construct_options();
+void destruct_options(Options* options);
 
-VSPINT** VSP_construct_explicit_matrix (
+VSPINT** construct_explicit_matrix (
     VSPINT* values, VSPINT* Ai, VSPLONG nz, VSPLONG* Ap, VSPINT n
 ) ;
 
-void VSP_destruct_explicit_matrix( VSPINT** A, VSPINT n ) ;
+void destruct_explicit_matrix( VSPINT** A, VSPINT n ) ;
                                         
 
-VSPFLOAT VSP_compute_LP_objective(
+VSPFLOAT compute_LP_objective(
     Point    *z,
     VSPINT       *c,
     VSPFLOAT  gamma,
-    VSP_Az      *Aw
+    Az      *Aw
 ) ;
 
 double Graph_Density(VSPINT n, VSPLONG nz) ;
 
-void VSP_mat_vec_mult
+void mat_vec_mult
 (
     const VSPINT *const    z,
     VSPINT       *const   Az,
@@ -333,13 +333,13 @@ void VSP_mat_vec_mult
 void Compute_Az
 (
     Point              *z,
-    VSP_Az                *Az,
+    Az                *Az,
     VSPINT                *Ai,
     VSPLONG               *Ap,
     VSPINT                  n
 ) ;
 
-void VSP_Az_pm_col_of_A
+void Az_pm_col_of_A
 (
     VSPINT             *Az, // vector to which we add/subtract
     VSPINT               i, // column to add/subtract
@@ -347,7 +347,7 @@ void VSP_Az_pm_col_of_A
     Problem   *problem
 ) ;
 
-VSPFLOAT VSP_compute_objective_0
+VSPFLOAT compute_objective_0
 (
     State *X,
     State *Y,
@@ -367,7 +367,7 @@ void Compute_ObjValSimple
     VSPINT       *retObjVal
 ) ;
 
-VSPFLOAT VSP_compute_obj
+VSPFLOAT compute_obj
 (
     State *X,
     State *Y,
@@ -391,9 +391,9 @@ void Compute_ObjValDbg
 void DumpPoint(Point *z, char *outName) ;
 void DumpPoints(Point *x, Point *y, char *outName) ;
 void DumpIntArray(VSPINT *array, VSPINT len, char *outName) ;
-void DumpGrad(VSPINT *c, VSPFLOAT gamma, VSP_Az *Az, char *outName) ;
+void DumpGrad(VSPINT *c, VSPFLOAT gamma, Az *Az, char *outName) ;
 
-void VSP_SetFracEntry
+void SetFracEntry
 (
     VSPINT         indFrac,
     VSPFLOAT       valFrac,
@@ -401,7 +401,7 @@ void VSP_SetFracEntry
     Problem   *problem
 ) ;
 
-VSPFLOAT VSP_ComputeFracEntry
+VSPFLOAT ComputeFracEntry
 (
     VSPINT   u,
     VSPINT wgt,
@@ -410,7 +410,7 @@ VSPFLOAT VSP_ComputeFracEntry
 
 
 
-void VSP_ComputeGradFlt
+void ComputeGradFlt
 (
     VSPFLOAT  *grad,
     VSPINT       *c,
@@ -421,7 +421,7 @@ void VSP_ComputeGradFlt
     VSPINT        n
 ) ;
 
-VSPFLOAT VSP_LP_solver_0
+VSPFLOAT LP_solver_0
 (
     VSPFLOAT *x,         /* solution                                         */
     VSPFLOAT *d,         /* objective                                        */
@@ -453,7 +453,7 @@ bool Is_N1_Optimal_Dbg
 ) ;
 
 
-VSPFLOAT VSP_minreduce
+VSPFLOAT minreduce
 (
     State         *X,
     State         *Y,
@@ -461,7 +461,7 @@ VSPFLOAT VSP_minreduce
     Problem *problem
 ) ;
 
-void VSP_set_random_initial_guess
+void set_random_initial_guess
 (
     State         *X,
     State         *Y,

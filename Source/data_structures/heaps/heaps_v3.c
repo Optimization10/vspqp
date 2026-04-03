@@ -18,10 +18,10 @@ except that it's root may be out of order.
 On output: 
 subtree of "heap" starting at node with index "p" will be a subheap.
 */
-void VSP_min_heapify_v3
+void min_heapify_v3
 (
     VSPINT   *heap, /* size n + 1, sorted by cost array X */
-    VSP_Az*     Az, /* size n. Numerator vector to sort by */
+    Az*     Az, /* size n. Numerator vector to sort by */
     VSPINT*      c, /* size n. Denominator vector to sort by */
     VSPINT       p, /* start at node p in the heap */
     VSPINT   nheap  /* heap [1 ... n] is in use */
@@ -113,10 +113,10 @@ void VSP_min_heapify_v3
 
 
 /*** Version 3: Heapify by a the value of a ratio, Azi/ci */
-void VSP_min_heap_build_v3
+void min_heap_build_v3
 (
     VSPINT*    heap, /* on input, an unsorted set of indices */
-    VSP_Az*      Az, /* size n. Numerator vector to sort by */
+    Az*      Az, /* size n. Numerator vector to sort by */
     VSPINT*       c, /* size n. Denominator vector to sort by */
     VSPINT        n  /* number of elements to build into the heap */
 )
@@ -125,14 +125,14 @@ void VSP_min_heap_build_v3
 
     for (p = n/2  ; p >= 1  ; p--)
     {
-        VSP_min_heapify_v3 (heap, Az, c, p, n)  ;
+        min_heapify_v3 (heap, Az, c, p, n)  ;
     }
 
 }
 
 
 /*
-VSP_min_heap_add
+min_heap_add
 On input:
 1) array "heap" is a heap
 2) "nheap" is number of nodes in heap
@@ -141,10 +141,10 @@ On output:
 1) "heap" recieves "new" and is heapified 
 2) "nheap" increases by 1
 */
-void VSP_min_heap_add_v3 /* returns the new size of the heap */
+void min_heap_add_v3 /* returns the new size of the heap */
 (
     VSPINT *heap, /* size n + 1. containing indices into X */
-    VSP_Az*     Az, /* size n. Numerator vector to sort by */
+    Az*     Az, /* size n. Numerator vector to sort by */
     VSPINT*     c, /* size n. Denominator vector to sort by */
     VSPINT new, /* the new new */
     VSPINT *nheap /* number of elements in heap not counting new one */
@@ -189,7 +189,7 @@ void VSP_min_heap_add_v3 /* returns the new size of the heap */
 
 
 /*
-VSP_min_heap_delete
+min_heap_delete
 
 On input:
 1) array "heap" is a heap
@@ -199,10 +199,10 @@ On output:
 1) array "heap" looses root and is heapified
 2) "nheap", reduced by 1
 */
-void VSP_min_heap_delete_v3 /* return new size of heap */
+void min_heap_delete_v3 /* return new size of heap */
 (
     VSPINT *heap, /* indices into X, 1..n on input.  size nheap+1 */
-    VSP_Az*     Az, /* size n. Numerator vector to sort by */
+    Az*     Az, /* size n. Numerator vector to sort by */
     VSPINT*     c, /* size n. Denominator vector to sort by */
     VSPINT *nheap /* number of items in heap */
 )
@@ -218,6 +218,6 @@ void VSP_min_heap_delete_v3 /* return new size of heap */
     (*nheap)--;
 
     /* Heapify */
-    VSP_min_heapify_v3 (heap, Az, c, 1, *nheap) ;
+    min_heapify_v3 (heap, Az, c, 1, *nheap) ;
     return;
 }

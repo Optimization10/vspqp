@@ -18,10 +18,10 @@
 */
 
 /* Does NOT use partial max sort */
-VSPFLOAT VSP_LP_solver_4
+VSPFLOAT LP_solver_4
 (
     State              *Z, /* Solution */
-    VSP_Az                *Aw,
+    Az                *Aw,
     VSPINT                 *c,
     VSPINT                  u,
     VSPFLOAT            gamma,
@@ -32,12 +32,12 @@ VSPFLOAT VSP_LP_solver_4
 {
 
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
-        VSPFLOAT objStart = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
+    #ifdef DEBUG
+        VSPFLOAT objStart = compute_LP_objective(Z->point, c, gamma, Aw) ;
     #endif
 
 
-    VSP_Az *Az = Z->Az ;
+    Az *Az = Z->Az ;
     VSPINT n = problem->Graph->n ;
     VSPINT z_weight = 0 ;
     VSPINT i, ci, k ;
@@ -84,7 +84,7 @@ VSPFLOAT VSP_LP_solver_4
         if(reverse) i = n - 1 - j ;
         else i = j ;
 
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             VSPINT weight_dbg = 0 ;
             for(VSPINT p = 0 ; p < i ; p++)
             {
@@ -115,7 +115,7 @@ VSPFLOAT VSP_LP_solver_4
                 if(z_int[i] != 1)
                 {
                     z_int[i] = 1 ;
-                    VSP_Az_pm_col_of_A(Az->int_part, i, PLUS, problem) ;
+                    Az_pm_col_of_A(Az->int_part, i, PLUS, problem) ;
                 }
                 continue ;
             }
@@ -126,7 +126,7 @@ VSPFLOAT VSP_LP_solver_4
                 if(z_int[i] != 1)
                 {
                     z_int[i] = 1 ;
-                    VSP_Az_pm_col_of_A(Az->int_part, i, PLUS, problem) ;
+                    Az_pm_col_of_A(Az->int_part, i, PLUS, problem) ;
                 }
 
                 /* Finish up by setting all remaining i to 0 */
@@ -139,14 +139,14 @@ VSPFLOAT VSP_LP_solver_4
                     if(z_int[i] != 0)
                     {
                         z_int[i] = 0 ;
-                        VSP_Az_pm_col_of_A(Az->int_part, i, MINUS, problem) ;
+                        Az_pm_col_of_A(Az->int_part, i, MINUS, problem) ;
                     }
                 }
                 Z->weight = u ;
                 free(L2) ;
 
-                #ifdef VSP_DEBUG
-                    VSP_check_state(Z, problem) ;
+                #ifdef DEBUG
+                    check_state(Z, problem) ;
                     /* Check KKT conditions */
                     bool is_opt = Is_LP_Optimal
                     (
@@ -163,8 +163,8 @@ VSPFLOAT VSP_LP_solver_4
                     {
                         Error("Issue in LP solver", DBG_INFO) ;
                     }
-                    VSPFLOAT objEnd = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
-                    TMP_ASSERT(objStart <= objEnd) ;
+                    VSPFLOAT objEnd = compute_LP_objective(Z->point, c, gamma, Aw) ;
+                    VSP_ASSERT(objStart <= objEnd) ;
                 #endif
                 if(useRandomness) free(perm) ;
                 return obj ;
@@ -179,7 +179,7 @@ VSPFLOAT VSP_LP_solver_4
                 obj               += (ci - gamma * Awi) * Z->point->val_frac ;
 
                 Z->Az->one++ ;
-                VSP_extract_matrix_col
+                extract_matrix_col
                 (
                     Z->Az->col_frac_z,
                     Z->point->ind_frac,
@@ -199,13 +199,13 @@ VSPFLOAT VSP_LP_solver_4
                     if(z_int[i] != 0)
                     {
                         z_int[i] = 0 ;
-                        VSP_Az_pm_col_of_A(Az->int_part, i, MINUS, problem) ;
+                        Az_pm_col_of_A(Az->int_part, i, MINUS, problem) ;
                     }
                 }
                 Z->weight = u ;
                 free(L2) ;
-                #ifdef VSP_DEBUG
-                    VSP_check_state(Z, problem) ;
+                #ifdef DEBUG
+                    check_state(Z, problem) ;
 
                     /* Check KKT conditions */
                     bool is_opt = Is_LP_Optimal
@@ -224,8 +224,8 @@ VSPFLOAT VSP_LP_solver_4
                         Error("Issue in LP solver", DBG_INFO) ;
                     }
 
-                    VSPFLOAT objEnd = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
-                    TMP_ASSERT(objStart <= objEnd) ;
+                    VSPFLOAT objEnd = compute_LP_objective(Z->point, c, gamma, Aw) ;
+                    VSP_ASSERT(objStart <= objEnd) ;
                 #endif
                 if(useRandomness) free(perm) ;
                 return obj ;
@@ -239,7 +239,7 @@ VSPFLOAT VSP_LP_solver_4
             if(z_int[i] != 0)
             {
                 z_int[i] = 0 ;
-                VSP_Az_pm_col_of_A(Az->int_part, i, MINUS, problem) ;
+                Az_pm_col_of_A(Az->int_part, i, MINUS, problem) ;
             }
         }
         /* i is in L2 */
@@ -260,7 +260,7 @@ VSPFLOAT VSP_LP_solver_4
             if(z_int[i] != 0)
             {
                 z_int[i] = 0 ;
-                VSP_Az_pm_col_of_A(Az->int_part, i, MINUS, problem) ;
+                Az_pm_col_of_A(Az->int_part, i, MINUS, problem) ;
             }
         }
     }
@@ -287,12 +287,12 @@ VSPFLOAT VSP_LP_solver_4
             if(z_int[i] != 1)
             {
                 z_int[i] = 1 ;
-                VSP_Az_pm_col_of_A(Az->int_part, i, PLUS, problem) ;
+                Az_pm_col_of_A(Az->int_part, i, PLUS, problem) ;
             }
         }
         free(L2) ;
-        #ifdef VSP_DEBUG
-            VSP_check_state(Z, problem) ;
+        #ifdef DEBUG
+            check_state(Z, problem) ;
 
             /* Check KKT conditions */
             bool is_opt = Is_LP_Optimal
@@ -309,8 +309,8 @@ VSPFLOAT VSP_LP_solver_4
             {
                 Error("Issue in LP solver", DBG_INFO) ;
             }
-            VSPFLOAT objEnd = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
-            TMP_ASSERT(objStart <= objEnd) ;
+            VSPFLOAT objEnd = compute_LP_objective(Z->point, c, gamma, Aw) ;
+            VSP_ASSERT(objStart <= objEnd) ;
         #endif
 
         if(useRandomness) free(perm) ;
@@ -319,11 +319,11 @@ VSPFLOAT VSP_LP_solver_4
 
     /* In this case, we repeatedly take the minimal element of L2 until the
        knapsack is full */
-    VSP_min_heap_build_v3(L2 - 1, Aw, c, n_L2 ) ;
+    min_heap_build_v3(L2 - 1, Aw, c, n_L2 ) ;
 
     while(true)
     {
-        TMP_ASSERT(n_L2 > 0) ;
+        VSP_ASSERT(n_L2 > 0) ;
         i = L2[0] ;
         ci = c[i] ;
         if(ind_frac_w == EMPTY)
@@ -343,9 +343,9 @@ VSPFLOAT VSP_LP_solver_4
             if(z_int[i] != 1)
             {
                 z_int[i] = 1 ;
-                VSP_Az_pm_col_of_A(Az->int_part, i, PLUS, problem) ;
+                Az_pm_col_of_A(Az->int_part, i, PLUS, problem) ;
             }
-            VSP_min_heap_delete_v3(L2 - 1, Aw, c, &n_L2) ;
+            min_heap_delete_v3(L2 - 1, Aw, c, &n_L2) ;
             continue ;
         }
         else if(z_weight + ci == u)
@@ -356,7 +356,7 @@ VSPFLOAT VSP_LP_solver_4
             if(z_int[i] != 1)
             {
                 z_int[i] = 1 ;
-                VSP_Az_pm_col_of_A(Az->int_part, i, PLUS, problem) ;
+                Az_pm_col_of_A(Az->int_part, i, PLUS, problem) ;
             }
             break ;
         }
@@ -372,11 +372,11 @@ VSPFLOAT VSP_LP_solver_4
             if(z_int[i] != 0)
             {
                 z_int[i] = 0 ;
-                VSP_Az_pm_col_of_A(Az->int_part, i, MINUS, problem) ;
+                Az_pm_col_of_A(Az->int_part, i, MINUS, problem) ;
             }
 
             Z->Az->one++ ;
-            VSP_extract_matrix_col
+            extract_matrix_col
             (
                 Z->Az->col_frac_z,
                 Z->point->ind_frac,
@@ -395,15 +395,15 @@ VSPFLOAT VSP_LP_solver_4
         if(z_int[i] != 0)
         {
             z_int[i] = 0 ;
-            VSP_Az_pm_col_of_A(Az->int_part, i, MINUS, problem) ;
+            Az_pm_col_of_A(Az->int_part, i, MINUS, problem) ;
         }
     }
 
     Z->weight = u ;
     free(L2) ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_state(Z, problem) ;
+    #ifdef DEBUG
+        check_state(Z, problem) ;
 
         /* Check KKT conditions */
         bool is_opt = Is_LP_Optimal
@@ -421,8 +421,8 @@ VSPFLOAT VSP_LP_solver_4
         {
             Error("Issue in LP solver", DBG_INFO) ;
         }
-        VSPFLOAT objEnd = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
-        TMP_ASSERT(objStart - 1E-8 <= objEnd) ;
+        VSPFLOAT objEnd = compute_LP_objective(Z->point, c, gamma, Aw) ;
+        VSP_ASSERT(objStart - 1E-8 <= objEnd) ;
         if( !(objStart - 1E-8 <= objEnd ) )
         {
             printf("\n\nobj start: %f \nobj end : %f", objStart, objEnd) ;
@@ -436,7 +436,7 @@ VSPFLOAT VSP_LP_solver_4
 
 
 /* ============================================================================
-   ================ VSP_LP_solver_0 ===========================================
+   ================ LP_solver_0 ===========================================
    ============================================================================
 
  PURPOSE: Solve knapsack problem
@@ -446,7 +446,7 @@ VSPFLOAT VSP_LP_solver_4
  by sorting all the value densities
 */
 
-VSPFLOAT VSP_LP_solver_0
+VSPFLOAT LP_solver_0
 (
     VSPFLOAT  *x,         /* solution                                         */
     VSPFLOAT  *d,         /* objective                                        */
@@ -457,7 +457,7 @@ VSPFLOAT VSP_LP_solver_0
     Options *options /* Choose randomness or not                          */
 )
 {
-#ifdef VSP_DEBUG
+#ifdef DEBUG
     static long long unsigned count = 0;
     count += 1;
 #endif
@@ -469,7 +469,7 @@ VSPFLOAT VSP_LP_solver_0
     for (i = 0; i < n; i++) r[i] = d[i] / c[i];
 
     /* store r in a bunch of structs, so we can sort it */
-    VSP_value_index *r_structs = calloc(n, sizeof(VSP_value_index));
+    value_index *r_structs = calloc(n, sizeof(value_index));
     for (i = 0; i < n; i++)
     {
         r_structs[i].float_value = r[i];
@@ -477,7 +477,7 @@ VSPFLOAT VSP_LP_solver_0
     }
 
     /* sort the structs */
-    qsort(r_structs, n, sizeof(VSP_value_index), VSP_compare_value_index_floats);
+    qsort(r_structs, n, sizeof(value_index), compare_value_index_floats);
 
     /* solve the problem */
     for (i = 0; i < n; i++) x[i] = 0;
@@ -507,7 +507,7 @@ VSPFLOAT VSP_LP_solver_0
     /* Case when lower bound is 0 */
     for (i = 0; i < n; i++)
     {
-        VSP_value_index entry = r_structs[i];
+        value_index entry = r_structs[i];
         index = entry.index;
         if (entry.float_value > 0)
         {
@@ -536,7 +536,7 @@ VSPFLOAT VSP_LP_solver_0
         obj_val += x[i] * d[i];
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         // test if r is ordered in decreasing order
         for (i = 0; i < n - 1; i++)
         {

@@ -29,7 +29,7 @@ void SelectRandomOptimalBeneficialFlip
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data
         (
             x, Ax, wgtx, y, Ay, wgty,
@@ -148,7 +148,7 @@ void SelectRandomOptimalBeneficialFlip
     {
         *retFlipVar = '\0' ;
         *retIndFlip = EMPTY ;
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             FeasibleBeneficialFlipSelector_Check
             (
                 x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
@@ -220,7 +220,7 @@ void SelectRandomOptimalBeneficialFlip
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if( !IN_RANGE(flipChoice, 0, 4) )
         {
             ERR("flipChoice incorrect") ;
@@ -252,7 +252,7 @@ void SelectRandomOptimalBeneficialFlip
     }
     else
     {
-        TMP_ASSERT(flipChoice == YDN) ;
+        VSP_ASSERT(flipChoice == YDN) ;
         *retFlipVar = 'y' ;
         if(maxFeasPosGain >= gamma)
         {
@@ -264,7 +264,7 @@ void SelectRandomOptimalBeneficialFlip
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         FeasibleStrictlyBeneficialFlipSelector_Check
         (
             x, Ax, wgtx,
@@ -303,7 +303,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data
         (
             x, Ax, wgtx, y, Ay, wgty,
@@ -422,7 +422,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     {
         *retFlipVar = '\0' ;
         *retIndFlip = EMPTY ;
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             FeasibleBeneficialFlipSelector_Check
             (
                 x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
@@ -494,8 +494,8 @@ void SelectRandomOptimalStrictlyBeneficialFlip
         }
     }
 
-    #ifdef VSP_DEBUG
-        TMP_ASSERT(flipChoice != EMPTY) ;
+    #ifdef DEBUG
+        VSP_ASSERT(flipChoice != EMPTY) ;
     #endif
 
     if(flipChoice == XUP)
@@ -522,7 +522,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     }
     else
     {
-        TMP_ASSERT(flipChoice == YDN) ;
+        VSP_ASSERT(flipChoice == YDN) ;
         *retFlipVar = 'y' ;
         if(maxFeasPosGain >= gamma)
         {
@@ -536,7 +536,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
 
 
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         FeasibleBeneficialFlipSelector_Check
         (
             x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
@@ -636,7 +636,7 @@ void FeasibleStrictlyBeneficialFlipSelector_Check
     givenFlip.u = u ;
     if(givenVarFlip == 'x')
     {
-        TMP_ASSERT(givenIndFlip != EMPTY) ;
+        VSP_ASSERT(givenIndFlip != EMPTY) ;
         givenFlip.wgt = wgtx ;
         givenFlip.zi   = x[givenIndFlip] ;
         givenFlip.Awi  = Ay[givenIndFlip] ;
@@ -653,7 +653,7 @@ void FeasibleStrictlyBeneficialFlipSelector_Check
     }
     else if(givenVarFlip == 'y')
     {
-        TMP_ASSERT(givenIndFlip != EMPTY) ;
+        VSP_ASSERT(givenIndFlip != EMPTY) ;
         givenFlip.wgt = wgty ;
         givenFlip.zi   = y[givenIndFlip] ;
         givenFlip.Awi  = Ax[givenIndFlip] ;
@@ -1105,7 +1105,7 @@ void FeasibleBeneficialFlipSelector_Check
     givenFlip.u = u ;
     if(givenVarFlip == 'x')
     {
-        TMP_ASSERT(givenIndFlip != EMPTY) ;
+        VSP_ASSERT(givenIndFlip != EMPTY) ;
         givenFlip.wgt = wgtx ;
         givenFlip.zi   = x[givenIndFlip] ;
         givenFlip.Awi  = Ay[givenIndFlip] ;
@@ -1121,7 +1121,7 @@ void FeasibleBeneficialFlipSelector_Check
     }
     else if(givenVarFlip == 'y')
     {
-        TMP_ASSERT(givenIndFlip != EMPTY) ;
+        VSP_ASSERT(givenIndFlip != EMPTY) ;
         givenFlip.wgt = wgty ;
         givenFlip.zi   = y[givenIndFlip] ;
         givenFlip.Awi  = Ax[givenIndFlip] ;

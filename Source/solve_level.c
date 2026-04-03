@@ -61,9 +61,9 @@ static void Determine_Num_GR
 // Note that we are not taking into account the penalty term
 bool Early_Exit(State *X, State *Y, Problem *P)
 {
-    VSPFLOAT obj = VSP_compute_obj(X, Y, P, P->Graph->max_vtx_cost) ;
+    VSPFLOAT obj = compute_obj(X, Y, P, P->Graph->max_vtx_cost) ;
     bool ret = false ;
-    if(VSP_lteq(P->Graph->total_vtx_cost - P->Graph->min_vtx_cost, obj))
+    if(lteq(P->Graph->total_vtx_cost - P->Graph->min_vtx_cost, obj))
     {
         ret = true ;
     }
@@ -83,8 +83,8 @@ void Optimize
 {
     static long long unsigned count = 0 ;
     count++ ;
-    #ifdef VSP_DEBUG
-        VSP_check_states(X, Y, problem) ;
+    #ifdef DEBUG
+        check_states(X, Y, problem) ;
     #endif
 
     /* 0.1 Local vars */
@@ -93,8 +93,8 @@ void Optimize
 
     VSPFLOAT f_x_y, f_xstar_ystar ;
 
-    State *Xstar = VSP_construct_state( n ) ;
-    State *Ystar = VSP_construct_state( n ) ;
+    State *Xstar = construct_state( n ) ;
+    State *Ystar = construct_state( n ) ;
 
     /* 2. Solve the problem using the original gamma */
     VSPFLOAT gamma = problem->Graph->max_vtx_cost ;
@@ -114,7 +114,7 @@ void Optimize
     LoggerStop(X, Y, problem) ;
 
     // 3. Get vertex separator in preparation for FM_METIS
-    VSP_relaxed_to_vertex_separator(X, Y, problem) ;
+    relaxed_to_vertex_separator(X, Y, problem) ;
     if(Early_Exit(X, Y, problem))
     {
         goto EARLY_EXIT ;
@@ -135,9 +135,9 @@ void Optimize
     /*------------------------------------------------------------------------*/
 
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         VSPFLOAT obj_dbg ;
-        obj_dbg = VSP_compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        obj_dbg = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
         (void) obj_dbg ;
     #endif
 
@@ -151,7 +151,7 @@ void Optimize
         /*--------------------------------------------------------------------*/
         if(k == 0)
         {
-            gamma = VSP_minreduce(X, Y, options, problem) - 1E-3 ;
+            gamma = minreduce(X, Y, options, problem) - 1E-3 ;
             if(gamma < 0) break ;
         }
         else gamma = gamma / 1.3 ;
@@ -159,18 +159,18 @@ void Optimize
         /*--------------------------------------------------------------------*/
         /* (x*, y*) <- Solution starting from (x, y), using the reduced gamma */
         /*--------------------------------------------------------------------*/
-        VSP_copy_state(X, Xstar) ;
-        VSP_copy_state(Y, Ystar) ;
+        copy_state(X, Xstar) ;
+        copy_state(Y, Ystar) ;
 
-        VSP_mountain_climbing(Xstar, Ystar, problem, options, gamma, false) ;
+        mountain_climbing(Xstar, Ystar, problem, options, gamma, false) ;
 
         /*--------------------------------------------------------------------*/
         /* (x*, y*) <- Solution starting from (x*, y*), using original gamma  */
         /*--------------------------------------------------------------------*/
-        VSP_mountain_climbing(Xstar, Ystar, problem, options, gamma_org, true) ;
+        mountain_climbing(Xstar, Ystar, problem, options, gamma_org, true) ;
         Flips(Xstar, Ystar, problem, 9) ;
 
-        VSP_relaxed_to_vertex_separator(Xstar, Ystar, problem) ;
+        relaxed_to_vertex_separator(Xstar, Ystar, problem) ;
 
         VSPINT n_passes ;
         if(problem->level >= problem->coarsest_level_num / 2) n_passes = 3 ;
@@ -183,8 +183,8 @@ void Optimize
         /*--------------------------------------------------------------------*/
         /* Swap (x*, y*) with (x, y) if it is beneficial to do so             */
         /*--------------------------------------------------------------------*/
-        f_x_y         = VSP_compute_obj(X, Y, problem, gamma_org) ;
-        f_xstar_ystar = VSP_compute_obj(Xstar, Ystar, problem, gamma_org  );
+        f_x_y         = compute_obj(X, Y, problem, gamma_org) ;
+        f_xstar_ystar = compute_obj(Xstar, Ystar, problem, gamma_org  );
 
         if(f_xstar_ystar > f_x_y + fabs(f_x_y) * 1E-13 )
         {
@@ -199,8 +199,8 @@ void Optimize
         }
         else k++ ;
     }
-    #ifdef VSP_DEBUG
-        VSP_check_states(X, Y, problem) ;
+    #ifdef DEBUG
+        check_states(X, Y, problem) ;
     #endif
     /*------------------------------------------------------------------------*/
     // Do a last round of flips to ensure that we have a bona fide separator.
@@ -216,11 +216,11 @@ void Optimize
     /*------------------------------------------------------------------------*/
     EARLY_EXIT:
 
-    VSP_destruct_state(Xstar) ;
-    VSP_destruct_state(Ystar) ;
+    destruct_state(Xstar) ;
+    destruct_state(Ystar) ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_states(X, Y, problem) ;
+    #ifdef DEBUG
+        check_states(X, Y, problem) ;
     #endif
 
     return ;
@@ -263,7 +263,7 @@ void Flips
     }
 
     clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;
-    G_FLIPS_TIME += VSP_compute_elapsed_time(G_START_TIME, G_END_TIME) ;
+    G_FLIPS_TIME += compute_elapsed_time(G_START_TIME, G_END_TIME) ;
 }
 
 // void FM_Flips
@@ -273,8 +273,8 @@ void Flips
 //     Problem *problem
 // )
 // {
-//     #ifdef VSP_DEBUG
-//         VSP_check_states(X, Y, problem) ;
+//     #ifdef DEBUG
+//         check_states(X, Y, problem) ;
 //     #endif
 
 //     if(problem->level >= 0)
@@ -285,8 +285,8 @@ void Flips
 //         // FM_Flips_v9(X, Y, problem, 4) ;
 //     }
 
-//     #ifdef VSP_DEBUG
-//         VSP_check_states(X, Y, problem) ;
+//     #ifdef DEBUG
+//         check_states(X, Y, problem) ;
 //     #endif
 // }
 
@@ -355,7 +355,7 @@ static void Best_Of_MC_And_Greedy_Flips
     // Do Mountain CLimbing in-place in (x, y)
     /*------------------------------------------------------------------------*/
     
-    VSP_mountain_climbing(X, Y, problem, options,  gamma, true) ;
+    mountain_climbing(X, Y, problem, options,  gamma, true) ;
 
     Force_To_Binary_Point(X, Y, problem) ;
 
@@ -397,9 +397,9 @@ static void Best_Of_MC_And_Greedy_Flips
         Y->point->ind_frac = EMPTY ;
         Y->Az->ind_frac_z  = EMPTY ;
 
-        #ifdef VSP_DEBUG
-            VSP_check_states(X, Y, problem) ;
-            VSPINT obj = (VSPINT) VSP_compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        #ifdef DEBUG
+            check_states(X, Y, problem) ;
+            VSPINT obj = (VSPINT) compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
             if(obj != objAfterManyFlips )
             {
                 ERR("PROBLEM") ;

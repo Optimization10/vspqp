@@ -14,7 +14,7 @@ void z0Aw1_List_Check_v5
     SET_FUNCTION_COUNTER ;
     WARN_IF_NOT_DEBUG_MODE ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
     Direct_Access_List_Check(List) ;
     VSPINT i, p ;
     VSPINT *list = List->list ;
@@ -109,7 +109,7 @@ void Upflip_v5
     VSPINT i, k, Azk ;
     VSPLONG start, end, p ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data_v5
         (
             z, Az, *wgtz, w, Aw, *wgtw,
@@ -235,7 +235,7 @@ void Upflip_v5
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data_v5
         (
             z, Az, *wgtz, w, Aw, *wgtw,
@@ -282,7 +282,7 @@ void Downflip_v5
     VSPINT i, k, Azk ;
     VSPLONG start, end, p ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data_v5
         (
             z, Az, *wgtz, w, Aw, *wgtw,
@@ -366,7 +366,7 @@ void Downflip_v5
     /*------------------------------------------------------------------------*/
     /* Take care of indFlip itself                                            */
     /*------------------------------------------------------------------------*/
-    // #ifdef VSP_DEBUG
+    // #ifdef DEBUG
     //     IdxGroupsByC_Check(z0Aw0_groups, n) ;
     //     IdxGroupsByC_Check(z1Aw1_groups, n) ;
     //     IdxGroupsByC_Check(z1Aw2_groups, n) ;
@@ -416,7 +416,7 @@ void Downflip_v5
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data_v5
         (
             z, Az, *wgtz, w, Aw, *wgtw,
@@ -512,7 +512,7 @@ void Initialize_All_Structs_v5
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data_v5
         (
             x, Ax, wgtx, y, Ay, wgty,
@@ -551,14 +551,14 @@ void Check_All_Data_v5
     SET_FUNCTION_COUNTER ;
     WARN_IF_NOT_DEBUG_MODE ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
     VSPINT i ;
     VSPINT n     = problem->Graph->n ;
     VSPINT gamma = problem->Graph->max_vtx_cost ;
     VSPINT *c    = problem->Graph->c ;
 
     /*------------------------------------------------------------------------*/
-    // Load the data into states and use VSP_check_states
+    // Load the data into states and use check_states
     /*------------------------------------------------------------------------*/
     Point xPoint, yPoint ;
 
@@ -572,7 +572,7 @@ void Check_All_Data_v5
     yPoint.val_frac = 0 ;
     yPoint.n = n ;
     
-    VSP_Az Axstruct, Aystruct ;
+    Az Axstruct, Aystruct ;
 
     Axstruct.int_part    = Ax ;
     Axstruct.ind_frac_z  = EMPTY ;
@@ -599,7 +599,7 @@ void Check_All_Data_v5
     Y.Az     = &Aystruct ;
     Y.weight = wgty ;
 
-    VSP_check_states(&X, &Y, problem) ;
+    check_states(&X, &Y, problem) ;
 
 
     if(wgtx < 0 || wgty < 0)
@@ -903,7 +903,7 @@ void Check_All_Data_v5
 //     givenFlip.u = u ;
 //     if(givenVarFlip == 'x')
 //     {
-//         TMP_ASSERT(givenIndFlip != EMPTY) ;
+//         VSP_ASSERT(givenIndFlip != EMPTY) ;
 //         givenFlip.wgt = wgtx ;
 //         givenFlip.zi   = x[givenIndFlip] ;
 //         givenFlip.Awi  = Ay[givenIndFlip] ;
@@ -919,7 +919,7 @@ void Check_All_Data_v5
 //     }
 //     else if(givenVarFlip == 'y')
 //     {
-//         TMP_ASSERT(givenIndFlip != EMPTY) ;
+//         VSP_ASSERT(givenIndFlip != EMPTY) ;
 //         givenFlip.wgt = wgty ;
 //         givenFlip.zi   = y[givenIndFlip] ;
 //         givenFlip.Awi  = Ax[givenIndFlip] ;
@@ -1016,7 +1016,7 @@ void Check_Inputs_v5
     VSPINT *c    = problem->Graph->c ;
 
     /*------------------------------------------------------------------------*/
-    // Load the data into states and use VSP_check_states
+    // Load the data into states and use check_states
     /*------------------------------------------------------------------------*/
     Point xPoint, yPoint ;
 
@@ -1030,7 +1030,7 @@ void Check_Inputs_v5
     yPoint.val_frac = 0 ;
     yPoint.n = n ;
     
-    VSP_Az Axstruct, Aystruct ;
+    Az Axstruct, Aystruct ;
 
     Axstruct.int_part    = Ax ;
     Axstruct.ind_frac_z  = EMPTY ;
@@ -1057,7 +1057,7 @@ void Check_Inputs_v5
     Y.Az     = &Aystruct ;
     Y.weight = wgty ;
 
-    VSP_check_states(&X, &Y, problem) ;
+    check_states(&X, &Y, problem) ;
 
     if(wgtx < 0 || wgty < 0)
     {
@@ -1242,8 +1242,8 @@ void Flips_v5_UnitTest
         y[2] = 1 ; wgty += c[2] ;
     }
 
-    VSP_mat_vec_mult(x, Ax, Ai, Ap, n) ;
-    VSP_mat_vec_mult(y, Ay, Ai, Ap, n) ;
+    mat_vec_mult(x, Ax, Ai, Ap, n) ;
+    mat_vec_mult(y, Ay, Ai, Ap, n) ;
 
     /*------------------------------------------------------------------------*/
     // Keep Downflip_v5ping nodes until there are no i with zi = 1 and Awi > 2
@@ -1260,7 +1260,7 @@ GOTO_NEXT_IDX_1 :
                 // Downflip_v5 xi
                 x[i] = 0 ;
                 wgtx -= c[i] ;
-                VSP_Az_pm_col_of_A(Ax, i, -1, problem) ;
+                Az_pm_col_of_A(Ax, i, -1, problem) ;
             }
             else
             {
@@ -1274,7 +1274,7 @@ GOTO_NEXT_IDX_1 :
                         // Downflip_v5 yk
                         y[k] = 0 ;
                         wgty -= c[k] ;
-                        VSP_Az_pm_col_of_A(Ay, k, -1, problem) ;
+                        Az_pm_col_of_A(Ay, k, -1, problem) ;
                     }
                     if(Ay[i] <= 2) goto GOTO_NEXT_IDX_1 ;
                 }
@@ -1294,7 +1294,7 @@ GOTO_NEXT_IDX_1 :
                 // Downflip_v5 yi
                 y[i] = 0 ;
                 wgty -= c[i] ;
-                VSP_Az_pm_col_of_A(Ay, i, -1, problem) ;
+                Az_pm_col_of_A(Ay, i, -1, problem) ;
             }
             else
             {
@@ -1308,7 +1308,7 @@ GOTO_NEXT_IDX_1 :
                         // Downflip_v5 xk
                         x[k] = 0 ;
                         wgtx -= c[k] ;
-                        VSP_Az_pm_col_of_A(Ax, k, -1, problem) ;
+                        Az_pm_col_of_A(Ax, k, -1, problem) ;
                     }
                     if(Ax[i] <= 2) goto GOTO_NEXT_IDX_2 ;
                 }
@@ -1352,7 +1352,7 @@ void Compute_Max_Group_Sizes_v5
 
     for(i = 0 ; i < n ; i++)
     {
-        TMP_ASSERT( (IN_RANGE(c[i], 1, gamma + 1)) ) ;
+        VSP_ASSERT( (IN_RANGE(c[i], 1, gamma + 1)) ) ;
         maxGroupSizes[ c[i] ]++ ;
     }
     return ;
@@ -1382,7 +1382,7 @@ void Do_Flip_v5
 {
     SET_FUNCTION_COUNTER ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data_v5
         (
             z, Az, *wgtz, w, Aw, *wgtw,
@@ -1415,7 +1415,7 @@ void Do_Flip_v5
         ) ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data_v5
         (
             z, Az, *wgtz, w, Aw, *wgtw,

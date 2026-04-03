@@ -14,7 +14,7 @@ VSPINT PointScore_Compare(PointScore *Score1, PointScore *Score2)
 {
     VSPINT ret ;
 
-    if( VSP_equal(Score1->obj, Score2->obj) )
+    if( equal(Score1->obj, Score2->obj) )
     {
         if(Score1->imbal < Score2->imbal) ret = 1 ;
         else if(Score1->imbal > Score2->imbal) ret = 2 ;
@@ -27,7 +27,7 @@ VSPINT PointScore_Compare(PointScore *Score1, PointScore *Score2)
 
 void PointScore_Update(PointScore *Score, State *X, State *Y, Problem *problem)
 {
-    VSPFLOAT obj = VSP_compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+    VSPFLOAT obj = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
     VSPINT   imb = IMBALANCE(X->weight, Y->weight) ;
     PointScore_SetObj(Score, obj) ;
     PointScore_SetImb(Score, imb) ;

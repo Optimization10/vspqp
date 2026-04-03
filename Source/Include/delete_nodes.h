@@ -5,16 +5,16 @@
 #include "shared_api.h"
 
 
-VSP_Graph *Compress_Graph
+Graph *Compress_Graph
 (
-    VSP_Graph *GraphOrg,
+    Graph *GraphOrg,
     VSPINT        *keep,   // keep[i] = 1 if to keep i, 0 if to not keep i
     VSPINT    *newIndex    // Output
 ) ;
 
 State *Compress_Binary_State
 (
-    VSP_Graph *compGraph,
+    Graph *compGraph,
     VSPINT     *newIndex,
     State      *Zorg
 ) ;
@@ -24,7 +24,7 @@ State *Compress_Binary_State
 // the separator 
 State *Uncompress_State
 (
-    VSP_Graph *compGraph,
+    Graph *compGraph,
     VSPINT     *newIndex,
     State      *Zcmp,
     VSPINT        *AiOrg,

@@ -1,14 +1,14 @@
 #include "shared_api.h"
 #include "mc_internal.h"
 
-static void VSP_set_manual_initial_guess(
+static void set_manual_initial_guess(
     State         *X,
     State         *Y,
     Problem *problem,
     Options *options
 ) ;
 
-void VSP_set_random_initial_guess
+void set_random_initial_guess
 (
     State         *X,
     State         *Y,
@@ -17,7 +17,7 @@ void VSP_set_random_initial_guess
 ) ;
 
 
-void VSP_set_centroid
+void set_centroid
 (
     State             *X,
     State             *Y,
@@ -26,7 +26,7 @@ void VSP_set_centroid
 ) ;
 
 
-void VSP_set_initial_guess
+void set_initial_guess
 (
     State         *X,
     State         *Y,
@@ -36,18 +36,18 @@ void VSP_set_initial_guess
 {
     switch(options->initial_guess)
     {
-        case VSP_centroid_initial_guess :
-            VSP_set_centroid(X, Y, problem, options) ;
+        case centroid_initial_guess :
+            set_centroid(X, Y, problem, options) ;
             break ;
-        case VSP_manual_initial_guess :
-            VSP_set_manual_initial_guess(X, Y, problem, options) ;
+        case manual_initial_guess :
+            set_manual_initial_guess(X, Y, problem, options) ;
             break ;
-        case VSP_random_initial_guess :
-            VSP_set_random_initial_guess(X, Y, problem, options) ;
+        case random_initial_guess :
+            set_random_initial_guess(X, Y, problem, options) ;
             break ;
     }
-    #ifdef VSP_DEBUG
-        VSPFLOAT obj = VSP_compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+    #ifdef DEBUG
+        VSPFLOAT obj = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
         (void) obj ;
     #endif
 
@@ -56,7 +56,7 @@ void VSP_set_initial_guess
 
 
 
-static void VSP_set_manual_initial_guess(
+static void set_manual_initial_guess(
     State         *X,
     State         *Y,
     Problem *problem,
@@ -78,15 +78,15 @@ static void VSP_set_manual_initial_guess(
     Y->point->ind_frac = EMPTY ;
     Y->point->val_frac = 0 ;
 
-    VSP_compute_weight(X->point, &(X->weight), problem->Graph->c) ;
-    VSP_compute_weight(Y->point, &(Y->weight), problem->Graph->c) ;
+    compute_weight(X->point, &(X->weight), problem->Graph->c) ;
+    compute_weight(Y->point, &(Y->weight), problem->Graph->c) ;
 
     Compute_Az(X->point, X->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
     Compute_Az(Y->point, Y->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         VSPFLOAT obj_dbg ;
-        obj_dbg = VSP_compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        obj_dbg = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
         (void) obj_dbg ;
     #endif
 
@@ -95,7 +95,7 @@ static void VSP_set_manual_initial_guess(
 
 
 
-void VSP_set_random_initial_guess
+void set_random_initial_guess
 (
     State         *X,
     State         *Y,
@@ -190,8 +190,8 @@ void VSP_set_random_initial_guess
     Y->point->val_frac = 0 ;
     Compute_Az(Y->point, Y->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_states(X, Y, problem) ;
+    #ifdef DEBUG
+        check_states(X, Y, problem) ;
     #endif
 
     /* Free memory */
@@ -221,7 +221,7 @@ void VSP_set_random_initial_guess
     c - gamma A * y0 = c - gamma * f * A * 1
     The ith entry of A * 1 can be computed efficiently as Ap[i+1] - Ap[i]
      */
-void VSP_set_centroid
+void set_centroid
 (
     State             *X,
     State             *Y,
@@ -251,7 +251,7 @@ void VSP_set_centroid
         d[i] = c[i] - gamma * f * A1i ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         /* Compute objective */
         VSPFLOAT obj_dbg = 0 ;
         for(i = 0 ; i < n ; i++) {
@@ -260,35 +260,35 @@ void VSP_set_centroid
     #endif
 
     /* Optimize over y and compute the objective */
-    VSPFLOAT obj_y = VSP_LP_solver_0(y_f, d, c, 1, u, n, options) ;
+    VSPFLOAT obj_y = LP_solver_0(y_f, d, c, 1, u, n, options) ;
     obj_y += problem->u ;
 
     /* Update the state of y */
-    VSP_array_to_point(y_f, Y->point) ;
+    array_to_point(y_f, Y->point) ;
     Compute_Az(Y->point, Y->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
-    VSP_compute_weight(Y->point, &Y->weight, c) ;
+    compute_weight(Y->point, &Y->weight, c) ;
 
     /* Check objective at diagonal step. Diagonal step has the form (y, y) */
-    VSPFLOAT obj_diag = VSP_compute_obj(Y, Y, problem, problem->Graph->max_vtx_cost) ;
+    VSPFLOAT obj_diag = compute_obj(Y, Y, problem, problem->Graph->max_vtx_cost) ;
     if(obj_diag > obj_y)
     {
         /* Take the diagonal step by making X identical to Y */
-        VSP_copy_state(Y, X) ;
+        copy_state(Y, X) ;
     }
     else
     {
         /* Optimize over X, to move it away from the centroid */
-        VSP_LP_solver_4(X, Y->Az, c, u, problem->Graph->max_vtx_cost, problem,options, 'x');
+        LP_solver_4(X, Y->Az, c, u, problem->Graph->max_vtx_cost, problem,options, 'x');
     }
 
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         /* Compute objective */
-        obj_dbg = VSP_compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        obj_dbg = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
         (void) obj_dbg ;
 
         /* Check output */
-        VSP_check_states(X, Y, problem) ;
+        check_states(X, Y, problem) ;
     #endif
 
 

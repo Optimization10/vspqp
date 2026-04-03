@@ -14,7 +14,7 @@ void z0Aw1_List_Check
     SET_FUNCTION_COUNTER ;
     WARN_IF_NOT_DEBUG_MODE ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
     Direct_Access_List_Check(List) ;
     VSPINT i, p ;
     VSPINT *list = List->list ;
@@ -109,7 +109,7 @@ void Upflip
     VSPINT i, k, Azk ;
     VSPLONG start, end, p ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data
         (
             z, Az, *wgtz, w, Aw, *wgtw,
@@ -235,7 +235,7 @@ void Upflip
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data
         (
             z, Az, *wgtz, w, Aw, *wgtw,
@@ -282,7 +282,7 @@ void Downflip
     VSPINT i, k, Azk ;
     VSPLONG start, end, p ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data
         (
             z, Az, *wgtz, w, Aw, *wgtw,
@@ -403,7 +403,7 @@ void Downflip
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data
         (
             z, Az, *wgtz, w, Aw, *wgtw,
@@ -499,7 +499,7 @@ void Initialize_All_Structs
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data
         (
             x, Ax, wgtx, y, Ay, wgty,
@@ -538,14 +538,14 @@ void Check_All_Data
     SET_FUNCTION_COUNTER ;
     WARN_IF_NOT_DEBUG_MODE ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
     VSPINT i ;
     VSPINT n     = problem->Graph->n ;
     VSPINT gamma = problem->Graph->max_vtx_cost ;
     VSPINT *c    = problem->Graph->c ;
 
     /*------------------------------------------------------------------------*/
-    // Load the data into states and use VSP_check_states
+    // Load the data into states and use check_states
     /*------------------------------------------------------------------------*/
     Point xPoint, yPoint ;
 
@@ -559,7 +559,7 @@ void Check_All_Data
     yPoint.val_frac = 0 ;
     yPoint.n = n ;
     
-    VSP_Az Axstruct, Aystruct ;
+    Az Axstruct, Aystruct ;
 
     Axstruct.int_part    = Ax ;
     Axstruct.ind_frac_z  = EMPTY ;
@@ -586,7 +586,7 @@ void Check_All_Data
     Y.Az     = &Aystruct ;
     Y.weight = wgty ;
 
-    VSP_check_states(&X, &Y, problem) ;
+    check_states(&X, &Y, problem) ;
 
 
     if(wgtx < 0 || wgty < 0)
@@ -664,7 +664,7 @@ void Check_Inputs
     VSPINT *c    = problem->Graph->c ;
 
     /*------------------------------------------------------------------------*/
-    // Load the data into states and use VSP_check_states
+    // Load the data into states and use check_states
     /*------------------------------------------------------------------------*/
     Point xPoint, yPoint ;
 
@@ -678,7 +678,7 @@ void Check_Inputs
     yPoint.val_frac = 0 ;
     yPoint.n = n ;
     
-    VSP_Az Axstruct, Aystruct ;
+    Az Axstruct, Aystruct ;
 
     Axstruct.int_part    = Ax ;
     Axstruct.ind_frac_z  = EMPTY ;
@@ -705,7 +705,7 @@ void Check_Inputs
     Y.Az     = &Aystruct ;
     Y.weight = wgty ;
 
-    VSP_check_states(&X, &Y, problem) ;
+    check_states(&X, &Y, problem) ;
 
 
     if(wgtx < 0 || wgty < 0)
@@ -800,7 +800,7 @@ void Compute_Max_Group_Sizes
 
     for(i = 0 ; i < n ; i++)
     {
-        TMP_ASSERT( (IN_RANGE(c[i], 1, gamma + 1)) ) ;
+        VSP_ASSERT( (IN_RANGE(c[i], 1, gamma + 1)) ) ;
         maxGroupSizes[ c[i] ]++ ;
     }
     return ;
@@ -830,7 +830,7 @@ void Do_Flip
 {
     SET_FUNCTION_COUNTER ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data
         (
             z, Az, *wgtz, w, Aw, *wgtw,
@@ -863,7 +863,7 @@ void Do_Flip
         ) ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data
         (
             z, Az, *wgtz, w, Aw, *wgtw,

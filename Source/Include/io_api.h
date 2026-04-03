@@ -4,10 +4,10 @@
 #include "shared_api.h"
 
 
-Problem* VSP_read_problem(char* file_name, Options* options) ;
+Problem* read_problem(char* file_name, Options* options) ;
 
 /* Dump graph to a file in coordinate format */
-void VSP_dump_graph
+void dump_graph
 (
     State *X,
     State *Y,
@@ -15,7 +15,7 @@ void VSP_dump_graph
 ) ;
 
 
-void VSP_print_solution_stats
+void print_solution_stats
 (
     VSPINT            *x,
     VSPINT            *y,

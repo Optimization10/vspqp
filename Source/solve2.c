@@ -40,14 +40,14 @@ void Solve_Level
     State *X, State *Y, Problem *problem, Options *options
 ) ;
 
-VSP_solve_result *Solve_Null_Graph
+solve_result *Solve_Null_Graph
 (
     Problem *probFinest
 ) ;
 
 void Final_Cleanup
 (
-    State *X, State *Y, Problem *problemFinest, VSP_solve_result *result
+    State *X, State *Y, Problem *problemFinest, solve_result *result
 ) ;
 
 void Destroy_Coarse_Problems(Problem *problemFinest)
@@ -56,14 +56,14 @@ void Destroy_Coarse_Problems(Problem *problemFinest)
     while(p != NULL)
     {
         cp = p->child_problem ;
-        VSP_destruct_problem(p) ;
+        destruct_problem(p) ;
         p = cp ;
     }
     return ;
 }
 
 
-void VSP_set_default_problem_data(Problem* problem) ;
+void set_default_problem_data(Problem* problem) ;
 
 static void Open_Log_File
 (
@@ -89,7 +89,7 @@ static void Log_Problem_Info
 // Compute total, min, max vertex cost
 static void Graph_Compute_Costs
 (
-    VSP_Graph *Graph
+    Graph *Graph
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -114,7 +114,7 @@ static void Graph_Compute_Costs
 
 
 
-VSP_solve_result *VSP_Solve
+solve_result *Solve
 (
     VSPINT             n,
     VSPLONG          *Ap,
@@ -128,21 +128,21 @@ VSP_solve_result *VSP_Solve
 
     Problem *probFinest, *probCoarsest, *P ;
 
-    probFinest = VSP_construct_problem(n, Ap[n], Ai, Ap, Ae, options) ;
-    VSP_set_default_problem_data(probFinest) ;
+    probFinest = construct_problem(n, Ap[n], Ai, Ap, Ae, options) ;
+    set_default_problem_data(probFinest) ;
 
     /* Preprocessing */
-    VSP_construct_problem(n, Ap[n], Ai, Ap, NULL, options) ;
-    VSP_check_for_complete_graph(probFinest) ;
-    VSP_preprocess_finest_problem(probFinest, options) ;
+    construct_problem(n, Ap[n], Ai, Ap, NULL, options) ;
+    check_for_complete_graph(probFinest) ;
+    preprocess_finest_problem(probFinest, options) ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_problem(probFinest, options) ;
+    #ifdef DEBUG
+        check_problem(probFinest, options) ;
     #endif
 
     if(probFinest->Graph->nz == 0)
     {
-        VSP_solve_result *ret = Solve_Null_Graph(probFinest) ;
+        solve_result *ret = Solve_Null_Graph(probFinest) ;
         Destroy_Coarse_Problems(probFinest) ;
         return ret ;
     }
@@ -164,9 +164,9 @@ VSP_solve_result *VSP_Solve
     // Solve the coarsest level
     /*------------------------------------------------------------------------*/
     P = probCoarsest ;
-    X_lp1 = VSP_construct_state(P->Graph->n) ;
-    Y_lp1 = VSP_construct_state(P->Graph->n) ;
-    VSP_set_initial_guess(X_lp1, Y_lp1, P, options) ;
+    X_lp1 = construct_state(P->Graph->n) ;
+    Y_lp1 = construct_state(P->Graph->n) ;
+    set_initial_guess(X_lp1, Y_lp1, P, options) ;
 
     Set_Global_Problem(P) ;
 
@@ -185,14 +185,14 @@ VSP_solve_result *VSP_Solve
 
         // Uncoarsen point from level l+1
 
-        X_l = VSP_construct_state(P->Graph->n) ;
-        Y_l = VSP_construct_state(P->Graph->n) ;
+        X_l = construct_state(P->Graph->n) ;
+        Y_l = construct_state(P->Graph->n) ;
         Uncoarsen_Point(P, X_l, Y_l, X_lp1, Y_lp1) ;
 
 
         // Solve level l
         Solve_Level(X_l, Y_l, P, options) ;
-        VSP_relaxed_to_vertex_separator(X_l, Y_l, P) ;
+        relaxed_to_vertex_separator(X_l, Y_l, P) ;
 
         X_lp1 = X_l ;
         Y_lp1 = Y_l ;
@@ -204,8 +204,8 @@ VSP_solve_result *VSP_Solve
     
 
     // Cleanup
-    VSP_relaxed_to_vertex_separator(X_0, Y_0, probFinest) ;
-    VSP_solve_result *result = malloc( sizeof(*result) ) ;
+    relaxed_to_vertex_separator(X_0, Y_0, probFinest) ;
+    solve_result *result = malloc( sizeof(*result) ) ;
     Final_Cleanup(X_0, Y_0, probFinest, result) ;
 
     Set_Global_Problem(NULL) ;
@@ -221,7 +221,7 @@ VSP_solve_result *VSP_Solve
 // Solve the VSP in the case that the graph has no edges
 // Input: The graph has no edges, all vertex costs are 1
 // Output: 
-VSP_solve_result *Solve_Null_Graph
+solve_result *Solve_Null_Graph
 (
     Problem *probFinest
 )
@@ -233,7 +233,7 @@ VSP_solve_result *Solve_Null_Graph
     VSPINT M    = MIN(u, n / 2) ;
 
 
-    VSP_solve_result *result = malloc( sizeof(*result) ) ;
+    solve_result *result = malloc( sizeof(*result) ) ;
     result->x = calloc(n, sizeof(VSPINT)) ;
     result->y = calloc(n, sizeof(VSPINT)) ;
 

@@ -6,9 +6,9 @@
 /*----------------------------------------------------------------------------*/
 /*  Declarations                                                              */
 /*----------------------------------------------------------------------------*/
-void VSP_check_for_complete_graph(Problem *problem) ;
+void check_for_complete_graph(Problem *problem) ;
 
-void VSP_ResolveLevelDecideAndDo
+void ResolveLevelDecideAndDo
 (
     State             *X,
     State             *Y,

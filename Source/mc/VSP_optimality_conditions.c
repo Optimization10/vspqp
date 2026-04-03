@@ -3,37 +3,37 @@
 
 // #include <float.h>
 
-// bool VSP_LP_is_optimal_case_1a(
+// bool LP_is_optimal_case_1a(
 //     Point          *z,
-//     VSP_Az            *Aw,
+//     Az            *Aw,
 //     VSPFLOAT        gamma,
 //     VSPINT             *c
 // ) ;
 
-// bool VSP_LP_is_optimal_case_1b(
+// bool LP_is_optimal_case_1b(
 //     Point          *z,
-//     VSP_Az            *Aw,
+//     Az            *Aw,
 //     VSPFLOAT        gamma,
 //     VSPINT             *c
 // ) ;
 
-// bool VSP_LP_is_optimal_case_2a(
+// bool LP_is_optimal_case_2a(
 //     Point          *z,
-//     VSP_Az            *Aw,
+//     Az            *Aw,
 //     VSPFLOAT        gamma,
 //     VSPINT             *c
 // ) ;
 
-// bool VSP_LP_is_optimal_case_2b(
+// bool LP_is_optimal_case_2b(
 //     Point          *z,
-//     VSP_Az            *Aw,
+//     Az            *Aw,
 //     VSPFLOAT        gamma,
 //     VSPINT             *c
 // ) ;
 
-// bool VSP_LP_is_optimal_case_3(
+// bool LP_is_optimal_case_3(
 //     Point          *z,
-//     VSP_Az            *Aw,
+//     Az            *Aw,
 //     VSPFLOAT        gamma,
 //     VSPINT             *c
 // ) ;
@@ -44,44 +44,44 @@
 //          1 <= c' z <= u
 //     where u is the upper balance constraint
 // */
-// bool VSP_LP_is_optimal
+// bool LP_is_optimal
 // (
 //     State         *Z,
-//     VSP_Az           *Aw,
+//     Az           *Aw,
 //     VSPFLOAT       gamma,
 //     Problem *problem,
 //     Options *options
 // ) {
 
-//     #ifdef VSP_DEBUG
+//     #ifdef DEBUG
 //         static long long unsigned count = 0 ;
 //         count++ ;
 
 //         /* Check inputs */
-//         VSP_check_state(Z, problem) ;
+//         check_state(Z, problem) ;
 
 //         /* Compute the objective at the given Z, compute the optimal objective
 //            by solving the LP, and compare results                             */
 
 //         /* Compute objective at the given z                                   */
 //         VSPFLOAT obj_given ;
-//         obj_given = VSP_compute_LP_objective(Z->point, problem->Graph->c, gamma, Aw) ;
+//         obj_given = compute_LP_objective(Z->point, problem->Graph->c, gamma, Aw) ;
 
 //         /* Get optimal objective by solving the LP                            */
 //         VSPFLOAT obj_opt = 0 ;
-//         State *Z_copy = VSP_construct_state(problem->Graph->n) ;
-//         VSP_copy_state(Z, Z_copy) ;
-//         obj_opt = VSP_LP_solver_4(Z_copy      , Aw   , problem->Graph->c, 1,
+//         State *Z_copy = construct_state(problem->Graph->n) ;
+//         copy_state(Z, Z_copy) ;
+//         obj_opt = LP_solver_4(Z_copy      , Aw   , problem->Graph->c, 1,
 //                                   problem->u, gamma, problem   , options, 'x');
 
-//         UNUSED VSPFLOAT obj_opt2 = VSP_compute_LP_objective(Z_copy->point, problem->Graph->c, gamma, Aw) ;
+//         UNUSED VSPFLOAT obj_opt2 = compute_LP_objective(Z_copy->point, problem->Graph->c, gamma, Aw) ;
 
 
 //         /* Determine optimality                                               */
-//         bool is_opt_dbg = VSP_equal(obj_given, obj_opt) ;
+//         bool is_opt_dbg = equal(obj_given, obj_opt) ;
 
 //         /* Free memory */
-//         VSP_destruct_state(Z_copy) ;
+//         destruct_state(Z_copy) ;
 //     #endif
 
 //     bool is_opt ;
@@ -89,26 +89,26 @@
 //     if(Z->weight == problem->u) {
 //         /* Disjunct on whether there is a fractional entry */
 //         if(Z->point->ind_frac == EMPTY) {
-//             is_opt = VSP_LP_is_optimal_case_1a(Z->point, Aw, gamma, problem->Graph->c);
+//             is_opt = LP_is_optimal_case_1a(Z->point, Aw, gamma, problem->Graph->c);
 //         }
 //         else{
-//             is_opt = VSP_LP_is_optimal_case_1b(Z->point, Aw, gamma, problem->Graph->c);
+//             is_opt = LP_is_optimal_case_1b(Z->point, Aw, gamma, problem->Graph->c);
 //         }
 //     }
 //     else if (Z->weight == 1) {
 //         /* Disjunct on whether there is a fractional entry */
 //         if(Z->point->ind_frac == EMPTY) {
-//             is_opt = VSP_LP_is_optimal_case_2a(Z->point, Aw, gamma, problem->Graph->c);
+//             is_opt = LP_is_optimal_case_2a(Z->point, Aw, gamma, problem->Graph->c);
 //         }
 //         else{
-//             is_opt = VSP_LP_is_optimal_case_2b(Z->point, Aw, gamma, problem->Graph->c);
+//             is_opt = LP_is_optimal_case_2b(Z->point, Aw, gamma, problem->Graph->c);
 //         }
 //     }
 //     else {
-//         is_opt = VSP_LP_is_optimal_case_3(Z->point, Aw, gamma, problem->Graph->c);
+//         is_opt = LP_is_optimal_case_3(Z->point, Aw, gamma, problem->Graph->c);
 //     }
 
-//     #ifdef VSP_DEBUG
+//     #ifdef DEBUG
 //         VSPINT n = problem->Graph->n ;
 //         (void) n ; // dummy
 //         if(is_opt != is_opt_dbg)
@@ -130,15 +130,15 @@
 //    is non-negative.
 //    In the code, this comes down to checking (Awi / ci) >= Awj / cj and that
 //    cj - Awj >= 0 for i in the zeros and j in the ones                */
-// bool VSP_LP_is_optimal_case_1a
+// bool LP_is_optimal_case_1a
 // (
 //     Point         *z,
-//     VSP_Az           *Aw,
+//     Az           *Aw,
 //     VSPFLOAT       gamma,
 //     VSPINT            *c
 // )
 // {
-//     #ifdef VSP_DEBUG
+//     #ifdef DEBUG
 //         static long long unsigned count = 0 ;
 //         count++ ;
 //         if(z->ind_frac != EMPTY)
@@ -180,7 +180,7 @@
 //             if(min_ratio_zeros > ratio) min_ratio_zeros = ratio ;
 //         }
 
-//         if (min_ratio_zeros < max_ratio_ones - VSP_ZERO) return false ;
+//         if (min_ratio_zeros < max_ratio_ones - ZERO) return false ;
 //     }
 //     return true ;
 // }
@@ -195,13 +195,13 @@
 //    where i is an arbitrary index of the ones, k is the index of the fractional
 //    entry, and j is an arbitrary index of the zeros, and that
 //    ck - gamma * Ayk >= 0 */
-// bool VSP_LP_is_optimal_case_1b(
+// bool LP_is_optimal_case_1b(
 //     Point         *z,
-//     VSP_Az           *Aw,
+//     Az           *Aw,
 //     VSPFLOAT       gamma,
 //     VSPINT             *c
 // ) {
-//     #ifdef VSP_DEBUG
+//     #ifdef DEBUG
 //         static long long unsigned count = 0 ;
 //         count++ ;
 
@@ -237,8 +237,8 @@
 //            if zi = 1, ratio_i should be >= ratio_k */
 //         VSPINT pm1 = (1 - 2 * z_int[i]) ;
 
-//         // if ( pm1 * ratio_i < pm1 * ratio_k - VSP_ZERO )
-//         if ( !VSP_lteq( pm1 * ratio_k, pm1 * ratio_i) )
+//         // if ( pm1 * ratio_i < pm1 * ratio_k - ZERO )
+//         if ( !lteq( pm1 * ratio_k, pm1 * ratio_i) )
 //         {
 //             return false ;
 //         }
@@ -255,13 +255,13 @@
 //    is non-positive.
 //    In the code, this comes down to checking (Awi / ci) >= Awj / cj and that
 //    ci - Awi <= 0 for i in the zeros and j in the ones                */
-// bool VSP_LP_is_optimal_case_2a(
+// bool LP_is_optimal_case_2a(
 //     Point         *z,
-//     VSP_Az           *Aw,
+//     Az           *Aw,
 //     VSPFLOAT       gamma,
 //     VSPINT            *c
 // ) {
-//     #ifdef VSP_DEBUG
+//     #ifdef DEBUG
 //         static long long unsigned count = 0 ;
 //         count++ ;
 //         if(z->ind_frac != EMPTY)
@@ -296,7 +296,7 @@
 //                 if(min_ratio_zeros > ratio) min_ratio_zeros = ratio ;
 //             }
 //         }
-//         if (min_ratio_zeros < max_ratio_ones - VSP_ZERO) return false ;
+//         if (min_ratio_zeros < max_ratio_ones - ZERO) return false ;
 //     }
 //     return true ;
 // }
@@ -313,13 +313,13 @@
 //    where i is an arbitrary index of the ones, k is the index of the fractional
 //    entry, and j is an arbitrary index of the zeros, and that
 //    ck - gamma Ayk <= 0 */
-// bool VSP_LP_is_optimal_case_2b(
+// bool LP_is_optimal_case_2b(
 //     Point         *z,
-//     VSP_Az           *Aw,
+//     Az           *Aw,
 //     VSPFLOAT       gamma,
 //     VSPINT             *c
 // ) {
-//     #ifdef VSP_DEBUG
+//     #ifdef DEBUG
 //         static long long unsigned count = 0 ;
 //         count++ ;
 //         if(z->ind_frac == EMPTY)
@@ -351,7 +351,7 @@
 //         /* For optimality, if zi = 0, ratio_i should be <= ratio_k, and
 //            if zi = 1, ratio_i should be >= ratio_k */
 //         VSPINT pm1 = (1 - 2 * z_int[i]) ;
-//         if ( pm1 * ratio_i < pm1 * ratio_k - VSP_ZERO )
+//         if ( pm1 * ratio_i < pm1 * ratio_k - ZERO )
 //         {
 //             return false ;
 //         }
@@ -367,13 +367,13 @@
 //     Check:
 //     for all i in Z: ci - gamma Awi <= 0
 //     for all i in O: ci - gamma Awi >= 0  */
-// bool VSP_LP_is_optimal_case_3(
+// bool LP_is_optimal_case_3(
 //     Point          *z,
-//     VSP_Az            *Aw,
+//     Az            *Aw,
 //     VSPFLOAT        gamma,
 //     VSPINT             *c
 // ) {
-//     #ifdef VSP_DEBUG
+//     #ifdef DEBUG
 //         static long long unsigned count = 0 ;
 //         count++ ;
 //         if(z->ind_frac != EMPTY)
@@ -396,14 +396,14 @@
 //         Awi = Aw_int[i] + w_has_ind_frac * (col_A[i] == one) * val_frac_w ; 
 //         if(z_int[i]) {
 //             /* TODO speed: profile and check if doing a < b instead is faster */
-//             if(c[i] - gamma * Awi < -VSP_ZERO)
+//             if(c[i] - gamma * Awi < -ZERO)
 //             // if(c[i] < gamma * Awi )
 //             {
 //                 return false ;
 //             }
 //         }
 //         else {
-//             if (c[i] - gamma * Awi > VSP_ZERO) {
+//             if (c[i] - gamma * Awi > ZERO) {
 //                 return false ;
 //             } 
 //         }

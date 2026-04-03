@@ -7,7 +7,7 @@
 Doubly_LLs_Unsized *Doubly_LLs_Unsized_Init(VSPINT n)
 {
     SET_FUNCTION_COUNTER;
-    TMP_ASSERT(n > 0);
+    VSP_ASSERT(n > 0);
 
     Doubly_LLs_Unsized *ret = malloc(sizeof(*ret));
     ret->entries = malloc((n+1) * sizeof(VSPINT));
@@ -77,7 +77,7 @@ void Doubly_LLs_Unsized_Check
     );
 
     // Check that n's agree
-    TMP_ASSERT(lls0->n == lls1->n);
+    VSP_ASSERT(lls0->n == lls1->n);
 }
 
 void Doubly_LLs_Unsized_Reset(Doubly_LLs_Unsized *lls)
@@ -99,7 +99,7 @@ void Doubly_LLs_Unsized_See_Entry
 )
 {
     SET_FUNCTION_COUNTER;
-    TMP_ASSERT(IN_RANGE(whichll, 0, lls->n+1));
+    VSP_ASSERT(IN_RANGE(whichll, 0, lls->n+1));
     Doubly_Linked_Lists_See_Entry(lls->entries, whichll, ret);
 }
 

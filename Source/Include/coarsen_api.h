@@ -5,12 +5,12 @@
 
 void Graph_Simple_Match
 (
-    VSP_Graph              *Graph,
+    Graph              *Graph,
     VSPINT                    lvl,
     VSPINT              *matching,
     VSPINT              *matchmap,
     VSPINT           *invmatchmap,
-    VSP_match_type     *matchtype,
+    match_type     *matchtype,
     VSPINT                    *cn,
     Options          *options
 ) ;

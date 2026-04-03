@@ -8,7 +8,7 @@
             "program": "${workspaceFolder}/Demo/example",
             "args": 
             [
-                "data/issue/vsp_bcsstk30_500sep_10in_1Kout.mtx"
+                "data/issue/bcsstk30_500sep_10in_1Kout.mtx"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

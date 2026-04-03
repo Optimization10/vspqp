@@ -14,7 +14,7 @@ void Match_Check
     VSPINT             *matching,
     VSPINT             *matchmap,
     VSPINT          *invmatchmap,
-    VSP_match_type    *matchtype
+    match_type    *matchtype
 )
 {
     static long long unsigned count = 0 ;
@@ -127,7 +127,7 @@ void Match_Check
 
 
 
-VSPINT VSP_get_match(VSPINT vertex, VSPINT* matching)
+VSPINT get_match(VSPINT vertex, VSPINT* matching)
 {
     return matching[vertex] - 1;
 }
@@ -142,8 +142,8 @@ bool IsMatchedMatchtype
 (
     VSPINT vertex,
     VSPINT* matchingArray,
-    VSP_match_type *matchtypeArray,
-    VSP_match_type desiredType
+    match_type *matchtypeArray,
+    match_type desiredType
 )
 {
     return Is_Matched(vertex, matchingArray) && (matchtypeArray[vertex] == desiredType) ;
@@ -152,12 +152,12 @@ bool IsMatchedMatchtype
 
 static void Additional_Match_Check
 (
-    VSP_Graph             *Graph,
+    Graph             *Graph,
     VSPINT                   lvl,
     VSPINT             *matching,
     VSPINT             *matchmap,
     VSPINT          *invmatchmap,
-    VSP_match_type    *matchtype,
+    match_type    *matchtype,
     VSPINT                    cn
 ) ;
 
@@ -167,14 +167,14 @@ static void Create_Match_2way
     VSPINT                       j,
     VSPINT*               matching,
     VSPINT*            invmatchmap,
-    VSP_match_type*  matchtype_arr,
+    match_type*  matchtype_arr,
     VSPINT*               matchmap,
     VSPINT*                 cn_ptr,
-    VSP_match_type           mtype
+    match_type           mtype
 )
 {
     SET_FUNCTION_COUNTER;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if(Is_Matched(i, matching) || Is_Matched(j, matching))
         {
             ERR("Trying to match an already matched vertex");
@@ -201,12 +201,12 @@ static void Create_Match_3way_HEM
     VSPINT*            matching,
     VSPINT*            matchmap,
     VSPINT*            invmatchmap,
-    VSP_match_type*    matchtype_arr
+    match_type*    matchtype_arr
 )
 {
 
     SET_FUNCTION_COUNTER;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if(Is_Matched(k, matching))
         {
             ERR("Trying to match an already matched vertex");
@@ -231,10 +231,10 @@ static void Create_Match_3way_HEM
     matchtype_arr[k] = matchtype_3way;
 
     VSPINT cv = matchmap[i] ;
-    TMP_ASSERT(cv == matchmap[j]) ;
+    VSP_ASSERT(cv == matchmap[j]) ;
     matchmap[k] = cv ;
 
-    TMP_ASSERT(invmatchmap[cv] == i || invmatchmap[cv] == j) ;
+    VSP_ASSERT(invmatchmap[cv] == i || invmatchmap[cv] == j) ;
     
     return;
 }
@@ -247,13 +247,13 @@ static void Create_Match_3way_Singleton
     VSPINT*            matching,
     VSPINT*            matchmap,
     VSPINT*            invmatchmap,
-    VSP_match_type*    matchtype_arr,
+    match_type*    matchtype_arr,
     VSPINT*            cn_ptr
 )
 {
 
     SET_FUNCTION_COUNTER;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if(Is_Matched(i, matching))
         {
             ERR("Trying to match an already matched vertex");
@@ -299,11 +299,11 @@ static void Steal_Match
     VSPINT                     new,
     VSPINT*               matching,
     VSPINT*            invmatchmap,
-    VSP_match_type*      matchtype,
+    match_type*      matchtype,
     VSPINT*               matchmap
 )
 {
-    VSPINT i = VSP_get_match(old, matching) ;
+    VSPINT i = get_match(old, matching) ;
  
     // Update matching
     matching[old] = 0 ;
@@ -356,7 +356,7 @@ static void Match_Singletons
     VSPINT             *matching,
     VSPINT             *matchmap,
     VSPINT          *invmatchmap,
-    VSP_match_type    *matchtype,
+    match_type    *matchtype,
     VSPINT                   *cn,
     VSPINT            *n_matches,
     VSPINT          *n_unmatched
@@ -373,7 +373,7 @@ static void Match_Singletons
         MinHeap_Get_Top_Val_v0(heap_sings, lookup_heap,n_heap_sings, c,&j);
         MinHeap_See_Top_Key_v0(heap_sings, c, *n_heap_sings, &ck) ;
 
-        TMP_ASSERT(i != EMPTY) ;
+        VSP_ASSERT(i != EMPTY) ;
         if(j != EMPTY && ck != EMPTY && c[i] + c[j] + ck <= gamma_coarse)
         {
             // extract k
@@ -426,12 +426,12 @@ static void Match_Singletons
 
 void Graph_Simple_Match
 (
-    VSP_Graph              *Graph,
+    Graph              *Graph,
     VSPINT                    lvl,
     VSPINT              *matching,
     VSPINT              *matchmap,
     VSPINT           *invmatchmap,
-    VSP_match_type     *matchtype,
+    match_type     *matchtype,
     VSPINT                    *cn,
     Options          *options
 )
@@ -520,12 +520,12 @@ void Graph_Simple_Match
     }
 
     clock_gettime(CLOCK_REALTIME, &G_END_TIME) ; 
-    G_HEM_TIME += VSP_compute_elapsed_time(G_START_TIME, G_END_TIME) ;
+    G_HEM_TIME += compute_elapsed_time(G_START_TIME, G_END_TIME) ;
 
     /*------------------------------------------------------------------------*/
     // Match singletons
     /*------------------------------------------------------------------------*/
-    TMP_ASSERT(n_heap_sings >= 0) ;
+    VSP_ASSERT(n_heap_sings >= 0) ;
 
     // Can occur if the graph consists entirely of singletons
     if(gamma_coarse == 0) gamma_coarse = pow2lp1 ;
@@ -560,7 +560,7 @@ void Graph_Simple_Match
         for (p = Ap[k]; p < Ap[k+1]; p++)
         {
             neigh = Ai[p] ;
-            TMP_ASSERT(Is_Matched(neigh, matching)) ;
+            VSP_ASSERT(Is_Matched(neigh, matching)) ;
 
             ew = Ae[p] ;
             if (ew > ew_pivot)
@@ -632,8 +632,8 @@ void Graph_Simple_Match
     VSPINT n_coarse = n_matches + n_unmatched ;
     VSPFLOAT ratio_compression = ((VSPFLOAT) n_coarse) / ((VSPFLOAT) n) ;
 
-    #ifdef VSP_DEBUG
-        TMP_ASSERT(*cn == n_matches) ;
+    #ifdef DEBUG
+        VSP_ASSERT(*cn == n_matches) ;
         VSPINT dbg_n_unmatched = 0 ;
         for(VSPINT ii = 0 ; ii < n ; ii++)
         {
@@ -673,7 +673,7 @@ void Graph_Simple_Match
             if(matchtype[i] != matchtype_HEM || HEM_Pair_Visited[i] ) continue ;
 
             // {i, j} is a HEM pair 
-            j = VSP_get_match(i, matching) ;
+            j = get_match(i, matching) ;
 
             // Mark {i, j} pair as visited
             HEM_Pair_Visited[i] = true ;
@@ -708,7 +708,7 @@ void Graph_Simple_Match
                             matchmap, cn, matchtype_brotherly
                         ) ;
                         ci_coarse = c[i] + c[j] ;
-                        #ifdef VSP_DEBUG
+                        #ifdef DEBUG
                             if(c[perfect] + c[k] != pow2lp1)
                             {
                                 ERR("Non-perfect vertex") ;
@@ -720,7 +720,7 @@ void Graph_Simple_Match
                 }
                 else // ck != pow2l, i.e. k is not perfect
                 {
-                    TMP_ASSERT(ck < pow2l) ;
+                    VSP_ASSERT(ck < pow2l) ;
                     if(light != EMPTY)
                     {
                         Create_Match_2way
@@ -774,7 +774,7 @@ void Graph_Simple_Match
                 }
                 else // ck == pow2l, i.e. k is not perfect
                 {
-                    TMP_ASSERT(ck < pow2l) ;
+                    VSP_ASSERT(ck < pow2l) ;
                     if(light != EMPTY)
                     {
                         Create_Match_2way
@@ -889,9 +889,9 @@ void Graph_Simple_Match
     /* ====================================================================== */
 
     clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;
-    G_BM_TIME += VSP_compute_elapsed_time(G_START_TIME, G_END_TIME) ;
+    G_BM_TIME += compute_elapsed_time(G_START_TIME, G_END_TIME) ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Match_Check
         (
             n,
@@ -939,14 +939,14 @@ static void Check_cn
         if(seen[i] || !Is_Matched(i, matching)) continue ;
 
         cn_local++ ;
-        j = VSP_get_match(i, matching) ;
-        k = VSP_get_match(j, matching) ;
+        j = get_match(i, matching) ;
+        k = get_match(j, matching) ;
         seen[i] = 1 ;
         seen[j] = 1 ;
         seen[k] = 1 ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if(cn != cn_local)
         {
             ERR("Wrong number of coarse vertices") ;
@@ -973,12 +973,12 @@ static void Check_cn
 
 static void Additional_Match_Check
 (
-    VSP_Graph             *Graph,
+    Graph             *Graph,
     VSPINT                   lvl,
     VSPINT             *matching,
     VSPINT             *matchmap,
     VSPINT          *invmatchmap,
-    VSP_match_type    *matchtype,
+    match_type    *matchtype,
     VSPINT                    cn
 )
 {
@@ -1001,9 +1001,9 @@ static void Additional_Match_Check
     // whose matchtype is also HEM, and these vertices are neighbors
     for(i = 0 ; i < n ; i++)
     {
-        j = VSP_get_match(i, matching) ;
-        k = VSP_get_match(j, matching) ;
-        TMP_ASSERT( IN_RANGE(j, 0, n) ) ;
+        j = get_match(i, matching) ;
+        k = get_match(j, matching) ;
+        VSP_ASSERT( IN_RANGE(j, 0, n) ) ;
 
         if(matchtype[i] != matchtype[j])
         {
@@ -1014,7 +1014,7 @@ static void Additional_Match_Check
         {
             case matchtype_HEM :
                 // Check that j is matched to i
-                if( VSP_get_match(j, matching) != i )
+                if( get_match(j, matching) != i )
                 {
                     ERR("Error in HEM pair") ;
                 }
@@ -1033,7 +1033,7 @@ static void Additional_Match_Check
                 break ;
             case matchtype_brotherly:
                 // Check that j is matched to i
-                if( VSP_get_match(j, matching) != i )
+                if( get_match(j, matching) != i )
                 {
                     ERR("Error in BM pair") ;
                 }
@@ -1053,10 +1053,10 @@ static void Additional_Match_Check
 
             case matchtype_3way:
                 // Check that i is in a 3-way match
-                k = VSP_get_match(j, matching) ;
-                TMP_ASSERT(k != i) ;
-                TMP_ASSERT(k != j) ;
-                if(VSP_get_match(k, matching) != i)
+                k = get_match(j, matching) ;
+                VSP_ASSERT(k != i) ;
+                VSP_ASSERT(k != j) ;
+                if(get_match(k, matching) != i)
                 {
                     ERR("Error in 3-way matching") ;
                 }

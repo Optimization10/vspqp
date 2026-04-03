@@ -25,7 +25,7 @@ void FeasibleBeneficialFlips_v5
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data_v5
         (
             x, Ax, *wgtx, y, Ay, *wgty,
@@ -109,7 +109,7 @@ void FeasibleBeneficialFlips_v5
         numFlips++ ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_Outputs_v5(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
         VSPINT objDbgFinal ;
         Compute_ObjValDbg(x, Ax, y, Ay, problem, &objDbgFinal) ;

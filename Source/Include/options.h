@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-typedef struct VSP_dyn_stk_struct
+typedef struct dyn_stk_struct
 {
     /* Public */
     VSPINT *stack     ;
@@ -11,7 +11,7 @@ typedef struct VSP_dyn_stk_struct
 
     /* Private */
     VSPINT max_size ;
-} VSP_dyn_stk ;
+} dyn_stk ;
 
 
 /* Usage:
@@ -55,10 +55,10 @@ typedef struct Levels_struct
     VSPINT num_bot_levels ;
 
     /* Must be empty unless specify_selected_levels == true */
-    VSP_dyn_stk *levels_selected ;
+    dyn_stk *levels_selected ;
 
      /* Must be empty unless specify_unselected_levels == true */
-    VSP_dyn_stk *levels_not_selected ;
+    dyn_stk *levels_not_selected ;
 
 } Levels ;
 
@@ -78,11 +78,11 @@ typedef struct Levels_struct
 /*----------------------------------------------------------------------------*/
 
 
-VSP_dyn_stk *VSP_construct_dyn_stk() ;
-void VSP_destruct_dyn_stk(VSP_dyn_stk* ds) ;
-void VSP_dyn_stk_push(VSP_dyn_stk* ds, VSPINT to_push) ;
-bool VSP_dyn_stk_is_member(VSPINT i, VSP_dyn_stk* ds) ;
-VSP_dyn_stk *VSP_dyn_stk_copy(VSP_dyn_stk *stack_in) ;
+dyn_stk *construct_dyn_stk() ;
+void destruct_dyn_stk(dyn_stk* ds) ;
+void dyn_stk_push(dyn_stk* ds, VSPINT to_push) ;
+bool dyn_stk_is_member(VSPINT i, dyn_stk* ds) ;
+dyn_stk *dyn_stk_copy(dyn_stk *stack_in) ;
 
 
 

@@ -1,7 +1,7 @@
 #ifndef SHARED_MACROS_H
 #define SHARED_MACROS_H
 
-#ifdef VSP_DEBUG
+#ifdef DEBUG
     #define IFDBG(someCode) ( someCode )
 #else
     #define IFDBG(some_code)
@@ -24,7 +24,7 @@
 
 
 
-#define VSP_ZERO 1E-6
+#define ZERO 1E-6
 #define ERR_MSG_LEN 300
 
 #define MAX_HEAP 1
@@ -161,7 +161,7 @@
 
 #define GAIN_FLIP(dir, ci, gamma, Awi) ( (dir) * ( (ci) - (gamma) * (Awi) ) )
 
-#ifdef VSP_DEBUG
+#ifdef DEBUG
     #define DBGCALL(f) (f)
 #else
     #define DBGCALL(f)
@@ -177,18 +177,18 @@
 #define CMP_FRAC(a, b, c, d) ((a) * (d) < (c) * (b))
 #define CMPEQ_FRAC(a, b, c, d) ((a) * (d) <= (c) * (b))
 
-#ifdef VSP_DEBUG
-    #define TMP_ASSERT( cond ) \
+#ifdef DEBUG
+    #define VSP_ASSERT( cond ) \
         do { \
         if ( !(cond) ) { \
            Error("Failed assert.", __FILE__, __LINE__, count) ; \
         } \
     } while (0)
 #else
-    #define TMP_ASSERT( cond ) 
+    #define VSP_ASSERT( cond ) 
 #endif
 
-#if defined(VSP_DEBUG) || defined(VSP_DEBUG_COARSENING)
+#if defined(DEBUG) || defined(DEBUG_COARSENING)
     #define WARN_IF_NOT_DEBUG_MODE
 #else
     #define WARN_IF_NOT_DEBUG_MODE printf("\n\nWARNING: Calling debugging function when not in debug mode. File: %s  Line: %lld\n\n", __FILE__, (long long) __LINE__)
@@ -196,7 +196,7 @@
 
 
 
-#ifdef VSP_DEBUG
+#ifdef DEBUG
     #define SET_FUNCTION_COUNTER static long long unsigned count = 0 ; count++
 #else
     #define SET_FUNCTION_COUNTER

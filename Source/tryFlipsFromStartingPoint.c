@@ -28,7 +28,7 @@ void TryFlipsManyStartingPoints
     /*------------------------------------------------------------------------*/
     // Check inputs
     /*------------------------------------------------------------------------*/
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_Part
         (
             *xBestHome   , *AxBestHome,
@@ -92,7 +92,7 @@ void TryFlipsManyStartingPoints
 
 
 
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             Check_Part
             (
                 xstar, Axstar, 

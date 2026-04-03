@@ -2,7 +2,7 @@
 
 
 
-void VSP_set_default_options(Options* options)
+void set_default_options(Options* options)
 {
     /* Coarsening */
     options->use_coarsening             = true ;
@@ -10,7 +10,7 @@ void VSP_set_default_options(Options* options)
     options->do_community_match         = true ;
 
     /* Initial guess */
-    options->initial_guess                  = VSP_centroid_initial_guess;
+    options->initial_guess                  = centroid_initial_guess;
     options->random_point_weight_proportion = 0.58 ;
     options->centroidVal = 0.6 ;
 
@@ -52,7 +52,7 @@ void VSP_set_default_options(Options* options)
 
 /* Set the cost of each vector to 1, each edge weight to 1, and
    the balance constraints as 60% of the total number of vertices             */
-void VSP_set_default_problem_data(Problem* problem) {
+void set_default_problem_data(Problem* problem) {
     VSPLONG i ;
     VSPINT n = problem->Graph->n ;
     VSPLONG nz = problem->Graph->nz ;
@@ -76,7 +76,7 @@ void VSP_set_default_problem_data(Problem* problem) {
 
 /* Compute alpha, gamma, sum of all costs, and set the is_original flag to
    true */
-void    VSP_preprocess_finest_problem
+void    preprocess_finest_problem
 (
     Problem* problem,
     Options* options

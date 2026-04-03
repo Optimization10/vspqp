@@ -11,6 +11,6 @@ Problem *Read_Dot_Ovi_File
     Options* options
 ) ;
 
-Problem* VSP_read_MM_file(const char* filename, Options* options) ;
+Problem* read_MM_file(const char* filename, Options* options) ;
 
 #endif

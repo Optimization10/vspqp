@@ -5,19 +5,19 @@
 #include "coarsen_api.h"
 
 
-VSPINT* VSP_get_all_matches
+VSPINT* get_all_matches
 (
     VSPINT    vertex,
     VSPINT *matching
 ) ;
 
-VSPINT VSP_get_match
+VSPINT get_match
 (
     VSPINT vertex,
     VSPINT* matching
 ) ;
 
-VSPINT VSP_get_edge_weight
+VSPINT get_edge_weight
 (
     VSPINT    vertex_a,
     VSPINT    vertex_b,
@@ -27,16 +27,16 @@ VSPINT VSP_get_edge_weight
 ) ;
 
 
-VSPINT* VSP_get_neighbors(VSPINT v, VSPLONG* Ap, VSPINT* Ai) ;
+VSPINT* get_neighbors(VSPINT v, VSPLONG* Ap, VSPINT* Ai) ;
 
-VSPINT* VSP_get_preimage_of_vertex
+VSPINT* get_preimage_of_vertex
 (
     VSPINT vertex_coarse,         /* A vertex in the coarse problem */
     VSPINT     *matching,
     VSPINT  *invmatchmap
 ) ;
 
-VSPINT VSP_there_is_an_edge
+VSPINT there_is_an_edge
 (
     VSPINT vertex_a,
     VSPINT vertex_b,
@@ -44,7 +44,7 @@ VSPINT VSP_there_is_an_edge
     VSPLONG     *Ap
 ) ;
 
-void VSP_check_matrix_is_symmetric
+void check_matrix_is_symmetric
 (
     VSPINT           *Ai,
     VSPLONG          *Ap,
@@ -54,7 +54,7 @@ void VSP_check_matrix_is_symmetric
     Options* options
 ) ;
 
-VSPINT VSP_check_for_edge_between_arrays_of_vertices
+VSPINT check_for_edge_between_arrays_of_vertices
 (
     VSPINT *arr1,
     VSPINT *arr2,
@@ -63,7 +63,7 @@ VSPINT VSP_check_for_edge_between_arrays_of_vertices
     VSPLONG  *Ap
 ) ;
 
-VSPINT VSP_check_matrix
+VSPINT check_matrix
 (
     VSPINT*           Ai,
     VSPLONG*          Ap,
@@ -79,8 +79,8 @@ bool IsMatchedMatchtype
 (
     VSPINT vertex,
     VSPINT* matchingArray,
-    VSP_match_type *matchtypeArray,
-    VSP_match_type desiredType
+    match_type *matchtypeArray,
+    match_type desiredType
 ) ;
 
 void Match_Check
@@ -90,7 +90,7 @@ void Match_Check
     VSPINT             *matching,
     VSPINT             *matchmap,
     VSPINT          *invmatchmap,
-    VSP_match_type    *matchtype
+    match_type    *matchtype
 ) ;
 
 #endif

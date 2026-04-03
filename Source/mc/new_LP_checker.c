@@ -42,9 +42,9 @@ typedef enum
 
 
 // Compute Value Density Ratio
-static VSPFLOAT Val_Density(VSPINT i, VSPINT ci, VSPFLOAT gamma, VSP_Az *Aw)
+static VSPFLOAT Val_Density(VSPINT i, VSPINT ci, VSPFLOAT gamma, Az *Aw)
 {
-    VSPFLOAT Awi = VSP_Azi(i, Aw) ;
+    VSPFLOAT Awi = Azi(i, Aw) ;
     return 1 - Awi * gamma / ci ;
 }
 
@@ -66,7 +66,7 @@ static VSPFLOAT Val_Density(VSPINT i, VSPINT ci, VSPFLOAT gamma, VSP_Az *Aw)
 static bool Is_LP_Optimal_Case_1a1
 (
   VSPINT            *z,
-  VSP_Az           *Aw,
+  Az           *Aw,
   VSPINT            *c,
   VSPINT             u,
   VSPFLOAT       gamma,
@@ -159,7 +159,7 @@ static bool Is_LP_Optimal_Case_1b1
     VSPINT            *z,
     VSPINT             k,
     VSPFLOAT          zk,
-    VSP_Az           *Aw,
+    Az           *Aw,
     VSPINT            *c,
     VSPINT             u,
     VSPFLOAT       gamma,
@@ -206,7 +206,7 @@ static bool Is_LP_Optimal_Case_1b2
   VSPINT            *z,
   VSPINT             k,
   VSPFLOAT          zk,
-  VSP_Az           *Aw,
+  Az           *Aw,
   VSPINT            *c,
   VSPINT             u,
   VSPFLOAT       gamma,
@@ -222,8 +222,8 @@ static bool Is_LP_Optimal_Case_1b2
 
     for(i = 0 ; i < n ; i++)
     {
-        #ifdef VSP_DEBUG
-            TMP_ASSERT(z[i] == 0) ;
+        #ifdef DEBUG
+            VSP_ASSERT(z[i] == 0) ;
         #endif
 
         ri = Val_Density(i, c[i], gamma, Aw) ;
@@ -248,7 +248,7 @@ static bool Is_LP_Optimal_Case_1b3
   VSPINT            *z,
   VSPINT             k,
   VSPFLOAT          zk,
-  VSP_Az           *Aw,
+  Az           *Aw,
   VSPINT            *c,
   VSPINT             u,
   VSPFLOAT       gamma,
@@ -264,7 +264,7 @@ static bool Is_LP_Optimal_Case_1b3
 
     for(i = 0 ; i < n ; i++)
     {
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             if(z[i] != 1 && i != k)
             {
                 ERR("Wrong opt checker case") ;
@@ -312,7 +312,7 @@ static bool Is_LP_Optimal_Case_2a1
   VSPINT            *z,
   VSPINT             k,
   VSPFLOAT          zk,
-  VSP_Az           *Aw,
+  Az           *Aw,
   VSPINT            *c,
   VSPINT             u,
   VSPFLOAT       gamma,
@@ -358,7 +358,7 @@ static bool Is_LP_Optimal_Case_2a2
   VSPINT            *z,
   VSPINT             k,
   VSPFLOAT          zk,
-  VSP_Az           *Aw,
+  Az           *Aw,
   VSPINT            *c,
   VSPINT             u,
   VSPFLOAT       gamma,
@@ -372,7 +372,7 @@ static bool Is_LP_Optimal_Case_2a2
 
     for(i = 0 ; i < n ; i++)
     {
-        TMP_ASSERT(z[i] == 0) ;
+        VSP_ASSERT(z[i] == 0) ;
         ri = Val_Density(i, c[i], gamma, Aw) ;
         if(Is_Greater_Than(ri, 0, tol))
         {
@@ -421,7 +421,7 @@ static bool Is_LP_Optimal_Case_2b1
   VSPINT            *z,
   VSPINT             k,
   VSPFLOAT          zk,
-  VSP_Az           *Aw,
+  Az           *Aw,
   VSPINT            *c,
   VSPINT             u,
   VSPFLOAT       gamma,
@@ -429,7 +429,7 @@ static bool Is_LP_Optimal_Case_2b1
 )
 {
     VSPFLOAT rk = Val_Density(k, c[k], gamma, Aw) ;
-    if( !VSP_equal(rk, 0) ) return  false ;
+    if( !equal(rk, 0) ) return  false ;
 
     VSPINT i, j,
     n = Aw->n ;
@@ -470,7 +470,7 @@ static bool Is_LP_Optimal_Case_2b2
   VSPINT            *z,
   VSPINT             k,
   VSPFLOAT          zk,
-  VSP_Az           *Aw,
+  Az           *Aw,
   VSPINT            *c,
   VSPINT             u,
   VSPFLOAT       gamma,
@@ -479,7 +479,7 @@ static bool Is_LP_Optimal_Case_2b2
 {
     SET_FUNCTION_COUNTER ;
     VSPFLOAT rk = Val_Density(k, c[k], gamma, Aw) ;
-    if( !VSP_equal(rk, 0) ) return  false ;
+    if( !equal(rk, 0) ) return  false ;
 
     VSPINT i, j,
     n = Aw->n ;
@@ -488,7 +488,7 @@ static bool Is_LP_Optimal_Case_2b2
     for(i = 0 ; i < n ; i++)
     {
         ri = Val_Density(i, c[i], gamma, Aw) ;
-        TMP_ASSERT(z[i] == 0) ;
+        VSP_ASSERT(z[i] == 0) ;
         if(Is_Greater_Than(ri, 0, tol))
         {
             return false ;
@@ -510,7 +510,7 @@ static bool Is_LP_Optimal_Case_2b3
   VSPINT            *z,
   VSPINT             k,
   VSPFLOAT          zk,
-  VSP_Az           *Aw,
+  Az           *Aw,
   VSPINT            *c,
   VSPINT             u,
   VSPFLOAT       gamma,
@@ -519,13 +519,13 @@ static bool Is_LP_Optimal_Case_2b3
 {
     SET_FUNCTION_COUNTER ;
     VSPFLOAT rk = Val_Density(k, c[k], gamma, Aw) ;
-    if( !VSP_equal(rk, 0) ) return  false ;
+    if( !equal(rk, 0) ) return  false ;
 
     VSPINT i, j,
     n = Aw->n ;
     VSPFLOAT ri ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         for(i = 0 ; i < n ; i++)
         {
             if(z[i] != 1 && i != k)
@@ -539,7 +539,7 @@ static bool Is_LP_Optimal_Case_2b3
     for(i = 0 ; i < n ; i++)
     {
         ri = Val_Density(i, c[i], gamma, Aw) ;
-        TMP_ASSERT(z[i] == 1) ;
+        VSP_ASSERT(z[i] == 1) ;
         if(Is_Less_Than(ri, 0, tol))
         {
             return false ;
@@ -576,7 +576,7 @@ static void check_has0s_and_has1s
     count++ ;
     WARN_IF_NOT_DEBUG_MODE ;
 
-    #ifndef VSP_DEBUG
+    #ifndef DEBUG
         return ;
     #endif
 
@@ -608,7 +608,7 @@ bool All_Ones_Case
   VSPINT            *z,
   VSPINT             k,
   VSPFLOAT          zk,
-  VSP_Az           *Aw,
+  Az           *Aw,
   VSPINT            *c,
   VSPINT             u,
   VSPFLOAT       gamma,
@@ -616,7 +616,7 @@ bool All_Ones_Case
 )
 {
     SET_FUNCTION_COUNTER ;
-    TMP_ASSERT(k == EMPTY) ;
+    VSP_ASSERT(k == EMPTY) ;
 
     VSPINT i, j,
     n = Aw->n ;
@@ -624,7 +624,7 @@ bool All_Ones_Case
 
     for(i = 0 ; i < n ; i++)
     {
-        TMP_ASSERT(z[i] == 1) ;
+        VSP_ASSERT(z[i] == 1) ;
         ri = Val_Density(i, c[i], gamma, Aw) ;
         if(Is_Less_Than(ri, 0, tol))
         {
@@ -640,7 +640,7 @@ bool Is_LP_Optimal
   VSPINT               k,
   VSPFLOAT            zk,
   VSPINT           wgt_z,
-  VSP_Az             *Aw,
+  Az             *Aw,
   VSPINT              *c,
   VSPINT               u,
   VSPFLOAT         gamma,
@@ -673,7 +673,7 @@ bool Is_LP_Optimal
         has_1s = (wgt_z > 0) ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         check_has0s_and_has1s(z, Aw->n, k, has_0s, has_1s) ;
     #endif
 

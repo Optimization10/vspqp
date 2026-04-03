@@ -84,7 +84,7 @@ Levels* Levels_copy(Levels* levels_in) ;
 
 
 
-void VSP_destruct_levels
+void destruct_levels
 (
     Levels* levels
 ) ;
@@ -135,16 +135,16 @@ typedef struct
 
 } Penalties ;
 
-Penalties *VSP_construct_penalties(VSPINT n) ;
-void VSP_destruct_penalties(Penalties *pens) ;
+Penalties *construct_penalties(VSPINT n) ;
+void destruct_penalties(Penalties *pens) ;
 
-void VSP_copy_penalties
+void copy_penalties
 (
     Penalties *from,
     Penalties *to
 ) ;
 
-void VSP_build_penalties
+void build_penalties
 (
     VSPINT                 *z,
     Penalties     *Z_pens,
@@ -153,7 +153,7 @@ void VSP_build_penalties
 ) ;
 
 
-void VSP_check_penalties
+void check_penalties
 (
     State *X,
     State *Y,
@@ -435,18 +435,18 @@ typedef struct
 } Max_Queue_v1 ;
 
 
-Max_Queue_v1 *VSP_construct_max_queue_v1
+Max_Queue_v1 *construct_max_queue_v1
 (
     VSPINT n_priorities,
     VSPINT *priorities
 ) ;
 
-void VSP_destruct_max_queue_v1
+void destruct_max_queue_v1
 (
     Max_Queue_v1 *to_destroy
 ) ;
 
-void VSP_max_queue_build_v1
+void max_queue_build_v1
 (
     Max_Queue_v1 *queuestr
 ) ;
@@ -456,7 +456,7 @@ VSPINT Max_Queue_See_Top_Key_v1
     Max_Queue_v1 *queue
 ) ;
 
-VSPINT VSP_max_queue_see_top_priority_v1
+VSPINT max_queue_see_top_priority_v1
 (
     Max_Queue_v1 *queuestr
 ) ;
@@ -498,19 +498,19 @@ typedef struct
 
 
 
-VSPINT VSP_min_queue_see_top_entry_v1
+VSPINT min_queue_see_top_entry_v1
 (
     Min_Queue_v1 *queuestr
 ) ;
 
-VSPINT VSP_min_queue_see_top_priority_v1
+VSPINT min_queue_see_top_priority_v1
 (
     Min_Queue_v1 *queuestr
 ) ;
 
 
 /* toadd is an index into the priorities array */
-void VSP_min_queue_add_v1
+void min_queue_add_v1
 (
     Min_Queue_v1 *queuestr,
     VSPINT toadd
@@ -526,20 +526,20 @@ void Min_Queue_Delete_v1
 
 /* This function heapifies the queue array. It assumes the lookup array is 
    correct */
-void VSP_min_queue_build_v1
+void min_queue_build_v1
 (
     Min_Queue_v1 *queuestr
 ) ;
 
 /* Construct an uninitialized min priority queue v1 ds. Everything including the
    lookup is initialized */
-Min_Queue_v1 *VSP_construct_min_queue_v1
+Min_Queue_v1 *construct_min_queue_v1
 (
     VSPINT n_priorities,
     VSPINT *priorities
 ) ;
 
-void VSP_destruct_min_queue_v1
+void destruct_min_queue_v1
 (
     Min_Queue_v1 *to_destroy
 ) ;
@@ -570,7 +570,7 @@ void Max_Queue_Print_Node_v1
     char         *msg  // Ignored if NULL
 ) ;
 
-void VSP_check_min_heap_v1
+void check_min_heap_v1
 (
     Min_Queue_v1* queuestr
 ) ;
@@ -594,76 +594,76 @@ typedef struct
                               this is the max number of items in the queue */
     VSPINT *lookup ;       /* lookup[i] = k means queue[k] = i. if k is EMPTY,
                               i is not in the queue */
-} VSP_max_queue_v2 ;
+} max_queue_v2 ;
 
 
-VSPFLOAT VSP_max_queue_see_top_priority_v2
+VSPFLOAT max_queue_see_top_priority_v2
 (
-    VSP_max_queue_v2 *queuestr
+    max_queue_v2 *queuestr
 ) ;
 
-VSP_max_queue_v2 *VSP_construct_max_queue_v2
+max_queue_v2 *construct_max_queue_v2
 (
     VSPINT n_priorities, /* max size of the queue */
     VSPINT *top,
     VSPINT *bot
 ) ;
 
-void VSP_max_queue_add_v2
+void max_queue_add_v2
 (
-    VSP_max_queue_v2 *queuestr,
+    max_queue_v2 *queuestr,
     VSPINT toadd
 ) ;
 
-void VSP_destruct_max_queue_v2
+void destruct_max_queue_v2
 (
-    VSP_max_queue_v2 *to_destroy
+    max_queue_v2 *to_destroy
 ) ;
 
-void VSP_max_queue_build_v2
+void max_queue_build_v2
 (
-    VSP_max_queue_v2 *queuestr
+    max_queue_v2 *queuestr
 ) ;
 
-void VSP_max_queue_delete_v2
+void max_queue_delete_v2
 (
-    VSP_max_queue_v2 *queuestr,
+    max_queue_v2 *queuestr,
     VSPINT rm
 ) ;
 
 
-VSPINT VSP_max_queue_see_top_entry_v2
+VSPINT max_queue_see_top_entry_v2
 (
-    VSP_max_queue_v2 *queuestr
+    max_queue_v2 *queuestr
 ) ;
 
-VSPFLOAT VSP_max_queue_see_top_priority_v2
+VSPFLOAT max_queue_see_top_priority_v2
 (
-    VSP_max_queue_v2 *queuestr
+    max_queue_v2 *queuestr
 ) ;
 
-void VSP_max_queue_delete_wo_check_v2
+void max_queue_delete_wo_check_v2
 (
-    VSP_max_queue_v2 *queuestr,
+    max_queue_v2 *queuestr,
     VSPINT rm
 ) ;
 
-void VSP_max_queue_reset_v2
+void max_queue_reset_v2
 (
-    VSP_max_queue_v2 *q
+    max_queue_v2 *q
 ) ;
 
 
 
-bool VSP_max_queue_v2_is_member
+bool max_queue_v2_is_member
 (
     VSPINT i,
-    VSP_max_queue_v2 *q
+    max_queue_v2 *q
 ) ;
 
-void VSP_max_queue_v2_bubble_up
+void max_queue_v2_bubble_up
 (
-    VSP_max_queue_v2 *q,
+    max_queue_v2 *q,
     VSPINT node
 ) ;
 
@@ -673,7 +673,7 @@ void VSP_max_queue_v2_bubble_up
 /*----------------------------------------------------------------------------*/
 
 
-void VSP_min_heap_add_v2 /* returns the new size of the heap */
+void min_heap_add_v2 /* returns the new size of the heap */
 (
     VSPINT *heap, /* size n + 1. containing indices into X */
     VSPINT *num,  /* size n. Numerator vector to sort by */
@@ -682,19 +682,19 @@ void VSP_min_heap_add_v2 /* returns the new size of the heap */
     VSPINT *nheap /* number of elements in heap not counting new one */
 ) ;
 
-void VSP_check_max_heap_v2
+void check_max_heap_v2
 (
-    VSP_max_queue_v2* queuestr,
+    max_queue_v2* queuestr,
     VSPFLOAT               gamma
 ) ;
 
-void VSP_max_heapify_v2
+void max_heapify_v2
 (
-    VSP_max_queue_v2 *queuestr,
+    max_queue_v2 *queuestr,
     VSPINT            p          /* start at node p in the heap */
 ) ;
 
-void VSP_min_heap_delete_v2 /* return new size of heap */
+void min_heap_delete_v2 /* return new size of heap */
 (
     VSPINT *heap, /* indices into X, 1..n on input.  size nheap+1 */
     VSPINT *num,  /* size n. Numerator vector to sort by */
@@ -702,7 +702,7 @@ void VSP_min_heap_delete_v2 /* return new size of heap */
     VSPINT *nheap /* number of items in heap */
 ) ;
 
-void VSP_min_heap_build_v2
+void min_heap_build_v2
 (
     VSPINT*    heap, /* on input, an unsorted set of indices */
     VSPINT*     num, /* size n. Numerator vector to sort by */
@@ -711,55 +711,55 @@ void VSP_min_heap_build_v2
 ) ;
 
 
-void VSP_min_heap_add_v3 /* returns the new size of the heap */
+void min_heap_add_v3 /* returns the new size of the heap */
 (
     VSPINT *heap, /* size n + 1. containing indices into X */
-    VSP_Az*     Az, /* size n. Numerator vector to sort by */
+    Az*     Az, /* size n. Numerator vector to sort by */
     VSPINT*     c, /* size n. Denominator vector to sort by */
     VSPINT new, /* the new new */
     VSPINT *nheap /* number of elements in heap not counting new one */
 ) ;
 
-void VSP_min_heap_delete_v3 /* return new size of heap */
+void min_heap_delete_v3 /* return new size of heap */
 (
     VSPINT *heap, /* indices into X, 1..n on input.  size nheap+1 */
-    VSP_Az*     Az, /* size n. Numerator vector to sort by */
+    Az*     Az, /* size n. Numerator vector to sort by */
     VSPINT*     c, /* size n. Denominator vector to sort by */
     VSPINT *nheap /* number of items in heap */
 ) ;
 
-void VSP_min_heap_build_v1 (
+void min_heap_build_v1 (
     VSPINT*    heap, /* on input, an unsorted set of indices */
     VSPFLOAT*     x, /* numbers to sort */
     VSPINT        n  /* number of elements to build into the heap */
 ) ;
 
-void VSP_partial_max_sort
+void partial_max_sort
 (
     VSPINT      *w,/* indices of numbers to sort. Will sort in place */
-    VSP_Az*     Az, /* size n. Numerator vector to sort by */
+    Az*     Az, /* size n. Numerator vector to sort by */
     VSPINT*     c, /* size n. Denominator vector to sort by */
     VSPINT       theta, /* find the theta largest numbers */
     VSPINT       n  /* length of w */
 ) ;
 
-void VSP_min_heap_build_v3
+void min_heap_build_v3
 (
     VSPINT*    heap, /* on input, an unsorted set of indices */
-    VSP_Az*     Az, /* size n. Numerator vector to sort by */
+    Az*     Az, /* size n. Numerator vector to sort by */
     VSPINT*     c, /* size n. Denominator vector to sort by */
     VSPINT        n  /* number of elements to build into the heap */
 ) ;
 
 
 
-void VSP_destruct_restart_decision(VSP_restart_decision *dec) ;
+void destruct_restart_decision(restart_decision *dec) ;
 
 /* If using the rule, and if it returns true, then it also increments
    dec->restarts_done. If using levels, objIn and objOut should be EMPTY */
-bool VSP_restart_decide
+bool restart_decide
 (
-    VSP_restart_decision       *dec,
+    restart_decision       *dec,
     VSPFLOAT                  objIn, /* If not using rule, EMPTY */
     VSPFLOAT                 objOut, /* If not using rule, EMPTY */
     Problem                *problem  /* If using levels, this is ignored   */

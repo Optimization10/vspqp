@@ -1,7 +1,7 @@
 #include "shared_api.h"
 #include "limits.h"
 
-void VSP_DumpNeighs(VSPINT i, VSPINT *Ai, VSPLONG *Ap)
+void DumpNeighs(VSPINT i, VSPINT *Ai, VSPLONG *Ap)
 {
     FILE *file = fopen("output/dump.txt", "a") ;
     fprintf(file, "\nNeighbors of %lld:\n", (long long) i) ;
@@ -22,14 +22,14 @@ void VSP_DumpNeighs(VSPINT i, VSPINT *Ai, VSPLONG *Ap)
     return ;
 }
 
-void VSP_ResetDumpFile()
+void ResetDumpFile()
 {
     FILE *file = fopen("output/dump.txt", "w") ;
     fclose(file) ;
     return ;
 }
 
-void VSP_check_matrix_is_symmetric(
+void check_matrix_is_symmetric(
     VSPINT           *Ai,
     VSPLONG *Ap,
     VSPINT           *Ae,
@@ -39,21 +39,21 @@ void VSP_check_matrix_is_symmetric(
 ) ;
 
 /* Check each state individually, as well as the cross term */
-void VSP_check_states(State *X, State *Y, Problem *problem)
+void check_states(State *X, State *Y, Problem *problem)
 {
     static long long unsigned count = 0 ;
     count++ ;
 
     WARN_IF_NOT_DEBUG_MODE ;
 
-    VSP_check_state(X, problem) ;
-    VSP_check_state(Y, problem) ;
+    check_state(X, problem) ;
+    check_state(Y, problem) ;
 
     /* Check the cross term */
     VSPFLOAT *x_f = Point_to_array(X->point) ;
     VSPFLOAT *y_f = Point_to_array(Y->point) ;
-    VSPFLOAT *Ax_f = VSP_Az_struct_to_array(X->Az) ;
-    VSPFLOAT *Ay_f = VSP_Az_struct_to_array(Y->Az) ;
+    VSPFLOAT *Ax_f = Az_struct_to_array(X->Az) ;
+    VSPFLOAT *Ay_f = Az_struct_to_array(Y->Az) ;
 
     VSPFLOAT xAy_1 = 0 ;
     VSPFLOAT xAy_2 = 0 ;
@@ -64,7 +64,7 @@ void VSP_check_states(State *X, State *Y, Problem *problem)
         xAy_2 += y_f[i] * Ax_f[i] ;
     }
 
-    if( VSP_equal(xAy_1, xAy_2) == false )
+    if( equal(xAy_1, xAy_2) == false )
     {
         Error("Cross terms don't agree", DBG_INFO) ;
     }
@@ -92,7 +92,7 @@ void Check_Part
     WARN_IF_NOT_DEBUG_MODE ;
     VSPINT n = problem->Graph->n ;
     /*------------------------------------------------------------------------*/
-    // Load the data into states and use VSP_check_states
+    // Load the data into states and use check_states
     /*------------------------------------------------------------------------*/
     Point xPoint, yPoint ;
 
@@ -106,7 +106,7 @@ void Check_Part
     yPoint.val_frac = 0 ;
     yPoint.n = n ;
     
-    VSP_Az Axstruct, Aystruct ;
+    Az Axstruct, Aystruct ;
 
     Axstruct.int_part    = Ax ;
     Axstruct.ind_frac_z  = EMPTY ;
@@ -133,7 +133,7 @@ void Check_Part
     Y.Az     = &Aystruct ;
     Y.weight = wgty ;
 
-    VSP_check_states(&X, &Y, problem) ;
+    check_states(&X, &Y, problem) ;
 
 
     if(wgtx < 0 || wgty < 0)
@@ -146,7 +146,7 @@ void Check_Part
     return ;
 }
 
-void VSP_check_max_of_array
+void check_max_of_array
 (
     VSPINT        *c,
     VSPINT         n, /* Length of c */
@@ -158,7 +158,7 @@ void VSP_check_max_of_array
     - The point is feasible
     - Az is correct
     - The weight is correct   */
-void VSP_check_state(State *Z, Problem *problem)
+void check_state(State *Z, Problem *problem)
 {
     static long long unsigned count = 0 ;
     count++ ;
@@ -180,13 +180,13 @@ void VSP_check_state(State *Z, Problem *problem)
     }
 
     /* Check the point */
-    VSP_check_point(Z->point) ;
+    check_point(Z->point) ;
 
     /* Check that Az is correct */
-    VSP_check_Az(Z->point, Z->Az, problem) ;
+    check_Az(Z->point, Z->Az, problem) ;
 
     /* Check that the weight is correct, and z satisfies constraint */
-    VSP_check_weight(Z, problem->Graph->c) ;
+    check_weight(Z, problem->Graph->c) ;
     if(Z->weight > problem->u)
     {
         Error("Upper balance violated ", DBG_INFO);
@@ -197,7 +197,7 @@ void VSP_check_state(State *Z, Problem *problem)
 
 
 
-void VSP_check_weight(State *Z, VSPINT *c) {
+void check_weight(State *Z, VSPINT *c) {
 
     static long long unsigned count = 0 ;
     count++ ;
@@ -221,16 +221,16 @@ void VSP_check_weight(State *Z, VSPINT *c) {
         weight_check_frac = c[ind_frac] * Z->point->val_frac ;
     }
 
-    if( !VSP_equal(weight_check_int + weight_check_frac, Z->weight) )
+    if( !equal(weight_check_int + weight_check_frac, Z->weight) )
     {
         Error("Incorrect weight", DBG_INFO) ;
     }
 }
 
-void VSP_check_Az
+void check_Az
 (
     Point         *z,
-    VSP_Az           *Az,
+    Az           *az,
     Problem *problem
 )
 {
@@ -240,10 +240,10 @@ void VSP_check_Az
 
     VSPINT i ;
     VSPINT n       = problem->Graph->n ;
-    VSPINT *Az_int = Az->int_part ;
+    VSPINT *Az_int = az->int_part ;
 
     /* Compute Az from scratch */
-    VSP_Az *Az_dbg = VSP_construct_Az(n) ;
+    Az *Az_dbg = construct_Az(n) ;
     Compute_Az(z, Az_dbg, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
 
     /* Check that each entry in the integer part is in [0, n] */
@@ -255,26 +255,26 @@ void VSP_check_Az
     }
 
     /* Check the integer parts are equal */
-    VSP_check_arrays_are_equal(Az->int_part, Az_dbg->int_part, n) ;
+    check_arrays_are_equal(az->int_part, Az_dbg->int_part, n) ;
 
     /* Check that the fractional part is equal */
-    if(Az->ind_frac_z != Az_dbg->ind_frac_z) {
+    if(az->ind_frac_z != Az_dbg->ind_frac_z) {
         Error("Error in Az", DBG_INFO) ;
     }
 
-    if(Az->ind_frac_z != EMPTY) {
+    if(az->ind_frac_z != EMPTY) {
 
         /* Check that the integer part of the fractional entry is < n*/
-        if(Az_int[Az->ind_frac_z] > n - 1 || Az_int[Az->ind_frac_z] < 0) {
+        if(Az_int[az->ind_frac_z] > n - 1 || Az_int[az->ind_frac_z] < 0) {
             Error("Problem with fractional index in Az", DBG_INFO) ;
         }
 
         /* Check that the fractional columns are the same */
         bool    same              = true ;
         bool    one_is_ok         = true ;
-        VSPINT *col_frac_z        = Az->col_frac_z ;
+        VSPINT *col_frac_z        = az->col_frac_z ;
         VSPINT *col_frac_z_dbg    = Az_dbg->col_frac_z ;
-        VSPINT  one               = Az->one ;
+        VSPINT  one               = az->one ;
         VSPINT  one_dbg           = Az_dbg->one ;
 
         for(i = 0 ; i < n ; i++) {
@@ -300,20 +300,20 @@ void VSP_check_Az
         }
 
         /* Check that the fractional column has a one in index ind_frac_z */
-        if(col_frac_z[Az->ind_frac_z] != one) {
+        if(col_frac_z[az->ind_frac_z] != one) {
             Error("Matrix column wrong", DBG_INFO) ;
         }
     }
 
     /* Free memory */
-    VSP_destruct_Az(Az_dbg) ;
+    destruct_Az(Az_dbg) ;
 
     return ;
 }
 
 
 
-void VSP_check_arrays_are_equal
+void check_arrays_are_equal
 (
     const VSPINT *const u, /* Check that vector u equals vector v */
     const VSPINT *const v,
@@ -378,7 +378,7 @@ void Check_Arrays_Are_Equal_VSPLONG
  a) If the matrix passes all the checks, return TRUE (i.e. integer 1).
     Otherwise, return FALSE (integer 0) and print errors to the error log.
 */
-VSPINT VSP_check_matrix
+VSPINT check_matrix
 (
     VSPINT* Ai,
     VSPLONG* Ap,
@@ -457,7 +457,7 @@ VSPINT VSP_check_matrix
     }
 
     /* Check that the matrix is symmetric */
-    VSP_check_matrix_is_symmetric(Ai, Ap, Ae, nz, n, options) ;
+    check_matrix_is_symmetric(Ai, Ap, Ae, nz, n, options) ;
 
     /* Print errors, if there are any */
     if ( Ap_not_increasing ) {
@@ -494,7 +494,7 @@ VSPINT VSP_check_matrix
 }
 
 
-void VSP_check_matrix_is_symmetric
+void check_matrix_is_symmetric
 (
     VSPINT           *Ai,
     VSPLONG *Ap,
@@ -504,7 +504,7 @@ void VSP_check_matrix_is_symmetric
     Options* options
 ) {
     /* Get the transpose */
-    Problem* T = VSP_transpose(Ai, Ap, Ae, nz, n, options) ;
+    Problem* T = transpose(Ai, Ap, Ae, nz, n, options) ;
     VSPINT *Ti = T->Graph->Ai, *Te = T->Graph->Ae ;
     VSPLONG *Tp = T->Graph->Ap ;
 
@@ -513,18 +513,18 @@ void VSP_check_matrix_is_symmetric
 
     /* Check that the row index of each 1 in each column is the same in A, T*/
     for(VSPINT j = 0 ; j < n ; j++) {
-        VSP_check_permutation(&Ai[Ap[j]], &Ti[Tp[j]], Ap[j+1] - Ap[j]) ;
+        check_permutation(&Ai[Ap[j]], &Ti[Tp[j]], Ap[j+1] - Ap[j]) ;
     }
 
-    if (Ae != NULL) VSP_check_permutation(Ae, Te, nz) ;
+    if (Ae != NULL) check_permutation(Ae, Te, nz) ;
 
     /* Free memory */
-    VSP_destruct_problem(T) ;
+    destruct_problem(T) ;
 }
 
 
 /* ============================================================================
-   ================ VSP_check_entries_are_between_bounds ======================
+   ================ check_entries_are_between_bounds ======================
    ============================================================================
 
  PURPOSE:
@@ -541,7 +541,7 @@ void VSP_check_matrix_is_symmetric
     written to the error log
 */
 
-void VSP_check_entries_are_between_bounds(
+void check_entries_are_between_bounds(
     VSPINT*  v,
     VSPINT   n, /* Length of v */
     VSPINT  lb,
@@ -573,7 +573,7 @@ void VSP_check_entries_are_between_bounds(
 }
 
 /* ============================================================================
-   ================ VSP_check_max_of_array ====================================
+   ================ check_max_of_array ====================================
    ============================================================================
 
  PURPOSE:
@@ -589,7 +589,7 @@ void VSP_check_entries_are_between_bounds(
  a) If the given maximum is not correct, an error is written to the error log
 */
 
-void VSP_check_max_of_array(
+void check_max_of_array(
     VSPINT        *c,
     VSPINT         n, /* Length of c */
     VSPINT max_given /* Purported maximum value of c */
@@ -621,7 +621,7 @@ void VSP_check_max_of_array(
 }
 
 /* ============================================================================
-   ================ VSP_check_problem =========================================
+   ================ check_problem =========================================
    ============================================================================
 
  PURPOSE:
@@ -643,7 +643,7 @@ void VSP_check_max_of_array(
     Otherwise, return FALSE (integer 0) and print errors to the error log.
 */
 
-VSPINT VSP_check_problem
+VSPINT check_problem
 (
     Problem* problem,
     Options* options
@@ -674,7 +674,7 @@ VSPINT VSP_check_problem
 
 
     /* Do all the matrix checks */
-    VSP_check_matrix(Ai, Ap, Ae, nz, n, options) ;
+    check_matrix(Ai, Ap, Ae, nz, n, options) ;
 
     /* Check that ci and wi are >= 1. Also, compute alpha, gamma, and the
        sum of all ci, and max degree */
@@ -744,7 +744,7 @@ VSPINT VSP_check_problem
 
 
 /* Check whether arr_2 is a permutation of arr_1 */
-void VSP_check_permutation (
+void check_permutation (
     VSPINT* arr_1,
     VSPINT* arr_2,
     VSPINT n
@@ -765,8 +765,8 @@ void VSP_check_permutation (
     }
 
     /* Sort the copies */
-    qsort(arr_1_copy, n, sizeof(*arr_1), VSP_comparison_increasing) ;
-    qsort(arr_2_copy, n, sizeof(*arr_2), VSP_comparison_increasing) ;
+    qsort(arr_1_copy, n, sizeof(*arr_1), comparison_increasing) ;
+    qsort(arr_2_copy, n, sizeof(*arr_2), comparison_increasing) ;
 
     VSPINT arrays_are_equal = TRUE ;
     for (i = 0 ; i < n ; i++) {
@@ -787,8 +787,8 @@ void VSP_check_permutation (
 
 
 /* Check as much as possible when only the Az struct is available             */
-void VSP_light_check_Az(
-    VSP_Az *Az
+void light_check_Az(
+    Az *Az
 ) {
 
     static long long unsigned count = 0 ;
@@ -815,7 +815,7 @@ void VSP_light_check_Az(
 }
 
 
-void VSP_check_point(Point *z) {
+void check_point(Point *z) {
 
     static long long unsigned count = 0 ;
     count++ ;

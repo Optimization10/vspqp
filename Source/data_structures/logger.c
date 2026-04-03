@@ -73,10 +73,10 @@ void LoggerStart
     va_end(args);
 
     Logger_Record *rec = calloc(1, sizeof(*rec)) ;
-    State *Xcpy = VSP_construct_state(problem->Graph->n) ;
-    State *Ycpy = VSP_construct_state(problem->Graph->n) ;
-    VSP_copy_state(X, Xcpy) ;
-    VSP_copy_state(Y, Ycpy) ;
+    State *Xcpy = construct_state(problem->Graph->n) ;
+    State *Ycpy = construct_state(problem->Graph->n) ;
+    copy_state(X, Xcpy) ;
+    copy_state(Y, Ycpy) ;
     rec->X = Xcpy ;
     rec->Y = Ycpy ;
     rec->problem = problem ;
@@ -101,8 +101,8 @@ void LoggerStop(State *X, State *Y, Problem *problem)
     
     VSPFLOAT objInit, objFin, imbInit, imbFin, gamma ;
     gamma = CAST(problem->Graph->max_vtx_cost, VSPFLOAT) ;
-    objInit = VSP_compute_obj(rec->X, rec->Y, rec->problem, gamma) ;
-    objFin  = VSP_compute_obj(X, Y, problem, gamma) ;
+    objInit = compute_obj(rec->X, rec->Y, rec->problem, gamma) ;
+    objFin  = compute_obj(X, Y, problem, gamma) ;
 
     VSPINT size = DynamicStack_GetSize(LOG_G.initRecords) ;
 
@@ -113,8 +113,8 @@ void LoggerStop(State *X, State *Y, Problem *problem)
     }
     fprintf(LOG_G.log, "Stop  : %s   Obj change %%: %f", rec->msg, 100*(objFin - objInit)/objFin ) ;
 
-    VSP_destruct_state(rec->X) ;
-    VSP_destruct_state(rec->Y) ;
+    destruct_state(rec->X) ;
+    destruct_state(rec->Y) ;
     free(rec->msg) ;
     free(rec) ;
     return ;

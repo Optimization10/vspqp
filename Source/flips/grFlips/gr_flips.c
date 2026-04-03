@@ -11,7 +11,7 @@ void GR_Flips(State *Xbest, State *Ybest, Problem *problem, VSPINT P)
     static long long unsigned count = 0 ;
     count++ ;
 
-    IFDBG(VSP_check_states(Xbest, Ybest, problem)) ;
+    IFDBG(check_states(Xbest, Ybest, problem)) ;
     /*------------------------------------------------------------------------*/
     // Local vars
     /*------------------------------------------------------------------------*/
@@ -28,8 +28,8 @@ void GR_Flips(State *Xbest, State *Ybest, Problem *problem, VSPINT P)
     StatesMan *SM    = StatesMan_Init(Xbest, Ybest) ;
     State *Xwork = StatesMan_GetState(SM, WORK_STATES, X_VAR) ;
     State *Ywork = StatesMan_GetState(SM, WORK_STATES, Y_VAR) ;
-    IFDBG(VSP_check_states(Xbest, Ybest, problem)) ;
-    IFDBG(VSP_check_states(Xwork, Ywork, problem)) ;
+    IFDBG(check_states(Xbest, Ybest, problem)) ;
+    IFDBG(check_states(Xwork, Ywork, problem)) ;
 
     FlipsCtx *FC = FlipsCtx_Init((State *[2]){Xwork, Ywork}, true, problem);
 
@@ -42,8 +42,8 @@ void GR_Flips(State *Xbest, State *Ybest, Problem *problem, VSPINT P)
     PointScore_Update(&scoreBest, Xbest, Ybest, problem) ;
     for(p = 0 ; p < P ; p++)
     {
-        IFDBG(VSP_check_states(Xbest, Ybest, problem)) ;
-        IFDBG(VSP_check_states(Xwork, Ywork, problem)) ;
+        IFDBG(check_states(Xbest, Ybest, problem)) ;
+        IFDBG(check_states(Xwork, Ywork, problem)) ;
         if(!success)
         {
             StatesMan_UpdateWorkStates(SM) ;
@@ -80,8 +80,8 @@ void GR_Flips(State *Xbest, State *Ybest, Problem *problem, VSPINT P)
             gammaRed = gammaRed / redFactor ;
             k++ ;
         }
-        IFDBG(VSP_check_states(Xbest, Ybest, problem)) ;
-        IFDBG(VSP_check_states(Xwork, Ywork, problem)) ;
+        IFDBG(check_states(Xbest, Ybest, problem)) ;
+        IFDBG(check_states(Xwork, Ywork, problem)) ;
     }
 
     /*------------------------------------------------------------------------*/

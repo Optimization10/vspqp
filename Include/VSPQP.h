@@ -6,16 +6,16 @@
 #include <time.h>
 #include <stdlib.h>
 
-typedef enum VSP_initial_guess_enum
+typedef enum initial_guess_enum
 {
-    VSP_centroid_initial_guess,
-    VSP_random_initial_guess,
-    VSP_manual_initial_guess
-} VSP_initial_guess ;
+    centroid_initial_guess,
+    random_initial_guess,
+    manual_initial_guess
+} initial_guess ;
 
 typedef struct Levels_struct Levels ;
 
-typedef struct VSP_restart_decision_struct
+typedef struct restart_decision_struct
 {
     /* Only one of use_levels, use_rule should be true */
     bool        use_levels ;
@@ -29,7 +29,7 @@ typedef struct VSP_restart_decision_struct
     VSPFLOAT             rule_param ;
     VSPINT     finest_level_allowed ;
 
-} VSP_restart_decision ;
+} restart_decision ;
 
 
 typedef struct Options_struct
@@ -42,11 +42,11 @@ typedef struct Options_struct
 
 
     /* Initial guess */
-    VSP_initial_guess      initial_guess;
+    initial_guess      initial_guess;
     VSPFLOAT               random_point_weight_proportion ;
     VSPFLOAT               centroidVal ;
 
-    VSP_restart_decision *restart_decision ;
+    restart_decision *restart_decision ;
 
     /* Gamma reduction 
        If use_gamma_reduction is false, all other g.r. parameters are ignored */
@@ -118,7 +118,7 @@ typedef struct {
     VSPFLOAT obj_val ;
     VSPINT *x ;
     VSPINT *y ;
-} VSP_solve_result ;
+} solve_result ;
 
 
 typedef enum
@@ -131,8 +131,8 @@ typedef enum
     SPECIFY_UNSELECTED_LEVELS
 } Levels_selection_type ;
 
-VSP_restart_decision *VSP_construct_restart_decision() ;
-Levels* VSP_construct_levels
+restart_decision *construct_restart_decision() ;
+Levels* construct_levels
 (
     Levels_selection_type selection_type
 ) ;
@@ -149,7 +149,7 @@ void Levels_unselect
 
 
 
-VSP_solve_result *VSP_Solve
+solve_result *Solve
 (
     VSPINT             n,
     VSPLONG          *Ap,
@@ -158,14 +158,14 @@ VSP_solve_result *VSP_Solve
     Options *options
 ) ;
 
-void VSP_destruct_options(Options* options) ;
+void destruct_options(Options* options) ;
 
-void VSP_restart_decide_reset(VSP_restart_decision *dec) ;
+void restart_decide_reset(restart_decision *dec) ;
 
-Options* VSP_construct_options() ;
-void VSP_set_default_options(Options* options) ;
+Options* construct_options() ;
+void set_default_options(Options* options) ;
 
 
-long double VSP_compute_elapsed_time(struct timespec start, struct timespec end) ;
+long double compute_elapsed_time(struct timespec start, struct timespec end) ;
 
 #endif

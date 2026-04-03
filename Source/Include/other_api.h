@@ -2,17 +2,17 @@
 #define OTHER_API_H
 
 #include "shared_api.h"
-void VSP_set_initial_guess(
+void set_initial_guess(
     State *X,
     State *Y,
     Problem *problem,
     Options *options
 ) ;
 
-Options* VSP_construct_options() ;
+Options* construct_options() ;
 
 
-void VSP_preprocess_finest_problem
+void preprocess_finest_problem
 (
     Problem* problem,
     Options* options

@@ -1,4 +1,4 @@
-/* Thile file contains the VSP_solve function, which is the function the user
+/* Thile file contains the solve function, which is the function the user
    is meant to call. This function handles coarsening the graph, refining the
    graph, and solving the VSP at each level                                   */
 
@@ -28,7 +28,7 @@ void Destroy_Coarse_Problems(Problem *problemFinest) ;
 //     while(p != NULL)
 //     {
 //         cp = p->child_problem ;
-//         VSP_destruct_problem(p) ;
+//         destruct_problem(p) ;
 //         p = cp ;
 //     }
 //     return ;
@@ -37,17 +37,17 @@ void Destroy_Coarse_Problems(Problem *problemFinest) ;
 // Store x, y into result and free remaining memory
 void Final_Cleanup
 (
-    State *X, State *Y, Problem *problemFinest, VSP_solve_result *result
+    State *X, State *Y, Problem *problemFinest, solve_result *result
 )
 {
     result->x = X->point->int_part ;
     result->y = Y->point->int_part ;
 
-    VSP_destruct_Az(X->Az) ;
+    destruct_Az(X->Az) ;
     free(X->point) ;
     free(X) ;
 
-    VSP_destruct_Az(Y->Az) ;
+    destruct_Az(Y->Az) ;
     free(Y->point) ;
     free(Y) ;
  
@@ -69,14 +69,14 @@ void Solve_Level
     curr_ratio = (s_ratio - u_ratio) / L + u_ratio ;
 
     Optimize(X, Y, problem, options, true, 0) ;
-    VSP_relaxed_to_vertex_separator(X, Y, problem) ;
-    VSP_ResolveLevelDecideAndDo(X, Y, problem, options) ;
+    relaxed_to_vertex_separator(X, Y, problem) ;
+    ResolveLevelDecideAndDo(X, Y, problem, options) ;
 }
 
 
 
 /* Determine if we should resolve, and if so, do it */
-void VSP_ResolveLevelDecideAndDo
+void ResolveLevelDecideAndDo
 (
     State             *X,
     State             *Y,
@@ -84,29 +84,29 @@ void VSP_ResolveLevelDecideAndDo
     Options     *options
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
 
     bool dec ;
-    dec = VSP_restart_decide(options->restart_decision, 0, 0, problem);
+    dec = restart_decide(options->restart_decision, 0, 0, problem);
 
     if(dec == false || problem->child_problem == NULL) return ;
 
     /* Local vars */
     VSPFLOAT obj_best, obj_cent ;
 
-    State *Xcent = VSP_construct_state(problem->Graph->n) ;
-    State *Ycent = VSP_construct_state(problem->Graph->n) ;
+    State *Xcent = construct_state(problem->Graph->n) ;
+    State *Ycent = construct_state(problem->Graph->n) ;
 
-    VSP_set_initial_guess(Xcent, Ycent, problem, options) ;
+    set_initial_guess(Xcent, Ycent, problem, options) ;
     Optimize(Xcent, Ycent, problem, options, true, 0) ;
     Force_To_Binary_Point(Xcent, Ycent, problem) ;
 
     /* If the centroid is better, switch */
-    obj_best = VSP_compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
-    obj_cent = VSP_compute_obj(Xcent, Ycent, problem, problem->Graph->max_vtx_cost) ;
+    obj_best = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+    obj_cent = compute_obj(Xcent, Ycent, problem, problem->Graph->max_vtx_cost) ;
 
     if(obj_cent > obj_best)
     {
@@ -116,13 +116,13 @@ void VSP_ResolveLevelDecideAndDo
         Swap_Mem(Y, Ycent, sizeof( State )  ) ;
     }
 
-    VSP_destruct_state(Xcent) ;
-    VSP_destruct_state(Ycent) ;
+    destruct_state(Xcent) ;
+    destruct_state(Ycent) ;
     return ;
 }
 
 
-void VSP_check_for_complete_graph(Problem *problem)
+void check_for_complete_graph(Problem *problem)
 {
     long long n_long  = (long long) problem->Graph->n ;
     long long nz_long = (long long) problem->Graph->nz ;

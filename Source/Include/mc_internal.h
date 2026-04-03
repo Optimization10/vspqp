@@ -10,12 +10,12 @@
 *******************************************************************************/
 
 
-typedef struct VSP_value_index_struct
+typedef struct value_index_struct
 {
     VSPFLOAT float_value;
     VSPINT int_value;
     VSPINT index;
-} VSP_value_index ;
+} value_index ;
 
 
 
@@ -24,7 +24,7 @@ typedef struct VSP_value_index_struct
     FUNCTIONS
 *******************************************************************************/
 
-VSPFLOAT VSP_LP_solver_0 (
+VSPFLOAT LP_solver_0 (
     VSPFLOAT          *x, /* solution                                         */
     VSPFLOAT          *d, /* objective                                        */
     VSPINT            *c, /* constraint                                       */
@@ -40,7 +40,7 @@ bool Is_LP_Optimal
   VSPINT               k,
   VSPFLOAT            zk,
   VSPINT           wgt_z,
-  VSP_Az             *Aw,
+  Az             *Aw,
   VSPINT              *c,
   VSPINT               u,
   VSPFLOAT         gamma,
@@ -48,52 +48,52 @@ bool Is_LP_Optimal
   Options   *options
 ) ;
 
-bool VSP_LP_is_optimal
+bool LP_is_optimal
 (
     State         *Z,
-    VSP_Az           *Aw,
+    Az           *Aw,
     VSPFLOAT       gamma,
     Problem *problem,
     Options *options
 ) ;
 
 
-bool VSP_LP_is_optimal_case_1a
+bool LP_is_optimal_case_1a
 (
     Point          *z,
-    VSP_Az            *Aw,
+    Az            *Aw,
     VSPFLOAT        gamma,
     VSPINT             *c
 ) ;
 
-bool VSP_LP_is_optimal_case_1b
+bool LP_is_optimal_case_1b
 (
     Point          *z,
-    VSP_Az            *Aw,
+    Az            *Aw,
     VSPFLOAT        gamma,
     VSPINT             *c
 ) ;
 
-bool VSP_LP_is_optimal_case_2a
+bool LP_is_optimal_case_2a
 (
     Point          *z,
-    VSP_Az            *Aw,
+    Az            *Aw,
     VSPFLOAT        gamma,
     VSPINT             *c
 ) ;
 
-bool VSP_LP_is_optimal_case_2b
+bool LP_is_optimal_case_2b
 (
     Point          *z,
-    VSP_Az            *Aw,
+    Az            *Aw,
     VSPFLOAT        gamma,
     VSPINT             *c
 ) ;
 
-bool VSP_LP_is_optimal_case_3
+bool LP_is_optimal_case_3
 (
     Point          *z,
-    VSP_Az            *Aw,
+    Az            *Aw,
     VSPFLOAT        gamma,
     VSPINT             *c
 ) ;

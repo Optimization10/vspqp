@@ -60,7 +60,7 @@ static void getColTitle
     return ;
 }
 
-// void VSP_Print_Performance()
+// void Print_Performance()
 // {
 //         FILE *file = fopen("output/performance.csv", "w") ;
 //         fprintf(file, ",Time,Count") ;
@@ -69,7 +69,7 @@ static void getColTitle
 //         fprintf(file,"\nFlips,%Lf,%llu",G_Performance_Struct.Flips_Seconds, G_Performance_Struct.Flips_Count) ;
 //         fprintf(file,"\nAll Coarsening,%Lf,%llu", G_Performance_Struct.All_Coarsening_Seconds, G_Performance_Struct.All_Coarsening_Count) ;
 //         fprintf(file,"\nFM_Flips,%Lf, %llu", G_Performance_Struct.FM_Flips_Seconds, G_Performance_Struct.FM_Flips_Count) ;
-//         fprintf(file,"\nRelaxed_To_VSP,%Lf,%llu", G_Performance_Struct.Relaxed_To_VSP_Seconds, G_Performance_Struct.Relaxed_To_VSP_Count) ;
+//         fprintf(file,"\nRelaxed_To_VSP,%Lf,%llu", G_Performance_Struct.Relaxed_To_Seconds, G_Performance_Struct.Relaxed_To_Count) ;
 
 //         fclose(file) ;
 //     return ;
@@ -95,7 +95,7 @@ typedef struct {
     VSPFLOAT percent_nodes_sep ;
 
     VSPFLOAT time ;
-} VSP_solution_stats ;
+} solution_stats ;
 
 
 
@@ -131,7 +131,7 @@ static void PrintSumOfResults
     return ;
 }
 
-VSP_solution_stats* VSP_compute_solution_stats
+solution_stats* compute_solution_stats
 (
     VSPINT            *x,
     VSPINT            *y,
@@ -146,7 +146,7 @@ VSP_solution_stats* VSP_compute_solution_stats
     VSPINT num_nodes_y = 0 ;
 
     /* Allocate memory */
-    VSP_solution_stats *stats = calloc(1, sizeof(*stats)) ;
+    solution_stats *stats = calloc(1, sizeof(*stats)) ;
 
     /* Compute number of nodes in x and y */
     for(i = 0 ; i < n ; i++) {
@@ -174,7 +174,7 @@ VSP_solution_stats* VSP_compute_solution_stats
 }
 
 
-void VSP_reset_file(char* name)
+void reset_file(char* name)
 {
     FILE* file = fopen(name, "w") ;
     fclose(file) ;
@@ -193,7 +193,7 @@ static void SaveRndSeed(time_t seed)
     return ;
 }
 
-void VSP_destruct_solve_result(VSP_solve_result *result)
+void destruct_solve_result(solve_result *result)
 {
     free(result->x) ;
     free(result->y) ;
@@ -202,11 +202,11 @@ void VSP_destruct_solve_result(VSP_solve_result *result)
     return ;
 }
 
-void VSP_reset_output_files()
+void reset_output_files()
 {
-    VSP_reset_file("output/VSP_results.txt") ;
-    VSP_reset_file("output/Error_log.txt") ;
-    VSP_reset_file("output/VSP_stats.txt") ;
+    reset_file("output/results.txt") ;
+    reset_file("output/Error_log.txt") ;
+    reset_file("output/stats.txt") ;
     return ;
 }
 
@@ -403,12 +403,12 @@ VSPINT Prepend
 /******************************************************************************/
 
 
-void VSP_write_to_csv_2
+void write_to_csv_2
 (
     char                *graph_name,
     char                *col_title_given, /* If empty string, a title is
                                              generated from the options       */
-    VSP_solution_stats  *solStats,
+    solution_stats  *solStats,
     Options          *options
 )
 {
@@ -477,11 +477,11 @@ static void SetCustomOptions(Options *options)
     /*------------------------------------------------------------------------*/
     /* Restart Level Options                                                  */
     /*------------------------------------------------------------------------*/
-    options->restart_decision = VSP_construct_restart_decision() ;
+    options->restart_decision = construct_restart_decision() ;
 
     // /* All levels in [2, infty) */
     options->restart_decision->use_levels = true ;
-    options->restart_decision->levels     = VSP_construct_levels(SPECIFY_UNSELECTED_LEVELS) ;
+    options->restart_decision->levels     = construct_levels(SPECIFY_UNSELECTED_LEVELS) ;
     Levels_unselect(0, options->restart_decision->levels) ;
     Levels_unselect(1, options->restart_decision->levels) ;
 
@@ -495,7 +495,7 @@ static void SetCustomOptions(Options *options)
 
     // /* Disable restarts */
     // options->restart_decision->use_levels = true ;
-    // options->restart_decision->levels = VSP_construct_levels(NO_LEVELS) ;
+    // options->restart_decision->levels = construct_levels(NO_LEVELS) ;
 
     /*------------------------------------------------------------------------*/
     /* Gamma Reduction Options                                                */
@@ -533,7 +533,7 @@ static void SetCustomOptions(Options *options)
     /*------------------------------------------------------------------------*/
     /* Starting Guess Options                                                 */
     /*------------------------------------------------------------------------*/
-    options->initial_guess     = VSP_centroid_initial_guess ;
+    options->initial_guess     = centroid_initial_guess ;
     
     // best so far
     options->centroidVal       = 0.35 ;
@@ -599,7 +599,7 @@ int main(int argc, char** argv)
 
 
     // SuiteSparse_start() ;
-    VSP_reset_output_files() ; 
+    reset_output_files() ; 
     unsigned int seed ;
 
     // seed = (unsigned VSPINT) time(NULL) ;
@@ -616,11 +616,11 @@ int main(int argc, char** argv)
     struct timespec     start, end ;
     long double       elapsed_time ;
     Options           *options ;
-    VSP_solve_result       *result = NULL ;
+    solve_result       *result = NULL ;
 
     /*** Options **************************************************************/
-    options = VSP_construct_options() ;
-    VSP_set_default_options(options) ;
+    options = construct_options() ;
+    set_default_options(options) ;
     SetCustomOptions(options) ;
 
     /*** I/O ******************************************************************/
@@ -629,9 +629,9 @@ int main(int argc, char** argv)
     char filePath[MAX_MATRIX_PATH_LENGTH] = "" ;
   
 
-    VSP_reset_file("./output/SolveLog.txt") ;
+    reset_file("./output/SolveLog.txt") ;
 
-    VSP_reset_file("./output/FileReadingTime.csv") ;
+    reset_file("./output/FileReadingTime.csv") ;
     FILE *fp = fopen("./output/FileReadingTime.csv", "a") ; 
     fprintf(fp, "File,Size(GB),Time(s),Speed(GB/s)") ;
     fclose(fp) ;
@@ -658,7 +658,7 @@ int main(int argc, char** argv)
         // Append the directory path
         Prepend(matricesDir, filePath, MAX_MATRIX_PATH_LENGTH) ;
 
-        VSP_restart_decide_reset(options->restart_decision) ;
+        restart_decide_reset(options->restart_decision) ;
 
         // /* 2. Read the problem and set default data */
         Read_hager6_File(filePath, options, &n, &Ai, &Ap) ;
@@ -673,38 +673,38 @@ int main(int argc, char** argv)
         
         for(VSPLONG i = 0 ; i < Ap[n] ; i++) Ae[i] = 1 ;
         clock_gettime(CLOCK_REALTIME, &start) ;
-        result = VSP_Solve(n, Ap, Ai, Ae, options) ;
+        result = Solve(n, Ap, Ai, Ae, options) ;
         clock_gettime(CLOCK_REALTIME, &end);
 
 
         /* Compute total time for the VSP solver */
-        elapsed_time = VSP_compute_elapsed_time(start, end) ;
+        elapsed_time = compute_elapsed_time(start, end) ;
         total_time += elapsed_time ;
 
 
         // /* 4. Compute solution stats */
-        VSP_solution_stats *sltn_stats =
-        VSP_compute_solution_stats(result->x, result->y, n, Ap[n], elapsed_time);
+        solution_stats *sltn_stats =
+        compute_solution_stats(result->x, result->y, n, Ap[n], elapsed_time);
         sum_sep += sltn_stats->num_nodes_sep ;
         sum_imb += ABS_DIFF(sltn_stats->num_nodes_x, sltn_stats->num_nodes_y) ; 
         sum_time += elapsed_time ;
 
         // /* 5. Write results to a csv file */
-        VSP_write_to_csv_2(filePath, col_title, sltn_stats, options) ;
+        write_to_csv_2(filePath, col_title, sltn_stats, options) ;
 
 
         // /* 6. Free memory */
         free(Ai) ;
         free(Ap) ;
         free(Ae) ;
-        VSP_destruct_solve_result(result) ;
+        destruct_solve_result(result) ;
         free(sltn_stats) ;
     }
     PrintSumOfResults(sum_sep, sum_imb, sum_time, seed, num_graphs) ;
 
 
     /* Free memory */
-    VSP_destruct_options(options) ;
+    destruct_options(options) ;
 
     printf("Flips time: %Lf\n", G_FLIPS_TIME) ;
     printf("HEM time: %Lf\n", G_HEM_TIME) ;

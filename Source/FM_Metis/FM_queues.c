@@ -50,7 +50,7 @@ VSPINT QueueFM_See_Top_Value(QueueFM *q)
 /* Assumes queue is NOT empty */
 VSPINT QueueFM_See_Top_Key(QueueFM *q)
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
         if(q->numNodes < 1)
@@ -87,7 +87,7 @@ VSPINT QueueFM_Get_Top_Value(QueueFM *q)
    */
 void QueueFM_Insert(QueueFM *q, VSPINT newValue, VSPINT newKey)
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
         if(q->locator[newValue] != EMPTY)
@@ -121,7 +121,7 @@ void QueueFM_Insert(QueueFM *q, VSPINT newValue, VSPINT newKey)
     heap[childNode].key   = newKey ;
     locator[newValue]     = childNode ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         QueueFM_Check_Heap_Light(q) ;
     #endif
 
@@ -131,7 +131,7 @@ void QueueFM_Insert(QueueFM *q, VSPINT newValue, VSPINT newKey)
 /* ASSUME: The value is present in the heap */
 void QueueFM_Delete(QueueFM *q, VSPINT valueToDelete)
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
         QueueFM_Check_Heap_Light(q) ;
@@ -144,7 +144,7 @@ void QueueFM_Delete(QueueFM *q, VSPINT valueToDelete)
     /* Update the locator */
     VSPINT oldNode         = locator[valueToDelete] ;
     locator[valueToDelete] = EMPTY ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         /* Check that the value is in the heap */
         if(oldNode == EMPTY)
         {
@@ -157,7 +157,7 @@ void QueueFM_Delete(QueueFM *q, VSPINT valueToDelete)
        heap is now empty */
     if( heap[ q->numNodes-- ].value == valueToDelete )
     {
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             QueueFM_Check_Heap_Light(q) ;
         #endif
         return ;
@@ -214,7 +214,7 @@ void QueueFM_Delete(QueueFM *q, VSPINT valueToDelete)
     heap[i].key       = newKey ;
     locator[newValue] = i ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         QueueFM_Check_Heap_Light(q) ;
     #endif
 
@@ -227,7 +227,7 @@ void QueueFM_Delete(QueueFM *q, VSPINT valueToDelete)
 /* ASSUMED: value is in the heap */
 void QueueFM_Update(QueueFM *q, VSPINT value, VSPINT newKey)
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
 
@@ -299,7 +299,7 @@ void QueueFM_Update(QueueFM *q, VSPINT value, VSPINT newKey)
     heap[i].value = value;
     locator[value] = i;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         QueueFM_Check_Heap_Light(q) ;
     #endif
 }

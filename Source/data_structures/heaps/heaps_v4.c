@@ -35,7 +35,7 @@ Min_Heap_v4 *Min_Heap_Init_v4
     Heap->gamma = gamma ;
     Heap->n     = n ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Min_Heap_Check_v4(Heap) ;
     #endif
 
@@ -66,7 +66,7 @@ void Min_Heap_Check_v4
     VSPINT  sizeHeap = Heap->sizeHeap ;
     VSPINT  gamma = Heap->gamma ;
     VSPINT *c = Heap->c ;
-    TMP_ASSERT(n > 0) ;
+    VSP_ASSERT(n > 0) ;
 
     // Make sure size does not exceed maximum
     if (sizeHeap > gamma)
@@ -323,7 +323,7 @@ void Min_Heap_Insert_v4
     VSPINT        valToInsert  // value/hey to insert
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Min_Heap_Check_v4(Heap) ;
     #endif
     VSPINT *heap  = Heap->heap ;
@@ -359,7 +359,7 @@ void Min_Heap_Insert_v4
     // Write i into to its proper location in the heap
     INSERT_IN_LIST(valToInsert, nodeChild, heap, ptrs) ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Min_Heap_Check_v4(Heap) ;
     #endif
     return ;
@@ -391,7 +391,7 @@ void Min_Heap_Delete_v4
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Min_Heap_Check_v4(Heap) ;
     #endif
 
@@ -426,7 +426,7 @@ void Min_Heap_Delete_v4
     }
     else // We deleted the root node 
     {
-        TMP_ASSERT(heapNodeToDel == 1) ;
+        VSP_ASSERT(heapNodeToDel == 1) ;
         // Bubble down messes things up if we call it on an empty heap
         if(Heap->sizeHeap)
         {
@@ -434,7 +434,7 @@ void Min_Heap_Delete_v4
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Min_Heap_Check_v4(Heap) ;
     #endif
     return ;
@@ -493,7 +493,7 @@ void Max_Heap_Check_v4
     VSPINT  sizeHeap = Heap->sizeHeap ;
     VSPINT  gamma = Heap->gamma ;
     VSPINT *c = Heap->c ;
-    TMP_ASSERT(n > 0) ;
+    VSP_ASSERT(n > 0) ;
 
     // Make sure size does not exceed maximum
     if (sizeHeap > gamma)
@@ -745,7 +745,7 @@ void Max_Heap_Insert_v4
     VSPINT        valToInsert  // value/key to insert
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Max_Heap_Check_v4(Heap) ;
     #endif
     // Insert the value at the end and bubble it up
@@ -778,7 +778,7 @@ void Max_Heap_Insert_v4
 
     // Write i into to its proper location in the heap
     INSERT_IN_LIST(valToInsert, nodeChild, heap, ptrs) ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Max_Heap_Check_v4(Heap) ;
     #endif
     return ;
@@ -796,7 +796,7 @@ void Max_Heap_Delete_v4
 {
     SET_FUNCTION_COUNTER ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Max_Heap_Check_v4(Heap) ;
     #endif
 
@@ -832,7 +832,7 @@ void Max_Heap_Delete_v4
     }
     else // We deleted the root node 
     {
-        TMP_ASSERT(heapNodeToDel == 1) ;
+        VSP_ASSERT(heapNodeToDel == 1) ;
         // Bubble down messes things up if we call it on an empty heap
         if(Heap->sizeHeap)
         {
@@ -840,7 +840,7 @@ void Max_Heap_Delete_v4
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Max_Heap_Check_v4(Heap) ;
     #endif
     return ;

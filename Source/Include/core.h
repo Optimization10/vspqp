@@ -20,7 +20,7 @@
     clock_gettime(CLOCK_REALTIME, &hidden_timespec_struct_start)
 
     #define TIMER_ELAPSED \
-    (VSP_compute_elapsed_time(hidden_timespec_struct_start, hidden_timespec_struct_end))
+    (compute_elapsed_time(hidden_timespec_struct_start, hidden_timespec_struct_end))
     
     #define TIMER_END \
     struct timespec hidden_timespec_struct_end ;   \
@@ -38,7 +38,7 @@
 // Core Types
 /* ========================================================================== */
 
-typedef enum VSP_match_type_enum
+typedef enum match_type_enum
 {
     matchtype_unmatched = 0,
     matchtype_orphan,
@@ -51,7 +51,7 @@ typedef enum VSP_match_type_enum
     matchtype_singleton,
     matchtype_HEM,
     matchtype_3way
-} VSP_match_type ;
+} match_type ;
 
 
 typedef struct Problem_struct Problem;
@@ -69,7 +69,7 @@ typedef struct
     VSPINT min_vtx_cost ;
     VSPINT max_vtx_cost ;
     VSPINT total_vtx_cost ;
-} VSP_Graph ;
+} Graph ;
 
 
 
@@ -78,7 +78,7 @@ typedef struct
 typedef struct Problem_struct
 {
     // This is the graph which is being solved
-    VSP_Graph             *Graph ;
+    Graph             *Graph ;
 
     char                   *name ;  /* name of the graph                      */
 
@@ -89,7 +89,7 @@ typedef struct Problem_struct
     VSPINT             *matching ;
     VSPINT             *matchmap ;
     VSPINT          *invmatchmap ;
-    VSP_match_type    *matchtype ;
+    match_type    *matchtype ;
     VSPINT             singleton ;
 
     /* Coarser graph size */
@@ -146,12 +146,12 @@ typedef struct {
                               1'S in that column. All smaller integers represent
                               zeros.                                          */
     VSPINT             n ; /* Number of entries in Az.                        */
-} VSP_Az ;
+} Az ;
 
 /* Container for all the information pertaining to x or y */
 typedef struct {
     Point             *point ; /* x or y                                      */
-    VSP_Az               *Az ; /* Ax or Ay                                    */
+    Az               *Az ; /* Ax or Ay                                    */
     VSPINT            weight ; /* c'x or c'y                                  */
 } State ;
 
@@ -159,7 +159,7 @@ typedef struct {
 // Constructors and Destructors for Core Types
 /* ========================================================================== */
 
-Problem* VSP_construct_problem
+Problem* construct_problem
 (
     VSPINT       num_vertices,
     VSPLONG                nz,
@@ -169,21 +169,21 @@ Problem* VSP_construct_problem
     Options      *options
 ) ;
 
-void VSP_destruct_problem(Problem* problem) ;
+void destruct_problem(Problem* problem) ;
 
 
 
-VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae) ;
-void Destroy_Graph(VSP_Graph *Graph) ;
+Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae) ;
+void Destroy_Graph(Graph *Graph) ;
 
-VSP_Az* VSP_construct_Az(VSPINT n) ;
-void VSP_destruct_Az(VSP_Az* Az) ;
+Az* construct_Az(VSPINT n) ;
+void destruct_Az(Az* Az) ;
 
-Point* VSP_construct_point(VSPINT n ) ;
-void VSP_destruct_point(Point* point) ;
+Point* construct_point(VSPINT n ) ;
+void destruct_point(Point* point) ;
 
-State* VSP_construct_state(VSPINT n);
-void VSP_destruct_state(State* state);
+State* construct_state(VSPINT n);
+void destruct_state(State* state);
 
 
 /* ========================================================================== */

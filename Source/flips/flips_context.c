@@ -83,7 +83,7 @@ void FlipsCtx_Check
     ptX = {.int_part = vars[Z_VAR], .ind_frac = EMPTY, .val_frac = 0, .n = n},
     ptY = {.int_part = vars[W_VAR], .ind_frac = EMPTY, .val_frac = 0, .n = n} ;
 
-    VSP_Az
+    Az
     structAx = {.int_part   = Avars[Z_VAR] , .ind_frac_z = EMPTY , .n = n   ,
                 .val_frac_z = 0            , .col_frac_z = NULL  , .one = 1   },
     structAy = {.int_part   = Avars[W_VAR] , .ind_frac_z = EMPTY , .n = n   ,
@@ -92,7 +92,7 @@ void FlipsCtx_Check
     State
     X = {.point = &ptX, .Az = &structAx, .weight = wgts[Z_VAR]},
     Y = {.point = &ptY, .Az = &structAy, .weight = wgts[W_VAR]} ;
-    VSP_check_states(&X, &Y, problem) ;
+    check_states(&X, &Y, problem) ;
 
     /*------------------------------------------------------------------------*/
     // Check linked lists
@@ -378,7 +378,7 @@ static void FlipsCtx_RuleInAFlip
     }
     else if (mode == FEAS_BEN_FLIP)
     {
-        if (gain > 1E-8 || (VSP_equal(gain, 0) && zi == 1))
+        if (gain > 1E-8 || (equal(gain, 0) && zi == 1))
         {
             ruledIn[v][zi] = true;
             gains[v][zi] = gain;
@@ -515,7 +515,7 @@ Flip FlipsCtx_Select_Flip
 )
 {
     static long long unsigned count = 0 ; count++ ;
-    TMP_ASSERT( IN_RANGE(whichVars, 0, 3) ) ;
+    VSP_ASSERT( IN_RANGE(whichVars, 0, 3) ) ;
     IFDBG(FlipsCtx_Check(FC)) ;
 
     VSPINT v, zi ;
@@ -537,7 +537,7 @@ Flip FlipsCtx_Select_Flip
 
     // Calculate probability
     VSPINT q = FlipsCtx_Select_Weighted_Random(flipWgts, &v, &zi) ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
     if(!q)
     {
         ERR("None selected") ;
@@ -701,7 +701,7 @@ Flip FlipsCtx_Select_Flip_FMv9
 )
 {
     static long long unsigned count = 0 ; count++ ;
-    TMP_ASSERT( IN_RANGE(whichVars, 0, 3) ) ;
+    VSP_ASSERT( IN_RANGE(whichVars, 0, 3) ) ;
     IFDBG(FlipsCtx_Check(FC)) ;
 
     VSPINT v, zi,
@@ -724,7 +724,7 @@ Flip FlipsCtx_Select_Flip_FMv9
 
     // Calculate probability
     VSPINT q = FlipsCtx_Select_Weighted_Random(flipWgts, &v, &zi) ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
     if(!q)
     {
         ERR("None selected") ;
@@ -753,7 +753,7 @@ void FlipsCtx_Apply_Flip
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if (!FC || !FC->problem || !flip) {
             ERR("Invalid FlipsCtx, problem, or flip pointer");
             return;
@@ -797,10 +797,10 @@ void FlipsCtx_Apply_Flip
         VSPINT ci = c[i];
         if (zi)
         {
-            TMP_ASSERT(FC->wgts[var] > ci);
+            VSP_ASSERT(FC->wgts[var] > ci);
         } else
         {
-            TMP_ASSERT(FC->wgts[var] + ci <= problem->u);
+            VSP_ASSERT(FC->wgts[var] + ci <= problem->u);
         }
     });
     z[i] += dir;
@@ -859,7 +859,7 @@ void FlipsCtx_Apply_Flip_Basic
     Flip        *flip
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_Weight(FC->vars[0], EMPTY, 0, FC->problem->Graph->c, FC->wgts[0], FC->problem->Graph->n) ;
         Check_Weight(FC->vars[1], EMPTY, 0, FC->problem->Graph->c, FC->wgts[1], FC->problem->Graph->n) ;
     #endif
@@ -875,7 +875,7 @@ void FlipsCtx_Apply_Flip_Basic
         FC->problem->Graph->Ap
     ) ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_Weight(FC->vars[0], EMPTY, 0, FC->problem->Graph->c, FC->wgts[0], FC->problem->Graph->n) ;
         Check_Weight(FC->vars[1], EMPTY, 0, FC->problem->Graph->c, FC->wgts[1], FC->problem->Graph->n) ;
     #endif
@@ -959,7 +959,7 @@ VSPINT FlipsCtx_Get_Wgt
 )
 {
     SET_FUNCTION_COUNTER ;
-    TMP_ASSERT(var == 0 || var == 1) ;
+    VSP_ASSERT(var == 0 || var == 1) ;
     return FC->wgts[var] ;
 }
 
@@ -971,7 +971,7 @@ void FlipsCtx_Set_Wgt
 )
 {
     SET_FUNCTION_COUNTER ;
-    TMP_ASSERT(var == 0 || var == 1) ;
+    VSP_ASSERT(var == 0 || var == 1) ;
     FC->wgts[var] = wgt ;
 }
 

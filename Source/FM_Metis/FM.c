@@ -124,7 +124,7 @@ void MovesImprovingCost
 
     while( 1 )
     {
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             CheckAllFMDataNoLock
             (
                 where, pwgts, queues, extWgts, badmaxpwgt, bndind,
@@ -155,7 +155,7 @@ void MovesImprovingCost
             } 
             other = 1 - to ;
 
-            TMP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
+            VSP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
             if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
             {
                 to = (to + 1) % 2 ;
@@ -227,8 +227,8 @@ void MovesImprovingCost
         higain = QueueFM_Get_Top_Value(queues[to]) ;
         QueueFM_Delete(queues[other], higain) ;
 
-        TMP_ASSERT( IN_RANGE(higain, 0, n) ) ;
-        TMP_ASSERT(bndptr[higain] != -1);
+        VSP_ASSERT( IN_RANGE(higain, 0, n) ) ;
+        VSP_ASSERT(bndptr[higain] != -1);
 
         pwgts[2] -= (c[higain] - extWgts[higain].wgts[other]) ;
 
@@ -237,7 +237,7 @@ void MovesImprovingCost
         pwgts[to]     += c[higain] ;
         where[higain]  = to ;
 
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             BND_Check(*nbnd, bndind, bndptr, where, n) ;
         #endif
 
@@ -246,7 +246,7 @@ void MovesImprovingCost
         /*--------------------------------------------------------------------*/
         for (p = Ap[higain]; p < Ap[higain + 1]; p++)
         {
-            #ifdef VSP_DEBUG
+            #ifdef DEBUG
                 BND_Check(*nbnd, bndind, bndptr, where, n) ;
             #endif
             k = Ai[p];
@@ -308,7 +308,7 @@ void MovesImprovingCost
     }
 
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         CheckAllFMDataNoLock
         (
             where, pwgts, queues, extWgts, badmaxpwgt, bndind,
@@ -362,11 +362,11 @@ void FM_Metis
 
     TIMER_START ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
 
         Check_FM_Inputs(Z, W, problem) ;
         
-        VSPFLOAT objin = VSP_compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
+        VSPFLOAT objin = compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
     #endif
     /*--- Parameters (temporary, to be put in options struct -----------------*/
     VSPINT *moved = malloc( problem->Graph->n * sizeof(*moved) ) ;
@@ -419,7 +419,7 @@ void FM_Metis
     queues[0] = QueueFM_Construct(n) ;
     queues[1] = QueueFM_Construct(n) ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_Ext_Neigh_Wgts(extWgts, Ai, Ap, c, n, where) ;
         BND_Check(nbnd, bndind, bndptr, where, n) ;
         QueueFM_Check_Heap_Light(queues[0]) ;
@@ -507,7 +507,7 @@ void FM_Metis
                 to = (topGains[0] > topGains[1] ? 0 : (topGains[0] < topGains[1] ? 1 : pass % 2));
                 other = 1 - to ;
 
-                TMP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
+                VSP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
 
                 // Check if the chosen move "to" is feasible. If not, chose the other move
                 if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
@@ -520,7 +520,7 @@ void FM_Metis
                     }
                 }
 
-                TMP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
+                VSP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
                 if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
                 {
                     to = (to + 1) % 2 ;
@@ -547,7 +547,7 @@ void FM_Metis
             }
             else break;
 
-            TMP_ASSERT(to + other == 1) ;
+            VSP_ASSERT(to + other == 1) ;
 
             /* Ovi: Other is the opposite of to. If to is 0, other is 1, and v.v. */
             other = (to + 1) % 2 ;
@@ -555,8 +555,8 @@ void FM_Metis
             /* Retrieve top value and delete it from the queue */
             // higain is node we want to move
             higain = QueueFM_Get_Top_Value(queues[to]) ;
-            TMP_ASSERT( IN_RANGE(higain, 0, n) ) ;
-            TMP_ASSERT(bndptr[higain] != -1);
+            VSP_ASSERT( IN_RANGE(higain, 0, n) ) ;
+            VSP_ASSERT(bndptr[higain] != -1);
 
             /* Delete if it was in the separator originally */ // Ovi: why delte this conditionally, and not always?
             if (moved[higain] == EMPTY) 
@@ -603,7 +603,7 @@ void FM_Metis
             moved[higain]  = nswaps;
             swaps[nswaps]  = higain;
 
-            #ifdef VSP_DEBUG
+            #ifdef DEBUG
                 BND_Check(nbnd, bndind, bndptr, where, n) ;
             #endif
 
@@ -612,7 +612,7 @@ void FM_Metis
              ***********************************************************/
             for (p = Ap[higain]; p < Ap[higain + 1]; p++)
             {
-                #ifdef VSP_DEBUG
+                #ifdef DEBUG
                     BND_Check(nbnd, bndind, bndptr, where, n) ;
                 #endif
                 k = Ai[p];
@@ -694,7 +694,7 @@ void FM_Metis
             }
             mptr[nswaps + 1] = nmind;
 
-            #ifdef VSP_DEBUG
+            #ifdef DEBUG
                 Check_Ext_Neigh_Wgts(extWgts, Ai, Ap, c, n, where) ;
                 BND_Check(nbnd, bndind, bndptr, where, n) ;
                 QueueFM_Check_Heap_Light(queues[0]) ;
@@ -754,8 +754,8 @@ void FM_Metis
             for (j = mptr[nswaps]; j < mptr[nswaps + 1]; j++)
             {
                 k = mind[j];
-                TMP_ASSERT(where[k] == 2) ;
-                #ifdef VSP_DEBUG
+                VSP_ASSERT(where[k] == 2) ;
+                #ifdef DEBUG
                     if(where[k] != 2)
                     {
                         Error("Node not in sep", DBG_INFO) ;
@@ -777,7 +777,7 @@ void FM_Metis
             }
         }
 
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             if(mincut != pwgts[2])
             {
                 Error("Mincut doesn't match size of separator", DBG_INFO) ;
@@ -818,9 +818,9 @@ void FM_Metis
     QueueFM_Destruct(queues[0]) ;
     QueueFM_Destruct(queues[1]) ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_states(Z, W, problem) ;
-        VSPFLOAT objout = VSP_compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
+    #ifdef DEBUG
+        check_states(Z, W, problem) ;
+        VSPFLOAT objout = compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
         if(objout < objin)
         {
             Error("Objective decreased during FM", DBG_INFO) ;
@@ -959,12 +959,12 @@ static void BND_Delete
     VSPINT   nodeToDel
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         // Validate that there are nodes to delete
         if (*nbnd <= 0)
         {
@@ -1008,7 +1008,7 @@ static void BND_Delete
     bndptr[nodeToDel] = EMPTY ;
 
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         // Validate locDelete
         if (locDelete < 0)
         {
@@ -1049,7 +1049,7 @@ static void Check_FM_Inputs
     VSPINT  n     = problem->Graph->n ;
 
     /* Check feasibility, among other things */
-    VSP_check_states(Z, W, problem) ;
+    check_states(Z, W, problem) ;
 
     /* Check for no fractional component */
     if(Z->point->ind_frac != EMPTY || W->point->ind_frac != EMPTY)
@@ -1094,7 +1094,7 @@ static void Init_Where_And_Sep
     VSPINT              n
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
@@ -1123,7 +1123,7 @@ static void Init_Where_And_Sep
     }
     *nsep = nsep_local ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         BND_Check(*nsep, sep, sep_locator, where, n) ;
     #endif
 
@@ -1141,7 +1141,7 @@ static void Set_Ext_Neigh_Wgts
     VSPINT             *where
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
@@ -1158,7 +1158,7 @@ static void Set_Ext_Neigh_Wgts
         {
             j = Ai[p] ;
             which_set = where[j] ;
-            TMP_ASSERT(0 <= which_set && which_set <= 2) ;
+            VSP_ASSERT(0 <= which_set && which_set <= 2) ;
             if(which_set != 2)
             {
                 extWgts[i].wgts[which_set] += c[j] ;
@@ -1223,12 +1223,12 @@ static void Where_To_States
     Problem *problem
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
 
-        VSP_check_states(Z, W, problem) ;
-        VSPFLOAT objin = VSP_compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
+        check_states(Z, W, problem) ;
+        VSPFLOAT objin = compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
     #endif
 
     VSPINT n = problem->Graph->n ;
@@ -1252,7 +1252,7 @@ static void Where_To_States
     /* Update points and Azs */
     for(VSPINT i = 0 ; i < n ; i++)
     {
-        TMP_ASSERT( IN_RANGE(where[i], 0, 3) ) ;
+        VSP_ASSERT( IN_RANGE(where[i], 0, 3) ) ;
         
         /* If i is in the separator, both points should be 0 */
         if(where[i] == 2)
@@ -1260,13 +1260,13 @@ static void Where_To_States
             if(points[0][i] != 0)
             {
                 points[0][i] = 0 ;
-                VSP_Az_pm_col_of_A(Azs[0], i, MINUS, problem) ;
+                Az_pm_col_of_A(Azs[0], i, MINUS, problem) ;
             }
 
             if(points[1][i] != 0)
             {
                 points[1][i] = 0 ;
-                VSP_Az_pm_col_of_A(Azs[1], i, MINUS, problem) ;
+                Az_pm_col_of_A(Azs[1], i, MINUS, problem) ;
             }
         }
         else // if i is in Z or W
@@ -1278,22 +1278,22 @@ static void Where_To_States
             if(points[to][i] == 0)
             {
                 points[to][i] = 1 ;
-                VSP_Az_pm_col_of_A(Azs[to], i, PLUS, problem) ;
+                Az_pm_col_of_A(Azs[to], i, PLUS, problem) ;
             }
 
             /* other point should be 0 */
             if(points[other][i] != 0)
             {
                 points[other][i] = 0 ;
-                VSP_Az_pm_col_of_A(Azs[other], i, MINUS, problem) ;
+                Az_pm_col_of_A(Azs[other], i, MINUS, problem) ;
             }  
         }      
     }
 
-    #ifdef VSP_DEBUG
-        VSP_check_states(Z, W, problem) ;
+    #ifdef DEBUG
+        check_states(Z, W, problem) ;
 
-        VSPFLOAT objout = VSP_compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
+        VSPFLOAT objout = compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
         if(objout < objin)
         {
             Error("Objective decreased after FM", DBG_INFO) ;
@@ -1306,8 +1306,8 @@ static void Where_To_States
         }
 
         /* Cross term should be 0 */
-        VSPINT zAw = VSP_penalty_term(Z->point->int_part, W->Az->int_part, n) ;
-        VSPINT wAz = VSP_penalty_term(W->point->int_part, Z->Az->int_part, n) ;
+        VSPINT zAw = penalty_term(Z->point->int_part, W->Az->int_part, n) ;
+        VSPINT wAz = penalty_term(W->point->int_part, Z->Az->int_part, n) ;
 
         if(zAw != 0 || wAz != 0)
         {
@@ -1358,7 +1358,7 @@ static void CheckAllFMDataNoLock
     VSPINT localpwgts[3] = {0} ;
     for(i = 0 ; i < n ; i++)
     {
-        TMP_ASSERT(IN_RANGE(where[i], 0, 3)) ;
+        VSP_ASSERT(IN_RANGE(where[i], 0, 3)) ;
         localpwgts[ where[i] ] += c[i] ;
     }
 

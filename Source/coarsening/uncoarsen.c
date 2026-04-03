@@ -23,12 +23,12 @@ static void RefineOneVar
     State         *coarseZ
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count += 1 ;
 
         /* Check input */
-        VSP_check_state(coarseZ, coarseGraph) ;
+        check_state(coarseZ, coarseGraph) ;
     #endif
 
     VSPINT i, fn, fu, fv, cv, fvWgt, *fc, *cz, *fz, *matchMap ;
@@ -64,14 +64,14 @@ static void RefineOneVar
             {
                 fz[ fv ] = 1 ;
                 fWgtz += fvWgt ;
-                VSP_Az_pm_col_of_A(fAz, fv, PLUS, fineGraph) ;
+                Az_pm_col_of_A(fAz, fv, PLUS, fineGraph) ;
                 continue ;
             }
             else if ( fWgtz + fvWgt == fu  ) /* fv fits, but no extra room */
             {
                 fz[ fv ] = 1 ;
                 fWgtz = fu ;
-                VSP_Az_pm_col_of_A(fAz, fv, PLUS, fineGraph) ;
+                Az_pm_col_of_A(fAz, fv, PLUS, fineGraph) ;
                 break ;
             }
             else /* fv partially fits into z */
@@ -99,8 +99,8 @@ static void RefineOneVar
     /*------------------------------------------------------------------------*/
     CheckForFracEntryAndRefineIt(coarseZ, fineZ, fineGraph) ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_state(fineZ, fineGraph) ;
+    #ifdef DEBUG
+        check_state(fineZ, fineGraph) ;
     #endif
 
     return ;
@@ -130,7 +130,7 @@ static void CheckForFracEntryAndRefineIt
     Problem  *probFine
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
@@ -146,7 +146,7 @@ static void CheckForFracEntryAndRefineIt
     {
         return ;
     }
-    TMP_ASSERT( Zfine->point->ind_frac == EMPTY ) ;
+    VSP_ASSERT( Zfine->point->ind_frac == EMPTY ) ;
 
     VSPINT firstFineVert = probFine->invmatchmap[crsIndFrac] ;
     VSPINT fineVert = firstFineVert ;
@@ -178,7 +178,7 @@ static void CheckForFracEntryAndRefineIt
             break ;
         }
 
-        fineVert = VSP_get_match(fineVert, probFine->matching) ;
+        fineVert = get_match(fineVert, probFine->matching) ;
         if(fineVert == firstFineVert)
         {
             break ;
@@ -198,7 +198,7 @@ void Uncoarsen_Point
     State        *coarse_Y
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
@@ -207,17 +207,17 @@ void Uncoarsen_Point
     RefineOneVar(fine_graph, fine_X, coarse_graph, coarse_X) ;
     RefineOneVar(fine_graph, fine_Y, coarse_graph, coarse_Y) ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_states(fine_X, fine_Y, fine_graph) ;
+    #ifdef DEBUG
+        check_states(fine_X, fine_Y, fine_graph) ;
 
         if(fine_graph->u >= coarse_graph->u)
         {
-            TMP_ASSERT(fine_X->weight >= coarse_X->weight) ;
-            TMP_ASSERT(fine_Y->weight >= coarse_Y->weight) ;
+            VSP_ASSERT(fine_X->weight >= coarse_X->weight) ;
+            VSP_ASSERT(fine_Y->weight >= coarse_Y->weight) ;
         }
     #endif 
 
-    VSP_destruct_state(coarse_X) ;
-    VSP_destruct_state(coarse_Y) ;
+    destruct_state(coarse_X) ;
+    destruct_state(coarse_Y) ;
     return ;
 }

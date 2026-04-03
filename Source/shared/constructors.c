@@ -4,7 +4,7 @@
 #include <string.h>
 
 /* ************* Explicit Matrix ******************************************* **/
-VSPINT** VSP_construct_explicit_matrix
+VSPINT** construct_explicit_matrix
 (
     VSPINT *values,
     VSPINT     *Ai,
@@ -77,7 +77,7 @@ VSPINT** VSP_construct_explicit_matrix
     return A ;
 }
 
-void VSP_destruct_explicit_matrix( VSPINT** A, VSPINT n ) {
+void destruct_explicit_matrix( VSPINT** A, VSPINT n ) {
     VSPINT i ;
 
     for ( i = 0 ; i < n ; i++ ) free (A [i]) ;

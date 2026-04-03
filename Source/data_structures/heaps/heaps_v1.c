@@ -17,7 +17,7 @@ except that it's root may be out of order.
 On output: 
 subtree of "heap" starting at node with index "p" will be a subheap.
 */
-void VSP_min_heapify_v1
+void min_heapify_v1
 (
     VSPINT            *heap, /* size n + 1, sorted by cost array X */
     VSPFLOAT const       *X, /* size n. Cost vector to sort by */
@@ -99,7 +99,7 @@ void VSP_min_heapify_v1
 }
 
 /*
-VSP_min_heap_add
+min_heap_add
 On input:
 1) array "heap" is a heap
 2) "nheap" is number of nodes in heap
@@ -108,7 +108,7 @@ On output:
 1) "heap" recieves "leaf" and is heapified 
 2) "nheap" increases by 1
 */
-void VSP_min_heap_add_v1 /* returns the new size of the heap */
+void min_heap_add_v1 /* returns the new size of the heap */
 (
     VSPINT      *heap, /* size n + 1. containing indices into X */
     VSPFLOAT const *X, /* size n. Cost vector to sort by */
@@ -142,7 +142,7 @@ void VSP_min_heap_add_v1 /* returns the new size of the heap */
 
 
 /*
-VSP_min_heap_delete
+min_heap_delete
 
 On input:
 1) array "heap" is a heap
@@ -152,7 +152,7 @@ On output:
 1) array "heap" looses root and is heapified
 2) "nheap", reduced by 1
 */
-void VSP_min_heap_delete_v1 /* return new size of heap */
+void min_heap_delete_v1 /* return new size of heap */
 (
     VSPINT           *heap, /* indices into X, 1..n on input.  size nheap+1 */
     VSPFLOAT const      *X, /* not modified */
@@ -170,6 +170,6 @@ void VSP_min_heap_delete_v1 /* return new size of heap */
     (*nheap)--;
 
     /* Heapify */
-    VSP_min_heapify_v1 (heap, X, 1, *nheap) ;
+    min_heapify_v1 (heap, X, 1, *nheap) ;
     return;
 }

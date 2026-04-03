@@ -10,7 +10,7 @@ void improve
 ) ;
 
 /* ============================================================================
-   ================ VSP_relaxed_to_vertex_separator ===========================
+   ================ relaxed_to_vertex_separator ===========================
    ============================================================================
 
  PURPOSE: Given binary points x, y which satisfy the balance constraints,
@@ -28,7 +28,7 @@ void improve
     as good as x, y
 */
 
-void VSP_relaxed_to_vertex_separator
+void relaxed_to_vertex_separator
 (
     State            *X,
     State            *Y,
@@ -37,8 +37,8 @@ void VSP_relaxed_to_vertex_separator
 {
     // printf("\nStarting Relaxed To VSP") ;
     fflush(stdout) ;
-    #ifdef VSP_DEBUG
-        VSP_check_states(X, Y, problem) ;
+    #ifdef DEBUG
+        check_states(X, Y, problem) ;
     #endif
 
 
@@ -60,15 +60,15 @@ void VSP_relaxed_to_vertex_separator
     /* Set the fractional part to 0 or 1 */
     Force_To_Binary_Point(X, Y, problem) ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static unsigned long long count = 0 ;
         count += 1 ;
 
         /* Check the inputs */
-        VSP_check_states(X, Y, problem) ;
+        check_states(X, Y, problem) ;
 
         /* Compute the initial objective */
-        VSPFLOAT objin = VSP_compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        VSPFLOAT objin = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
         VSPINT obj_old = 0 ;
         VSPINT gamma = problem->Graph->max_vtx_cost ;
 
@@ -116,7 +116,7 @@ void VSP_relaxed_to_vertex_separator
             num_bad_x -= 1 ;
             sum_x-- ;
 
-            VSP_Az_pm_col_of_A(Ax, j, MINUS, problem) ;
+            Az_pm_col_of_A(Ax, j, MINUS, problem) ;
             xAy -= Ay [j] ;
 
         }
@@ -132,7 +132,7 @@ void VSP_relaxed_to_vertex_separator
             num_bad_y -= 1 ;
             sum_y-- ;
 
-            VSP_Az_pm_col_of_A(Ay, j, MINUS, problem) ;
+            Az_pm_col_of_A(Ay, j, MINUS, problem) ;
             xAy -= Ax [j] ;
         }
         else
@@ -167,7 +167,7 @@ void VSP_relaxed_to_vertex_separator
                     {
                         if(neighbors[k] == 0 && k != i) break ;
                     }
-                    #ifdef VSP_DEBUG
+                    #ifdef DEBUG
                         if(k >= n) Error("Problem", DBG_INFO) ;
                     #endif
 
@@ -220,8 +220,8 @@ void VSP_relaxed_to_vertex_separator
     free(ind_bad_y) ;
 
 
-    #ifdef VSP_DEBUG
-        VSP_check_states(X, Y, problem) ;
+    #ifdef DEBUG
+        check_states(X, Y, problem) ;
 
         /* Check that xAy = 0 */
         VSPINT xAy_dbg = 0, yAx_dbg = 0 ;
@@ -248,8 +248,8 @@ void VSP_relaxed_to_vertex_separator
 
     improve(X, Y, problem) ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_states(X, Y, problem) ;
+    #ifdef DEBUG
+        check_states(X, Y, problem) ;
 
         /* Check that xAy = 0 */
         xAy_dbg = 0 ;
@@ -273,7 +273,7 @@ void VSP_relaxed_to_vertex_separator
             Error("Objective worsened when improving point", DBG_INFO) ;
         }
 
-        VSPFLOAT objout = VSP_compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        VSPFLOAT objout = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
         if(objout < objin && terribleSituation == false)
         {
             Error("Objective worsened after improve", DBG_INFO) ;
@@ -294,7 +294,7 @@ void improve
     Problem *problem
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
@@ -310,8 +310,8 @@ void improve
     VSPINT u = problem->u ;
 
 
-    #ifdef VSP_DEBUG
-        VSP_check_states(X, Y, problem) ;
+    #ifdef DEBUG
+        check_states(X, Y, problem) ;
         VSPINT xAy1 = 0 ;
         VSPINT xAy2 = 0 ;
         VSPINT k ;
@@ -328,8 +328,8 @@ void improve
             /* If i is not connected to either side */
             if(Ax[i] == 0 && Ay[i] == 0)
             {
-                #ifdef VSP_DEBUG
-                        VSP_check_states(X, Y, problem) ;
+                #ifdef DEBUG
+                        check_states(X, Y, problem) ;
                 #endif
                 /* i has no connections to x or y. Bring it into the set with
                    smaller weight */
@@ -341,10 +341,10 @@ void improve
                     y[i] = 1 ;
                     Y->weight += ci ;
                     // Compute_Az(Y->point, Y->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
-                    VSP_Az_pm_col_of_A(Y->Az->int_part, i, PLUS, problem) ;
+                    Az_pm_col_of_A(Y->Az->int_part, i, PLUS, problem) ;
                     // printf("\nImprove worked 1\n") ;
-                    #ifdef VSP_DEBUG
-                        VSP_check_states(X, Y, problem) ;
+                    #ifdef DEBUG
+                        check_states(X, Y, problem) ;
                         xAy1 = 0 ;
                         xAy2 = 0 ;
                         for(k = 0 ; k < n ; k++)
@@ -365,11 +365,11 @@ void improve
                     x[i] = 1 ;
                     X->weight += ci ;
                     // Compute_Az(X->point, X->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
-                    VSP_Az_pm_col_of_A(X->Az->int_part, i, PLUS, problem) ;
+                    Az_pm_col_of_A(X->Az->int_part, i, PLUS, problem) ;
                     // printf("\nImprove worked 2\n") ;
-                    #ifdef VSP_DEBUG
-                        VSP_check_state(X, problem) ;
-                        VSP_check_state(Y, problem) ;
+                    #ifdef DEBUG
+                        check_state(X, problem) ;
+                        check_state(Y, problem) ;
                         xAy1 = 0 ;
                         xAy2 = 0 ;
                         for(k = 0 ; k < n ; k++)
@@ -392,11 +392,11 @@ void improve
                 x[i] = 1 ;
                 X->weight += ci ;
                 // Compute_Az(X->point, X->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
-                VSP_Az_pm_col_of_A(X->Az->int_part, i, PLUS, problem) ;
+                Az_pm_col_of_A(X->Az->int_part, i, PLUS, problem) ;
                 // printf("\nImprove worked 3\n") ;
-                #ifdef VSP_DEBUG
-                    VSP_check_state(X, problem) ;
-                    VSP_check_state(Y, problem) ;
+                #ifdef DEBUG
+                    check_state(X, problem) ;
+                    check_state(Y, problem) ;
                         xAy1 = 0 ;
                         xAy2 = 0 ;
                         for(k = 0 ; k < n ; k++)
@@ -418,11 +418,11 @@ void improve
                 y[i] = 1 ;
                 Y->weight += ci ;
                 // Compute_Az(Y->point, Y->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
-                VSP_Az_pm_col_of_A(Y->Az->int_part, i, PLUS, problem) ;
+                Az_pm_col_of_A(Y->Az->int_part, i, PLUS, problem) ;
                 // printf("\nImprove worked 4\n") ;
-                #ifdef VSP_DEBUG
-                    VSP_check_state(X, problem) ;
-                    VSP_check_state(Y, problem) ;
+                #ifdef DEBUG
+                    check_state(X, problem) ;
+                    check_state(Y, problem) ;
                         xAy1 = 0 ;
                         xAy2 = 0 ;
                         for(k = 0 ; k < n ; k++)
@@ -439,8 +439,8 @@ void improve
             }
         }
     }
-    #ifdef VSP_DEBUG
-        VSP_check_states(X, Y, problem) ;
+    #ifdef DEBUG
+        check_states(X, Y, problem) ;
         xAy1 = 0 ;
         xAy2 = 0 ;
         for(k = 0 ; k < n ; k++)

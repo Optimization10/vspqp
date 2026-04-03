@@ -17,7 +17,7 @@ void Flips_v5
 {
     SET_FUNCTION_COUNTER ;
     g_num_vert_curr_lvl_v5 = problem->Graph->n ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_Inputs_v5(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
     #endif
 
@@ -130,7 +130,7 @@ void StrictlyBeneficialFlips_v5
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         VSPINT objDbgInit ;
         Compute_ObjValDbg(x, Ax, y, Ay, problem, &objDbgInit) ;
     #endif
@@ -203,7 +203,7 @@ void StrictlyBeneficialFlips_v5
         numFlips++ ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_Outputs_v5(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
         VSPINT objDbgFinal ;
         Compute_ObjValDbg(x, Ax, y, Ay, problem, &objDbgFinal) ;

@@ -3,7 +3,7 @@
 
 
 /**************** Point ***************************************************/
-Point* VSP_construct_point(VSPINT n) {
+Point* construct_point(VSPINT n) {
     Point* point = malloc( sizeof(Point) ) ;
     point->int_part  = calloc( n, sizeof(VSPINT) ) ; // calloc to initialize 0
 
@@ -15,9 +15,9 @@ Point* VSP_construct_point(VSPINT n) {
     return point ;
 }
 
-void VSP_destruct_point(Point* point)
+void destruct_point(Point* point)
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count ++ ;
     #endif
@@ -29,9 +29,9 @@ void VSP_destruct_point(Point* point)
 
 
 
-/**************** VSP_Az ******************************************************/
-VSP_Az* VSP_construct_Az(VSPINT n) {
-    VSP_Az* Az     = malloc( sizeof(VSP_Az) ) ;
+/**************** Az ******************************************************/
+Az* construct_Az(VSPINT n) {
+    Az* Az     = malloc( sizeof(*Az) ) ;
     Az->int_part   = calloc(n, sizeof(VSPINT)) ; // calloc to 0
     Az->col_frac_z = calloc(n, sizeof(VSPINT)) ;    // calloc to 0
 
@@ -44,7 +44,7 @@ VSP_Az* VSP_construct_Az(VSPINT n) {
     return Az ;
 }
 
-void VSP_destruct_Az(VSP_Az* Az) {
+void destruct_Az(Az* Az) {
     free(Az->int_part) ;
     free(Az->col_frac_z) ;
     free(Az) ;
@@ -52,11 +52,11 @@ void VSP_destruct_Az(VSP_Az* Az) {
 
 /***************** State **************************************************/
 
-State* VSP_construct_state(VSPINT n)
+State* construct_state(VSPINT n)
 {
     State* Z = malloc(sizeof(State)) ;
-    Z->point     = VSP_construct_point(n) ;
-    Z->Az        = VSP_construct_Az(n) ;
+    Z->point     = construct_point(n) ;
+    Z->Az        = construct_Az(n) ;
 
     /* Set default values */
     Z->weight    = 0 ;
@@ -64,19 +64,19 @@ State* VSP_construct_state(VSPINT n)
     return Z ;
 }
 
-void VSP_destruct_state(State* Z)
+void destruct_state(State* Z)
 {
-    VSP_destruct_point(Z->point) ;
-    VSP_destruct_Az(Z->Az) ;
+    destruct_point(Z->point) ;
+    destruct_Az(Z->Az) ;
     free(Z) ;
     return ;
 }
 
 
 /* *************** Graph **************************************************** */
-VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae)
+Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae)
 {
-    VSP_Graph *Graph = calloc(1, sizeof(*Graph)) ;
+    Graph *Graph = calloc(1, sizeof(*Graph)) ;
 
     Graph->n         = n  ;
     Graph->nz        = nz ;
@@ -103,7 +103,7 @@ VSP_Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT
     return Graph ;
 }
 
-void Destroy_Graph(VSP_Graph *Graph)
+void Destroy_Graph(Graph *Graph)
 {
     free(Graph->Ae) ;
     free(Graph->Ai) ;
@@ -114,7 +114,7 @@ void Destroy_Graph(VSP_Graph *Graph)
 
 
 /* *************** Problem ********************************************** */
-Problem* VSP_construct_problem
+Problem* construct_problem
 (
     VSPINT       num_vertices,
     VSPLONG                nz,
@@ -143,7 +143,7 @@ Problem* VSP_construct_problem
     problem->matching = calloc( num_vertices, sizeof(VSPINT));
     problem->matchmap = calloc( num_vertices, sizeof(VSPINT));
     problem->invmatchmap = calloc( num_vertices, sizeof(VSPINT));
-    problem->matchtype = calloc( num_vertices, sizeof(VSP_match_type));
+    problem->matchtype = calloc( num_vertices, sizeof(match_type));
 
 
     /* Initialize scalars */
@@ -169,7 +169,7 @@ Problem* VSP_construct_problem
     return problem;
 }
 
-void VSP_destruct_problem(Problem* problem)
+void destruct_problem(Problem* problem)
 {
     /* Free the graph data */
     free(problem->name) ;

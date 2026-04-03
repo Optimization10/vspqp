@@ -54,7 +54,7 @@ void FlipsMem_Update
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if( (FM->numFlips == FM->capacity) || (flip->var == NO_VAR) )
         {   
             ERR("Problem in flips memory") ;

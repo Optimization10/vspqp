@@ -1,7 +1,7 @@
 // // IWYU pragma: keep
 
-// #ifndef VSP_IOH
-// #define VSP_IOH
+// #ifndef IOH
+// #define IOH
 
 
 // #include "shared_api.h"
@@ -50,6 +50,6 @@
 // cs *mirrorTriangular(cs *A);
 
 // /* My own functions */
-// Problem* VSP_read_MM_file(const char* filename, Options* options);
+// Problem* read_MM_file(const char* filename, Options* options);
 
 // #endif

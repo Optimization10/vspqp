@@ -8,9 +8,9 @@
             ],
             "defines": [
                 "TEMP",
-                "VSP_DEBUG",
+                "DEBUG",
                 "MIX",
-                "VSP_STATS",
+                "STATS",
                 "CLOCK_REALTIME",
                 "MEASURE_PERFORMANCE",
                 "PRINT_FLIP_INFO"

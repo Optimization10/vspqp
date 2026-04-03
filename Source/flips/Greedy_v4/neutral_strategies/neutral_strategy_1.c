@@ -216,7 +216,7 @@ void Neutral_Downflips
             // Choose downflip at random
             VSPINT indFlip = group[ randNum % *size ] ;
 
-            #ifdef VSP_DEBUG
+            #ifdef DEBUG
                 // Check that the flip is neutral
                 if( !IN_RANGE(indFlip, 0, n) ) 
                 {
@@ -224,9 +224,9 @@ void Neutral_Downflips
                 }
 
                 // Check that this is a neutral downflip
-                TMP_ASSERT( z[indFlip]  == 1 ) ;
-                TMP_ASSERT( Aw[indFlip] == 1 ) ;
-                TMP_ASSERT( c[indFlip]  == gamma ) ;
+                VSP_ASSERT( z[indFlip]  == 1 ) ;
+                VSP_ASSERT( Aw[indFlip] == 1 ) ;
+                VSP_ASSERT( c[indFlip]  == gamma ) ;
             #endif
 
             #ifdef LOG_FLIPS_V4
@@ -255,7 +255,7 @@ void Neutral_Downflips
         }
         else
         {
-            #ifdef VSP_DEBUG
+            #ifdef DEBUG
                 // Check that there is no feasible, neutral downflip in z
                 for(VSPINT i = 0 ; i < n ; i++)
                 {
@@ -308,7 +308,7 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
     VSPINT numFlips = 0 ;
     while( 1 )
     {
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             Check_All_Data
             (
                 z, Az, *wgtz, w, Aw, *wgtw,
@@ -349,7 +349,7 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
         if(varFlip == 'z')
         {
             // Upflip in z
-            TMP_ASSERT(z[indFlip] == 0) ;
+            VSP_ASSERT(z[indFlip] == 0) ;
             Upflip
             (
                 z, Az, w, Aw, wgtz, wgtw,
@@ -363,7 +363,7 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
         else if (varFlip == 'w')
         {
             // Downflip in w
-            TMP_ASSERT(w[indFlip] == 1) ;
+            VSP_ASSERT(w[indFlip] == 1) ;
             Downflip
             (
                 w, Aw, z, Az, wgtw, wgtz,
@@ -378,7 +378,7 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
         {
             break ;
         }
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             Check_All_Data
             (
                 z, Az, *wgtz, w, Aw, *wgtw,
@@ -419,7 +419,7 @@ void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2
     SET_FUNCTION_COUNTER ;
     VSPINT gamma = problem->Graph->max_vtx_cost ;
     VSPINT u = problem->u ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data
         (
             z, Az, *wgtz, w, Aw, *wgtw,
@@ -458,7 +458,7 @@ void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2
     }
 
 RET :
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2_Check
         (
             z, Az, w, Aw, wgtz, wgtw, 

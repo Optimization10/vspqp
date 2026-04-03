@@ -24,7 +24,7 @@ void Flips_v4
     static long long unsigned count = 0 ;
     count++ ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_Inputs(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
     #endif
 

@@ -6,9 +6,9 @@
 typedef enum {
     div_by_two,
     use_minreduce
-} VSP_reduction_type ;
+} reduction_type ;
 
-VSPFLOAT VSP_minreduce(
+VSPFLOAT minreduce(
     State         *X,
     State         *Y,
     Options *options,

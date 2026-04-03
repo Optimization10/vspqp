@@ -5,7 +5,7 @@
 Doubly_LLs_Sized *Doubly_LLs_Sized_Init(VSPINT n)
 {
     SET_FUNCTION_COUNTER ;
-    TMP_ASSERT(n > 0) ;
+    VSP_ASSERT(n > 0) ;
 
     Doubly_LLs_Sized *ret = malloc( sizeof(*ret) ) ;
     ret->entries = malloc((n+1) * sizeof(VSPINT)) ;
@@ -87,7 +87,7 @@ void Doubly_LLs_Sized_Check
     ) ;
 
     // Check that n's agree
-    TMP_ASSERT(lls0->n == lls1->n) ;
+    VSP_ASSERT(lls0->n == lls1->n) ;
 
     /*------------------------------------------------------------------------*/
     // Check that the sizes are correct
@@ -126,8 +126,8 @@ void Doubly_LLs_Sized_Check
         } while( (i = lls1->fwd[i]) != entry ) ;
     }
 
-    VSP_check_arrays_are_equal(sizes0Dbg, lls0->sizes, n) ;
-    VSP_check_arrays_are_equal(sizes1Dbg, lls1->sizes, n) ;
+    check_arrays_are_equal(sizes0Dbg, lls0->sizes, n) ;
+    check_arrays_are_equal(sizes1Dbg, lls1->sizes, n) ;
 
     free(sizes0Dbg) ;
     free(sizes1Dbg) ;
@@ -154,7 +154,7 @@ void Doubly_LLs_Sized_See_Entry
 )
 {
     SET_FUNCTION_COUNTER ;
-    TMP_ASSERT( IN_RANGE(whichll, 0, lls->n+1) ) ;
+    VSP_ASSERT( IN_RANGE(whichll, 0, lls->n+1) ) ;
     Doubly_Linked_Lists_See_Entry(lls->entries, whichll, ret) ;
     return ;
 }

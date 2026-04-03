@@ -20,8 +20,8 @@ struct StatesMan
 
 void StatesMan_Destroy(StatesMan *Man)
 {
-    VSP_destruct_state(Man->work[0]) ;
-    VSP_destruct_state(Man->work[1]) ;
+    destruct_state(Man->work[0]) ;
+    destruct_state(Man->work[1]) ;
     free(Man) ;
     return ; 
 }
@@ -29,8 +29,8 @@ void StatesMan_Destroy(StatesMan *Man)
 // Deep copy best states into work states
 void StatesMan_UpdateWorkStates(StatesMan *Man)
 {
-    VSP_copy_state(Man->best[0], Man->work[0]) ;
-    VSP_copy_state(Man->best[1], Man->work[1]) ;
+    copy_state(Man->best[0], Man->work[0]) ;
+    copy_state(Man->best[1], Man->work[1]) ;
     return ;
 }
 
@@ -38,8 +38,8 @@ void StatesMan_UpdateWorkStates(StatesMan *Man)
 // Deep copy work states into best states
 void StatesMan_UpdateBestStates(StatesMan *Man)
 {
-    VSP_copy_state(Man->work[0], Man->best[0]) ;
-    VSP_copy_state(Man->work[1], Man->best[1]) ;
+    copy_state(Man->work[0], Man->best[0]) ;
+    copy_state(Man->work[1], Man->best[1]) ;
     return ;
 }
 
@@ -49,7 +49,7 @@ State *StatesMan_GetState
 )
 {
     SET_FUNCTION_COUNTER ;
-    TMP_ASSERT(IN_RANGE(which, 0, 2)) ;
+    VSP_ASSERT(IN_RANGE(which, 0, 2)) ;
 
     switch (type)
     {
@@ -71,8 +71,8 @@ StatesMan *StatesMan_Init(State *Xbest, State *Ybest)
     ret->best[0] = Xbest ;
     ret->best[1] = Ybest ;
 
-    ret->work[0] = VSP_construct_state(n) ;
-    ret->work[1] = VSP_construct_state(n) ;
+    ret->work[0] = construct_state(n) ;
+    ret->work[1] = construct_state(n) ;
 
     StatesMan_UpdateWorkStates(ret) ;
     

@@ -3,7 +3,7 @@
 #include "ds_api.h"
 
 
-Penalties *VSP_construct_penalties(VSPINT n)
+Penalties *construct_penalties(VSPINT n)
 {
     Penalties *pens = malloc(sizeof(*pens)) ;
 
@@ -21,7 +21,7 @@ Penalties *VSP_construct_penalties(VSPINT n)
     return pens ;
 }
 
-void VSP_destruct_penalties(Penalties *pens) {
+void destruct_penalties(Penalties *pens) {
     free(pens->z0_entry) ;
     free(pens->z1_entry) ;
 
@@ -70,7 +70,7 @@ void Add_To_List
     return ;
 }
 
-void VSP_build_penalties
+void build_penalties
 (
     VSPINT                 *z,
     Penalties     *Z_pens,
@@ -78,7 +78,7 @@ void VSP_build_penalties
     Problem      *problem
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count ++ ;
     #endif
@@ -126,14 +126,14 @@ void VSP_build_penalties
     Z_pens->max_pen = max_Aw_z1 ;
     Z_pens->min_pen = min_Aw_z0 ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_Linked_Lists(z, Aw, Z_pens) ;
     #endif
 
     return ;
 }
 
-static void VSP_check_a_linked_list
+static void check_a_linked_list
 (
     VSPINT     entry,
     VSPINT        *z,
@@ -206,14 +206,14 @@ void Check_Linked_Lists
         /* Transverse the z0 linked list corresponding to Aw_val */
         entry = z0_entry[Aw_val] ;
         if(entry != EMPTY) {
-            VSP_check_a_linked_list(entry , z , z0_fwd_list, z0_rev_list, 0,
+            check_a_linked_list(entry , z , z0_fwd_list, z0_rev_list, 0,
                                     Aw_val, Aw, witness                      ) ;
         }
 
         /* Transverse the z1 linked list corresponding to Aw_val */
         entry = z1_entry[Aw_val] ;
         if(entry != EMPTY) {
-            VSP_check_a_linked_list(entry , z , z1_fwd_list, z1_rev_list, 1,
+            check_a_linked_list(entry , z , z1_fwd_list, z1_rev_list, 1,
                                     Aw_val, Aw, witness                      ) ;
         }
     }
@@ -237,7 +237,7 @@ void Check_Linked_Lists
 
 
 
-static void VSP_check_penalties_one_state
+static void check_penalties_one_state
 (
     State *Z,
     State *W,
@@ -297,7 +297,7 @@ static void VSP_check_penalties_one_state
     return ;
 }
 
-void VSP_check_penalties
+void check_penalties
 (
     State *X,
     State *Y,
@@ -307,14 +307,14 @@ void VSP_check_penalties
 )
 {
     WARN_IF_NOT_DEBUG_MODE ;
-    VSP_check_penalties_one_state(X, Y, X_pen, n) ;
-    VSP_check_penalties_one_state(Y, X, Y_pen, n) ;
+    check_penalties_one_state(X, Y, X_pen, n) ;
+    check_penalties_one_state(Y, X, Y_pen, n) ;
 
     return ;
 }
 
 
-void VSP_copy_penalties
+void copy_penalties
 (
     Penalties *from,
     Penalties *to

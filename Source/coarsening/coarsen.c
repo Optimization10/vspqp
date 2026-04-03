@@ -53,9 +53,9 @@ extern long double G_COARSEN_TIME ;
 
 
 
-static VSP_Graph* Graph_Coarsen
+static Graph* Graph_Coarsen
 (
-    VSP_Graph       *GraphFine,
+    Graph       *GraphFine,
     VSPINT            n_coarse,
     VSPINT           *matchmap,
     VSPINT        *invmatchmap,
@@ -64,11 +64,11 @@ static VSP_Graph* Graph_Coarsen
 )
 {
     clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count += 1 ;
 
-        VSP_check_matrix
+        check_matrix
         (
             GraphFine->Ai,
             GraphFine->Ap,
@@ -92,8 +92,8 @@ static VSP_Graph* Graph_Coarsen
     // Q: I am using the fine problem nz here, is this a problem?
     // A: No. The fine nz should be an upper bound on the coarse nz. And later
     //    on, we set problem_coarse->Graph->nz = munch, which is the true coarse nz
-    // Problem* problem_coarse = VSP_construct_problem(n_coarse, GraphFine->nz, options) ;
-    VSP_Graph *Graph_Coarse = Construct_Graph(n_coarse, GraphFine->nz, NULL, NULL, NULL) ;
+    // Problem* problem_coarse = construct_problem(n_coarse, GraphFine->nz, options) ;
+    Graph *Graph_Coarse = Construct_Graph(n_coarse, GraphFine->nz, NULL, NULL, NULL) ;
 
     VSPLONG *Ap_coarse = Graph_Coarse->Ap;
     VSPINT *Ai_coarse = Graph_Coarse->Ai;
@@ -118,14 +118,14 @@ static VSP_Graph* Graph_Coarsen
         /* Load up the inverse matching */
         VSPINT v[3] = { EMPTY, EMPTY, EMPTY } ;
         v[0]     = invmatchmap[k] ;
-        v[1]     = VSP_get_match(v[0], matching) ;
+        v[1]     = get_match(v[0], matching) ;
         if (v[0] == v[1])
         {
             v[1] = -1 ;
         }
         else
         {
-            v[2] = VSP_get_match(v[1], matching);
+            v[2] = get_match(v[1], matching);
             if (v[0] == v[2])
             {
                 v[2] = -1;
@@ -243,8 +243,8 @@ static VSP_Graph* Graph_Coarsen
     /* Free memory */
     free(htable) ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_matrix
+    #ifdef DEBUG
+        check_matrix
         (
             Graph_Coarse->Ai,
             Graph_Coarse->Ap,
@@ -255,7 +255,7 @@ static VSP_Graph* Graph_Coarsen
         ) ;
     #endif
 
-    #ifdef VSP_DEBUG_COARSENING
+    #ifdef DEBUG_COARSENING
 
         VSPLONG end ;
         VSPINT i, v1, v2, k, r, s, is_edge ;
@@ -266,7 +266,7 @@ static VSP_Graph* Graph_Coarsen
 
 
         /* Check that coarse gamma is correct */
-        VSP_check_max_of_array(c_coarse, n_coarse, gamma_coarse) ;
+        check_max_of_array(c_coarse, n_coarse, gamma_coarse) ;
 
         /* Check that Ap is (weakly) increasing */
         VSPINT Ap_increasing = TRUE ;
@@ -278,21 +278,21 @@ static VSP_Graph* Graph_Coarsen
         }
 
         /* Check that entries of Ai and Ap are within bounds */
-        VSP_check_entries_are_between_bounds(Ai_coarse, nz_coarse, 0, n_coarse);
+        check_entries_are_between_bounds(Ai_coarse, nz_coarse, 0, n_coarse);
 
         /* If it's not too large, make the coarse graph explicit so it's
            easier for me to debug */
         VSPINT **A_fine = NULL, **A_coarse = NULL ;
         VSPINT **A_fine_weights = NULL, **A_coarse_weights = NULL ;
         if (n_fine < 5000) {
-            A_fine = VSP_construct_explicit_matrix (
+            A_fine = construct_explicit_matrix (
                                     NULL, Ai_fine, nz_fine, Ap_fine, n_fine) ;
-            A_coarse = VSP_construct_explicit_matrix (
+            A_coarse = construct_explicit_matrix (
                             NULL, Ai_coarse, nz_coarse, Ap_coarse, n_coarse ) ;
 
-            A_fine_weights = VSP_construct_explicit_matrix (
+            A_fine_weights = construct_explicit_matrix (
                         Ae_fine, Ai_fine, nz_fine, Ap_fine, n_fine) ;
-            A_coarse_weights = VSP_construct_explicit_matrix (
+            A_coarse_weights = construct_explicit_matrix (
               Ae_coarse, Ai_coarse, nz_coarse, Ap_coarse, n_coarse ) ;
         }
 
@@ -319,8 +319,8 @@ static VSP_Graph* Graph_Coarsen
                    k and i */
 
                 i = Ai_coarse [ p ] ;
-                VSPINT* k_preimage = VSP_get_preimage_of_vertex(k, matching, invmatchmap) ;
-                VSPINT* i_preimage = VSP_get_preimage_of_vertex(i, matching, invmatchmap) ;
+                VSPINT* k_preimage = get_preimage_of_vertex(k, matching, invmatchmap) ;
+                VSPINT* i_preimage = get_preimage_of_vertex(i, matching, invmatchmap) ;
                 
 
                 is_edge = FALSE ;
@@ -344,10 +344,10 @@ static VSP_Graph* Graph_Coarsen
                     v2 = i_preimage [ s = 0 ] ;
                     while (v2 != EMPTY)
                     {
-                        if(VSP_there_is_an_edge(v1, v2, Ai_fine, Ap_fine))
+                        if(there_is_an_edge(v1, v2, Ai_fine, Ap_fine))
                         {
                             is_edge = TRUE ;
-                            edge_weight_coarse_computed += VSP_get_edge_weight(v1, v2, Ai_fine, Ap_fine, Ae_fine) ;
+                            edge_weight_coarse_computed += get_edge_weight(v1, v2, Ai_fine, Ap_fine, Ae_fine) ;
                         }
                         v2 = i_preimage [ ++s ] ;
                     }
@@ -359,7 +359,7 @@ static VSP_Graph* Graph_Coarsen
                     Error("Missing edge in coarse graph", DBG_INFO) ;
                 }
 
-                edge_weight_coarse_claimed = VSP_get_edge_weight(
+                edge_weight_coarse_claimed = get_edge_weight(
                                                     k, i, Ai_coarse, Ap_coarse,
                                                     Ae_coarse) ;
                 
@@ -389,7 +389,7 @@ static VSP_Graph* Graph_Coarsen
         VSPINT is_fine_edge, is_coarse_edge ;
 
         for (k = 0 ; k < n_fine ; k++) {
-            VSPINT* matches_k = VSP_get_all_matches(k, matching) ;
+            VSPINT* matches_k = get_all_matches(k, matching) ;
 
             for (i = 0 ; i < n_fine ; i++) {
 
@@ -400,13 +400,13 @@ static VSP_Graph* Graph_Coarsen
                 else {
                     /* k, i map to different coarse vertices. Check if there
                        is an edge between the k LL and the i LL */
-                    VSPINT* matches_i = VSP_get_all_matches(i, matching) ;
+                    VSPINT* matches_i = get_all_matches(i, matching) ;
 
                     is_fine_edge =
-                        VSP_check_for_edge_between_arrays_of_vertices (
+                        check_for_edge_between_arrays_of_vertices (
                                 matches_k, matches_i, 4, Ai_fine, Ap_fine ) ;
 
-                    is_coarse_edge = VSP_there_is_an_edge (
+                    is_coarse_edge = there_is_an_edge (
                                     k_image, i_image, Ai_coarse, Ap_coarse) ;
 
                     if (is_fine_edge != is_coarse_edge) {
@@ -420,18 +420,18 @@ static VSP_Graph* Graph_Coarsen
         }
 
 
-        if (A_fine != NULL) VSP_destruct_explicit_matrix(A_fine, n_fine) ;
-        if (A_coarse != NULL) VSP_destruct_explicit_matrix(A_coarse, n_coarse) ;
+        if (A_fine != NULL) destruct_explicit_matrix(A_fine, n_fine) ;
+        if (A_coarse != NULL) destruct_explicit_matrix(A_coarse, n_coarse) ;
         if (A_fine_weights != NULL) {
-            VSP_destruct_explicit_matrix(A_fine_weights, n_fine) ;
+            destruct_explicit_matrix(A_fine_weights, n_fine) ;
         }
         if (A_coarse_weights != NULL) {
-            VSP_destruct_explicit_matrix(A_coarse_weights, n_coarse) ;
+            destruct_explicit_matrix(A_coarse_weights, n_coarse) ;
         }
     #endif
 
     clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;
-    G_COARSEN_TIME += VSP_compute_elapsed_time(G_START_TIME, G_END_TIME) ;
+    G_COARSEN_TIME += compute_elapsed_time(G_START_TIME, G_END_TIME) ;
 
     return Graph_Coarse;
 }
@@ -444,7 +444,7 @@ Problem *Problem_Coarsen
     Options *options
 )
 {
-    VSP_Graph *Graph_Coarse = Graph_Coarsen
+    Graph *Graph_Coarse = Graph_Coarsen
     (
         P->Graph,
         P->cn,
@@ -453,7 +453,7 @@ Problem *Problem_Coarsen
         P->matching, options
     ) ;
 
-    Problem *P_coarse = VSP_construct_problem
+    Problem *P_coarse = construct_problem
     (
         Graph_Coarse->n,
         Graph_Coarse->nz,
@@ -591,7 +591,7 @@ static bool Stop_Coarsening(Problem *P, Options *options)
         VSPFLOAT cnz = (VSPFLOAT) P->child_problem->Graph->nz ;
 
         // Check if child problem is complete
-        if( VSP_equal(cnz / cn, cn - 1) ) stop = true ;
+        if( equal(cnz / cn, cn - 1) ) stop = true ;
     }
     else
     {
@@ -654,7 +654,7 @@ Problem *Problem_Recursive_Coarsen
         // if(Stop_Coarsening(P, options))
         // {
         //     // Destroy the problem corresponding to a complete graph
-        //     VSP_destruct_problem(coarse_P) ;
+        //     destruct_problem(coarse_P) ;
         //     coarsest_P = P ;
         //     break ;
         // }
@@ -666,13 +666,13 @@ Problem *Problem_Recursive_Coarsen
         }
         else if(Is_Complete_Graph(coarse_P->Graph->n, coarse_P->Graph->nz))
         {
-            VSP_destruct_problem(coarse_P) ;
+            destruct_problem(coarse_P) ;
             coarsest_P = P ;
             break ;
         }
         // else if(coarse_P->Graph->max_vtx_cost > 0.2 * coarse_P->Graph->total_vtx_cost)
         // {
-        //     VSP_destruct_problem(coarse_P) ;
+        //     destruct_problem(coarse_P) ;
         //     coarsest_P = P ;
         //     break ;
         // }

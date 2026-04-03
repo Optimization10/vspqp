@@ -28,7 +28,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data_v5
         (
             x, Ax, wgtx, y, Ay, wgty,
@@ -147,7 +147,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     {
         *retFlipVar = '\0' ;
         *retIndFlip = EMPTY ;
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             // Check_Given_Flip_Is_Optimal_v5
             // (
             //     x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
@@ -223,14 +223,14 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
         if(randChoice < acumm[p])
         {
             flipChoice = maxGainFlips[p-1] ;
-            #ifdef VSP_DEBUG
+            #ifdef DEBUG
             was_initialized = true ;
             #endif
             break ;
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
     if(!was_initialized)
     {
         ERR("Flip choice was not initialized!") ;
@@ -262,7 +262,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     }
     else
     {
-        TMP_ASSERT(flipChoice == YDN) ;
+        VSP_ASSERT(flipChoice == YDN) ;
         *retFlipVar = 'y' ;
         if(maxFeasPosGain >= gamma)
         {
@@ -276,7 +276,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
 
 
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         // Check_Given_Flip_Is_Optimal_v5
         // (
         //     x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
@@ -322,7 +322,7 @@ void SelectRandomOptimalBeneficialFlip_v5
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data_v5
         (
             x, Ax, wgtx, y, Ay, wgty,
@@ -441,7 +441,7 @@ void SelectRandomOptimalBeneficialFlip_v5
     {
         *retFlipVar = '\0' ;
         *retIndFlip = EMPTY ;
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             // Check_Given_Flip_Is_Optimal_v5
             // (
             //     x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
@@ -544,7 +544,7 @@ void SelectRandomOptimalBeneficialFlip_v5
     }
     else
     {
-        TMP_ASSERT(flipChoice == YDN) ;
+        VSP_ASSERT(flipChoice == YDN) ;
         *retFlipVar = 'y' ;
         if(maxFeasPosGain >= gamma)
         {
@@ -556,7 +556,7 @@ void SelectRandomOptimalBeneficialFlip_v5
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         FlipSelector_Check_v5
         (
             x, Ax, wgtx,
@@ -631,7 +631,7 @@ void FlipSelector_Check_v5
     givenFlip.u = u ;
     if(givenVarFlip == 'x')
     {
-        TMP_ASSERT(givenIndFlip != EMPTY) ;
+        VSP_ASSERT(givenIndFlip != EMPTY) ;
         givenFlip.wgt = wgtx ;
         givenFlip.zi   = x[givenIndFlip] ;
         givenFlip.Awi  = Ay[givenIndFlip] ;
@@ -648,7 +648,7 @@ void FlipSelector_Check_v5
     }
     else if(givenVarFlip == 'y')
     {
-        TMP_ASSERT(givenIndFlip != EMPTY) ;
+        VSP_ASSERT(givenIndFlip != EMPTY) ;
         givenFlip.wgt = wgty ;
         givenFlip.zi   = y[givenIndFlip] ;
         givenFlip.Awi  = Ax[givenIndFlip] ;
@@ -1084,7 +1084,7 @@ void IdxGroupsByC_See_Top_Feasible_Cval_v5
     VSPINT                      *Aw // Used for debugging only
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
 
@@ -1117,7 +1117,7 @@ void IdxGroupsByC_See_Top_Feasible_Cval_v5
     *retMaxFeasCval = maxFeasCval ;
     
     RET:
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
 
         for(i = 0 ; i < n ; i++)
         {

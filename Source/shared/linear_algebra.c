@@ -3,7 +3,7 @@
 #include "shared_functions.h"
 #include "shared_macros.h"
 
-void VSP_GetSepCost
+void GetSepCost
 (
     State          *X,
     State          *Y,
@@ -11,7 +11,7 @@ void VSP_GetSepCost
     VSPINT       *sepCost   /* Output*/
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
@@ -34,7 +34,7 @@ void VSP_GetSepCost
 }
 
 /* Given a binary point, return xAy */
-void VSP_num_pen
+void num_pen
 (
     State *X,
     State *Y,
@@ -42,7 +42,7 @@ void VSP_num_pen
     VSPFLOAT *numPen
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
@@ -61,7 +61,7 @@ void VSP_num_pen
         xAy += x[i] * Ay[i] ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         VSPINT yAx = 0 ;
         for(i = 0 ; i < n ; i++)
         {
@@ -79,7 +79,7 @@ void VSP_num_pen
 
 
 /* Given a binary point, return xAy */
-void VSP_xAy
+void xAy
 (
     State         *X,
     State         *Y,
@@ -87,7 +87,7 @@ void VSP_xAy
     VSPFLOAT        *xAy
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
@@ -140,10 +140,10 @@ void VSP_xAy
 
 /* Compute c - gamma Aw and store it in grad_z. No assumption on contents
    of grad_z */
-void VSP_compute_gradient_v1
+void compute_gradient_v1
 (
     VSPFLOAT *grad_z,
-    VSP_Az       *Aw,
+    Az       *Aw,
     VSPINT        *c,
     VSPFLOAT   gamma
 )
@@ -184,7 +184,7 @@ void VSP_compute_gradient_v1
 
 
 // #define USE_MKL
-void VSP_mat_vec_mult
+void mat_vec_mult
 (
     const VSPINT *const    z,
     VSPINT       *const   Az,
@@ -221,7 +221,7 @@ void VSP_mat_vec_mult
 void Compute_Az
 (
     Point              *z,
-    VSP_Az                *Az,
+    Az                *Az,
     VSPINT                *Ai,
     VSPLONG               *Ap,
     VSPINT                  n
@@ -230,7 +230,7 @@ void Compute_Az
     SET_FUNCTION_COUNTER ;
 
     // Compute integer part
-    VSP_mat_vec_mult(z->int_part, Az->int_part, Ai, Ap, n) ;
+    mat_vec_mult(z->int_part, Az->int_part, Ai, Ap, n) ;
     Az->ind_frac_z = z->ind_frac ;
 
     // Compute fractional part
@@ -240,7 +240,7 @@ void Compute_Az
     if (z->ind_frac != EMPTY)
     {
         Az->one++ ;
-        VSP_extract_matrix_col(Az->col_frac_z, z->ind_frac, Az->one, Ai, Ap) ;
+        extract_matrix_col(Az->col_frac_z, z->ind_frac, Az->one, Ai, Ap) ;
     }
 }
 
@@ -249,7 +249,7 @@ void Compute_Az
 //     VSPINT     *zint,
 //     VSPINT   indFrac,
 //     VSPFLOAT valFrac,
-//     VSP_Az       *Az,
+//     Az       *Az,
 //     VSPINT       *Ai,
 //     VSPLONG      *Ap,
 //     VSPINT         n
@@ -258,19 +258,19 @@ void Compute_Az
 //     SET_FUNCTION_COUNTER ;
     
 //     // Compute the integer part of Az
-//     VSP_mat_vec_mult(zint, Az->int_part, Ai, Ap, n) ;
+//     mat_vec_mult(zint, Az->int_part, Ai, Ap, n) ;
 
 //     if(indFrac != EMPTY)
 //     {
 //         Az->ind_frac_z = indFrac ;
 //         Az->val_frac_z = valFrac ;
 //         Az->one++ ;
-//         // VSP_extract_matrix_col(Az->col_frac_z, z->ind_frac, Az->one, Ai, Ap) ;
+//         // extract_matrix_col(Az->col_frac_z, z->ind_frac, Az->one, Ai, Ap) ;
 //     }
 // }
 
 
-void VSP_Az_pm_col_of_A (
+void Az_pm_col_of_A (
     VSPINT             *Az, // vector to which we add/subtract
     VSPINT               i, // column to add/subtract
     VSPINT          operation, // 1 if add, -1 if subtract
@@ -292,8 +292,8 @@ void VSP_Az_pm_col_of_A (
 
 /* Compute the weight of a point. This function assumes that the true weight
    is an integer.                                                             */
-void VSP_compute_weight(Point *Z, VSPINT *weight_z, VSPINT *c) {
-    #ifdef VSP_DEBUG
+void compute_weight(Point *Z, VSPINT *weight_z, VSPINT *c) {
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
@@ -313,8 +313,8 @@ void VSP_compute_weight(Point *Z, VSPINT *weight_z, VSPINT *c) {
         /* TODO safety: Consider safety here. Maybe introduce a sort of check
                  before typecasting */
         weight += lroundf(weight_frac_part) ;
-        #ifdef VSP_DEBUG
-            if( fabs(weight_frac_part - round(weight_frac_part)) > VSP_ZERO ) {
+        #ifdef DEBUG
+            if( fabs(weight_frac_part - round(weight_frac_part)) > ZERO ) {
                 Error("Error with weight", DBG_INFO) ;
             }
         #endif
@@ -322,7 +322,7 @@ void VSP_compute_weight(Point *Z, VSPINT *weight_z, VSPINT *c) {
     *weight_z = weight ;
 }
 
-Problem* VSP_transpose(
+Problem* transpose(
     VSPINT           *Ai, /* Row indices of non-zeros  */
     VSPLONG *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
@@ -331,12 +331,12 @@ Problem* VSP_transpose(
     Options* options
 ) {
  
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count += 1 ;
     #endif
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if (Ap [n] != nz) {
             Error("Nz doesn't match Ap[n]", __FILE__, __LINE__, count) ;
         }
@@ -349,7 +349,7 @@ Problem* VSP_transpose(
     VSPLONG* num_nonzeros_in_row = calloc(n, sizeof(*num_nonzeros_in_row)) ;
 
     /* Prepare the transpose matrix T */
-    Problem* T = VSP_construct_problem(n, nz, NULL, NULL, NULL, options) ;
+    Problem* T = construct_problem(n, nz, NULL, NULL, NULL, options) ;
     VSPINT *Ti = T->Graph->Ai , *Te = T->Graph->Ae ;
     VSPLONG *Tp = T->Graph->Ap ;
 
@@ -362,7 +362,7 @@ Problem* VSP_transpose(
 
     /* Set Tp[0] = 0 and Tp[i] = number of nonzeros in rows 0, 1, ..., i-1 */
     /* Then, set num_nonzeros_in_row [i] = Tp [i] for i = 0, ..., n-1 */
-    VSP_partial_sums_of_array(num_nonzeros_in_row, Tp, n) ;
+    partial_sums_of_array(num_nonzeros_in_row, Tp, n) ;
 
     /* Change the name of the array, since the array has changed.
  
@@ -390,7 +390,7 @@ Problem* VSP_transpose(
         }
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
 
         VSPINT error_in_transpose = FALSE ;
         for (i = 0 ; i < n ; i++ ) {
@@ -406,19 +406,19 @@ Problem* VSP_transpose(
         if (n < 300) {
 
             /* Create the explicit matrices */
-            VSPINT** A_explicit = VSP_construct_explicit_matrix(NULL, Ai, nz,
+            VSPINT** A_explicit = construct_explicit_matrix(NULL, Ai, nz,
                                                                       Ap, n  ) ;
-            VSPINT** T_explicit = VSP_construct_explicit_matrix(NULL, Ti, nz,
+            VSPINT** T_explicit = construct_explicit_matrix(NULL, Ti, nz,
                                                                       Tp, n  ) ;
 
             VSPINT** A_vals_explicit = NULL ;
             VSPINT** T_vals_explicit = NULL ;
 
             if (Ae != NULL) {
-                A_vals_explicit = VSP_construct_explicit_matrix(
+                A_vals_explicit = construct_explicit_matrix(
                                                             Ae, Ai, nz, Ap, n) ;
 
-                T_vals_explicit = VSP_construct_explicit_matrix(
+                T_vals_explicit = construct_explicit_matrix(
                                                             Te, Ti, nz, Tp, n) ;
             }
 
@@ -444,12 +444,12 @@ Problem* VSP_transpose(
             }
 
             /* Free memory */
-            VSP_destruct_explicit_matrix(A_explicit, n) ;
-            VSP_destruct_explicit_matrix(T_explicit, n) ;
+            destruct_explicit_matrix(A_explicit, n) ;
+            destruct_explicit_matrix(T_explicit, n) ;
 
             if (Ae != NULL) {
-                VSP_destruct_explicit_matrix(A_vals_explicit, n) ;
-                VSP_destruct_explicit_matrix(T_vals_explicit, n) ;
+                destruct_explicit_matrix(A_vals_explicit, n) ;
+                destruct_explicit_matrix(T_vals_explicit, n) ;
             }
 
         }
@@ -470,7 +470,7 @@ Problem* VSP_transpose(
    The array arr is also overwritten, so that for i = 0, 1, 2, ..., n-1, 
         arr[i] = partial_sums[i].
    */
-VSPLONG VSP_partial_sums_of_array(
+VSPLONG partial_sums_of_array(
     VSPLONG          *arr,
     VSPLONG *partial_sums,
     VSPINT              n
@@ -507,18 +507,18 @@ VSPLONG VSP_partial_sums_of_array(
    known. Every other term is computed separately, and all terms are summed
    at the end.
 */
-VSPFLOAT VSP_compute_obj(
+VSPFLOAT compute_obj(
     State         *X,
     State         *Y,
     Problem *problem,
     VSPFLOAT       gamma
 ) {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
 
         /* Check input */
-        VSP_check_states(X, Y, problem) ;
+        check_states(X, Y, problem) ;
     #endif
 
     /* Local vars */
@@ -558,11 +558,11 @@ VSPFLOAT VSP_compute_obj(
         obj_val -= gamma * fx * fy * A_pq ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if(n < 200) {
             VSPFLOAT obj_val_dbg ;
-            obj_val_dbg = VSP_compute_objective_0(X, Y, problem, gamma) ;
-            if( fabs(obj_val - obj_val_dbg) > VSP_ZERO )
+            obj_val_dbg = compute_objective_0(X, Y, problem, gamma) ;
+            if( fabs(obj_val - obj_val_dbg) > ZERO )
             {
                 Error("Error in computing objective", DBG_INFO) ;
             }
@@ -577,7 +577,7 @@ VSPFLOAT VSP_compute_obj(
          c' (X + Y) - gamma * X' A Y
    by uncompressing the matrix A and converting X, Y to arrays
    of floats                                                     */
-VSPFLOAT VSP_compute_objective_0(
+VSPFLOAT compute_objective_0(
     State *X,
     State *Y,
     Problem *problem,
@@ -713,7 +713,7 @@ void Compute_ObjValSimple
         objval += ( c[i] * (x[i] + y[i]) - gamma * x[i] * Ay[i] ) ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         VSPINT objval2 = 0 ;
         for(i = 0 ; i < n ; i++)
         {
@@ -730,13 +730,13 @@ void Compute_ObjValSimple
 }
 
 /* Compute (c - gamma * Aw)' z */
-VSPFLOAT VSP_compute_LP_objective(
+VSPFLOAT compute_LP_objective(
     Point    *z,
     VSPINT       *c,
     VSPFLOAT  gamma,
-    VSP_Az      *Aw
+    Az      *Aw
 ) {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
@@ -753,7 +753,7 @@ VSPFLOAT VSP_compute_LP_objective(
 
     for(VSPINT i = 0 ; i < n ; i++) {
         // Awi = Aw_int[i] + w_has_ind_frac * (col_A[i] == one) * val_frac_w ;
-        Awi = VSP_Azi(i, Aw) ;
+        Awi = Azi(i, Aw) ;
         obj += z_int[i] * (c[i] - gamma * Awi) ;
     }
 
@@ -769,7 +769,7 @@ VSPFLOAT VSP_compute_LP_objective(
 }
 
 /* Compute c - gamma Aw where w is an array of floats */
-void VSP_ComputeGradFlt
+void ComputeGradFlt
 (
     VSPFLOAT  *grad,
     VSPINT       *c,

@@ -3,17 +3,17 @@
 
 
 /* ============================================================================
-   ================ VSP_compare_value_index_floats ============================
+   ================ compare_value_index_floats ============================
    ============================================================================
 
  PURPOSE: 
  Function to compare the float values in two value_index struct. This is used
  when calling qsort to sort these structs.
 */
-int VSP_compare_value_index_floats(const void *a, const void *b) 
+int compare_value_index_floats(const void *a, const void *b) 
 {
-    VSP_value_index* A = (VSP_value_index*) a;
-    VSP_value_index* B = (VSP_value_index*) b;
+    value_index* A = (value_index*) a;
+    value_index* B = (value_index*) b;
 
     if (A->float_value > B->float_value)     return -1; /* a < b  */
     else if (A->float_value < B->float_value) return 1; /* a > b  */
@@ -22,17 +22,17 @@ int VSP_compare_value_index_floats(const void *a, const void *b)
 
 
 /* ============================================================================
-   ================ VSP_compare_value_index_floats ============================
+   ================ compare_value_index_floats ============================
    ============================================================================
 
  PURPOSE: 
  Function to compare the float values in two value_index struct. This is used
  when calling qsort to sort these structs.
 */
-VSPINT VSP_compare_val_ind_structs_inc(const void *a, const void *b) 
+VSPINT compare_val_ind_structs_inc(const void *a, const void *b) 
 {
-    VSP_value_index* A = (VSP_value_index*) a;
-    VSP_value_index* B = (VSP_value_index*) b;
+    value_index* A = (value_index*) a;
+    value_index* B = (value_index*) b;
 
     if (A->float_value > B->float_value)     return   1; /* a > b  */
     else if (A->float_value < B->float_value) return -1; /* a < b  */

@@ -42,7 +42,7 @@ LIBS = -lm
 # Debug or Release Version
 # =============================================================================
 ifeq ($(VERSION),debug)
-CFLAGS += -O0 -DVSP_DEBUG
+CFLAGS += -O0 -DDEBUG
 else
 CFLAGS += -O3 -flto -march=native
 endif

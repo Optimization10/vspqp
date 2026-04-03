@@ -6,12 +6,12 @@
 
 
 
-Levels* VSP_construct_levels
+Levels* construct_levels
 (
     Levels_selection_type selection_type
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
@@ -48,16 +48,16 @@ Levels* VSP_construct_levels
     else if(selection_type == SPECIFY_SELECTED_LEVELS)
     {
         levels->specify_selected_levels = true ;
-        levels->levels_selected = VSP_construct_dyn_stk() ;
+        levels->levels_selected = construct_dyn_stk() ;
     }
     else if(selection_type == SPECIFY_UNSELECTED_LEVELS)
     {
         levels->specify_unselected_levels = true ;
-        levels->levels_not_selected = VSP_construct_dyn_stk() ;
+        levels->levels_not_selected = construct_dyn_stk() ;
     }
     else
     {
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             Error("Invalid selection type", DBG_INFO) ;
         #endif
     }
@@ -66,18 +66,18 @@ Levels* VSP_construct_levels
 }
 
 
-void VSP_destruct_levels
+void destruct_levels
 (
     Levels* levels
 )
 {
     if(levels->specify_selected_levels)
     {
-        VSP_destruct_dyn_stk(levels->levels_selected) ;
+        destruct_dyn_stk(levels->levels_selected) ;
     }
     else if(levels->specify_unselected_levels)
     {
-        VSP_destruct_dyn_stk(levels->levels_not_selected) ;
+        destruct_dyn_stk(levels->levels_not_selected) ;
     }
 
     free(levels) ;
@@ -90,7 +90,7 @@ bool Levels_is_member
     Levels  *levels
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
 
         /* Check that only one  value is true */
@@ -133,7 +133,7 @@ bool Levels_is_member
     }
     else if(levels->specify_selected_levels)
     {
-        bool ret = VSP_dyn_stk_is_member
+        bool ret = dyn_stk_is_member
                     (
                         problem_level,
                         levels->levels_selected
@@ -142,7 +142,7 @@ bool Levels_is_member
     }
     else if(levels->specify_unselected_levels)
     {
-        bool ret = !VSP_dyn_stk_is_member
+        bool ret = !dyn_stk_is_member
                         (
                             problem_level,
                             levels->levels_not_selected
@@ -151,7 +151,7 @@ bool Levels_is_member
     }
     else
     {
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             Error("Invalid selection type", DBG_INFO) ;
         #endif
     }
@@ -164,7 +164,7 @@ void Levels_select
     Levels  *levels
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
         if( levels->specify_selected_levels == false)
@@ -173,14 +173,14 @@ void Levels_select
         }
     #endif
 
-    #ifdef VSP_DEBUG
-        if(VSP_dyn_stk_is_member(level_num, levels->levels_selected))
+    #ifdef DEBUG
+        if(dyn_stk_is_member(level_num, levels->levels_selected))
         {
             Error("Level already selected", DBG_INFO) ;
         }
     #endif
 
-    VSP_dyn_stk_push(levels->levels_selected, level_num) ;
+    dyn_stk_push(levels->levels_selected, level_num) ;
 }
 
 
@@ -190,7 +190,7 @@ void Levels_unselect
     Levels    *levels
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
         if( levels->specify_unselected_levels == false)
@@ -199,8 +199,8 @@ void Levels_unselect
         }
     #endif
 
-    #ifdef VSP_DEBUG
-        if( VSP_dyn_stk_is_member
+    #ifdef DEBUG
+        if( dyn_stk_is_member
             (
                 level_num,
                 levels->levels_not_selected
@@ -210,7 +210,7 @@ void Levels_unselect
         }
     #endif
 
-    VSP_dyn_stk_push(levels->levels_not_selected, level_num) ;
+    dyn_stk_push(levels->levels_not_selected, level_num) ;
 
     return ;
 }
@@ -222,7 +222,7 @@ void Levels_select_top
     Levels *levels
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
         if(levels->top_levels == false)
@@ -242,7 +242,7 @@ void Levels_select_bot
     Levels *levels
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
         if(levels->bot_levels == false)
@@ -264,9 +264,9 @@ void Levels_select_bot
 /*----------------------------------------------------------------------------*/
 
 /* Construct a dynamic stack. Initial size is 32 elements */
-VSP_dyn_stk *VSP_construct_dyn_stk()
+dyn_stk *construct_dyn_stk()
 {
-    VSP_dyn_stk *ds  = malloc(sizeof(*ds)) ;
+    dyn_stk *ds  = malloc(sizeof(*ds)) ;
     ds->max_size = 32 ;
     ds->stack     = malloc( (ds->max_size) * sizeof(VSPINT) ) ;
     ds->n_stack   = 0 ;
@@ -274,13 +274,13 @@ VSP_dyn_stk *VSP_construct_dyn_stk()
     return ds ;
 }
 
-void VSP_destruct_dyn_stk(VSP_dyn_stk* ds)
+void destruct_dyn_stk(dyn_stk* ds)
 {
     free(ds->stack) ;
     free(ds) ;
 }
 
-void VSP_dyn_stk_push(VSP_dyn_stk* ds, VSPINT to_push)
+void dyn_stk_push(dyn_stk* ds, VSPINT to_push)
 {
     if (ds->n_stack == ds->max_size)
     {
@@ -292,7 +292,7 @@ void VSP_dyn_stk_push(VSP_dyn_stk* ds, VSPINT to_push)
     ds->n_stack++ ;
 }
 
-bool VSP_dyn_stk_is_member(VSPINT i, VSP_dyn_stk* ds)
+bool dyn_stk_is_member(VSPINT i, dyn_stk* ds)
 {
     for (VSPINT j = 0 ; j < ds->n_stack ; j++)
     {
@@ -306,13 +306,13 @@ bool VSP_dyn_stk_is_member(VSPINT i, VSP_dyn_stk* ds)
 }
 
 /* Create a deep copy */
-VSP_dyn_stk *VSP_dyn_stk_copy(VSP_dyn_stk *stack_in)
+dyn_stk *dyn_stk_copy(dyn_stk *stack_in)
 {
-    VSP_dyn_stk *stack_out = VSP_construct_dyn_stk() ;
+    dyn_stk *stack_out = construct_dyn_stk() ;
 
     for (VSPINT i = 0 ; i < stack_in->n_stack ; i++)
     {
-        VSP_dyn_stk_push(stack_out, stack_in->stack[i]) ;
+        dyn_stk_push(stack_out, stack_in->stack[i]) ;
     }
 
     return stack_out ;
@@ -323,9 +323,9 @@ VSP_dyn_stk *VSP_dyn_stk_copy(VSP_dyn_stk *stack_in)
 
 
 /* Just construct and set everything to empty */
-VSP_restart_decision *VSP_construct_restart_decision()
+restart_decision *construct_restart_decision()
 {
-    VSP_restart_decision *ret = malloc(sizeof(*ret)) ;
+    restart_decision *ret = malloc(sizeof(*ret)) ;
 
     /* Levels */
     ret->use_levels = false ;
@@ -341,11 +341,11 @@ VSP_restart_decision *VSP_construct_restart_decision()
     return ret ;
 }
 
-void VSP_destruct_restart_decision(VSP_restart_decision *dec)
+void destruct_restart_decision(restart_decision *dec)
 {
     if (dec->levels != NULL)
     {
-        VSP_destruct_levels(dec->levels) ;
+        destruct_levels(dec->levels) ;
     }
 
     free(dec) ;
@@ -355,15 +355,15 @@ void VSP_destruct_restart_decision(VSP_restart_decision *dec)
 
 /* If using the rule, and if it returns true, then it also increments
    dec->restarts_done. */
-bool VSP_restart_decide
+bool restart_decide
 (
-    VSP_restart_decision       *dec,
+    restart_decision       *dec,
     VSPFLOAT                  objIn, /* If not using rule, this is ignored */
     VSPFLOAT                 objOut, /* If not using rule, this is ignored */
     Problem                *problem  /* If using levels, this is ignored   */
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
 
@@ -423,7 +423,7 @@ bool VSP_restart_decide
     return false ;
 }
 
-void VSP_restart_decide_reset(VSP_restart_decision *dec)
+void restart_decide_reset(restart_decision *dec)
 {
     dec->restarts_done = 0 ;
     return ;
@@ -432,7 +432,7 @@ void VSP_restart_decide_reset(VSP_restart_decision *dec)
 
 
 /***************** Options ************************************************/
-Options* VSP_construct_options()
+Options* construct_options()
 {
     Options* options = malloc(sizeof(Options));
     options->restart_decision     = NULL ;
@@ -440,11 +440,11 @@ Options* VSP_construct_options()
 }
 
 
-void VSP_destruct_options(Options* options)
+void destruct_options(Options* options)
 {
     if(options->restart_decision != NULL)
     {
-        VSP_destruct_restart_decision(options->restart_decision) ;
+        destruct_restart_decision(options->restart_decision) ;
     }
 
 

@@ -34,7 +34,7 @@ void MaxHeap_Heapify_v0
         MaxHeap_Bubble_Down_v0(heap, lookup, numNodes, c, p) ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         MaxHeap_Check_v0(heap, lookup, numNodes, c) ;
     #endif
     return ;
@@ -149,7 +149,7 @@ void MaxHeap_Insert_v0
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if(Is_Array_Member(toInsert, heap, 1, *numNodes + 1) )
         {
             Error("Element already in heap", DBG_INFO) ;
@@ -184,7 +184,7 @@ void MaxHeap_Insert_v0
     heap[node_child] = toInsert ;
     lookup[toInsert] = node_child ;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         MaxHeap_Check_v0(heap, lookup, *numNodes, c) ;
     #endif
 
@@ -204,7 +204,7 @@ void MaxHeap_Delete_v0
     VSPINT      toDel
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         MaxHeap_Check_v0(heap, lookup, *numNodes, c) ;
     #endif
 
@@ -216,7 +216,7 @@ void MaxHeap_Delete_v0
     else if(address == *numNodes) /* toDel is in the last node */
     {
         (*numNodes)-- ;
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             MaxHeap_Check_v0(heap, lookup, *numNodes, c) ;
         #endif
         return ;
@@ -255,7 +255,7 @@ void MaxHeap_Delete_v0
         lookup[replacement] = address ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         MaxHeap_Check_v0(heap, lookup, *numNodes, c) ;
     #endif
     return ;
@@ -460,7 +460,7 @@ void MinHeap_Heapify_v0
     {
         MinHeap_Bubble_Down_v0(heap, lookup, numNodes, c, p);
     }
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         MinHeap_Check_v0(heap, lookup, numNodes, c) ;
     #endif
 }
@@ -475,7 +475,7 @@ void MinHeap_Insert_v0
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
 
         if(Is_Array_Member(toInsert, heap, 1, *numNodes + 1) )
@@ -506,7 +506,7 @@ void MinHeap_Insert_v0
     heap[node_child]   = toInsert;
     lookup[toInsert]   = node_child;
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
     #endif
 }
@@ -521,7 +521,7 @@ void MinHeap_Delete_v0
     VSPINT   toDel
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
     #endif
 
@@ -530,7 +530,7 @@ void MinHeap_Delete_v0
     if (address == *numNodes)
     {
         (*numNodes)--;
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
         #endif
         return;
@@ -564,7 +564,7 @@ void MinHeap_Delete_v0
         heap[address]     = replacement;
         lookup[replacement] = address;
     }
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
     #endif
 }

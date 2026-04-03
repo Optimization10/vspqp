@@ -33,7 +33,7 @@ VSPINT Are_Neighbors
     return 0 ;
 }
 
-VSPINT VSP_penalty_term
+VSPINT penalty_term
 (
     VSPINT  *z,
     VSPINT *Aw,
@@ -49,7 +49,7 @@ VSPINT VSP_penalty_term
     return ret ;
 }
 
-VSPFLOAT VSP_zAw
+VSPFLOAT zAw
 (
     State *X,
     State *Y
@@ -116,7 +116,7 @@ VSPFLOAT VSP_zAw
 }
 
 /* Count the number of nonzeros in a given array of integers */
-VSPINT VSP_count_nzs(VSPINT *array, VSPINT n)
+VSPINT count_nzs(VSPINT *array, VSPINT n)
 {
     VSPINT ret = 0 ;
     for(VSPINT i = 0 ; i < n ; i++)
@@ -126,7 +126,7 @@ VSPINT VSP_count_nzs(VSPINT *array, VSPINT n)
     return ret ;
 }
 
-void VSP_copy_array_int
+void copy_array_int
 (
     VSPINT *from,
     VSPINT *to,
@@ -142,7 +142,7 @@ void VSP_copy_array_int
 
 
 /* Return the number of places in which a and b are different */
-VSPINT VSP_bin_points_diff
+VSPINT bin_points_diff
 (
     VSPINT *a,
     VSPINT *b,
@@ -220,7 +220,7 @@ bool Is_Complete_Graph
 
 
 /* Check if a == b */
-bool VSP_equal
+bool equal
 (
     VSPFLOAT a,
     VSPFLOAT b
@@ -245,7 +245,7 @@ bool VSP_equal
 
 
 /* Check that a <= b */
-bool VSP_lteq
+bool lteq
 (
     VSPFLOAT a,
     VSPFLOAT b
@@ -255,7 +255,7 @@ bool VSP_lteq
     {
         return true ;
     }
-    else if ( VSP_equal(a, b) )
+    else if ( equal(a, b) )
     {
         return true ;
     }
@@ -277,10 +277,10 @@ bool Is_Greater_Than(VSPFLOAT a, VSPFLOAT b, VSPFLOAT tol)
     return a > b + tol ;
 }
 
-VSPFLOAT VSP_Azi
+VSPFLOAT Azi
 (
     VSPINT i,
-    VSP_Az *Az
+    Az *Az
 )
 {
     VSPFLOAT Azi = Az->int_part[i] ;
@@ -295,9 +295,9 @@ VSPFLOAT VSP_Azi
 }
 
 /* Compute c[i] - gamma * Az[i] */
-VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
+VSPFLOAT Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, Az *Az)
 {
-    return c[i] - gamma * VSP_Azi(i, Az) ;
+    return c[i] - gamma * Azi(i, Az) ;
 }
 
 
@@ -306,15 +306,15 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
 /* Experimental                                                               */
 /*----------------------------------------------------------------------------*/
 /* Go through z and see if there is anything we could swap in fully */
-// void VSP_resolve_frac_entry_v2
+// void resolve_frac_entry_v2
 // (
 //     State                 *Z, /* Resolve entry in Z */
 //     State                 *W,
 //     Problem         *problem
 // ) 
 // {
-    // #ifdef VSP_DEBUG
-    //     VSP_check_states(Z, W, problem) ;
+    // #ifdef DEBUG
+    //     check_states(Z, W, problem) ;
     // #endif
 
     // if(Z->point->ind_frac == EMPTY)
@@ -332,7 +332,7 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
 
     // if(gapOrg < problem>Graph->min_vtx_cost)
     // {
-    //     VSP_resolve_frac_entry(Z, problem) ;
+    //     resolve_frac_entry(Z, problem) ;
     // }
 
     // c  = problem->Graph->c ;
@@ -346,20 +346,20 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
     //         break ;
     //     }
 
-    //     Awi = VSP_Azi(i, W->Az) ;
+    //     Awi = Azi(i, W->Az) ;
 
     //     if(z[i] == 0 && c[i] <= gap && Awi == 0)
     //     {
     //         z[i] = 1 ;
     //         Z->weight += c[i] ;
-    //         VSP_Az_pm_col_of_A(Z->Az->int_part, i, PLUS, problem) ;
+    //         Az_pm_col_of_A(Z->Az->int_part, i, PLUS, problem) ;
     //         gap -= c[i] ;
     //     }
     // }
 
     // if(gap == gapOrg) /* Nothing could be done */
     // {
-    //     VSP_resolve_frac_entry(Z, problem) ;
+    //     resolve_frac_entry(Z, problem) ;
     // }
     // else
     // {
@@ -372,19 +372,19 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
     //     Z->weight -= gapOrg  ;
     // }
 
-    // #ifdef VSP_DEBUG
-    //     VSP_check_states(Z, W, problem) ;
+    // #ifdef DEBUG
+    //     check_states(Z, W, problem) ;
     // #endif
 
     // return ;
 // }
 /*----------------------------------------------------------------------------*/
 
-// void VSP_resolve_frac_entry(State *Z, Problem *problem)
+// void resolve_frac_entry(State *Z, Problem *problem)
 // {
 
-//     #ifdef VSP_DEBUG
-//         VSP_check_state(Z, problem) ;
+//     #ifdef DEBUG
+//         check_state(Z, problem) ;
 //     #endif
 
 //     VSPINT k = Z->point->ind_frac ;
@@ -394,7 +394,7 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
 //     VSPINT *c = problem->Graph->c ;
 
 //     /* Check if setting frac entry to 0 would violate lower bound */
-//     if(Z->weight - val_frac * c[k] < 1 - VSP_ZERO)
+//     if(Z->weight - val_frac * c[k] < 1 - ZERO)
 //     {
 //         /* Round up */
 //         if(Z->weight + (1 - val_frac) * c[k] <= problem->u)
@@ -404,7 +404,7 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
 //             Z->point->ind_frac = EMPTY ;
 
 //             Z->Az->ind_frac_z = EMPTY ;
-//             VSP_Az_pm_col_of_A(Z->Az->int_part, k, PLUS, problem) ;
+//             Az_pm_col_of_A(Z->Az->int_part, k, PLUS, problem) ;
 //             return ;
 //         }
 //         else
@@ -423,15 +423,15 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
 //     /* Update the Az struct */
 //     Z->Az->ind_frac_z = EMPTY ;
 
-//     #ifdef VSP_DEBUG
-//         VSP_check_state(Z, problem) ;
+//     #ifdef DEBUG
+//         check_state(Z, problem) ;
 //     #endif
 
 
 //     return ;
 // }
 
-void VSP_resolve_frac_entry
+void resolve_frac_entry
 (
     State *Z,
     State *W,
@@ -439,8 +439,8 @@ void VSP_resolve_frac_entry
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
-        VSP_check_state(Z, problem) ;
+    #ifdef DEBUG
+        check_state(Z, problem) ;
     #endif
 
     VSPINT k = Z->point->ind_frac ;
@@ -451,7 +451,7 @@ void VSP_resolve_frac_entry
     VSPLONG p ;
 
     /* Check if setting frac entry to 0 would violate lower bound */
-    if(Z->weight - val_frac * c[k] < 1 - VSP_ZERO)
+    if(Z->weight - val_frac * c[k] < 1 - ZERO)
     {
         /* Round up */
         if(Z->weight + (1 - val_frac) * c[k] <= problem->u)
@@ -464,7 +464,7 @@ void VSP_resolve_frac_entry
             Z->point->ind_frac = EMPTY ;
 
             Z->Az->ind_frac_z = EMPTY ;
-            VSP_Az_pm_col_of_A(Z->Az->int_part, k, PLUS, problem) ;
+            Az_pm_col_of_A(Z->Az->int_part, k, PLUS, problem) ;
             
             // Downflip the neighbors of k in the other variable as long as it
             // doesn't violate the lower balance constraint
@@ -498,8 +498,8 @@ void VSP_resolve_frac_entry
     /* Update the Az struct */
     Z->Az->ind_frac_z = EMPTY ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_state(Z, problem) ;
+    #ifdef DEBUG
+        check_state(Z, problem) ;
     #endif
 
 
@@ -514,15 +514,15 @@ void Force_To_Binary_Point
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
-        VSP_check_states(Z, W, problem) ;
+    #ifdef DEBUG
+        check_states(Z, W, problem) ;
     #endif
 
     State_Round_Down(Z, problem) ;
     State_Round_Down(W, problem) ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_states(Z, W, problem) ;
+    #ifdef DEBUG
+        check_states(Z, W, problem) ;
     #endif
 }
 
@@ -549,8 +549,8 @@ void State_Round_Down
     Z->Az->ind_frac_z = EMPTY ;
     Z->Az->val_frac_z = 0 ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_state(Z, problem) ;
+    #ifdef DEBUG
+        check_state(Z, problem) ;
     #endif
 
 }
@@ -563,11 +563,11 @@ void Error
     unsigned long long count
 )
 {
-    #ifndef VSP_DEBUG
+    #ifndef DEBUG
         printf("\n\nWARNING! DOING DEBUGGING CHECKS WHILE NOT IN DEBUG MODE") ;
     #endif
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned error_count = 0 ;
         error_count++ ;
 
@@ -595,7 +595,7 @@ void Error
 
 // Given the Ai, Ap arrays of a binary matrix, extract its kth Ak column into an
 // array, with the argument "one" representing 1's
-void VSP_extract_matrix_col
+void extract_matrix_col
 (
     VSPINT           *Ak, /* Array to store the column */
     VSPINT             k, /* Index of column to extract */
@@ -619,13 +619,13 @@ void VSP_extract_matrix_col
 }
 
 
-long double VSP_compute_elapsed_time(struct timespec start, struct timespec end)
+long double compute_elapsed_time(struct timespec start, struct timespec end)
 {
     return    CAST( (end.tv_sec - start.tv_sec), long double) + CAST( (end.tv_nsec - start.tv_nsec), long double) / CAST(1e9, long double) ;
 }
 
 
-VSPFLOAT* VSP_Az_struct_to_array (VSP_Az *Az) {
+VSPFLOAT* Az_struct_to_array (Az *Az) {
     VSPINT    i ;
     VSPFLOAT  frac_entry ;
     VSPINT    ind_frac_z = Az->ind_frac_z ;
@@ -652,11 +652,11 @@ VSPFLOAT* VSP_Az_struct_to_array (VSP_Az *Az) {
 }
 
 
-void VSP_array_to_point(
+void array_to_point(
     VSPFLOAT  *z_float,
     Point       *z
 ) {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
         bool frac_entry = false ;
@@ -670,7 +670,7 @@ void VSP_array_to_point(
         if( fabs(z_float[i]) < 1E-6 )            z_int[i] = 0 ;
         else if ( fabs(z_float[i] - 1) < 1E-6 )  z_int[i] = 1 ;
         else {
-            #ifdef VSP_DEBUG
+            #ifdef DEBUG
                 if (frac_entry) {
                     Error("Multiple frac entries", DBG_INFO) ;
                 }
@@ -705,7 +705,7 @@ VSPFLOAT* Point_to_array(Point *z) {
 
 
 // Create a deep copy. Assume that all memory is already allocated
-void VSP_copy_state(State *from, State *to)
+void copy_state(State *from, State *to)
 {
     VSPINT  i ;
     VSPINT  n = from->point->n ;
@@ -767,7 +767,7 @@ void VSP_copy_state(State *from, State *to)
 
 /* Use when you want to sort an array in increasing order using qsort from
    stdlib                                                                     */
-int VSP_comparison_increasing(const void *a, const void *b) {
+int comparison_increasing(const void *a, const void *b) {
     if ( *(VSPINT*) a < *(VSPINT*) b ) {
         return -1 ;
     }
@@ -865,42 +865,42 @@ void DumpIntArray(VSPINT *array, VSPINT len, char *outName)
     return ;
 }
 
-void DumpGrad(VSPINT *c, VSPFLOAT gamma, VSP_Az *Az, char *outName)
-{
-    /* Open a file in output */
-    char fileName[300] = {'\0'} ;
-    strcpy(fileName, "output/") ;
-    strcat(fileName, outName) ;
-    FILE *file = fopen(fileName, "w") ;
+// void DumpGrad(VSPINT *c, VSPFLOAT gamma, Az *Az, char *outName)
+// {
+//     /* Open a file in output */
+//     char fileName[300] = {'\0'} ;
+//     strcpy(fileName, "output/") ;
+//     strcat(fileName, outName) ;
+//     FILE *file = fopen(fileName, "w") ;
 
-    for(VSPINT i = 0 ; i < Az->n ; i++)
-    {
-        VSPFLOAT Azi = VSP_Azi(i, Az) ;
-        fprintf(file, "%f\n", c[i] - gamma * Azi) ;
-    }
-    fclose(file) ;
-    return ;
-}
+//     for(VSPINT i = 0 ; i < Az->n ; i++)
+//     {
+//         VSPFLOAT Azi = Azi(i, Az) ;
+//         fprintf(file, "%f\n", c[i] - gamma * Azi) ;
+//     }
+//     fclose(file) ;
+//     return ;
+// }
 
-void DumpAz(VSP_Az *Az, char *outName)
-{
-    /* Open a file in output */
-    char fileName[300] = {'\0'} ;
-    strcpy(fileName, "output/") ;
-    strcat(fileName, outName) ;
-    FILE *file = fopen(fileName, "w") ;
+// void DumpAz(Az *Az, char *outName)
+// {
+//     /* Open a file in output */
+//     char fileName[300] = {'\0'} ;
+//     strcpy(fileName, "output/") ;
+//     strcat(fileName, outName) ;
+//     FILE *file = fopen(fileName, "w") ;
 
-    for(VSPINT i = 0 ; i < Az->n ; i++)
-    {
-        VSPFLOAT Azi = VSP_Azi(i, Az) ;
-        fprintf(file, "%f\n", Azi) ;
-    }
-    fclose(file) ;
-    return ;
-}
+//     for(VSPINT i = 0 ; i < Az->n ; i++)
+//     {
+//         VSPFLOAT Azi = Azi(i, Az) ;
+//         fprintf(file, "%f\n", Azi) ;
+//     }
+//     fclose(file) ;
+//     return ;
+// }
 
 /* Set frac entry, but do NOT update the weight */
-void VSP_SetFracEntry
+void SetFracEntry
 (
     VSPINT         indFrac,
     VSPFLOAT       valFrac,
@@ -908,8 +908,8 @@ void VSP_SetFracEntry
     Problem   *problem
 )
 {
-    #ifdef VSP_DEBUG
-        VSP_check_state(Z, problem) ;
+    #ifdef DEBUG
+        check_state(Z, problem) ;
     #endif
     Z->point->ind_frac = indFrac ;
     Z->point->val_frac = valFrac ;
@@ -918,7 +918,7 @@ void VSP_SetFracEntry
     Z->Az->val_frac_z = valFrac ;
 
     Z->Az->one++ ;
-    VSP_extract_matrix_col
+    extract_matrix_col
     (
         Z->Az->col_frac_z,
         indFrac,
@@ -927,13 +927,13 @@ void VSP_SetFracEntry
         problem->Graph->Ap
     ) ;
 
-    #ifdef VSP_DEBUG
-        VSP_check_state(Z, problem) ;
+    #ifdef DEBUG
+        check_state(Z, problem) ;
     #endif
     return ;
 }
 
-VSPFLOAT VSP_ComputeFracEntry
+VSPFLOAT ComputeFracEntry
 (
     VSPINT   u,
     VSPINT wgt,
@@ -1016,9 +1016,9 @@ void Save_State_Copy
     VSPINT *z, VSPINT *Az, VSPINT wgtz, VSPINT n, State **stateHome
 )
 {
-    State *ret = VSP_construct_state(n) ;
-    VSP_copy_array_int(z , ret->point->int_part, n) ;
-    VSP_copy_array_int(Az, ret->Az   ->int_part, n) ;
+    State *ret = construct_state(n) ;
+    copy_array_int(z , ret->point->int_part, n) ;
+    copy_array_int(Az, ret->Az   ->int_part, n) ;
     ret->weight = wgtz ;
 
     *stateHome = ret ;
@@ -1033,7 +1033,7 @@ void Check_Array_Is_Binary
 {
     static long long unsigned count = 0 ;
     count++ ;
-    TMP_ASSERT(n > 0) ;
+    VSP_ASSERT(n > 0) ;
 
     VSPINT i ;
     for(i = 0 ; i < n ; i++)
@@ -1070,7 +1070,7 @@ void Fix_Lower_Bound_Issue
     if(Z->weight > 1) return ;
 
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if(Z->weight != 1)
         {
             ERR("Entering when weight isn't 1") ;
@@ -1129,7 +1129,7 @@ void Fix_Lower_Bound_Issue
     }
 
     // Integer part of Aw[k] should be 0
-    TMP_ASSERT(Aw[k] == 0) ;
+    VSP_ASSERT(Aw[k] == 0) ;
     return ;
 }
 

@@ -4,17 +4,17 @@
 
 
 
-VSPFLOAT VSP_minreduce_one_var
+VSPFLOAT minreduce_one_var
 (
     State         *Z,
-    VSP_Az           *Aw,
+    Az           *Aw,
     Problem *problem
 ) ;
 
 
 /* Return the smallest gamma_t in (0, gamma) such that (x, y) is
    a stationary point                                                         */
-VSPFLOAT VSP_minreduce
+VSPFLOAT minreduce
 (
     State         *X,
     State         *Y,
@@ -22,23 +22,23 @@ VSPFLOAT VSP_minreduce
     Problem *problem
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
 
-    VSPFLOAT gamma_tx = VSP_minreduce_one_var(X, Y->Az, problem) ;
-    VSPFLOAT gamma_ty = VSP_minreduce_one_var(Y, X->Az, problem) ;
+    VSPFLOAT gamma_tx = minreduce_one_var(X, Y->Az, problem) ;
+    VSPFLOAT gamma_ty = minreduce_one_var(Y, X->Az, problem) ;
 
     VSPFLOAT gamma_max = (gamma_tx > gamma_ty) ? gamma_tx : gamma_ty ;
 
 
     if( gamma_max >= problem->Graph->max_vtx_cost )
     {
-        VSP_mountain_climbing(X, Y, problem, options, problem->Graph->max_vtx_cost, true) ;
+        mountain_climbing(X, Y, problem, options, problem->Graph->max_vtx_cost, true) ;
     }
-    gamma_tx = VSP_minreduce_one_var(X, Y->Az, problem) ;
-    gamma_ty = VSP_minreduce_one_var(Y, X->Az, problem) ;
+    gamma_tx = minreduce_one_var(X, Y->Az, problem) ;
+    gamma_ty = minreduce_one_var(Y, X->Az, problem) ;
 
     gamma_max = (gamma_tx > gamma_ty) ? gamma_tx : gamma_ty ;
 
@@ -51,21 +51,21 @@ VSPFLOAT VSP_minreduce
         // printf("Negative\n") ;
     }
 
-    #ifdef VSP_DEBUG
-        VSP_check_states(X, Y, problem) ;
+    #ifdef DEBUG
+        check_states(X, Y, problem) ;
     #endif
 
     return gamma_max ;
 }
 
-VSPFLOAT VSP_minreduce_one_var
+VSPFLOAT minreduce_one_var
 (
     State         *Z,
-    VSP_Az           *Aw,
+    Az           *Aw,
     Problem *problem
 )
 {
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
     #endif
@@ -97,7 +97,7 @@ VSPFLOAT VSP_minreduce_one_var
                 // if(gamma_t == 4 && problem->Graph->max_vtx_cost == 2) printf("\ni: %lld", (long long) i) ;
             }
         }
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             if(z_int[i] == 0 && Awi == 0)
             {
                 // Error("Entered gamma reduction when not neccesary", DBG_INFO) ;
@@ -105,7 +105,7 @@ VSPFLOAT VSP_minreduce_one_var
         #endif
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if(gamma_t > problem->Graph->max_vtx_cost) {
             Error("Error in gamma reduction", DBG_INFO) ;
         }

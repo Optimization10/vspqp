@@ -25,7 +25,7 @@ void FeasibleBeneficialFlips
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_All_Data
         (
             x, Ax, *wgtx, y, Ay, *wgty,
@@ -107,7 +107,7 @@ void FeasibleBeneficialFlips
         numFlips++ ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_Outputs(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
         VSPINT objDbgFinal ;
         Compute_ObjValDbg(x, Ax, y, Ay, problem, &objDbgFinal) ;
@@ -161,7 +161,7 @@ void StrictlyBeneficialFlips
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         VSPINT objDbgInit ;
         Compute_ObjValDbg(x, Ax, y, Ay, problem, &objDbgInit) ;
     #endif
@@ -234,7 +234,7 @@ void StrictlyBeneficialFlips
         numFlips++ ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         Check_Outputs(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
         VSPINT objDbgFinal ;
         Compute_ObjValDbg(x, Ax, y, Ay, problem, &objDbgFinal) ;

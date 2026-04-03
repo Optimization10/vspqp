@@ -50,7 +50,7 @@ IdxGroupsByC *IdxGroupsByC_Init
     }
     else
     {
-        #ifdef VSP_DEBUG
+        #ifdef DEBUG
             ERR("Invalid heap choice") ;
         #endif
     }

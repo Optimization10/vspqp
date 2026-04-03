@@ -13,7 +13,7 @@ void Doubly_Linked_Lists_Insert
 )
 {
     SET_FUNCTION_COUNTER ;
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if(Doubly_Linked_Lists_Is_Member_Any_List(entries, fwd, rev, to_insert, n))
         {
             Error("Inserting member which is already there", DBG_INFO) ;
@@ -55,7 +55,7 @@ void Doubly_Linked_Lists_Delete
 {
     SET_FUNCTION_COUNTER ;
     
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         if(!Doubly_Linked_Lists_Is_Member_Specific_List(entries, fwd, rev, which_ll, to_delete, n))
         {
             Error("Attempting to delete something that's not in the ll", DBG_INFO) ;
@@ -87,8 +87,8 @@ bool Doubly_Linked_Lists_Is_Member_Specific_List
 )
 {
     SET_FUNCTION_COUNTER ;
-    TMP_ASSERT(0 <= which_ll && which_ll <= n) ;
-    TMP_ASSERT(0 <= member   && member   <  n) ;
+    VSP_ASSERT(0 <= which_ll && which_ll <= n) ;
+    VSP_ASSERT(0 <= member   && member   <  n) ;
 
     VSPINT entry = entries[which_ll] ;
     if(entry == EMPTY) return false ;
@@ -102,7 +102,7 @@ bool Doubly_Linked_Lists_Is_Member_Specific_List
             ret = true ;
             break ;
         }
-        TMP_ASSERT(0 <= i && i < n) ;
+        VSP_ASSERT(0 <= i && i < n) ;
     } while( (i = fwd[i]) != entry) ;
     
     return ret ;
@@ -148,14 +148,14 @@ void Doubly_Linked_Lists_Spread_One_List
     do
     {
         spread[i]++ ;
-        TMP_ASSERT(0 <= i && i < n) ;
+        VSP_ASSERT(0 <= i && i < n) ;
     } while( (i = fwd[i]) != entry) ;
 
     i = entry ;
     do
     {
         spread[i]++ ;
-        TMP_ASSERT(0 <= i && i < n) ;
+        VSP_ASSERT(0 <= i && i < n) ;
     } while( (i = rev[i]) != entry) ;
     return ;
 }
@@ -178,7 +178,7 @@ VSPINT *Doubly_Linked_Lists_Spread
         Doubly_Linked_Lists_Spread_One_List(entries, fwd, rev, whichll, spread, n) ;
     }
 
-    #ifdef VSP_DEBUG
+    #ifdef DEBUG
         for(VSPINT i = 0 ; i < n ; i++)
         {
             if(spread[i] != 0 && spread[i] != 2)
@@ -299,7 +299,7 @@ void Doubly_Linked_Lists_See_Entry
 )
 {
     SET_FUNCTION_COUNTER ;
-    TMP_ASSERT(whichll >= 0) ;
+    VSP_ASSERT(whichll >= 0) ;
     *ret = entries[whichll] ;
     return ;
 }

@@ -8,7 +8,7 @@
 #include <assert.h>
 
 /* Dump a graph in coordinate form. Make the indexing 1-based */
-void VSP_dump_graph
+void dump_graph
 (
     State *X,
     State *Y,

@@ -23,7 +23,7 @@ VSPFLOAT Reduce_Gamma
 
 /* This file contains functions involving mc which are to be exposed to the
    outside */
-void VSP_mountain_climbing
+void mountain_climbing
 (
     State               *X,
     State               *Y,
@@ -34,7 +34,7 @@ void VSP_mountain_climbing
 ) ;
 
 
-void VSP_mountain_climbing_v2
+void mountain_climbing_v2
 (
     State                  *X,
     State                  *Y,
@@ -44,10 +44,10 @@ void VSP_mountain_climbing_v2
     VSPINT                 numLPs /* >= 0. If 0, we launch directly into ortho*/
 ) ;
 
-VSPFLOAT VSP_LP_solver_4
+VSPFLOAT LP_solver_4
 (
     State *Z, /* Solution */
-    VSP_Az *Aw,
+    Az *Aw,
     VSPINT *c,
     VSPINT u,
     VSPFLOAT gamma,
