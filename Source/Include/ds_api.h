@@ -80,37 +80,37 @@ void Direct_Access_List_Check
 /* Levels */
 /*----------------------------------------------------------------------------*/
 
-VSP_levels* VSP_levels_copy(VSP_levels* levels_in) ;
+Levels* Levels_copy(Levels* levels_in) ;
 
 
 
 void VSP_destruct_levels
 (
-    VSP_levels* levels
+    Levels* levels
 ) ;
 
-bool VSP_levels_is_member
+bool Levels_is_member
 (
     Problem *problem,
-    VSP_levels  *levels
+    Levels  *levels
 ) ;
 
-void VSP_levels_select
+void Levels_select
 (
     VSPINT       level_num,
-    VSP_levels  *levels
+    Levels  *levels
 ) ;
 
-void VSP_levels_select_top
+void Levels_select_top
 (
     VSPINT n_top_levels,
-    VSP_levels *levels
+    Levels *levels
 ) ;
 
-void VSP_levels_select_bot
+void Levels_select_bot
 (
     VSPINT n_bot_levels,
-    VSP_levels *levels
+    Levels *levels
 ) ;
 
 

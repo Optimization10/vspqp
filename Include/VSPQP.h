@@ -7,9 +7,7 @@
 #include <stdlib.h>
 
 
-typedef struct VSP_levels_struct VSP_levels ;
-typedef struct VSP_coarsen_dec_struct VSP_coarsen_dec ;
-
+typedef struct Levels_struct Levels ;
 
 typedef enum VSP_initial_guess_enum
 {
@@ -22,7 +20,7 @@ typedef struct VSP_restart_decision_struct
 {
     /* Only one of use_levels, use_rule should be true */
     bool        use_levels ;
-    VSP_levels     *levels ; /* Null if we don't use levels */
+    Levels     *levels ; /* Null if we don't use levels */
 
     /* If the relative change in objective at this level is below rule_param,
        then do a restart */
@@ -136,18 +134,18 @@ typedef enum
     NO_LEVELS,
     SPECIFY_SELECTED_LEVELS,
     SPECIFY_UNSELECTED_LEVELS
-} VSP_levels_selection_type ;
+} Levels_selection_type ;
 
 VSP_restart_decision *VSP_construct_restart_decision() ;
-VSP_levels* VSP_construct_levels
+Levels* VSP_construct_levels
 (
-    VSP_levels_selection_type selection_type
+    Levels_selection_type selection_type
 ) ;
 
-void VSP_levels_unselect
+void Levels_unselect
 (
     VSPINT     level_num,
-    VSP_levels   *levels
+    Levels   *levels
 ) ;
 
 

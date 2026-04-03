@@ -482,8 +482,8 @@ static void SetCustomOptions(Options *options)
     // /* All levels in [2, infty) */
     options->restart_decision->use_levels = true ;
     options->restart_decision->levels     = VSP_construct_levels(SPECIFY_UNSELECTED_LEVELS) ;
-    VSP_levels_unselect(0, options->restart_decision->levels) ;
-    VSP_levels_unselect(1, options->restart_decision->levels) ;
+    Levels_unselect(0, options->restart_decision->levels) ;
+    Levels_unselect(1, options->restart_decision->levels) ;
 
     /* Using Rule */
     // WARNING!!!! RULE UNSUPPORTED RIGHT NOW

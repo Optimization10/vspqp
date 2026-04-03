@@ -16,8 +16,8 @@ typedef struct VSP_dyn_stk_struct
 
 /* Usage:
 
-    First, create a VSP_levels_selection_type variable with the desired
-    selection type, and then create a call the constructor of VSP_levels
+    First, create a Levels_selection_type variable with the desired
+    selection type, and then create a call the constructor of Levels
     and store the result in a variable, called, let's say, levels.
 
     TOP_LEVELS: Then the top (levels->num_top_levels). Note that if this is 0,
@@ -32,14 +32,14 @@ typedef struct VSP_dyn_stk_struct
 
     SPECIFY_SELECTED_LEVELS: Then the levels_selected stack should be filled
                              with the levels to be selected. This stack is
-                             added to using the VSP_levels_select function.
+                             added to using the Levels_select function.
 
     SPECIFY_UNSELECTED_LEVELS: Then the levels_not_selected stack should be
                                filled with the levels to be unselected. This
-                               stack is added to using the VSP_levels_unselect
+                               stack is added to using the Levels_unselect
                                function.
 */
-typedef struct VSP_levels_struct
+typedef struct Levels_struct
 {
     /* Options. Precisely one of the following should be true at any time */
     bool top_levels ;
@@ -60,7 +60,7 @@ typedef struct VSP_levels_struct
      /* Must be empty unless specify_unselected_levels == true */
     VSP_dyn_stk *levels_not_selected ;
 
-} VSP_levels ;
+} Levels ;
 
 /*----------------------------------------------------------------------------*/
 /* Restart Decision */

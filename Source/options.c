@@ -6,9 +6,9 @@
 
 
 
-VSP_levels* VSP_construct_levels
+Levels* VSP_construct_levels
 (
-    VSP_levels_selection_type selection_type
+    Levels_selection_type selection_type
 )
 {
     #ifdef VSP_DEBUG
@@ -16,7 +16,7 @@ VSP_levels* VSP_construct_levels
         count++ ;
     #endif
 
-    VSP_levels *levels = malloc(sizeof(*levels)) ;
+    Levels *levels = malloc(sizeof(*levels)) ;
     levels->top_levels                = false ;
     levels->bot_levels                = false ;
     levels->all_levels                = false ;
@@ -68,7 +68,7 @@ VSP_levels* VSP_construct_levels
 
 void VSP_destruct_levels
 (
-    VSP_levels* levels
+    Levels* levels
 )
 {
     if(levels->specify_selected_levels)
@@ -84,10 +84,10 @@ void VSP_destruct_levels
 }
 
 
-bool VSP_levels_is_member
+bool Levels_is_member
 (
     Problem *problem,
-    VSP_levels  *levels
+    Levels  *levels
 )
 {
     #ifdef VSP_DEBUG
@@ -158,10 +158,10 @@ bool VSP_levels_is_member
     return false ;
 }
 
-void VSP_levels_select
+void Levels_select
 (
     VSPINT       level_num,
-    VSP_levels  *levels
+    Levels  *levels
 )
 {
     #ifdef VSP_DEBUG
@@ -184,10 +184,10 @@ void VSP_levels_select
 }
 
 
-void VSP_levels_unselect
+void Levels_unselect
 (
     VSPINT      level_num,
-    VSP_levels    *levels
+    Levels    *levels
 )
 {
     #ifdef VSP_DEBUG
@@ -216,10 +216,10 @@ void VSP_levels_unselect
 }
 
 
-void VSP_levels_select_top
+void Levels_select_top
 (
     VSPINT n_top_levels,
-    VSP_levels *levels
+    Levels *levels
 )
 {
     #ifdef VSP_DEBUG
@@ -236,10 +236,10 @@ void VSP_levels_select_top
     return ;
 }
 
-void VSP_levels_select_bot
+void Levels_select_bot
 (
     VSPINT n_bot_levels,
-    VSP_levels *levels
+    Levels *levels
 )
 {
     #ifdef VSP_DEBUG
@@ -397,7 +397,7 @@ bool VSP_restart_decide
 
     if (dec->use_levels)
     {
-        return VSP_levels_is_member(problem, dec->levels) ;
+        return Levels_is_member(problem, dec->levels) ;
     }
     else if (dec->use_rule)
     {
