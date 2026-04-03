@@ -560,7 +560,7 @@ void Check_All_Data_v5
     /*------------------------------------------------------------------------*/
     // Load the data into states and use VSP_check_states
     /*------------------------------------------------------------------------*/
-    VSP_point xPoint, yPoint ;
+    Point xPoint, yPoint ;
 
     xPoint.int_part = x ;
     xPoint.ind_frac = EMPTY ;
@@ -1018,7 +1018,7 @@ void Check_Inputs_v5
     /*------------------------------------------------------------------------*/
     // Load the data into states and use VSP_check_states
     /*------------------------------------------------------------------------*/
-    VSP_point xPoint, yPoint ;
+    Point xPoint, yPoint ;
 
     xPoint.int_part = x ;
     xPoint.ind_frac = EMPTY ;

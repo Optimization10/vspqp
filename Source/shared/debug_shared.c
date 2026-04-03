@@ -50,8 +50,8 @@ void VSP_check_states(VSP_state *X, VSP_state *Y, Problem *problem)
     VSP_check_state(Y, problem) ;
 
     /* Check the cross term */
-    VSPFLOAT *x_f = VSP_point_to_array(X->point) ;
-    VSPFLOAT *y_f = VSP_point_to_array(Y->point) ;
+    VSPFLOAT *x_f = Point_to_array(X->point) ;
+    VSPFLOAT *y_f = Point_to_array(Y->point) ;
     VSPFLOAT *Ax_f = VSP_Az_struct_to_array(X->Az) ;
     VSPFLOAT *Ay_f = VSP_Az_struct_to_array(Y->Az) ;
 
@@ -94,7 +94,7 @@ void Check_Part
     /*------------------------------------------------------------------------*/
     // Load the data into states and use VSP_check_states
     /*------------------------------------------------------------------------*/
-    VSP_point xPoint, yPoint ;
+    Point xPoint, yPoint ;
 
     xPoint.int_part = x ;
     xPoint.ind_frac = EMPTY ;
@@ -229,7 +229,7 @@ void VSP_check_weight(VSP_state *Z, VSPINT *c) {
 
 void VSP_check_Az
 (
-    VSP_point         *z,
+    Point         *z,
     VSP_Az           *Az,
     Problem *problem
 )
@@ -815,7 +815,7 @@ void VSP_light_check_Az(
 }
 
 
-void VSP_check_point(VSP_point *z) {
+void VSP_check_point(Point *z) {
 
     static long long unsigned count = 0 ;
     count++ ;

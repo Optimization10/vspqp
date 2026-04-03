@@ -4,35 +4,35 @@
 // #include <float.h>
 
 // bool VSP_LP_is_optimal_case_1a(
-//     VSP_point          *z,
+//     Point          *z,
 //     VSP_Az            *Aw,
 //     VSPFLOAT        gamma,
 //     VSPINT             *c
 // ) ;
 
 // bool VSP_LP_is_optimal_case_1b(
-//     VSP_point          *z,
+//     Point          *z,
 //     VSP_Az            *Aw,
 //     VSPFLOAT        gamma,
 //     VSPINT             *c
 // ) ;
 
 // bool VSP_LP_is_optimal_case_2a(
-//     VSP_point          *z,
+//     Point          *z,
 //     VSP_Az            *Aw,
 //     VSPFLOAT        gamma,
 //     VSPINT             *c
 // ) ;
 
 // bool VSP_LP_is_optimal_case_2b(
-//     VSP_point          *z,
+//     Point          *z,
 //     VSP_Az            *Aw,
 //     VSPFLOAT        gamma,
 //     VSPINT             *c
 // ) ;
 
 // bool VSP_LP_is_optimal_case_3(
-//     VSP_point          *z,
+//     Point          *z,
 //     VSP_Az            *Aw,
 //     VSPFLOAT        gamma,
 //     VSPINT             *c
@@ -132,7 +132,7 @@
 //    cj - Awj >= 0 for i in the zeros and j in the ones                */
 // bool VSP_LP_is_optimal_case_1a
 // (
-//     VSP_point         *z,
+//     Point         *z,
 //     VSP_Az           *Aw,
 //     VSPFLOAT       gamma,
 //     VSPINT            *c
@@ -196,7 +196,7 @@
 //    entry, and j is an arbitrary index of the zeros, and that
 //    ck - gamma * Ayk >= 0 */
 // bool VSP_LP_is_optimal_case_1b(
-//     VSP_point         *z,
+//     Point         *z,
 //     VSP_Az           *Aw,
 //     VSPFLOAT       gamma,
 //     VSPINT             *c
@@ -256,7 +256,7 @@
 //    In the code, this comes down to checking (Awi / ci) >= Awj / cj and that
 //    ci - Awi <= 0 for i in the zeros and j in the ones                */
 // bool VSP_LP_is_optimal_case_2a(
-//     VSP_point         *z,
+//     Point         *z,
 //     VSP_Az           *Aw,
 //     VSPFLOAT       gamma,
 //     VSPINT            *c
@@ -314,7 +314,7 @@
 //    entry, and j is an arbitrary index of the zeros, and that
 //    ck - gamma Ayk <= 0 */
 // bool VSP_LP_is_optimal_case_2b(
-//     VSP_point         *z,
+//     Point         *z,
 //     VSP_Az           *Aw,
 //     VSPFLOAT       gamma,
 //     VSPINT             *c
@@ -368,7 +368,7 @@
 //     for all i in Z: ci - gamma Awi <= 0
 //     for all i in O: ci - gamma Awi >= 0  */
 // bool VSP_LP_is_optimal_case_3(
-//     VSP_point          *z,
+//     Point          *z,
 //     VSP_Az            *Aw,
 //     VSPFLOAT        gamma,
 //     VSPINT             *c

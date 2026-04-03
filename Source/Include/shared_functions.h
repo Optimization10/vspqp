@@ -113,7 +113,7 @@ Problem* VSP_transpose(
 
 void VSP_array_to_point(
     VSPFLOAT  *z_float,
-    VSP_point       *z
+    Point       *z
 ) ;
 
 VSPFLOAT* VSP_Az_struct_to_array (VSP_Az *Az) ;
@@ -173,7 +173,7 @@ void VSP_check_max_of_array(
 ) ;
 
 void VSP_check_Az(
-    VSP_point         *z,
+    Point         *z,
     VSP_Az           *Az,
     Problem *problem
 ) ;
@@ -225,7 +225,7 @@ void Check_Part
 
 
 
-void VSP_check_point(VSP_point *z) ;
+void VSP_check_point(Point *z) ;
 
 
 void VSP_light_check_Az
@@ -241,8 +241,8 @@ void VSP_relaxed_to_vertex_separator(
 ) ;
 
 void VSP_copy_point(
-    VSP_point* from,
-    VSP_point* to,
+    Point* from,
+    Point* to,
     VSPINT n
 ) ;
 
@@ -264,7 +264,7 @@ void VSP_extract_matrix_col(
     VSPLONG          *Ap
 ) ;
 
-VSPFLOAT* VSP_point_to_array(VSP_point *z) ;
+VSPFLOAT* Point_to_array(Point *z) ;
 
 void VSP_copy_state
 (
@@ -272,7 +272,7 @@ void VSP_copy_state
     VSP_state        *to
 ) ;
 
-void VSP_compute_weight(VSP_point *Z, VSPINT *weight_z, VSPINT *c) ;
+void VSP_compute_weight(Point *Z, VSPINT *weight_z, VSPINT *c) ;
 
 int VSP_comparison_increasing(const void *a, const void *b) ;
 
@@ -313,7 +313,7 @@ void VSP_destruct_explicit_matrix( VSPINT** A, VSPINT n ) ;
                                         
 
 VSPFLOAT VSP_compute_LP_objective(
-    VSP_point    *z,
+    Point    *z,
     VSPINT       *c,
     VSPFLOAT  gamma,
     VSP_Az      *Aw
@@ -332,7 +332,7 @@ void VSP_mat_vec_mult
 
 void Compute_Az
 (
-    VSP_point              *z,
+    Point              *z,
     VSP_Az                *Az,
     VSPINT                *Ai,
     VSPLONG               *Ap,
@@ -388,8 +388,8 @@ void Compute_ObjValDbg
 
 
 
-void DumpPoint(VSP_point *z, char *outName) ;
-void DumpPoints(VSP_point *x, VSP_point *y, char *outName) ;
+void DumpPoint(Point *z, char *outName) ;
+void DumpPoints(Point *x, Point *y, char *outName) ;
 void DumpIntArray(VSPINT *array, VSPINT len, char *outName) ;
 void DumpGrad(VSPINT *c, VSPFLOAT gamma, VSP_Az *Az, char *outName) ;
 

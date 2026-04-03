@@ -129,7 +129,7 @@ typedef struct {
     VSPFLOAT   val_frac ; /* Value of fractional entry. No guarantees
                              if ind_frac is EMPTY.                            */
     VSPINT            n ; /* Number of entries in the point                   */
-} VSP_point ;
+} Point ;
 
 
 /* Store Az where A is a binary matrix and z has at most one fractional entry
@@ -150,7 +150,7 @@ typedef struct {
 
 /* Container for all the information pertaining to x or y */
 typedef struct {
-    VSP_point         *point ; /* x or y                                      */
+    Point         *point ; /* x or y                                      */
     VSP_Az               *Az ; /* Ax or Ay                                    */
     VSPINT            weight ; /* c'x or c'y                                  */
 } VSP_state ;
@@ -179,8 +179,8 @@ void Destroy_Graph(VSP_Graph *Graph) ;
 VSP_Az* VSP_construct_Az(VSPINT n) ;
 void VSP_destruct_Az(VSP_Az* Az) ;
 
-VSP_point* VSP_construct_point(VSPINT n ) ;
-void VSP_destruct_point(VSP_point* point) ;
+Point* VSP_construct_point(VSPINT n ) ;
+void VSP_destruct_point(Point* point) ;
 
 VSP_state* VSP_construct_state(VSPINT n);
 void VSP_destruct_state(VSP_state* state);

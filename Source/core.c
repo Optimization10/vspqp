@@ -2,9 +2,9 @@
 #include <stdio.h>
 
 
-/**************** VSP_point ***************************************************/
-VSP_point* VSP_construct_point(VSPINT n) {
-    VSP_point* point = malloc( sizeof(VSP_point) ) ;
+/**************** Point ***************************************************/
+Point* VSP_construct_point(VSPINT n) {
+    Point* point = malloc( sizeof(Point) ) ;
     point->int_part  = calloc( n, sizeof(VSPINT) ) ; // calloc to initialize 0
 
     /* Initialize default values */
@@ -15,7 +15,7 @@ VSP_point* VSP_construct_point(VSPINT n) {
     return point ;
 }
 
-void VSP_destruct_point(VSP_point* point)
+void VSP_destruct_point(Point* point)
 {
     #ifdef VSP_DEBUG
         static long long unsigned count = 0 ;

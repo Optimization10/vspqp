@@ -220,7 +220,7 @@ void VSP_mat_vec_mult
 /* Update Az struct, given z as a point struct */
 void Compute_Az
 (
-    VSP_point              *z,
+    Point              *z,
     VSP_Az                *Az,
     VSPINT                *Ai,
     VSPLONG               *Ap,
@@ -292,7 +292,7 @@ void VSP_Az_pm_col_of_A (
 
 /* Compute the weight of a point. This function assumes that the true weight
    is an integer.                                                             */
-void VSP_compute_weight(VSP_point *Z, VSPINT *weight_z, VSPINT *c) {
+void VSP_compute_weight(Point *Z, VSPINT *weight_z, VSPINT *c) {
     #ifdef VSP_DEBUG
         static long long unsigned count = 0 ;
         count++ ;
@@ -594,8 +594,8 @@ VSPFLOAT VSP_compute_objective_0(
 
 
     /* Convert X, Y to arrays of floats */
-    VSPFLOAT *x_arr = VSP_point_to_array(X->point) ;
-    VSPFLOAT *y_arr = VSP_point_to_array(Y->point) ;
+    VSPFLOAT *x_arr = Point_to_array(X->point) ;
+    VSPFLOAT *y_arr = Point_to_array(Y->point) ;
 
     /* Allocate memory for A */
     VSPINT** A = malloc( n * sizeof(VSPINT*) ) ;
@@ -731,7 +731,7 @@ void Compute_ObjValSimple
 
 /* Compute (c - gamma * Aw)' z */
 VSPFLOAT VSP_compute_LP_objective(
-    VSP_point    *z,
+    Point    *z,
     VSPINT       *c,
     VSPFLOAT  gamma,
     VSP_Az      *Aw

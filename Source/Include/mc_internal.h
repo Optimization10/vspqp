@@ -60,7 +60,7 @@ bool VSP_LP_is_optimal
 
 bool VSP_LP_is_optimal_case_1a
 (
-    VSP_point          *z,
+    Point          *z,
     VSP_Az            *Aw,
     VSPFLOAT        gamma,
     VSPINT             *c
@@ -68,7 +68,7 @@ bool VSP_LP_is_optimal_case_1a
 
 bool VSP_LP_is_optimal_case_1b
 (
-    VSP_point          *z,
+    Point          *z,
     VSP_Az            *Aw,
     VSPFLOAT        gamma,
     VSPINT             *c
@@ -76,7 +76,7 @@ bool VSP_LP_is_optimal_case_1b
 
 bool VSP_LP_is_optimal_case_2a
 (
-    VSP_point          *z,
+    Point          *z,
     VSP_Az            *Aw,
     VSPFLOAT        gamma,
     VSPINT             *c
@@ -84,7 +84,7 @@ bool VSP_LP_is_optimal_case_2a
 
 bool VSP_LP_is_optimal_case_2b
 (
-    VSP_point          *z,
+    Point          *z,
     VSP_Az            *Aw,
     VSPFLOAT        gamma,
     VSPINT             *c
@@ -92,7 +92,7 @@ bool VSP_LP_is_optimal_case_2b
 
 bool VSP_LP_is_optimal_case_3
 (
-    VSP_point          *z,
+    Point          *z,
     VSP_Az            *Aw,
     VSPFLOAT        gamma,
     VSPINT             *c

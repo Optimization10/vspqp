@@ -79,7 +79,7 @@ void FlipsCtx_Check
     /*------------------------------------------------------------------------*/
     // Check vars, Avars, weights, and feasibility by placing into states
     /*------------------------------------------------------------------------*/
-    VSP_point
+    Point
     ptX = {.int_part = vars[Z_VAR], .ind_frac = EMPTY, .val_frac = 0, .n = n},
     ptY = {.int_part = vars[W_VAR], .ind_frac = EMPTY, .val_frac = 0, .n = n} ;
 

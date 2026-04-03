@@ -654,7 +654,7 @@ VSPFLOAT* VSP_Az_struct_to_array (VSP_Az *Az) {
 
 void VSP_array_to_point(
     VSPFLOAT  *z_float,
-    VSP_point       *z
+    Point       *z
 ) {
     #ifdef VSP_DEBUG
         static long long unsigned count = 0 ;
@@ -684,7 +684,7 @@ void VSP_array_to_point(
     return ;
 }
 
-VSPFLOAT* VSP_point_to_array(VSP_point *z) {
+VSPFLOAT* Point_to_array(Point *z) {
     VSPINT i, k ;
     VSPINT n = z->n ;
 
@@ -778,7 +778,7 @@ int VSP_comparison_increasing(const void *a, const void *b) {
 }
 
 /* Dump the point in the file "output/title" */
-void DumpPoint(VSP_point *z, char *outName)
+void DumpPoint(Point *z, char *outName)
 {
     /* Open a file in output */
     char fileName[300] = {'\0'} ;
@@ -810,7 +810,7 @@ void DumpPoint(VSP_point *z, char *outName)
 // 1,0
 // 1,1
 // 0,1
-void DumpPoints(VSP_point *x, VSP_point *y, char *outName)
+void DumpPoints(Point *x, Point *y, char *outName)
 {
     // Open a file in output
     char fileName[320] = {'\0'} ;
