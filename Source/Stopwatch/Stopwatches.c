@@ -128,8 +128,8 @@ void Stopwatches_Print(Stopwatches *SWS)
     //     (
     //         file, "%s,%lld,%lld,%lld,%s,%.6Lf\n",
     //         SWS->problem->name,
-    //         CAST(SWS->problem->Graph->n, long long),
-    //         CAST(SWS->problem->Graph->nz, long long),
+    //         CAST(SWS->problem->graph->n, long long),
+    //         CAST(SWS->problem->graph->nz, long long),
     //         CAST(SWS->problem->level, long long),
     //         Stopwatch_GetName(sw),
     //         Stopwatch_GetAccumTime(sw)

@@ -33,16 +33,16 @@ VSPFLOAT minreduce
     VSPFLOAT gamma_max = (gamma_tx > gamma_ty) ? gamma_tx : gamma_ty ;
 
 
-    if( gamma_max >= problem->Graph->max_vtx_cost )
+    if( gamma_max >= problem->graph->max_vtx_cost )
     {
-        mountain_climbing(X, Y, problem, options, problem->Graph->max_vtx_cost, true) ;
+        mountain_climbing(X, Y, problem, options, problem->graph->max_vtx_cost, true) ;
     }
     gamma_tx = minreduce_one_var(X, Y->Az, problem) ;
     gamma_ty = minreduce_one_var(Y, X->Az, problem) ;
 
     gamma_max = (gamma_tx > gamma_ty) ? gamma_tx : gamma_ty ;
 
-    if(gamma_max > problem->Graph->max_vtx_cost)
+    if(gamma_max > problem->graph->max_vtx_cost)
     {
         // printf("Reduced gamma greater. Problem: %s\n", problem->name) ;
     }
@@ -74,12 +74,12 @@ VSPFLOAT minreduce_one_var
     }
 
     VSPINT    i ;
-    VSPINT    n              = problem->Graph->n ;
+    VSPINT    n              = problem->graph->n ;
     VSPINT    one            = Aw->one ;
     VSPINT   *Aw_int         = Aw->int_part ;
     VSPINT   *col_A          = Aw->col_frac_z ;
     VSPINT   *z_int          = Z->point->int_part ;
-    VSPINT   *c              = problem->Graph->c ;
+    VSPINT   *c              = problem->graph->c ;
     VSPFLOAT  val_frac_w     = Aw->val_frac_z ;
     VSPFLOAT  Awi ;
     VSPFLOAT  gamma_t        = EMPTY ;
@@ -94,7 +94,7 @@ VSPFLOAT minreduce_one_var
             {
                 gamma_second = gamma_t ;
                 gamma_t = c[i] / Awi ;
-                // if(gamma_t == 4 && problem->Graph->max_vtx_cost == 2) printf("\ni: %lld", (long long) i) ;
+                // if(gamma_t == 4 && problem->graph->max_vtx_cost == 2) printf("\ni: %lld", (long long) i) ;
             }
         }
         #ifdef DEBUG
@@ -106,7 +106,7 @@ VSPFLOAT minreduce_one_var
     }
 
     #ifdef DEBUG
-        if(gamma_t > problem->Graph->max_vtx_cost) {
+        if(gamma_t > problem->graph->max_vtx_cost) {
             Error("Error in gamma reduction", DBG_INFO) ;
         }
     #endif

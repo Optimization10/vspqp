@@ -114,11 +114,11 @@ void MovesImprovingCost
     VSPLONG p ;
     VSPINT topVals[2], topGains[2], to, other, higain, j, k, oldgain,
     numNeutralMoves = 0,
-    n = problem->Graph->n,
-    *c = problem->Graph->c,
-    *Ai = problem->Graph->Ai,
+    n = problem->graph->n,
+    *c = problem->graph->c,
+    *Ai = problem->graph->Ai,
     nflips = 0 ; // nflips accurate at beginning of loop
-    VSPLONG *Ap = problem->Graph->Ap ;
+    VSPLONG *Ap = problem->graph->Ap ;
 
 
 
@@ -341,13 +341,13 @@ void FM_Metis
     if(W->point->ind_frac != EMPTY) printf("y has frac component in FM METIS. Count %llu\n", count) ;
 
     VSPINT xAy = 0 ;
-    for(VSPINT ii = 0 ; ii < problem->Graph->n ; ii++)
+    for(VSPINT ii = 0 ; ii < problem->graph->n ; ii++)
     {
         xAy += Z->point->int_part[ii] * W->Az->int_part[ii] ;
     }
 
     VSPINT yAx = 0 ;
-    for(VSPINT ii = 0 ; ii < problem->Graph->n ; ii++)
+    for(VSPINT ii = 0 ; ii < problem->graph->n ; ii++)
     {
         xAy += W->point->int_part[ii] * Z->Az->int_part[ii] ;
     }
@@ -366,10 +366,10 @@ void FM_Metis
 
         Check_FM_Inputs(Z, W, problem) ;
         
-        VSPFLOAT objin = compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
+        VSPFLOAT objin = compute_obj(Z, W, problem, problem->graph->max_vtx_cost) ;
     #endif
     /*--- Parameters (temporary, to be put in options struct -----------------*/
-    VSPINT *moved = malloc( problem->Graph->n * sizeof(*moved) ) ;
+    VSPINT *moved = malloc( problem->graph->n * sizeof(*moved) ) ;
     /*------------------------------------------------------------------------*/
 
     /* Declare local variables */
@@ -381,10 +381,10 @@ void FM_Metis
     /* Unpack structs */
     VSPINT *z  = Z->point->int_part ;
     VSPINT *w  = W->point->int_part ;
-    VSPINT  n  = problem->Graph->n ;
-    VSPINT *c  = problem->Graph->c ;
-    VSPINT *Ai = problem->Graph->Ai ;
-    VSPLONG *Ap = problem->Graph->Ap ;
+    VSPINT  n  = problem->graph->n ;
+    VSPINT *c  = problem->graph->c ;
+    VSPINT *Ai = problem->graph->Ai ;
+    VSPLONG *Ap = problem->graph->Ap ;
 
     /* Initialize swaps array */
     VSPINT *swaps = malloc( n * sizeof(*swaps) ) ;
@@ -393,7 +393,7 @@ void FM_Metis
     VSPINT pwgts[3] ;
     pwgts[0] = Z->weight ;
     pwgts[1] = W->weight ;
-    pwgts[2] = problem->Graph->total_vtx_cost - pwgts[0] - pwgts[1] ;
+    pwgts[2] = problem->graph->total_vtx_cost - pwgts[0] - pwgts[1] ;
 
     /* Initalize the mind structure */
     VSPINT *mind    = malloc(2 * n * sizeof(*mind)) ;
@@ -792,7 +792,7 @@ void FM_Metis
         // // Prepare data structures for next pass of FM
         // pwgts[0] = Z->weight ;
         // pwgts[1] = W->weight ;
-        // pwgts[2] = problem->Graph->total_vtx_cost - pwgts[0] - pwgts[1] ;
+        // pwgts[2] = problem->graph->total_vtx_cost - pwgts[0] - pwgts[1] ;
         
         // nbnd = 0;
         // Init_Where_And_Sep(bndind, bndptr, &nbnd, where, z, w, n) ;
@@ -820,7 +820,7 @@ void FM_Metis
 
     #ifdef DEBUG
         check_states(Z, W, problem) ;
-        VSPFLOAT objout = compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
+        VSPFLOAT objout = compute_obj(Z, W, problem, problem->graph->max_vtx_cost) ;
         if(objout < objin)
         {
             Error("Objective decreased during FM", DBG_INFO) ;
@@ -1046,7 +1046,7 @@ static void Check_FM_Inputs
     VSPINT *Az    = Z->Az->int_part ;
     VSPINT *Aw    = W->Az->int_part ;
 
-    VSPINT  n     = problem->Graph->n ;
+    VSPINT  n     = problem->graph->n ;
 
     /* Check feasibility, among other things */
     check_states(Z, W, problem) ;
@@ -1228,10 +1228,10 @@ static void Where_To_States
         count++ ;
 
         check_states(Z, W, problem) ;
-        VSPFLOAT objin = compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
+        VSPFLOAT objin = compute_obj(Z, W, problem, problem->graph->max_vtx_cost) ;
     #endif
 
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
 
     VSPINT *points[2] ;
     points[0] = Z->point->int_part ;
@@ -1293,7 +1293,7 @@ static void Where_To_States
     #ifdef DEBUG
         check_states(Z, W, problem) ;
 
-        VSPFLOAT objout = compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
+        VSPFLOAT objout = compute_obj(Z, W, problem, problem->graph->max_vtx_cost) ;
         if(objout < objin)
         {
             Error("Objective decreased after FM", DBG_INFO) ;
@@ -1346,10 +1346,10 @@ static void CheckAllFMDataNoLock
 
     VSPLONG p ;
     VSPINT i, j, k, key,
-    n = problem->Graph->n,
-    *c = problem->Graph->c,
-    *Ai = problem->Graph->Ai ;
-    VSPLONG *Ap = problem->Graph->Ap ;
+    n = problem->graph->n,
+    *c = problem->graph->c,
+    *Ai = problem->graph->Ai ;
+    VSPLONG *Ap = problem->graph->Ap ;
     /*------------------------------------------------------------------------*/
     // - parition weights are correct
     // - partition is feasible

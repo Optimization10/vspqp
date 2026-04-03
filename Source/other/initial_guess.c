@@ -47,7 +47,7 @@ void set_initial_guess
             break ;
     }
     #ifdef DEBUG
-        VSPFLOAT obj = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        VSPFLOAT obj = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
         (void) obj ;
     #endif
 
@@ -62,7 +62,7 @@ static void set_manual_initial_guess(
     Problem *problem,
     Options *options
 ) {
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
     VSPINT i ;
 
     for(i = 0 ; i < n ; i++) {
@@ -78,15 +78,15 @@ static void set_manual_initial_guess(
     Y->point->ind_frac = EMPTY ;
     Y->point->val_frac = 0 ;
 
-    compute_weight(X->point, &(X->weight), problem->Graph->c) ;
-    compute_weight(Y->point, &(Y->weight), problem->Graph->c) ;
+    compute_weight(X->point, &(X->weight), problem->graph->c) ;
+    compute_weight(Y->point, &(Y->weight), problem->graph->c) ;
 
-    Compute_Az(X->point, X->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
-    Compute_Az(Y->point, Y->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
+    Compute_Az(X->point, X->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
+    Compute_Az(Y->point, Y->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
 
     #ifdef DEBUG
         VSPFLOAT obj_dbg ;
-        obj_dbg = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        obj_dbg = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
         (void) obj_dbg ;
     #endif
 
@@ -104,7 +104,7 @@ void set_random_initial_guess
 )
 {
     VSPINT i, k, temp, xwgt, ywgt ;
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
 
     VSPINT *x = X->point->int_part ;
     VSPINT *y = Y->point->int_part ;
@@ -147,7 +147,7 @@ void set_random_initial_guess
     }
 
     /* Fill out x and y randomly */
-    VSPINT target_weight = ceil(problem->Graph->total_vtx_cost * options->random_point_weight_proportion) ;
+    VSPINT target_weight = ceil(problem->graph->total_vtx_cost * options->random_point_weight_proportion) ;
     target_weight = MIN(target_weight, problem->u) ;
     target_weight = MAX(target_weight, 1) ;
 
@@ -156,10 +156,10 @@ void set_random_initial_guess
     for(i = 0 ; i < n ; i++)
     {
         k = perm_1[i] ;
-        if(xwgt + problem->Graph->c[k] <= target_weight)
+        if(xwgt + problem->graph->c[k] <= target_weight)
         {
             x[k] = 1 ;
-            xwgt += problem->Graph->c[k] ;
+            xwgt += problem->graph->c[k] ;
         }
         else
         {
@@ -168,10 +168,10 @@ void set_random_initial_guess
 
 
         k = perm_2[i] ; 
-        if(ywgt + problem->Graph->c[k] <= target_weight)
+        if(ywgt + problem->graph->c[k] <= target_weight)
         {
             y[k] = 1 ;
-            ywgt += problem->Graph->c[k] ;
+            ywgt += problem->graph->c[k] ;
         }
         else
         {
@@ -183,12 +183,12 @@ void set_random_initial_guess
     X->weight = xwgt ;
     X->point->ind_frac = EMPTY ;
     X->point->val_frac = 0 ;
-    Compute_Az(X->point, X->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
+    Compute_Az(X->point, X->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
 
     Y->weight = ywgt ;
     Y->point->ind_frac = EMPTY ;
     Y->point->val_frac = 0 ;
-    Compute_Az(Y->point, Y->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
+    Compute_Az(Y->point, Y->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
 
     #ifdef DEBUG
         check_states(X, Y, problem) ;
@@ -231,12 +231,12 @@ void set_centroid
 {
     VSPINT i ;
     VSPINT A1i ;
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
     VSPINT u = problem->u ;
     VSPFLOAT f ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPLONG *Ap = problem->Graph->Ap ;
-    VSPINT *c = problem->Graph->c ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPLONG *Ap = problem->graph->Ap ;
+    VSPINT *c = problem->graph->c ;
 
     /* Allocate memory */
     VSPFLOAT   *d = calloc(n, sizeof(*d)) ;
@@ -265,11 +265,11 @@ void set_centroid
 
     /* Update the state of y */
     array_to_point(y_f, Y->point) ;
-    Compute_Az(Y->point, Y->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
+    Compute_Az(Y->point, Y->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
     compute_weight(Y->point, &Y->weight, c) ;
 
     /* Check objective at diagonal step. Diagonal step has the form (y, y) */
-    VSPFLOAT obj_diag = compute_obj(Y, Y, problem, problem->Graph->max_vtx_cost) ;
+    VSPFLOAT obj_diag = compute_obj(Y, Y, problem, problem->graph->max_vtx_cost) ;
     if(obj_diag > obj_y)
     {
         /* Take the diagonal step by making X identical to Y */
@@ -278,13 +278,13 @@ void set_centroid
     else
     {
         /* Optimize over X, to move it away from the centroid */
-        LP_solver_4(X, Y->Az, c, u, problem->Graph->max_vtx_cost, problem,options, 'x');
+        LP_solver_4(X, Y->Az, c, u, problem->graph->max_vtx_cost, problem,options, 'x');
     }
 
 
     #ifdef DEBUG
         /* Compute objective */
-        obj_dbg = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        obj_dbg = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
         (void) obj_dbg ;
 
         /* Check output */

@@ -39,7 +39,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     #endif
 
     VSPINT u = problem->u ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
     // Get a random number
     // VSPINT ranNum = rand() ;
 
@@ -333,7 +333,7 @@ void SelectRandomOptimalBeneficialFlip_v5
     #endif
 
     VSPINT u      = problem->u ;
-    VSPINT gamma  = problem->Graph->max_vtx_cost ;
+    VSPINT gamma  = problem->graph->max_vtx_cost ;
     // Get a random number
     // VSPINT ranNum = rand() ;
 
@@ -605,9 +605,9 @@ void FlipSelector_Check_v5
     }
 
     VSPINT i, k, xi, yi, Axi, Ayi, ci, bestGain = 0 ;
-    VSPINT n = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *c = problem->Graph->c ;
+    VSPINT n = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c = problem->graph->c ;
     VSPINT  u = problem->u ;
 
     /*------------------------------------------------------------------------*/
@@ -882,9 +882,9 @@ void Compute_ps_And_cs_Dbg_v5
     WARN_IF_NOT_DEBUG_MODE ;
 
     VSPINT i, xi, yi, Axi, Ayi, ci ;
-    VSPINT n     = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *c    = problem->Graph->c ;
+    VSPINT n     = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c    = problem->graph->c ;
     VSPINT  u    = problem->u ;
 
     /*------------------------------------------------------------------------*/
@@ -1040,10 +1040,10 @@ void Compute_Feasibility_And_Gains_v5
 {
     SET_FUNCTION_COUNTER ;
     VSPINT i ;
-    VSPINT n  = problem->Graph->n ;
-    VSPINT *c = problem->Graph->c ;
+    VSPINT n  = problem->graph->n ;
+    VSPINT *c = problem->graph->c ;
     VSPINT u  = problem->u ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
 
     for(i = 0 ; i < 4 ; i++) retIsFeas[i] = 0 ;
 
@@ -1088,14 +1088,14 @@ void IdxGroupsByC_See_Top_Feasible_Cval_v5
         static long long unsigned count = 0 ;
         count++ ;
 
-        VSPINT n = problem->Graph->n ;
+        VSPINT n = problem->graph->n ;
         VSPINT maxFeasCval_dbg = EMPTY ;
         VSPINT witness = EMPTY ;
     #endif
 
     VSPINT  i, p, cval ;
     VSPINT  u = problem->u ;
-    VSPINT *c = problem->Graph->c ;
+    VSPINT *c = problem->graph->c ;
 
     VSPINT *heap = z0Aw0_groups->maxHeap->heap ;
     VSPINT sizeHeap = z0Aw0_groups->maxHeap->sizeHeap ;

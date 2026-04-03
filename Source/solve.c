@@ -97,16 +97,16 @@ void ResolveLevelDecideAndDo
     /* Local vars */
     VSPFLOAT obj_best, obj_cent ;
 
-    State *Xcent = Construct_State(problem->Graph->n) ;
-    State *Ycent = Construct_State(problem->Graph->n) ;
+    State *Xcent = Construct_State(problem->graph->n) ;
+    State *Ycent = Construct_State(problem->graph->n) ;
 
     set_initial_guess(Xcent, Ycent, problem, options) ;
     Optimize(Xcent, Ycent, problem, options, true, 0) ;
     Force_To_Binary_Point(Xcent, Ycent, problem) ;
 
     /* If the centroid is better, switch */
-    obj_best = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
-    obj_cent = compute_obj(Xcent, Ycent, problem, problem->Graph->max_vtx_cost) ;
+    obj_best = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
+    obj_cent = compute_obj(Xcent, Ycent, problem, problem->graph->max_vtx_cost) ;
 
     if(obj_cent > obj_best)
     {
@@ -124,8 +124,8 @@ void ResolveLevelDecideAndDo
 
 void check_for_complete_graph(Problem *problem)
 {
-    long long n_long  = (long long) problem->Graph->n ;
-    long long nz_long = (long long) problem->Graph->nz ;
+    long long n_long  = (long long) problem->graph->n ;
+    long long nz_long = (long long) problem->graph->nz ;
     long long upper_bnd_nz = n_long * n_long - n_long ;
     if( nz_long == upper_bnd_nz )
     {

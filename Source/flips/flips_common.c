@@ -40,9 +40,9 @@ void Compute_ps_And_cs_Dbg
     }
 
     VSPINT i, xi, yi, Axi, Ayi, ci ;
-    VSPINT n     = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *c    = problem->Graph->c ;
+    VSPINT n     = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c    = problem->graph->c ;
     VSPINT  u    = problem->u ;
 
     /*------------------------------------------------------------------------*/
@@ -201,10 +201,10 @@ void Compute_Feasibility_And_Gains
 {
     SET_FUNCTION_COUNTER ;
     VSPINT i ;
-    VSPINT n  = problem->Graph->n ;
-    VSPINT *c = problem->Graph->c ;
+    VSPINT n  = problem->graph->n ;
+    VSPINT *c = problem->graph->c ;
     VSPINT u  = problem->u ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
 
     for(i = 0 ; i < 4 ; i++) retIsFeas[i] = 0 ;
 

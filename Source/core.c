@@ -138,7 +138,7 @@ Problem* Construct_Problem
     problem->name[0] = '\0' ;
 
     /* Construct adjacency matrix */
-    problem->Graph     = Construct_Graph(num_vertices, nz, Ap, Ai, Ae) ;
+    problem->graph     = Construct_Graph(num_vertices, nz, Ap, Ai, Ae) ;
 
     /* Construct matching arrays. Need to use calloc */
     problem->matching = calloc( num_vertices, sizeof(VSPINT));
@@ -148,8 +148,8 @@ Problem* Construct_Problem
 
 
     /* Initialize scalars */
-    problem->Graph->n  = num_vertices;
-    problem->Graph->nz = nz;
+    problem->graph->n  = num_vertices;
+    problem->graph->nz = nz;
     problem->cn = 0;
     problem->cnz = 0;
     problem->singleton = EMPTY ;
@@ -165,7 +165,7 @@ Problem* Construct_Problem
     problem->resolveSuccess = false ;
 
     /* The graph is assumed to be uncompressed */
-    problem->Graph         = problem->Graph ;
+    problem->graph         = problem->graph ;
 
     return problem;
 }
@@ -175,7 +175,7 @@ void Destroy_Problem(Problem* problem)
     /* Free the graph data */
     free(problem->name) ;
 
-    Destroy_Graph(problem->Graph) ;
+    Destroy_Graph(problem->graph) ;
 
     /* Free matching arrays */
     free(problem->matching);

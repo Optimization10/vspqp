@@ -40,7 +40,7 @@ void SelectRandomOptimalBeneficialFlip
     #endif
 
     VSPINT u      = problem->u ;
-    VSPINT gamma  = problem->Graph->max_vtx_cost ;
+    VSPINT gamma  = problem->graph->max_vtx_cost ;
     // Get a random number
     // VSPINT ranNum = rand() ;
 
@@ -314,7 +314,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     #endif
 
     VSPINT u = problem->u ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
     // Get a random number
     // VSPINT ranNum = rand() ;
 
@@ -592,9 +592,9 @@ void FeasibleStrictlyBeneficialFlipSelector_Check
     }
 
     VSPINT i, k, xi, yi, Axi, Ayi, ci, bestGain = 0 ;
-    VSPINT n = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *c = problem->Graph->c ;
+    VSPINT n = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c = problem->graph->c ;
     VSPINT  u = problem->u ;
 
     /*------------------------------------------------------------------------*/
@@ -908,9 +908,9 @@ void FeasibleBeneficialFlipSelector_Check
     WARN_IF_NOT_DEBUG_MODE ;
 
     VSPINT i, xi, yi, Axi, Ayi, ci ;
-    VSPINT n = problem->Graph->n ; 
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *c = problem->Graph->c ;
+    VSPINT n = problem->graph->n ; 
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c = problem->graph->c ;
     VSPINT  u = problem->u ;
 
 

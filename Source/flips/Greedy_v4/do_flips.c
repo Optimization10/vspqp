@@ -117,14 +117,14 @@ void FeasibleBeneficialFlips
         }
 
         // Check that there are no neutral downflips available
-        for(VSPINT i = 0 ; i < problem->Graph->n ; i++)
+        for(VSPINT i = 0 ; i < problem->graph->n ; i++)
         {
-            if(x[i] && Ay[i] && *wgtx > problem->Graph->c[i])
+            if(x[i] && Ay[i] && *wgtx > problem->graph->c[i])
             {
                 ERR("Downflip still available") ;
             }
 
-            if(y[i] && Ax[i] && *wgty > problem->Graph->c[i])
+            if(y[i] && Ax[i] && *wgty > problem->graph->c[i])
             {
                 ERR("Downflip still available") ;
             }

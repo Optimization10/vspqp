@@ -19,7 +19,7 @@ void GetSepCost
     VSPINT  n = X->point->n ;
     VSPINT *x = X->point->int_part ;
     VSPINT *y = Y->point->int_part ;
-    VSPINT *c = problem->Graph->c ;
+    VSPINT *c = problem->graph->c ;
 
     VSPINT localSepCost = 0 ;
     for(VSPINT i = 0 ; i < n ; i++)
@@ -48,7 +48,7 @@ void num_pen
     #endif
 
     VSPINT i ;
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
     VSPINT *x = X->point->int_part ;
     VSPINT *Ay = Y->Az->int_part ;
     VSPINT xAy = 0 ;
@@ -92,7 +92,7 @@ void xAy
         count++ ;
     #endif
     VSPINT i ;
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
     VSPFLOAT localxAy, xiFrac, AyiFrac, xi, Ayi ;
 
     VSPINT *xInt = X->point->int_part ;
@@ -276,8 +276,8 @@ void Az_pm_col_of_A (
     VSPINT          operation, // 1 if add, -1 if subtract
     Problem   *problem
 ) {
-    VSPINT *Ai = problem->Graph->Ai ;
-    VSPLONG *Ap = problem->Graph->Ap ;
+    VSPINT *Ai = problem->graph->Ai ;
+    VSPLONG *Ap = problem->graph->Ap ;
     VSPLONG const end = Ap [i+1] ;
     for(VSPLONG p = Ap[i] ; p < end ; p++)
     {
@@ -350,8 +350,8 @@ Problem* transpose(
 
     /* Prepare the transpose matrix T */
     Problem* T = Construct_Problem(n, nz, NULL, NULL, NULL, options) ;
-    VSPINT *Ti = T->Graph->Ai , *Te = T->Graph->Ae ;
-    VSPLONG *Tp = T->Graph->Ap ;
+    VSPINT *Ti = T->graph->Ai , *Te = T->graph->Ae ;
+    VSPLONG *Tp = T->graph->Ap ;
 
     /* Count the number of nonzeros in each row */
     for (VSPLONG ii = 0 ; ii < nz ; ii++) {
@@ -523,7 +523,7 @@ VSPFLOAT compute_obj(
 
     /* Local vars */
     VSPINT i ;
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
     VSPINT xAy, yA_p, xA_q, A_pq ;
     VSPFLOAT obj_val = 0 ;
 
@@ -587,10 +587,10 @@ VSPFLOAT compute_objective_0(
     VSPINT i, j ;
     VSPLONG start, end, p ;
     VSPFLOAT  obj_val = 0 ;
-    VSPINT    n       = problem->Graph->n ;
-    VSPINT   *Ai      = problem->Graph->Ai ;
-    VSPLONG *Ap      = problem->Graph->Ap ;
-    VSPINT   *c       = problem->Graph->c ;
+    VSPINT    n       = problem->graph->n ;
+    VSPINT   *Ai      = problem->graph->Ai ;
+    VSPLONG *Ap      = problem->graph->Ap ;
+    VSPINT   *c       = problem->graph->c ;
 
 
     /* Convert X, Y to arrays of floats */
@@ -659,9 +659,9 @@ void Compute_ObjValDbg
     WARN_IF_NOT_DEBUG_MODE ;
 
     VSPINT i, objval ;
-    VSPINT n     = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *c = problem->Graph->c ;
+    VSPINT n     = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c = problem->graph->c ;
 
     objval = 0 ;
     for(i = 0 ; i < n ; i++)
@@ -700,9 +700,9 @@ void Compute_ObjValSimple
     SET_FUNCTION_COUNTER ;
 
     VSPINT i, objval ;
-    VSPINT n     = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *c    = problem->Graph->c ;
+    VSPINT n     = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c    = problem->graph->c ;
 
     objval = 0 ;
 

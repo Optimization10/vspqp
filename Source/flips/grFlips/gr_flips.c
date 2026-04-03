@@ -24,7 +24,7 @@ void GR_Flips(State *Xbest, State *Ybest, Problem *problem, VSPINT P)
     bool success ;
 
     VSPFLOAT gammaRed,
-    gammaOrg = problem->Graph->max_vtx_cost ;
+    gammaOrg = problem->graph->max_vtx_cost ;
 
     StatesMan *SM    = StatesMan_Init(Xbest, Ybest) ;
     State *Xwork = StatesMan_GetState(SM, WORK_STATES, X_VAR) ;
@@ -69,7 +69,7 @@ void GR_Flips(State *Xbest, State *Ybest, Problem *problem, VSPINT P)
 
         if(success)
         {
-            // printf("\nSuccess. Problem: %s  Level: %lld  n: %lld  objOld: %f  objNew: %f", problem->name, (long long) problem->level, (long long) problem->Graph->n, scoreWork.obj, scoreBest.obj) ;
+            // printf("\nSuccess. Problem: %s  Level: %lld  n: %lld  objOld: %f  objNew: %f", problem->name, (long long) problem->level, (long long) problem->graph->n, scoreWork.obj, scoreBest.obj) ;
             StatesMan_UpdateBestStates(SM) ;
             gammaRed = gammaOrg / redFactor ;
             k = 0 ;
@@ -77,7 +77,7 @@ void GR_Flips(State *Xbest, State *Ybest, Problem *problem, VSPINT P)
         }
         else
         {
-            // printf("\nFailure. Problem: %s  Level: %lld  n: %lld  objOld: %f  objNew: %f", problem->name, (long long) problem->level, (long long) problem->Graph->n, scoreBest.obj, scoreWork.obj) ;
+            // printf("\nFailure. Problem: %s  Level: %lld  n: %lld  objOld: %f  objNew: %f", problem->name, (long long) problem->level, (long long) problem->graph->n, scoreBest.obj, scoreWork.obj) ;
             gammaRed = gammaRed / redFactor ;
             k++ ;
         }

@@ -61,9 +61,9 @@ static void Determine_Num_GR
 // Note that we are not taking into account the penalty term
 bool Early_Exit(State *X, State *Y, Problem *P)
 {
-    VSPFLOAT obj = compute_obj(X, Y, P, P->Graph->max_vtx_cost) ;
+    VSPFLOAT obj = compute_obj(X, Y, P, P->graph->max_vtx_cost) ;
     bool ret = false ;
-    if(lteq(P->Graph->total_vtx_cost - P->Graph->min_vtx_cost, obj))
+    if(lteq(P->graph->total_vtx_cost - P->graph->min_vtx_cost, obj))
     {
         ret = true ;
     }
@@ -88,8 +88,8 @@ void Optimize
     #endif
 
     /* 0.1 Local vars */
-    VSPINT i, k, num_gamma_reductions, n = problem->Graph->n,
-    gamma_org = problem->Graph->max_vtx_cost ;
+    VSPINT i, k, num_gamma_reductions, n = problem->graph->n,
+    gamma_org = problem->graph->max_vtx_cost ;
 
     VSPFLOAT f_x_y, f_xstar_ystar ;
 
@@ -97,7 +97,7 @@ void Optimize
     State *Ystar = Construct_State( n ) ;
 
     /* 2. Solve the problem using the original gamma */
-    VSPFLOAT gamma = problem->Graph->max_vtx_cost ;
+    VSPFLOAT gamma = problem->graph->max_vtx_cost ;
 
     /*--- Solve VSP ----------------------------------------------------------*/
     // 1. mountain climbing vs Flips
@@ -137,7 +137,7 @@ void Optimize
 
     #ifdef DEBUG
         VSPFLOAT obj_dbg ;
-        obj_dbg = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        obj_dbg = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
         (void) obj_dbg ;
     #endif
 
@@ -302,8 +302,8 @@ static void Best_Of_MC_And_Greedy_Flips
     static long long unsigned count = 0 ;
     count++ ;
     
-    VSPINT n     = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
+    VSPINT n     = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
 
 
     /*------------------------------------------------------------------------*/
@@ -320,11 +320,11 @@ static void Best_Of_MC_And_Greedy_Flips
         Y->point->int_part, Y->Az->int_part, &(Y->weight),
         xcpy, Axcpy, &wgtxcpy,
         ycpy, Aycpy, &wgtycpy,
-        problem->Graph->n
+        problem->graph->n
     ) ;
 
     // Compute c*x and c*y locally
-    VSPINT *c = problem->Graph->c ;
+    VSPINT *c = problem->graph->c ;
 
 
     bool abortManyFlipsPasses = false ;
@@ -399,7 +399,7 @@ static void Best_Of_MC_And_Greedy_Flips
 
         #ifdef DEBUG
             check_states(X, Y, problem) ;
-            VSPINT obj = (VSPINT) compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+            VSPINT obj = (VSPINT) compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
             if(obj != objAfterManyFlips )
             {
                 ERR("PROBLEM") ;

@@ -34,8 +34,8 @@ static void RefineOneVar
     VSPINT i, fn, fu, fv, cv, fvWgt, *fc, *cz, *fz, *matchMap ;
     VSPFLOAT fWgtz ;
 
-    fn    = fineGraph ->Graph->n ;
-    fc    = fineGraph ->Graph->c ;
+    fn    = fineGraph ->graph->n ;
+    fc    = fineGraph ->graph->c ;
     cz    = coarseZ   ->point->int_part ;
     fz    = fineZ     ->point->int_part ;
     fu    = fineGraph->u ;
@@ -137,7 +137,7 @@ static void CheckForFracEntryAndRefineIt
 
     VSPINT ufine = probFine->u ;
     VSPINT crsIndFrac = Zcrs->point->ind_frac ;
-    VSPINT *cfine = probFine->Graph->c ;
+    VSPINT *cfine = probFine->graph->c ;
     VSPINT *zfineInt  = Zfine->point->int_part ;
 
     /* If there is no fractional entry in the coarse point, or if there is no

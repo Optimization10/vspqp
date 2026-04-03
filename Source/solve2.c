@@ -140,7 +140,7 @@ solve_result *Solve
         check_problem(probFinest, options) ;
     #endif
 
-    if(probFinest->Graph->nz == 0)
+    if(probFinest->graph->nz == 0)
     {
         solve_result *ret = Solve_Null_Graph(probFinest) ;
         Destroy_Coarse_Problems(probFinest) ;
@@ -164,8 +164,8 @@ solve_result *Solve
     // Solve the coarsest level
     /*------------------------------------------------------------------------*/
     P = probCoarsest ;
-    X_lp1 = Construct_State(P->Graph->n) ;
-    Y_lp1 = Construct_State(P->Graph->n) ;
+    X_lp1 = Construct_State(P->graph->n) ;
+    Y_lp1 = Construct_State(P->graph->n) ;
     set_initial_guess(X_lp1, Y_lp1, P, options) ;
 
     Set_Global_Problem(P) ;
@@ -176,7 +176,7 @@ solve_result *Solve
     // Invariant: X_l, Y_l holds the solution at level l
     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
     {
-        // printf("u: %f\n", (double) P->u / P->Graph->total_vtx_cost) ;
+        // printf("u: %f\n", (double) P->u / P->graph->total_vtx_cost) ;
         // fflush(stdout) ;
 
         Set_Global_Problem(P) ;
@@ -185,8 +185,8 @@ solve_result *Solve
 
         // Uncoarsen point from level l+1
 
-        X_l = Construct_State(P->Graph->n) ;
-        Y_l = Construct_State(P->Graph->n) ;
+        X_l = Construct_State(P->graph->n) ;
+        Y_l = Construct_State(P->graph->n) ;
         Uncoarsen_Point(P, X_l, Y_l, X_lp1, Y_lp1) ;
 
 
@@ -227,7 +227,7 @@ solve_result *Solve_Null_Graph
 )
 {
     VSPINT i,
-    n    = probFinest->Graph->n,
+    n    = probFinest->graph->n,
     u    = probFinest->u ;
 
     VSPINT M    = MIN(u, n / 2) ;

@@ -90,8 +90,8 @@ IdxGroupsByC *IdxGroupsByC_Init
     // (
     //     fp, "%s,%lld,%lld,%lld,%lld,%lld,%lld,%f,%f\n",
     //     G_P->name,
-    //     (long long) G_P->Graph->n,
-    //     (long long) G_P->Graph->nz,
+    //     (long long) G_P->graph->n,
+    //     (long long) G_P->graph->nz,
     //     (long long) Problem_Get_N_Finest(G_P),
     //     (long long) Problem_Get_NZ_Finest(G_P),
     //     (long long) G_P->level,

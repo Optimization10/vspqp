@@ -22,11 +22,11 @@ void dump_graph
     VSPLONG p ;
 
     /* Unpack graph */
-    VSPINT *Ai = problem->Graph->Ai ;
-    VSPLONG *Ap = problem->Graph->Ap ;
-    VSPINT  *c = problem->Graph->c ;
-    VSPINT  n  = problem->Graph->n  ;
-    VSPLONG nz = problem->Graph->nz ;
+    VSPINT *Ai = problem->graph->Ai ;
+    VSPLONG *Ap = problem->graph->Ap ;
+    VSPINT  *c = problem->graph->c ;
+    VSPINT  n  = problem->graph->n  ;
+    VSPLONG nz = problem->graph->nz ;
 
     /* Open file */
     char path[1000];

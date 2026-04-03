@@ -85,7 +85,7 @@ void build_penalties
 
     /* Local vars */
     VSPINT  i ;
-    VSPINT  n           = problem->Graph->n ;
+    VSPINT  n           = problem->graph->n ;
 
     VSPINT *z0_entry    = Z_pens->z0_entry ;
     VSPINT *z0_fwd_list = Z_pens->z0_fwd_list ;

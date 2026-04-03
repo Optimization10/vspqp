@@ -111,7 +111,7 @@
 // } while(0) */
 
 /* ========================================================================== */
-// Core Types
+/*  Core Types                                                                */
 /* ========================================================================== */
 
 typedef enum match_type_enum
@@ -122,7 +122,7 @@ typedef enum match_type_enum
     matchtype_brotherly,
     matchtype_community,
 
-    // Matchtypes for even coarsening
+    /* Matchtypes for even coarsening */
     matchtype_selfMatch,
     matchtype_singleton,
     matchtype_HEM,
@@ -146,19 +146,18 @@ typedef struct
 
 typedef struct Problem_struct
 {
-    // This is the graph which is being solved
-    Graph             *Graph ;
+    Graph             *graph ;  /* the graph being solved                     */
 
-    char                   *name ;  /* name of the graph                      */
+    char                   *name ;  /* name of the graph                     */
 
-    /* Further problem info */
-    VSPINT                     u ;  /* upper balance constraint               */
+    /* Balance constraint */
+    VSPINT                     u ;  /* upper balance constraint              */
 
-    /* Info for matching */
+    /* Matching info */
     VSPINT             *matching ;
     VSPINT             *matchmap ;
     VSPINT          *invmatchmap ;
-    match_type    *matchtype ;
+    match_type       *matchtype ;
     VSPINT             singleton ;
 
     /* Coarser graph size */
@@ -166,16 +165,16 @@ typedef struct Problem_struct
     VSPLONG                   cnz ;
 
     /* Link to parent problem. NULL if this is finest graph */
-    struct Problem_struct* parent_problem ;
+    struct Problem_struct *parent_problem ;
     bool was_coarsened_w_comm ;
 
     /* Link to child problem. NULL if this is the coarsest graph */
-    struct Problem_struct* child_problem ;
+    struct Problem_struct *child_problem ;
 
-    /* The number of coarsenings which were done to reach this Graph-> The
-       finest problem is at level 0 */
+    /* The number of coarsenings done to reach this graph. The finest
+       problem is at level 0 */
     VSPINT level ;
-    VSPINT coarsest_level_num ; /* The level of the coarsest problem */
+    VSPINT coarsest_level_num ; /* the level of the coarsest problem */
 
     /* Re-solve */
     bool resolveTried ;
@@ -183,7 +182,7 @@ typedef struct Problem_struct
 
     VSPINT ubFinest ;
 
-    /* The ratio of nodes which have maximal cost*/
+    /* The ratio of nodes which have maximal cost */
     VSPFLOAT ratioMaxCostNodes ;
 
     /* The maximum degree in the graph */
@@ -194,29 +193,28 @@ typedef struct Problem_struct
 /* Store an almost binary point */
 typedef struct
 {
-    VSPINT    *int_part ; /* Integer part*/
-    VSPINT     ind_frac ; /* Index of fractional entry. EMPTY if none.        */
-    VSPFLOAT   val_frac ; /* Value of fractional entry. No guarantees
+    VSPINT    *int_part ; /* integer part                                     */
+    VSPINT     ind_frac ; /* index of fractional entry. EMPTY if none.        */
+    VSPFLOAT   val_frac ; /* value of fractional entry. No guarantees
                              if ind_frac is EMPTY.                            */
-    VSPINT            n ; /* Number of entries in the point                   */
+    VSPINT            n ; /* number of entries in the point                   */
 } Point ;
 
-
-/* Store Az where A is a binary matrix and z has at most one fractional entry
+/* Store Az where A is a binary matrix and z has at most one fractional entry.
    Entry i in Az is
-   int_part[i] + val_frac_z * ( col_frac_z[i] == one ) * (ind_frac_z != EMPTY)*/
+   int_part[i] + val_frac_z * ( col_frac_z[i] == one ) * (ind_frac_z != EMPTY) */
 typedef struct
 {
     VSPINT     *int_part ; /* A times the integer part of z                   */
-    VSPINT    ind_frac_z ; /* Index of fractional entry in z. EMPTY if none.  */
-    VSPFLOAT  val_frac_z ; /* Value of fractional entry in z. No guarantees if
-                              if ind_frac_z is EMPTY.                       */
-    VSPINT   *col_frac_z ; /* Column of A corresponding to frac index in z. No
-                              guarantees if ind_frac_z is EMPTY.              */
-    VSPINT           one ;    /* Largest integer in col_frac_v. Represents the
-                              1'S in that column. All smaller integers represent
-                              zeros.                                          */
-    VSPINT             n ; /* Number of entries in Az.                        */
+    VSPINT    ind_frac_z ; /* index of fractional entry in z. EMPTY if none.  */
+    VSPFLOAT  val_frac_z ; /* value of fractional entry in z. No guarantees
+                              if ind_frac_z is EMPTY.                         */
+    VSPINT   *col_frac_z ; /* column of A corresponding to frac index in z.
+                              No guarantees if ind_frac_z is EMPTY.           */
+    VSPINT           one ; /* largest integer in col_frac_z. Represents the
+                              1's in that column. All smaller integers
+                              represent zeros.                                */
+    VSPINT             n ; /* number of entries in Az                         */
 } Az ;
 
 /* Container for all the information pertaining to x or y */
@@ -226,7 +224,6 @@ typedef struct
     Az                   *Az ; /* Ax or Ay                                    */
     VSPINT            weight ; /* c'x or c'y                                  */
 } State ;
-
 /* ========================================================================== */
 // Constructors and Destructors for Core Types
 /* ========================================================================== */

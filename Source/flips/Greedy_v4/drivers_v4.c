@@ -37,7 +37,7 @@ void Flips_v4
     //     fflush(stdout) ;
     // }
 
-    // for(VSPINT i = 0 ; i < problem->Graph->n ; i++)
+    // for(VSPINT i = 0 ; i < problem->graph->n ; i++)
     // {
     //     if(x[i] && Ay[i] >= 3)
     //     {
@@ -54,10 +54,10 @@ void Flips_v4
     /*------------------------------------------------------------------------*/
 
 
-    VSPINT n     = problem->Graph->n ;
-    VSPINT *c    = problem->Graph->c ;
+    VSPINT n     = problem->graph->n ;
+    VSPINT *c    = problem->graph->c ;
     VSPINT u     = problem->u ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
 
     /*------------------------------------------------------------------------*/
     // Initialize all structs
@@ -176,7 +176,7 @@ static void Get_Upflip
     }
 
     // No strictly beneficial upflip. Try to return a feasible neutral upflip
-    if(!IS_FEASIBLE_FLIP(0, wgt_z, P->Graph->max_vtx_cost, u))
+    if(!IS_FEASIBLE_FLIP(0, wgt_z, P->graph->max_vtx_cost, u))
     {
         *ind_flip = EMPTY ;
         return ;

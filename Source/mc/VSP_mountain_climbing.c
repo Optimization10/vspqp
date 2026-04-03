@@ -20,17 +20,17 @@ void mountain_climbing
 
     // printf("\nStarting mc with gamma_org=%lld", (long long) is_gamma_org ) ;
     // printf("Value of gamma   : %f", gamma) ;
-    // printf("Val of gamma_org : %lld", (long long) problem->Graph->max_vtx_cost) ;
+    // printf("Val of gamma_org : %lld", (long long) problem->graph->max_vtx_cost) ;
     fflush(stdout) ;
 
     #ifdef DEBUG
         if(is_gamma_org)
         {
-            VSP_ASSERT(equal(gamma, problem->Graph->max_vtx_cost)) ;
+            VSP_ASSERT(equal(gamma, problem->graph->max_vtx_cost)) ;
         }
         else
         {
-            VSP_ASSERT(gamma < problem->Graph->max_vtx_cost) ;
+            VSP_ASSERT(gamma < problem->graph->max_vtx_cost) ;
         }
     #endif
 
@@ -43,14 +43,14 @@ void mountain_climbing
         check_state(X, problem);
 
         VSPFLOAT obj_dbg ;
-        obj_dbg = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        obj_dbg = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
         (void) obj_dbg ;
     #endif
 
     /* Local vars */
-    VSPINT *c  = problem->Graph->c;
+    VSPINT *c  = problem->graph->c;
     VSPINT bal = problem->u;
-    VSPINT n   = problem->Graph->n;
+    VSPINT n   = problem->graph->n;
 
     /* Allocate memory */
     State *Xstar = Construct_State(n);
@@ -161,7 +161,7 @@ void mountain_climbing
                     X->point->val_frac,
                     X->weight,
                     Y->Az,
-                    c, problem->u, gamma, problem->Graph->total_vtx_cost,
+                    c, problem->u, gamma, problem->graph->total_vtx_cost,
                     options
                 ) ;
                 if(is_opt) break ;
@@ -175,7 +175,7 @@ void mountain_climbing
                     Y->point->val_frac,
                     Y->weight,
                     X->Az,
-                    c, problem->u, gamma, problem->Graph->total_vtx_cost,
+                    c, problem->u, gamma, problem->graph->total_vtx_cost,
                     options
                 ) ;
                 if(is_opt) break ;
@@ -187,15 +187,15 @@ void mountain_climbing
     TIMER_END ;
 
     // printf("level: %lld  n: %lld  nz: %lld gamma_org: %lld gamma_used: %f mc_count: %lld  mc_time: %Lf\n",
-    // PRI(problem->level), PRI(n), PRI(problem->Graph->nz), PRI(problem->Graph->max_vtx_cost),
+    // PRI(problem->level), PRI(n), PRI(problem->graph->nz), PRI(problem->graph->max_vtx_cost),
     // gamma, PRI(mc_count),
     // TIMER_ELAPSED ) ;
 
     // if(!is_gamma_org)
     // {
     //     printf("%s,%lld,%lld,%lld,%lld,%f,%lld,%Lf\n",
-    //     problem->name, PRI(problem->level), PRI(problem->Graph->n),PRI(problem->Graph->nz),
-    //     PRI(problem->Graph->max_vtx_cost), gamma, 
+    //     problem->name, PRI(problem->level), PRI(problem->graph->n),PRI(problem->graph->nz),
+    //     PRI(problem->graph->max_vtx_cost), gamma, 
     //     PRI(mc_count),TIMER_ELAPSED) ;
     // }
     // fflush(stdout) ;
@@ -236,15 +236,15 @@ void mountain_climbing
 //     check_state(X, problem);
 
 //     VSPFLOAT obj_dbg ;
-//     obj_dbg = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+//     obj_dbg = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
 //     (void) obj_dbg ;
 // #endif
 //     VSP_ASSERT(numLPs >= 0) ;
 
 //     /* Local vars */
-//     VSPINT *c = problem->Graph->c;
+//     VSPINT *c = problem->graph->c;
 //     VSPINT bal = problem->u;
-//     VSPINT n = problem->Graph->n;
+//     VSPINT n = problem->graph->n;
 
 
 //     /* Allocate memory */

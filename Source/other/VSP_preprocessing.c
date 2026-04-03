@@ -54,22 +54,22 @@ void set_default_options(Options* options)
    the balance constraints as 60% of the total number of vertices             */
 void set_default_problem_data(Problem* problem) {
     VSPLONG i ;
-    VSPINT n = problem->Graph->n ;
-    VSPLONG nz = problem->Graph->nz ;
+    VSPINT n = problem->graph->n ;
+    VSPLONG nz = problem->graph->nz ;
 
     /* Set cost of each vertex to 1 */
-    VSPINT* c = problem->Graph->c ;
+    VSPINT* c = problem->graph->c ;
     for(i = 0 ; i < n ; i++) c[i] = 1 ;
     problem->ratioMaxCostNodes    = 1 ;
 
     /* Set the edge weights to 1 */
-    VSPINT* Ae = problem->Graph->Ae ;
+    VSPINT* Ae = problem->graph->Ae ;
     for(i = 0 ; i < nz ; i++) Ae[i] = 1 ;
 
     /* Set the upper balance constraint to 60%, and lower constraint to 1 */
-    problem->u = (VSPINT) (problem->Graph->n * 0.6);
+    problem->u = (VSPINT) (problem->graph->n * 0.6);
 
-    problem->ubFinest = (VSPINT) (problem->Graph->n * 0.6) ;
+    problem->ubFinest = (VSPINT) (problem->graph->n * 0.6) ;
 
     return ;
 }
@@ -84,7 +84,7 @@ void    preprocess_finest_problem
 {
     VSPINT node, num_nodes, c_node, alpha, gamma, total_graph_weight ;
     VSPINT* c ;
-    num_nodes = problem->Graph->n ;
+    num_nodes = problem->graph->n ;
     problem->was_coarsened_w_comm = false ;
 
     /* Finest problem has no parent. Lets us know when to stop refining */
@@ -93,7 +93,7 @@ void    preprocess_finest_problem
 
     /* Compute the maximum degree */
     VSPINT maxDeg = 0 ;
-    VSPLONG *Ap    = problem->Graph->Ap ;
+    VSPLONG *Ap    = problem->graph->Ap ;
     for(node = 0 ; node < num_nodes ; node++)
     {
         if( Ap[node + 1] - Ap[node] > maxDeg )
@@ -112,7 +112,7 @@ void    preprocess_finest_problem
     }
     else
     {
-        c = problem->Graph->c ;
+        c = problem->graph->c ;
         alpha = c[0] ;
         gamma = c[0] ;
         total_graph_weight = 0 ;
@@ -124,9 +124,9 @@ void    preprocess_finest_problem
             if ( c_node < alpha ) alpha = c_node ;
         }
     }
-    problem->Graph->min_vtx_cost = alpha ;
-    problem->Graph->max_vtx_cost = gamma ;
-    problem->Graph->total_vtx_cost = total_graph_weight ;
+    problem->graph->min_vtx_cost = alpha ;
+    problem->graph->max_vtx_cost = gamma ;
+    problem->graph->total_vtx_cost = total_graph_weight ;
 
 
     return ;

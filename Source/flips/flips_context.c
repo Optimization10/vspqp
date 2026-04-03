@@ -85,7 +85,7 @@ void FlipsCtx_Check
     }
 
     Problem *problem          = FC->problem ;
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
 
     /*------------------------------------------------------------------------*/
     // Check vars, Avars, weights, and feasibility by placing into states
@@ -154,7 +154,7 @@ void FlipsCtx_Initialize_Lists_And_Ts(FlipsCtx *FC)
 {
     SET_FUNCTION_COUNTER ;
     VSPINT i, v, j,*perm, zi, Awi, encoding, dir,
-    n = FC->problem->Graph->n ;
+    n = FC->problem->graph->n ;
 
     bool randomize = FC->randomize ;
 
@@ -238,7 +238,7 @@ FlipsCtx *FlipsCtx_Init
 {
     SET_FUNCTION_COUNTER ;
     VSPINT v, zi,
-    n = problem->Graph->n ;
+    n = problem->graph->n ;
 
     FlipsCtx *FC = malloc( sizeof(FlipsCtx) ) ;
     if(!FC) return NULL ;
@@ -345,7 +345,7 @@ static bool FlipsCtx_GetFeasStatusAndGain
 
     // Determine feasibility
     Doubly_LLs_Sized_See_Entry(FC->Lists[v][zi], T, &i) ;
-    ci = FC->problem->Graph->c[i] ;
+    ci = FC->problem->graph->c[i] ;
     if(zi) // downflip
     {
         if(FC->wgts[v] == ci) return false ;
@@ -413,7 +413,7 @@ static bool FlipsCtx_RuleInFlips
     VSPFLOAT gain = 0 ;
     bool feasible, correctVar, ret = false ;
 
-    *maxGain = -(FC->problem->Graph->n * FC->problem->Graph->max_vtx_cost + FC->problem->Graph->max_vtx_cost) ;
+    *maxGain = -(FC->problem->graph->n * FC->problem->graph->max_vtx_cost + FC->problem->graph->max_vtx_cost) ;
 
     // First, rule out all flips
     FlipsCtx_InitializeRuledIn(ruledIn) ;
@@ -612,7 +612,7 @@ static bool FlipsCtx_GetFeasStatusAndGain_FMv9
     IFDBG(FlipsCtx_Check(FC)) ;
     VSPINT i, ci,
     T = FC->Ts[v][zi],
-    gamma = FC->problem->Graph->max_vtx_cost ;
+    gamma = FC->problem->graph->max_vtx_cost ;
 
     // Determine if there is any flip corresponding to v, zi whatsoever
     if( !FlipsCtx_TExists(FC, T, zi) )
@@ -622,7 +622,7 @@ static bool FlipsCtx_GetFeasStatusAndGain_FMv9
 
     // Determine feasibility
     Doubly_LLs_Sized_See_Entry(FC->Lists[v][zi], T, &i) ;
-    ci = FC->problem->Graph->c[i] ;
+    ci = FC->problem->graph->c[i] ;
     if(zi) // downflip
     {
         if(FC->wgts[v] == ci) return false ;
@@ -671,10 +671,10 @@ static bool FlipsCtx_RuleInFlips_FMv9
 )
 {
     VSPINT v, zi ;
-    VSPINT gain = 0, gamma = FC->problem->Graph->max_vtx_cost ;
+    VSPINT gain = 0, gamma = FC->problem->graph->max_vtx_cost ;
     bool feasible, correctVar, ret = false ;
 
-    *maxGain = -(FC->problem->Graph->n * FC->problem->Graph->max_vtx_cost + FC->problem->Graph->max_vtx_cost) ;
+    *maxGain = -(FC->problem->graph->n * FC->problem->graph->max_vtx_cost + FC->problem->graph->max_vtx_cost) ;
 
     // First, rule out all flips
     FlipsCtx_InitializeRuledIn(ruledIn) ;
@@ -716,7 +716,7 @@ Flip FlipsCtx_Select_Flip_FMv9
     IFDBG(FlipsCtx_Check(FC)) ;
 
     VSPINT v, zi,
-    gamma = FC->problem->Graph->max_vtx_cost ;
+    gamma = FC->problem->graph->max_vtx_cost ;
 
     // Construct ruledIn
     bool ruledIn[2][2], any ;
@@ -780,14 +780,14 @@ void FlipsCtx_Apply_Flip
     VSPINT otherVar = OTHER_VAR(var);
 
     Problem *problem = FC->problem;
-    VSPINT n = problem->Graph->n;
+    VSPINT n = problem->graph->n;
     VSPINT *z = FC->vars[var];
     VSPINT *Az = FC->Avars[var];
     VSPINT *w = FC->vars[otherVar];
     VSPINT *Aw = FC->Avars[otherVar];
-    VSPINT *c = problem->Graph->c;
-    VSPINT *Ai = problem->Graph->Ai;
-    VSPLONG *Ap = problem->Graph->Ap;
+    VSPINT *c = problem->graph->c;
+    VSPINT *Ai = problem->graph->Ai;
+    VSPLONG *Ap = problem->graph->Ap;
 
     zi = z[i];
     VSPINT dir = DIR_FLIP(zi);
@@ -871,8 +871,8 @@ void FlipsCtx_Apply_Flip_Basic
 )
 {
     #ifdef DEBUG
-        Check_Weight(FC->vars[0], EMPTY, 0, FC->problem->Graph->c, FC->wgts[0], FC->problem->Graph->n) ;
-        Check_Weight(FC->vars[1], EMPTY, 0, FC->problem->Graph->c, FC->wgts[1], FC->problem->Graph->n) ;
+        Check_Weight(FC->vars[0], EMPTY, 0, FC->problem->graph->c, FC->wgts[0], FC->problem->graph->n) ;
+        Check_Weight(FC->vars[1], EMPTY, 0, FC->problem->graph->c, FC->wgts[1], FC->problem->graph->n) ;
     #endif
 
     Do_Flip_Basic
@@ -881,14 +881,14 @@ void FlipsCtx_Apply_Flip_Basic
         FC->Avars[flip->var],
         flip->ind,
         &(FC->wgts[flip->var]),
-        FC->problem->Graph->c,
-        FC->problem->Graph->Ai,
-        FC->problem->Graph->Ap
+        FC->problem->graph->c,
+        FC->problem->graph->Ai,
+        FC->problem->graph->Ap
     ) ;
 
     #ifdef DEBUG
-        Check_Weight(FC->vars[0], EMPTY, 0, FC->problem->Graph->c, FC->wgts[0], FC->problem->Graph->n) ;
-        Check_Weight(FC->vars[1], EMPTY, 0, FC->problem->Graph->c, FC->wgts[1], FC->problem->Graph->n) ;
+        Check_Weight(FC->vars[0], EMPTY, 0, FC->problem->graph->c, FC->wgts[0], FC->problem->graph->n) ;
+        Check_Weight(FC->vars[1], EMPTY, 0, FC->problem->graph->c, FC->wgts[1], FC->problem->graph->n) ;
     #endif
 }
 
@@ -949,7 +949,7 @@ bool FlipsCtx_Is_Feasible_Flip(FlipsCtx *FC, Flip *flip, VSPINT u)
     if ( !FlipsCtx_Is_Nonempty_Flip(flip) ) return false ;
 
     VSPINT *z = FC->vars[flip->var] ;
-    VSPINT *c = FC->problem->Graph->c ;
+    VSPINT *c = FC->problem->graph->c ;
     VSPINT wgtVar = FC->wgts[flip->var] ;
 
     if(z[ flip->ind ])

@@ -58,7 +58,7 @@ void check_states(State *X, State *Y, Problem *problem)
     VSPFLOAT xAy_1 = 0 ;
     VSPFLOAT xAy_2 = 0 ;
 
-    for(VSPINT i = 0 ; i < problem->Graph->n ; i++)
+    for(VSPINT i = 0 ; i < problem->graph->n ; i++)
     {
         xAy_1 += x_f[i] * Ay_f[i] ;
         xAy_2 += y_f[i] * Ax_f[i] ;
@@ -90,7 +90,7 @@ void Check_Part
     static long long unsigned count = 0 ;
     count++ ;
     WARN_IF_NOT_DEBUG_MODE ;
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
     /*------------------------------------------------------------------------*/
     // Load the data into states and use check_states
     /*------------------------------------------------------------------------*/
@@ -168,7 +168,7 @@ void check_state(State *Z, Problem *problem)
     /* Check that the n's agree */
     VSPINT nFromZ       = Z->point->n ;
     VSPINT nFromAz      = Z->Az->n ;
-    VSPINT nFromProblem = problem->Graph->n ;
+    VSPINT nFromProblem = problem->graph->n ;
     if(nFromZ != nFromProblem)
     {
         Error("n is incorrect", DBG_INFO) ;
@@ -186,7 +186,7 @@ void check_state(State *Z, Problem *problem)
     check_Az(Z->point, Z->Az, problem) ;
 
     /* Check that the weight is correct, and z satisfies constraint */
-    check_weight(Z, problem->Graph->c) ;
+    check_weight(Z, problem->graph->c) ;
     if(Z->weight > problem->u)
     {
         Error("Upper balance violated ", DBG_INFO);
@@ -239,12 +239,12 @@ void check_Az
     count ++ ;
 
     VSPINT i ;
-    VSPINT n       = problem->Graph->n ;
+    VSPINT n       = problem->graph->n ;
     VSPINT *Az_int = az->int_part ;
 
     /* Compute Az from scratch */
     Az *Az_dbg = Construct_Az(n) ;
-    Compute_Az(z, Az_dbg, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
+    Compute_Az(z, Az_dbg, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
 
     /* Check that each entry in the integer part is in [0, n] */
     for(i = 0 ; i < n ; i++) {
@@ -505,8 +505,8 @@ void check_matrix_is_symmetric
 ) {
     /* Get the transpose */
     Problem* T = transpose(Ai, Ap, Ae, nz, n, options) ;
-    VSPINT *Ti = T->Graph->Ai, *Te = T->Graph->Ae ;
-    VSPLONG *Tp = T->Graph->Ap ;
+    VSPINT *Ti = T->graph->Ai, *Te = T->graph->Ae ;
+    VSPLONG *Tp = T->graph->Ap ;
 
     /* Check that the number of 1's in each column is the same in A and T */
     Check_Arrays_Are_Equal_VSPLONG(Ap, Tp, n+1) ;
@@ -657,15 +657,15 @@ VSPINT check_problem
     VSPINT i, deg ;
 
     /* Unpack problem */
-    VSPINT* Ai = problem->Graph->Ai ;
-    VSPLONG* Ap = problem->Graph->Ap ;
-    VSPINT* Ae = problem->Graph->Ae ;
-    VSPINT* c = problem->Graph->c ;
+    VSPINT* Ai = problem->graph->Ai ;
+    VSPLONG* Ap = problem->graph->Ap ;
+    VSPINT* Ae = problem->graph->Ae ;
+    VSPINT* c = problem->graph->c ;
 
-    VSPINT alpha = problem->Graph->min_vtx_cost ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPLONG nz    = problem->Graph->nz ;
-    VSPINT n     = problem->Graph->n ;
+    VSPINT alpha = problem->graph->min_vtx_cost ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPLONG nz    = problem->graph->nz ;
+    VSPINT n     = problem->graph->n ;
     VSPINT bal   = problem->u ;
 
     VSPINT cost_is_wrong     = FALSE ;
@@ -727,7 +727,7 @@ VSPINT check_problem
         is_there_an_error = TRUE ;
     }
 
-    if (sum_of_all_ci != problem->Graph->total_vtx_cost) {
+    if (sum_of_all_ci != problem->graph->total_vtx_cost) {
         Error("Problem with sum of all ci", DBG_INFO) ;
         is_there_an_error = TRUE ;
     }

@@ -327,15 +327,15 @@ VSPFLOAT Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, Az *Az)
     // VSPFLOAT Awi ;
 
     // zIndFrac = Z->point->ind_frac ;
-    // gapOrg   = lround( problem->Graph->c[zIndFrac] * Z->point->val_frac ) ;
-    // n        = problem->Graph->n ;
+    // gapOrg   = lround( problem->graph->c[zIndFrac] * Z->point->val_frac ) ;
+    // n        = problem->graph->n ;
 
     // if(gapOrg < problem>Graph->min_vtx_cost)
     // {
     //     resolve_frac_entry(Z, problem) ;
     // }
 
-    // c  = problem->Graph->c ;
+    // c  = problem->graph->c ;
     // z  = Z->point->int_part ;
 
     // gap = gapOrg ;
@@ -391,7 +391,7 @@ VSPFLOAT Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, Az *Az)
 //     if(k == EMPTY) return ;
 
 //     VSPFLOAT val_frac = Z->point->val_frac ;
-//     VSPINT *c = problem->Graph->c ;
+//     VSPINT *c = problem->graph->c ;
 
 //     /* Check if setting frac entry to 0 would violate lower bound */
 //     if(Z->weight - val_frac * c[k] < 1 - ZERO)
@@ -447,7 +447,7 @@ void resolve_frac_entry
     if(k == EMPTY) return ;
 
     VSPFLOAT val_frac = Z->point->val_frac ;
-    VSPINT         *c = problem->Graph->c, j ;
+    VSPINT         *c = problem->graph->c, j ;
     VSPLONG p ;
 
     /* Check if setting frac entry to 0 would violate lower bound */
@@ -456,8 +456,8 @@ void resolve_frac_entry
         /* Round up */
         if(Z->weight + (1 - val_frac) * c[k] <= problem->u)
         {
-            VSPLONG *Ap = problem->Graph->Ap ;
-            VSPINT *Ai = problem->Graph->Ai ;
+            VSPLONG *Ap = problem->graph->Ap ;
+            VSPINT *Ai = problem->graph->Ai ;
 
             Z->point->int_part[k] = 1 ;
             Z->weight += lround((1 - val_frac) * c[k]) ;
@@ -536,7 +536,7 @@ void State_Round_Down
     VSPINT k = Z->point->ind_frac ;
     if(k == EMPTY) return ;
 
-    VSPINT *c = problem->Graph->c ;
+    VSPINT *c = problem->graph->c ;
 
     // Reduce the cost
     Z->weight = ((VSPFLOAT) Z->weight) - c[k] * Z->point->val_frac ;
@@ -923,8 +923,8 @@ void SetFracEntry
         Z->Az->col_frac_z,
         indFrac,
         Z->Az->one,
-        problem->Graph->Ai,
-        problem->Graph->Ap
+        problem->graph->Ai,
+        problem->graph->Ap
     ) ;
 
     #ifdef DEBUG
@@ -1084,14 +1084,14 @@ void Fix_Lower_Bound_Issue
     VSPLONG end, p ;
     VSPINT i, j,
     k   = 0,
-    n   = problem->Graph->n,
+    n   = problem->graph->n,
     *z  = Z->point->int_part,
     *Az = Z->Az->int_part,
     *w  = W->point->int_part,
     *Aw = W->Az->int_part,
-    *Ai = problem->Graph->Ai,
-    *c  = problem->Graph->c  ;
-    VSPLONG *Ap = problem->Graph->Ap ;
+    *Ai = problem->graph->Ai,
+    *c  = problem->graph->c  ;
+    VSPLONG *Ap = problem->graph->Ap ;
 
     if(Z->point->ind_frac != EMPTY) k = Z->point->ind_frac ;
     else
@@ -1189,7 +1189,7 @@ VSPINT Problem_Get_N_Finest(const Problem *P)
     {
         P = P->parent_problem ;
     }
-    return P->Graph->n ;
+    return P->graph->n ;
 }
 
 VSPLONG Problem_Get_NZ_Finest(const Problem *P)
@@ -1200,7 +1200,7 @@ VSPLONG Problem_Get_NZ_Finest(const Problem *P)
     {
         P = P->parent_problem ;
     }
-    return P->Graph->nz ;
+    return P->graph->nz ;
 }
 
 // Write 4n EMPTYs, covering x, y, Ax, Ay
@@ -1233,15 +1233,15 @@ void Dump_Problem
     FILE *fp2 = fopen("output/problem.txt", "w") ;
     
     // Write n
-    int32_t n_32 = (int32_t) P->Graph->n ;
+    int32_t n_32 = (int32_t) P->graph->n ;
     fwrite(&n_32, sizeof(int32_t), 1, fp) ;
 
     // Write nz
-    int64_t nz_64 = (int64_t) P->Graph->nz ;
+    int64_t nz_64 = (int64_t) P->graph->nz ;
     fwrite(&nz_64, sizeof(int64_t), 1, fp) ;
 
     //  Write Ai
-    VSPINT *Ai = P->Graph->Ai ;
+    VSPINT *Ai = P->graph->Ai ;
     int32_t *Ai_32 = malloc( nz_64 * sizeof(*Ai_32) ) ;
     for(i_64 = 0 ; i_64 < nz_64 ; i_64++) Ai_32[i_64] = (int32_t) Ai[i_64] ;
     fwrite(Ai_32, sizeof(int32_t), nz_64, fp) ;
@@ -1249,7 +1249,7 @@ void Dump_Problem
     Ai_32 = NULL ;
 
     //  Write Ap
-    VSPLONG *Ap = P->Graph->Ap ;
+    VSPLONG *Ap = P->graph->Ap ;
     int64_t *Ap_64 = malloc( (n_32 + 1) * sizeof(*Ap_64) ) ;
     for(i_32 = 0 ; i_32 < n_32 + 1 ; i_32++) Ap_64[i_32] = (int64_t) Ap[i_32] ;
     fwrite(Ap_64, sizeof(int64_t), n_32 + 1, fp) ;
@@ -1257,7 +1257,7 @@ void Dump_Problem
     Ap_64 = NULL ;
 
     // Write c
-    VSPINT *c = P->Graph->c ;
+    VSPINT *c = P->graph->c ;
     int32_t *c_32 = malloc( n_32 * sizeof(*c_32) ) ;
     for(i_32 = 0 ; i_32 < n_32 ; i_32++) c_32[i_32] = (int32_t) c[i_32] ;
     fwrite(c_32, sizeof(int32_t), n_32, fp) ;

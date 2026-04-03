@@ -16,16 +16,16 @@ void Flips_v5
 )
 {
     SET_FUNCTION_COUNTER ;
-    g_num_vert_curr_lvl_v5 = problem->Graph->n ;
+    g_num_vert_curr_lvl_v5 = problem->graph->n ;
     #ifdef DEBUG
         Check_Inputs_v5(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
     #endif
 
 
-    VSPINT n     = problem->Graph->n ;
-    VSPINT *c    = problem->Graph->c ;
+    VSPINT n     = problem->graph->n ;
+    VSPINT *c    = problem->graph->c ;
     VSPINT u     = problem->u ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
 
     /*------------------------------------------------------------------------*/
     // Initialize all structs

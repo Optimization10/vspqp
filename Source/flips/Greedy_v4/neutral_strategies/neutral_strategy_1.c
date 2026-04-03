@@ -199,11 +199,11 @@ void Neutral_Downflips
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSPINT gamma  = problem->Graph->max_vtx_cost ;
+    VSPINT gamma  = problem->graph->max_vtx_cost ;
     VSPINT *group =  z1Aw1_groups->groups[gamma] ;
     VSPINT *size  = &( z1Aw1_groups->sizes[gamma] ) ;
-    VSPINT *c     = problem->Graph->c ;
-    VSPINT n      = problem->Graph->n ;
+    VSPINT *c     = problem->graph->c ;
+    VSPINT n      = problem->graph->n ;
 
     VSPINT numFlips = 0 ;
     while( 1 )
@@ -303,7 +303,7 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
     VSPINT indFlip ;
     char   varFlip ;
 
-    VSPINT max_num_upflips = 0.01 * problem->Graph->n ;
+    VSPINT max_num_upflips = 0.01 * problem->graph->n ;
 
     VSPINT numFlips = 0 ;
     while( 1 )
@@ -417,7 +417,7 @@ void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
     VSPINT u = problem->u ;
     #ifdef DEBUG
         Check_All_Data
@@ -511,9 +511,9 @@ void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2_Check
     WARN_IF_NOT_DEBUG_MODE ;
 
     VSPINT i ;
-    VSPINT n     = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *c    = problem->Graph->c ;
+    VSPINT n     = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c    = problem->graph->c ;
     VSPINT u     = problem->u ;
 
     /*------------------------------------------------------------------------*/

@@ -50,12 +50,12 @@ void relaxed_to_vertex_separator
     xAy = 0 ;
     sum_x = 0 ;
     sum_y = 0 ;
-    n = problem->Graph->n ;
+    n = problem->graph->n ;
     Ax = X->Az->int_part ;
     Ay = Y->Az->int_part ;
     x = X->point->int_part ;
     y = Y->point->int_part ;
-    c = problem->Graph->c ;
+    c = problem->graph->c ;
 
     /* Set the fractional part to 0 or 1 */
     Force_To_Binary_Point(X, Y, problem) ;
@@ -68,9 +68,9 @@ void relaxed_to_vertex_separator
         check_states(X, Y, problem) ;
 
         /* Compute the initial objective */
-        VSPFLOAT objin = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        VSPFLOAT objin = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
         VSPINT obj_old = 0 ;
-        VSPINT gamma = problem->Graph->max_vtx_cost ;
+        VSPINT gamma = problem->graph->max_vtx_cost ;
 
         for (i = 0 ; i < n ; i++) {
             obj_old += c [i] * ( x [i] + y [i] ) - gamma * x [i] * Ay [i] ;
@@ -143,8 +143,8 @@ void relaxed_to_vertex_separator
             // printf("\nEntered terrible situation") ;
             // printf("\nGraph name: %s \n", problem->name) ;
             // fflush(stdout) ;
-            VSPLONG *Ap = problem->Graph->Ap ;
-            VSPINT *Ai = problem->Graph->Ai ;
+            VSPLONG *Ap = problem->graph->Ap ;
+            VSPINT *Ai = problem->graph->Ai ;
             VSPINT p ;
             VSPLONG k ;
             bool complete_graph = true ;
@@ -181,8 +181,8 @@ void relaxed_to_vertex_separator
                     y[k] = 1 ;
                     X->weight = c[i] ;
                     Y->weight = c[k] ;
-                    Compute_Az(X->point, X->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
-                    Compute_Az(Y->point, Y->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
+                    Compute_Az(X->point, X->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
+                    Compute_Az(Y->point, Y->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
                     printf("\nCompute Az called!\n") ;
                     fflush(stdout) ;
 
@@ -273,7 +273,7 @@ void relaxed_to_vertex_separator
             Error("Objective worsened when improving point", DBG_INFO) ;
         }
 
-        VSPFLOAT objout = compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
+        VSPFLOAT objout = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
         if(objout < objin && terribleSituation == false)
         {
             Error("Objective worsened after improve", DBG_INFO) ;
@@ -301,12 +301,12 @@ void improve
 
 
     VSPINT i ;
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
     VSPINT *x = X->point->int_part ;
     VSPINT *y = Y->point->int_part ;
     VSPINT *Ax = X->Az->int_part ;
     VSPINT *Ay = Y->Az->int_part ;
-    VSPINT *c = problem->Graph->c ;
+    VSPINT *c = problem->graph->c ;
     VSPINT u = problem->u ;
 
 
@@ -340,7 +340,7 @@ void improve
                     /* Move i to y */
                     y[i] = 1 ;
                     Y->weight += ci ;
-                    // Compute_Az(Y->point, Y->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
+                    // Compute_Az(Y->point, Y->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
                     Az_pm_col_of_A(Y->Az->int_part, i, PLUS, problem) ;
                     // printf("\nImprove worked 1\n") ;
                     #ifdef DEBUG
@@ -364,7 +364,7 @@ void improve
                     /* Move i to x */
                     x[i] = 1 ;
                     X->weight += ci ;
-                    // Compute_Az(X->point, X->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
+                    // Compute_Az(X->point, X->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
                     Az_pm_col_of_A(X->Az->int_part, i, PLUS, problem) ;
                     // printf("\nImprove worked 2\n") ;
                     #ifdef DEBUG
@@ -391,7 +391,7 @@ void improve
                 /* Move i to x */
                 x[i] = 1 ;
                 X->weight += ci ;
-                // Compute_Az(X->point, X->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
+                // Compute_Az(X->point, X->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
                 Az_pm_col_of_A(X->Az->int_part, i, PLUS, problem) ;
                 // printf("\nImprove worked 3\n") ;
                 #ifdef DEBUG
@@ -417,7 +417,7 @@ void improve
                 /* Move i to y */
                 y[i] = 1 ;
                 Y->weight += ci ;
-                // Compute_Az(Y->point, Y->Az, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
+                // Compute_Az(Y->point, Y->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
                 Az_pm_col_of_A(Y->Az->int_part, i, PLUS, problem) ;
                 // printf("\nImprove worked 4\n") ;
                 #ifdef DEBUG

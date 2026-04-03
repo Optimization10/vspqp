@@ -91,7 +91,7 @@ static Graph* Graph_Coarsen
 
     // Q: I am using the fine problem nz here, is this a problem?
     // A: No. The fine nz should be an upper bound on the coarse nz. And later
-    //    on, we set problem_coarse->Graph->nz = munch, which is the true coarse nz
+    //    on, we set problem_coarse->graph->nz = munch, which is the true coarse nz
     // Problem* problem_coarse = Construct_Problem(n_coarse, GraphFine->nz, options) ;
     Graph *Graph_Coarse = Construct_Graph(n_coarse, GraphFine->nz, NULL, NULL, NULL) ;
 
@@ -446,7 +446,7 @@ Problem *Problem_Coarsen
 {
     Graph *Graph_Coarse = Graph_Coarsen
     (
-        P->Graph,
+        P->graph,
         P->cn,
         P->matchmap,
         P->invmatchmap,
@@ -462,8 +462,8 @@ Problem *Problem_Coarsen
     ) ;
 
     // Free the graph coming from constructor
-    Destroy_Graph(P_coarse->Graph) ;
-    P_coarse->Graph = Graph_Coarse ;
+    Destroy_Graph(P_coarse->graph) ;
+    P_coarse->graph = Graph_Coarse ;
 
     /* ====================================================================== */
     // Set other problem data
@@ -511,10 +511,10 @@ static void SetRatioOfNodesWithMaxWeight
     Problem *problem
 )
 {
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
     VSPINT num = 0 ;
-    VSPINT maxWgt = problem->Graph->max_vtx_cost ;
-    VSPINT *c = problem->Graph->c ;
+    VSPINT maxWgt = problem->graph->max_vtx_cost ;
+    VSPINT *c = problem->graph->c ;
 
     for(VSPINT i = 0 ; i < n ; i++)
     {
@@ -548,13 +548,13 @@ static void SetUpperBound
     // Linear Version
     VSPFLOAT gap          = ratioUBLimit - 0.6 ;
     VSPFLOAT ratioUb_Curr = 0.6 + currLvl * (gap / maxLvl) ;
-    problem->u = (VSPINT) floor( ratioUb_Curr  * problem->Graph->total_vtx_cost ) ;
+    problem->u = (VSPINT) floor( ratioUb_Curr  * problem->graph->total_vtx_cost ) ;
 
     // Quadratic version
     // VSPFLOAT a  = (0.6 - ratioUBLimit) / (maxLvl * maxLvl) ;
     // VSPFLOAT ratioUb_Curr = a * (currLvl - maxLvl) * (currLvl - maxLvl) + ratioUBLimit ;
-    // problem->u = (VSPINT) floor( ratioUb_Curr  * problem->Graph->total_vtx_cost ) ;
-    // printf("\nub: %f", problem->u / ((VSPFLOAT) problem->Graph->total_vtx_cost )) ;
+    // problem->u = (VSPINT) floor( ratioUb_Curr  * problem->graph->total_vtx_cost ) ;
+    // printf("\nub: %f", problem->u / ((VSPFLOAT) problem->graph->total_vtx_cost )) ;
 
     return ;
 }
@@ -582,21 +582,21 @@ static bool Stop_Coarsening(Problem *P, Options *options)
 {    
     // As a safeguard against weird edge cases, stop coarsening if the child
     // problem is extremely small
-    if(P->child_problem->Graph->n < 8 ) return true ;
+    if(P->child_problem->graph->n < 8 ) return true ;
 
     bool stop = false ;
-    if(P->Graph->n > options->limit_num_nodes)
+    if(P->graph->n > options->limit_num_nodes)
     {
-        VSPFLOAT cn  = (VSPFLOAT) P->child_problem->Graph->n ;
-        VSPFLOAT cnz = (VSPFLOAT) P->child_problem->Graph->nz ;
+        VSPFLOAT cn  = (VSPFLOAT) P->child_problem->graph->n ;
+        VSPFLOAT cnz = (VSPFLOAT) P->child_problem->graph->nz ;
 
         // Check if child problem is complete
         if( equal(cnz / cn, cn - 1) ) stop = true ;
     }
     else
     {
-        VSPINT  cn  = P->child_problem->Graph->n ;
-        VSPLONG cnz = P->child_problem->Graph->nz ;
+        VSPINT  cn  = P->child_problem->graph->n ;
+        VSPLONG cnz = P->child_problem->graph->nz ;
         if(Graph_Density(cn, cnz) > options->max_density) stop = true ;
     }
 
@@ -612,7 +612,7 @@ Problem *Problem_Recursive_Coarsen
     static long long unsigned count = 0 ;
     count++ ;
 
-    VSPINT n_finest = probFinest->Graph->n ;
+    VSPINT n_finest = probFinest->graph->n ;
     Problem *P, *coarse_P, *coarsest_P ;
 
     P = probFinest ;
@@ -627,7 +627,7 @@ Problem *Problem_Recursive_Coarsen
         // Match P
         Graph_Simple_Match
         (
-            P->Graph,
+            P->graph,
             P->level,
             P->matching,
             P->matchmap,
@@ -644,7 +644,7 @@ Problem *Problem_Recursive_Coarsen
         coarse_P->level = P->level + 1 ;
 
         // Set the total graph weight
-        coarse_P->Graph->total_vtx_cost = P->Graph->total_vtx_cost ;
+        coarse_P->graph->total_vtx_cost = P->graph->total_vtx_cost ;
 
         // Link the child and parent problems
         coarse_P->parent_problem = P ;
@@ -658,19 +658,19 @@ Problem *Problem_Recursive_Coarsen
         //     coarsest_P = P ;
         //     break ;
         // }
-        if(Graph_Density(coarse_P->Graph->n, coarse_P->Graph->nz) > 0.4
-           || coarse_P->Graph->n < 10)
+        if(Graph_Density(coarse_P->graph->n, coarse_P->graph->nz) > 0.4
+           || coarse_P->graph->n < 10)
         {
             coarsest_P = coarse_P ;
             break ;
         }
-        else if(Is_Complete_Graph(coarse_P->Graph->n, coarse_P->Graph->nz))
+        else if(Is_Complete_Graph(coarse_P->graph->n, coarse_P->graph->nz))
         {
             Destroy_Problem(coarse_P) ;
             coarsest_P = P ;
             break ;
         }
-        // else if(coarse_P->Graph->max_vtx_cost > 0.2 * coarse_P->Graph->total_vtx_cost)
+        // else if(coarse_P->graph->max_vtx_cost > 0.2 * coarse_P->graph->total_vtx_cost)
         // {
         //     Destroy_Problem(coarse_P) ;
         //     coarsest_P = P ;

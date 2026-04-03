@@ -65,16 +65,16 @@
 
 //         /* Compute objective at the given z                                   */
 //         VSPFLOAT obj_given ;
-//         obj_given = compute_LP_objective(Z->point, problem->Graph->c, gamma, Aw) ;
+//         obj_given = compute_LP_objective(Z->point, problem->graph->c, gamma, Aw) ;
 
 //         /* Get optimal objective by solving the LP                            */
 //         VSPFLOAT obj_opt = 0 ;
-//         State *Z_copy = Construct_State(problem->Graph->n) ;
+//         State *Z_copy = Construct_State(problem->graph->n) ;
 //         copy_state(Z, Z_copy) ;
-//         obj_opt = LP_solver_4(Z_copy      , Aw   , problem->Graph->c, 1,
+//         obj_opt = LP_solver_4(Z_copy      , Aw   , problem->graph->c, 1,
 //                                   problem->u, gamma, problem   , options, 'x');
 
-//         UNUSED VSPFLOAT obj_opt2 = compute_LP_objective(Z_copy->point, problem->Graph->c, gamma, Aw) ;
+//         UNUSED VSPFLOAT obj_opt2 = compute_LP_objective(Z_copy->point, problem->graph->c, gamma, Aw) ;
 
 
 //         /* Determine optimality                                               */
@@ -89,27 +89,27 @@
 //     if(Z->weight == problem->u) {
 //         /* Disjunct on whether there is a fractional entry */
 //         if(Z->point->ind_frac == EMPTY) {
-//             is_opt = LP_is_optimal_case_1a(Z->point, Aw, gamma, problem->Graph->c);
+//             is_opt = LP_is_optimal_case_1a(Z->point, Aw, gamma, problem->graph->c);
 //         }
 //         else{
-//             is_opt = LP_is_optimal_case_1b(Z->point, Aw, gamma, problem->Graph->c);
+//             is_opt = LP_is_optimal_case_1b(Z->point, Aw, gamma, problem->graph->c);
 //         }
 //     }
 //     else if (Z->weight == 1) {
 //         /* Disjunct on whether there is a fractional entry */
 //         if(Z->point->ind_frac == EMPTY) {
-//             is_opt = LP_is_optimal_case_2a(Z->point, Aw, gamma, problem->Graph->c);
+//             is_opt = LP_is_optimal_case_2a(Z->point, Aw, gamma, problem->graph->c);
 //         }
 //         else{
-//             is_opt = LP_is_optimal_case_2b(Z->point, Aw, gamma, problem->Graph->c);
+//             is_opt = LP_is_optimal_case_2b(Z->point, Aw, gamma, problem->graph->c);
 //         }
 //     }
 //     else {
-//         is_opt = LP_is_optimal_case_3(Z->point, Aw, gamma, problem->Graph->c);
+//         is_opt = LP_is_optimal_case_3(Z->point, Aw, gamma, problem->graph->c);
 //     }
 
 //     #ifdef DEBUG
-//         VSPINT n = problem->Graph->n ;
+//         VSPINT n = problem->graph->n ;
 //         (void) n ; // dummy
 //         if(is_opt != is_opt_dbg)
 //         {

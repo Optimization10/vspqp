@@ -38,7 +38,7 @@ VSPFLOAT LP_solver_4
 
 
     Az *Az = Z->Az ;
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
     VSPINT z_weight = 0 ;
     VSPINT i, ci, k ;
     VSPFLOAT Awi ;
@@ -54,7 +54,7 @@ VSPFLOAT LP_solver_4
     VSPINT L2_weight = 0 ;
     VSPFLOAT obj = 0 ;
 
-    // VSPINT min_L2_weight = problem->Graph->max_vtx_cost ;
+    // VSPINT min_L2_weight = problem->graph->max_vtx_cost ;
 
     /* Reset z fractional index */
     Z->point->ind_frac = EMPTY ;
@@ -155,7 +155,7 @@ VSPFLOAT LP_solver_4
                         Z->point->val_frac,
                         Z->weight,
                         Aw,
-                        c, u, gamma, problem->Graph->total_vtx_cost,
+                        c, u, gamma, problem->graph->total_vtx_cost,
                         options
                     ) ;
 
@@ -184,8 +184,8 @@ VSPFLOAT LP_solver_4
                     Z->Az->col_frac_z,
                     Z->point->ind_frac,
                     Z->Az->one,
-                    problem->Graph->Ai,
-                    problem->Graph->Ap
+                    problem->graph->Ai,
+                    problem->graph->Ap
                 ) ;
 
                 /* Finish up by setting all remaining i to 0. Start with
@@ -215,7 +215,7 @@ VSPFLOAT LP_solver_4
                         Z->point->val_frac,
                         Z->weight,
                         Aw,
-                        c, u, gamma, problem->Graph->total_vtx_cost,
+                        c, u, gamma, problem->graph->total_vtx_cost,
                         options
                     ) ;
 
@@ -302,7 +302,7 @@ VSPFLOAT LP_solver_4
                 Z->point->val_frac,
                 Z->weight,
                 Aw,
-                c, u, gamma, problem->Graph->total_vtx_cost,
+                c, u, gamma, problem->graph->total_vtx_cost,
                 options
             ) ;
             if(is_opt == false) 
@@ -381,8 +381,8 @@ VSPFLOAT LP_solver_4
                 Z->Az->col_frac_z,
                 Z->point->ind_frac,
                 Z->Az->one,
-                problem->Graph->Ai,
-                problem->Graph->Ap
+                problem->graph->Ai,
+                problem->graph->Ap
             ) ;
             break ;
         }
@@ -413,7 +413,7 @@ VSPFLOAT LP_solver_4
             Z->point->val_frac,
             Z->weight,
             Aw,
-            c, u, gamma, problem->Graph->total_vtx_cost,
+            c, u, gamma, problem->graph->total_vtx_cost,
             options
         ) ;
 

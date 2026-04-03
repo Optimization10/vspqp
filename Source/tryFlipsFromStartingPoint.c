@@ -49,7 +49,7 @@ void TryFlipsManyStartingPoints
     // Variables and memory
     /*------------------------------------------------------------------------*/
     VSPINT i ;
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
 
     VSPINT objStar, imbStar ;
     VSPINT wgtxstar, wgtystar ;

@@ -73,8 +73,8 @@ void LoggerStart
     va_end(args);
 
     Logger_Record *rec = calloc(1, sizeof(*rec)) ;
-    State *Xcpy = Construct_State(problem->Graph->n) ;
-    State *Ycpy = Construct_State(problem->Graph->n) ;
+    State *Xcpy = Construct_State(problem->graph->n) ;
+    State *Ycpy = Construct_State(problem->graph->n) ;
     copy_state(X, Xcpy) ;
     copy_state(Y, Ycpy) ;
     rec->X = Xcpy ;
@@ -100,7 +100,7 @@ void LoggerStop(State *X, State *Y, Problem *problem)
     Logger_Record *rec = (Logger_Record*) DynamicStack_Pop(LOG_G.initRecords) ;    
     
     VSPFLOAT objInit, objFin, imbInit, imbFin, gamma ;
-    gamma = CAST(problem->Graph->max_vtx_cost, VSPFLOAT) ;
+    gamma = CAST(problem->graph->max_vtx_cost, VSPFLOAT) ;
     objInit = compute_obj(rec->X, rec->Y, rec->problem, gamma) ;
     objFin  = compute_obj(X, Y, problem, gamma) ;
 

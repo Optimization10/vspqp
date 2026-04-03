@@ -101,11 +101,11 @@ void Upflip_v5
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSPINT n = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *c = problem->Graph->c ;
-    VSPINT *Ai   = problem->Graph->Ai ;
-    VSPLONG *Ap   = problem->Graph->Ap ;
+    VSPINT n = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c = problem->graph->c ;
+    VSPINT *Ai   = problem->graph->Ai ;
+    VSPLONG *Ap   = problem->graph->Ap ;
     VSPINT i, k, Azk ;
     VSPLONG start, end, p ;
 
@@ -274,11 +274,11 @@ void Downflip_v5
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSPINT n = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *c = problem->Graph->c ;
-    VSPINT *Ai   = problem->Graph->Ai ;
-    VSPLONG *Ap   = problem->Graph->Ap ;
+    VSPINT n = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c = problem->graph->c ;
+    VSPINT *Ai   = problem->graph->Ai ;
+    VSPLONG *Ap   = problem->graph->Ap ;
     VSPINT i, k, Azk ;
     VSPLONG start, end, p ;
 
@@ -453,9 +453,9 @@ void Initialize_All_Structs_v5
     SET_FUNCTION_COUNTER ;
 
     VSPINT i, xi, yi, Axi, Ayi, ci ;
-    VSPINT *c    = problem->Graph->c ;
-    VSPINT n     = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
+    VSPINT *c    = problem->graph->c ;
+    VSPINT n     = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
 
     for(i = 0 ; i < n ; i++)
     {
@@ -553,9 +553,9 @@ void Check_All_Data_v5
 
     #ifdef DEBUG
     VSPINT i ;
-    VSPINT n     = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *c    = problem->Graph->c ;
+    VSPINT n     = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c    = problem->graph->c ;
 
     /*------------------------------------------------------------------------*/
     // Load the data into states and use check_states
@@ -673,9 +673,9 @@ void Check_All_Data_v5
 //     WARN_IF_NOT_DEBUG_MODE ;
 
 //     VSPINT i, xi, yi, Axi, Ayi, ci ;
-//     VSPINT n = problem->Graph->n ;
-//     VSPINT gamma = problem->Graph->max_vtx_cost ;
-//     VSPINT *c = problem->Graph->c ;
+//     VSPINT n = problem->graph->n ;
+//     VSPINT gamma = problem->graph->max_vtx_cost ;
+//     VSPINT *c = problem->graph->c ;
 //     VSPINT  u = problem->u ;
 
 //     Flip trueFlip ;
@@ -1011,9 +1011,9 @@ void Check_Inputs_v5
     WARN_IF_NOT_DEBUG_MODE ;
 
     VSPINT i ;
-    VSPINT n     = problem->Graph->n ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
-    VSPINT *c    = problem->Graph->c ;
+    VSPINT n     = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c    = problem->graph->c ;
 
     /*------------------------------------------------------------------------*/
     // Load the data into states and use check_states
@@ -1108,10 +1108,10 @@ void Check_Outputs_v5
     WARN_IF_NOT_DEBUG_MODE ;
     Check_Inputs_v5(x, Ax, wgtx, y, Ay, wgty, problem) ;
 
-    VSPINT n = problem->Graph->n ;
+    VSPINT n = problem->graph->n ;
     VSPINT u = problem->u ;
-    VSPINT *c = problem->Graph->c ;
-    VSPINT gamma = problem->Graph->max_vtx_cost ;
+    VSPINT *c = problem->graph->c ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
 
     VSPINT ps[4], cs[4], witness[4], isFeas[4], gains[4] ;
     Compute_ps_And_cs_Dbg_v5(x, Ax, wgtx, y, Ay, wgty, problem, ps, cs, witness) ;
@@ -1190,11 +1190,11 @@ void Flips_v5_UnitTest
     SET_FUNCTION_COUNTER ;
     VSPINT i, ci, k ;
     VSPLONG p ;
-    VSPINT n = problem->Graph->n ;
-    VSPINT *Ai = problem->Graph->Ai ;
-    VSPLONG *Ap = problem->Graph->Ap ;
+    VSPINT n = problem->graph->n ;
+    VSPINT *Ai = problem->graph->Ai ;
+    VSPLONG *Ap = problem->graph->Ap ;
     VSPINT u = problem->u ;
-    VSPINT *c = problem->Graph->c ;
+    VSPINT *c = problem->graph->c ;
 
     VSPINT *x = malloc(n * sizeof(*x)) ;
     VSPINT *y = malloc(n * sizeof(*x)) ;
