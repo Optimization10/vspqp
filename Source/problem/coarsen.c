@@ -8,7 +8,6 @@
 #include <bits/time.h>
 #include <string.h>
 #include <time.h>
-#include "simplematch.h"
 
 
 static void RecordCoarsestLvlNum

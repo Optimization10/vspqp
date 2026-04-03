@@ -11,10 +11,10 @@
 #include <string.h>
 #include <time.h>
 #include <limits.h>
-#include "simplematch.h"
 #include "other_api.h"
 #include "solve.h"
 #include "mc_api.h"
+#include "coarsen_api.h"
 
 extern struct timespec  G_START_TIME, G_END_TIME ;
 extern long double G_COMPRESS_TIME ;

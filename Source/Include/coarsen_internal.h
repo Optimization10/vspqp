@@ -41,10 +41,11 @@ VSPINT VSP_there_is_an_edge
     VSPINT vertex_a,
     VSPINT vertex_b,
     VSPINT      *Ai,
-    VSPLONG *Ap
+    VSPLONG     *Ap
 ) ;
 
-void VSP_check_matrix_is_symmetric(
+void VSP_check_matrix_is_symmetric
+(
     VSPINT           *Ai,
     VSPLONG *Ap,
     VSPINT           *Ae,

@@ -431,21 +431,6 @@ void VSP_restart_decide_reset(VSP_restart_decision *dec)
 
 
 
-
-
-
-/* Modify options to reflect the decision */
-void VSP_DecideComm
-(
-    VSP_problem       *problem,
-    VSP_options       *options
-)
-{
-    options->do_community_match = (problem->level <= 3) ? false : true ;
-    return ;
-}
-
-
 /***************** VSP_options ************************************************/
 VSP_options* VSP_construct_options()
 {
