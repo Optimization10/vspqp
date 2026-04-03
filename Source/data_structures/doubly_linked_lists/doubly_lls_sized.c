@@ -2,7 +2,7 @@
 #include "shared_api.h"
 #include "ds_api.h"
 
-Doubly_LLs_Sized *Doubly_LLs_Sized_Init( VSPINT n)
+Doubly_LLs_Sized *Doubly_LLs_Sized_Init(VSPINT n)
 {
     SET_FUNCTION_COUNTER ;
     VSP_ASSERT(n > 0) ;
