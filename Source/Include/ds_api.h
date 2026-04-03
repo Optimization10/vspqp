@@ -762,7 +762,7 @@ bool VSP_restart_decide
     VSP_restart_decision       *dec,
     VSPFLOAT                  objIn, /* If not using rule, EMPTY */
     VSPFLOAT                 objOut, /* If not using rule, EMPTY */
-    Problem            *problem  /* If using levels, this is ignored   */
+    Problem                *problem  /* If using levels, this is ignored   */
 ) ;
 
 

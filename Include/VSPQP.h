@@ -6,15 +6,14 @@
 #include <time.h>
 #include <stdlib.h>
 
-
-typedef struct Levels_struct Levels ;
-
 typedef enum VSP_initial_guess_enum
 {
     VSP_centroid_initial_guess,
     VSP_random_initial_guess,
     VSP_manual_initial_guess
 } VSP_initial_guess ;
+
+typedef struct Levels_struct Levels ;
 
 typedef struct VSP_restart_decision_struct
 {
@@ -32,9 +31,9 @@ typedef struct VSP_restart_decision_struct
 
 } VSP_restart_decision ;
 
+
 typedef struct Options_struct
 {
-
     /* Coarsening 
        If use_coarsening is false, all other coarsening parameters are ignored*/
     bool                    use_coarsening ;
@@ -47,7 +46,7 @@ typedef struct Options_struct
     VSPFLOAT               random_point_weight_proportion ;
     VSPFLOAT               centroidVal ;
 
-
+    VSP_restart_decision *restart_decision ;
 
     /* Gamma reduction 
        If use_gamma_reduction is false, all other g.r. parameters are ignored */
@@ -62,10 +61,6 @@ typedef struct Options_struct
     /* Number of times to do MCA + GR */
     VSPINT num_its_for_small_graphs ;
     VSPINT num_its_for_large_graphs ;
-
-    /* Restart level */
-    VSP_restart_decision *restart_decision ;
-
 
     /* Miscellaneous */
     bool     sep_at_each_level ; /* If true, get a separator (i.e. change x, y

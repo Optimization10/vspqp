@@ -360,7 +360,7 @@ bool VSP_restart_decide
     VSP_restart_decision       *dec,
     VSPFLOAT                  objIn, /* If not using rule, this is ignored */
     VSPFLOAT                 objOut, /* If not using rule, this is ignored */
-    Problem            *problem  /* If using levels, this is ignored   */
+    Problem                *problem  /* If using levels, this is ignored   */
 )
 {
     #ifdef VSP_DEBUG
