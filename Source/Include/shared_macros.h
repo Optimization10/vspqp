@@ -178,14 +178,14 @@
 #define CMPEQ_FRAC(a, b, c, d) ((a) * (d) <= (c) * (b))
 
 #ifdef VSP_DEBUG
-    #define VSP_ASSERT( cond ) \
+    #define TMP_ASSERT( cond ) \
         do { \
         if ( !(cond) ) { \
            Error("Failed assert.", __FILE__, __LINE__, count) ; \
         } \
     } while (0)
 #else
-    #define VSP_ASSERT( cond ) 
+    #define TMP_ASSERT( cond ) 
 #endif
 
 #if defined(VSP_DEBUG) || defined(VSP_DEBUG_COARSENING)

@@ -23,8 +23,8 @@ struct Breakpoints
 Breakpoints *Breakpoints_Init(VSPINT lo, VSPINT hi, VSPINT numBP)
 {
     SET_FUNCTION_COUNTER ;
-    VSP_ASSERT(lo <= hi) ;
-    VSP_ASSERT(numBP >= 1) ;
+    TMP_ASSERT(lo <= hi) ;
+    TMP_ASSERT(numBP >= 1) ;
 
     Breakpoints *BP = malloc( sizeof(Breakpoints) ) ;
     BP->bp = malloc(sizeof(VSPINT) * (numBP + 1) ) ;
@@ -37,7 +37,7 @@ Breakpoints *Breakpoints_Init(VSPINT lo, VSPINT hi, VSPINT numBP)
     for(VSPINT i = 0 ; i < numBP ; i++)
     {
         BP->bp[i] = lo + d * i ; // rounds down
-        VSP_ASSERT(BP->bp[i] <= hi) ;
+        TMP_ASSERT(BP->bp[i] <= hi) ;
     }
     BP->bp[numBP] = hi ;
     return BP ;
@@ -59,7 +59,7 @@ VSPINT Breakpoints_Get_NumBP(Breakpoints *BP)
 VSPINT Breakpoints_Get_Point(Breakpoints *BP, VSPINT i)
 {
     SET_FUNCTION_COUNTER ;
-    VSP_ASSERT( IN_RANGE(i, 0, BP->numBp + 1) ) ;
+    TMP_ASSERT( IN_RANGE(i, 0, BP->numBp + 1) ) ;
     return BP->bp[i] ;
 }
 

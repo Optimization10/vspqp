@@ -515,7 +515,7 @@ Flip FlipsCtx_Select_Flip
 )
 {
     static long long unsigned count = 0 ; count++ ;
-    VSP_ASSERT( IN_RANGE(whichVars, 0, 3) ) ;
+    TMP_ASSERT( IN_RANGE(whichVars, 0, 3) ) ;
     IFDBG(FlipsCtx_Check(FC)) ;
 
     VSPINT v, zi ;
@@ -701,7 +701,7 @@ Flip FlipsCtx_Select_Flip_FMv9
 )
 {
     static long long unsigned count = 0 ; count++ ;
-    VSP_ASSERT( IN_RANGE(whichVars, 0, 3) ) ;
+    TMP_ASSERT( IN_RANGE(whichVars, 0, 3) ) ;
     IFDBG(FlipsCtx_Check(FC)) ;
 
     VSPINT v, zi,
@@ -797,10 +797,10 @@ void FlipsCtx_Apply_Flip
         VSPINT ci = c[i];
         if (zi)
         {
-            VSP_ASSERT(FC->wgts[var] > ci);
+            TMP_ASSERT(FC->wgts[var] > ci);
         } else
         {
-            VSP_ASSERT(FC->wgts[var] + ci <= problem->u);
+            TMP_ASSERT(FC->wgts[var] + ci <= problem->u);
         }
     });
     z[i] += dir;
@@ -959,7 +959,7 @@ VSPINT FlipsCtx_Get_Wgt
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSP_ASSERT(var == 0 || var == 1) ;
+    TMP_ASSERT(var == 0 || var == 1) ;
     return FC->wgts[var] ;
 }
 
@@ -971,7 +971,7 @@ void FlipsCtx_Set_Wgt
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSP_ASSERT(var == 0 || var == 1) ;
+    TMP_ASSERT(var == 0 || var == 1) ;
     FC->wgts[var] = wgt ;
 }
 

@@ -146,7 +146,7 @@ static void CheckForFracEntryAndRefineIt
     {
         return ;
     }
-    VSP_ASSERT( Zfine->point->ind_frac == EMPTY ) ;
+    TMP_ASSERT( Zfine->point->ind_frac == EMPTY ) ;
 
     VSPINT firstFineVert = probFine->invmatchmap[crsIndFrac] ;
     VSPINT fineVert = firstFineVert ;
@@ -212,8 +212,8 @@ void Uncoarsen_Point
 
         if(fine_graph->u >= coarse_graph->u)
         {
-            VSP_ASSERT(fine_X->weight >= coarse_X->weight) ;
-            VSP_ASSERT(fine_Y->weight >= coarse_Y->weight) ;
+            TMP_ASSERT(fine_X->weight >= coarse_X->weight) ;
+            TMP_ASSERT(fine_Y->weight >= coarse_Y->weight) ;
         }
     #endif 
 

@@ -13,10 +13,10 @@ Dynamic_Heap *Dynamic_Heap_Init
 
     #ifdef VSP_DEBUG
         // Validate input
-        VSP_ASSERT( c != NULL ) ;
-        VSP_ASSERT( ptrs != NULL ) ;
-        VSP_ASSERT( maxNumVals > 0 ) ;
-        VSP_ASSERT( minOrMax == MIN_HEAP || minOrMax == MAX_HEAP ) ;
+        TMP_ASSERT( c != NULL ) ;
+        TMP_ASSERT( ptrs != NULL ) ;
+        TMP_ASSERT( maxNumVals > 0 ) ;
+        TMP_ASSERT( minOrMax == MIN_HEAP || minOrMax == MAX_HEAP ) ;
     #endif
 
     Dynamic_Heap *Heap = calloc( 1, sizeof(*Heap) ) ;
@@ -39,8 +39,8 @@ void Dynamic_Heap_Destroy
     SET_FUNCTION_COUNTER ;
     #ifdef VSP_DEBUG
         // Validate input
-        VSP_ASSERT(Heap != NULL) ;
-        VSP_ASSERT(Heap->heap != NULL) ;
+        TMP_ASSERT(Heap != NULL) ;
+        TMP_ASSERT(Heap->heap != NULL) ;
     #endif
 
 
@@ -216,7 +216,7 @@ void Dynamic_Heap_Check
 )
 {
     DBG_FN_BOILERPLATE ;
-    VSP_ASSERT(Heap->maxNumVals > 0) ;
+    TMP_ASSERT(Heap->maxNumVals > 0) ;
     
 
     if(Heap->minOrMax == MAX_HEAP)

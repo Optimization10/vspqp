@@ -26,11 +26,11 @@ void VSP_mountain_climbing
     #ifdef VSP_DEBUG
         if(is_gamma_org)
         {
-            VSP_ASSERT(VSP_equal(gamma, problem->Graph->max_vtx_cost)) ;
+            TMP_ASSERT(VSP_equal(gamma, problem->Graph->max_vtx_cost)) ;
         }
         else
         {
-            VSP_ASSERT(gamma < problem->Graph->max_vtx_cost) ;
+            TMP_ASSERT(gamma < problem->Graph->max_vtx_cost) ;
         }
     #endif
 
@@ -239,7 +239,7 @@ void VSP_mountain_climbing
 //     obj_dbg = VSP_compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
 //     (void) obj_dbg ;
 // #endif
-//     VSP_ASSERT(numLPs >= 0) ;
+//     TMP_ASSERT(numLPs >= 0) ;
 
 //     /* Local vars */
 //     VSPINT *c = problem->Graph->c;

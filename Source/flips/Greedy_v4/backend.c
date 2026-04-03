@@ -800,7 +800,7 @@ void Compute_Max_Group_Sizes
 
     for(i = 0 ; i < n ; i++)
     {
-        VSP_ASSERT( (IN_RANGE(c[i], 1, gamma + 1)) ) ;
+        TMP_ASSERT( (IN_RANGE(c[i], 1, gamma + 1)) ) ;
         maxGroupSizes[ c[i] ]++ ;
     }
     return ;

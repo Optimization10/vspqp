@@ -87,8 +87,8 @@ bool Doubly_Linked_Lists_Is_Member_Specific_List
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSP_ASSERT(0 <= which_ll && which_ll <= n) ;
-    VSP_ASSERT(0 <= member   && member   <  n) ;
+    TMP_ASSERT(0 <= which_ll && which_ll <= n) ;
+    TMP_ASSERT(0 <= member   && member   <  n) ;
 
     VSPINT entry = entries[which_ll] ;
     if(entry == EMPTY) return false ;
@@ -102,7 +102,7 @@ bool Doubly_Linked_Lists_Is_Member_Specific_List
             ret = true ;
             break ;
         }
-        VSP_ASSERT(0 <= i && i < n) ;
+        TMP_ASSERT(0 <= i && i < n) ;
     } while( (i = fwd[i]) != entry) ;
     
     return ret ;
@@ -148,14 +148,14 @@ void Doubly_Linked_Lists_Spread_One_List
     do
     {
         spread[i]++ ;
-        VSP_ASSERT(0 <= i && i < n) ;
+        TMP_ASSERT(0 <= i && i < n) ;
     } while( (i = fwd[i]) != entry) ;
 
     i = entry ;
     do
     {
         spread[i]++ ;
-        VSP_ASSERT(0 <= i && i < n) ;
+        TMP_ASSERT(0 <= i && i < n) ;
     } while( (i = rev[i]) != entry) ;
     return ;
 }
@@ -299,7 +299,7 @@ void Doubly_Linked_Lists_See_Entry
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSP_ASSERT(whichll >= 0) ;
+    TMP_ASSERT(whichll >= 0) ;
     *ret = entries[whichll] ;
     return ;
 }

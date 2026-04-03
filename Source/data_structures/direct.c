@@ -30,7 +30,7 @@ void Direct_Access_List_Insert
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSP_ASSERT(list->size < list->max_size) ;
+    TMP_ASSERT(list->size < list->max_size) ;
 
     list->list[ list->size ]  = new_entry ;
     list->lookup[ new_entry ] = list->size ;
@@ -46,7 +46,7 @@ void Direct_Access_List_Delete_By_Idx
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSP_ASSERT(0 <= idx_to_del && idx_to_del < list->size) ;
+    TMP_ASSERT(0 <= idx_to_del && idx_to_del < list->size) ;
 
     // Overwrite the index to be deleted with the last entry
     VSPINT node_to_del = list->list[idx_to_del] ;
@@ -67,8 +67,8 @@ void Direct_Access_List_Delete_By_Value
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSP_ASSERT(0 <= val_to_del && val_to_del < list->max_size) ;
-    VSP_ASSERT(0 <= list->lookup[val_to_del]
+    TMP_ASSERT(0 <= val_to_del && val_to_del < list->max_size) ;
+    TMP_ASSERT(0 <= list->lookup[val_to_del]
                  && list->lookup[val_to_del] < list->max_size) ;
 
     VSPINT idx_to_del = list->lookup[val_to_del] ;

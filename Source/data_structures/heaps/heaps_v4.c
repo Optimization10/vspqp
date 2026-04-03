@@ -66,7 +66,7 @@ void Min_Heap_Check_v4
     VSPINT  sizeHeap = Heap->sizeHeap ;
     VSPINT  gamma = Heap->gamma ;
     VSPINT *c = Heap->c ;
-    VSP_ASSERT(n > 0) ;
+    TMP_ASSERT(n > 0) ;
 
     // Make sure size does not exceed maximum
     if (sizeHeap > gamma)
@@ -426,7 +426,7 @@ void Min_Heap_Delete_v4
     }
     else // We deleted the root node 
     {
-        VSP_ASSERT(heapNodeToDel == 1) ;
+        TMP_ASSERT(heapNodeToDel == 1) ;
         // Bubble down messes things up if we call it on an empty heap
         if(Heap->sizeHeap)
         {
@@ -493,7 +493,7 @@ void Max_Heap_Check_v4
     VSPINT  sizeHeap = Heap->sizeHeap ;
     VSPINT  gamma = Heap->gamma ;
     VSPINT *c = Heap->c ;
-    VSP_ASSERT(n > 0) ;
+    TMP_ASSERT(n > 0) ;
 
     // Make sure size does not exceed maximum
     if (sizeHeap > gamma)
@@ -832,7 +832,7 @@ void Max_Heap_Delete_v4
     }
     else // We deleted the root node 
     {
-        VSP_ASSERT(heapNodeToDel == 1) ;
+        TMP_ASSERT(heapNodeToDel == 1) ;
         // Bubble down messes things up if we call it on an empty heap
         if(Heap->sizeHeap)
         {

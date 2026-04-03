@@ -49,7 +49,7 @@ VSP_state *StatesMan_GetState
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSP_ASSERT(IN_RANGE(which, 0, 2)) ;
+    TMP_ASSERT(IN_RANGE(which, 0, 2)) ;
 
     switch (type)
     {

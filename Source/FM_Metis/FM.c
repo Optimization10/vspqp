@@ -155,7 +155,7 @@ void MovesImprovingCost
             } 
             other = 1 - to ;
 
-            VSP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
+            TMP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
             if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
             {
                 to = (to + 1) % 2 ;
@@ -227,8 +227,8 @@ void MovesImprovingCost
         higain = QueueFM_Get_Top_Value(queues[to]) ;
         QueueFM_Delete(queues[other], higain) ;
 
-        VSP_ASSERT( IN_RANGE(higain, 0, n) ) ;
-        VSP_ASSERT(bndptr[higain] != -1);
+        TMP_ASSERT( IN_RANGE(higain, 0, n) ) ;
+        TMP_ASSERT(bndptr[higain] != -1);
 
         pwgts[2] -= (c[higain] - extWgts[higain].wgts[other]) ;
 
@@ -507,7 +507,7 @@ void FM_Metis
                 to = (topGains[0] > topGains[1] ? 0 : (topGains[0] < topGains[1] ? 1 : pass % 2));
                 other = 1 - to ;
 
-                VSP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
+                TMP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
 
                 // Check if the chosen move "to" is feasible. If not, chose the other move
                 if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
@@ -520,7 +520,7 @@ void FM_Metis
                     }
                 }
 
-                VSP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
+                TMP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
                 if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
                 {
                     to = (to + 1) % 2 ;
@@ -547,7 +547,7 @@ void FM_Metis
             }
             else break;
 
-            VSP_ASSERT(to + other == 1) ;
+            TMP_ASSERT(to + other == 1) ;
 
             /* Ovi: Other is the opposite of to. If to is 0, other is 1, and v.v. */
             other = (to + 1) % 2 ;
@@ -555,8 +555,8 @@ void FM_Metis
             /* Retrieve top value and delete it from the queue */
             // higain is node we want to move
             higain = QueueFM_Get_Top_Value(queues[to]) ;
-            VSP_ASSERT( IN_RANGE(higain, 0, n) ) ;
-            VSP_ASSERT(bndptr[higain] != -1);
+            TMP_ASSERT( IN_RANGE(higain, 0, n) ) ;
+            TMP_ASSERT(bndptr[higain] != -1);
 
             /* Delete if it was in the separator originally */ // Ovi: why delte this conditionally, and not always?
             if (moved[higain] == EMPTY) 
@@ -754,7 +754,7 @@ void FM_Metis
             for (j = mptr[nswaps]; j < mptr[nswaps + 1]; j++)
             {
                 k = mind[j];
-                VSP_ASSERT(where[k] == 2) ;
+                TMP_ASSERT(where[k] == 2) ;
                 #ifdef VSP_DEBUG
                     if(where[k] != 2)
                     {
@@ -1158,7 +1158,7 @@ static void Set_Ext_Neigh_Wgts
         {
             j = Ai[p] ;
             which_set = where[j] ;
-            VSP_ASSERT(0 <= which_set && which_set <= 2) ;
+            TMP_ASSERT(0 <= which_set && which_set <= 2) ;
             if(which_set != 2)
             {
                 extWgts[i].wgts[which_set] += c[j] ;
@@ -1252,7 +1252,7 @@ static void Where_To_States
     /* Update points and Azs */
     for(VSPINT i = 0 ; i < n ; i++)
     {
-        VSP_ASSERT( IN_RANGE(where[i], 0, 3) ) ;
+        TMP_ASSERT( IN_RANGE(where[i], 0, 3) ) ;
         
         /* If i is in the separator, both points should be 0 */
         if(where[i] == 2)
@@ -1358,7 +1358,7 @@ static void CheckAllFMDataNoLock
     VSPINT localpwgts[3] = {0} ;
     for(i = 0 ; i < n ; i++)
     {
-        VSP_ASSERT(IN_RANGE(where[i], 0, 3)) ;
+        TMP_ASSERT(IN_RANGE(where[i], 0, 3)) ;
         localpwgts[ where[i] ] += c[i] ;
     }
 

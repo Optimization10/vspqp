@@ -224,9 +224,9 @@ void Neutral_Downflips
                 }
 
                 // Check that this is a neutral downflip
-                VSP_ASSERT( z[indFlip]  == 1 ) ;
-                VSP_ASSERT( Aw[indFlip] == 1 ) ;
-                VSP_ASSERT( c[indFlip]  == gamma ) ;
+                TMP_ASSERT( z[indFlip]  == 1 ) ;
+                TMP_ASSERT( Aw[indFlip] == 1 ) ;
+                TMP_ASSERT( c[indFlip]  == gamma ) ;
             #endif
 
             #ifdef LOG_FLIPS_V4
@@ -349,7 +349,7 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
         if(varFlip == 'z')
         {
             // Upflip in z
-            VSP_ASSERT(z[indFlip] == 0) ;
+            TMP_ASSERT(z[indFlip] == 0) ;
             Upflip
             (
                 z, Az, w, Aw, wgtz, wgtw,
@@ -363,7 +363,7 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
         else if (varFlip == 'w')
         {
             // Downflip in w
-            VSP_ASSERT(w[indFlip] == 1) ;
+            TMP_ASSERT(w[indFlip] == 1) ;
             Downflip
             (
                 w, Aw, z, Az, wgtw, wgtz,

@@ -60,7 +60,7 @@ void BasicFlipStrats_FeasBeneficialFlips
 //     /*------------------------------------------------------------------------*/
 //     // Check inputs
 //     /*------------------------------------------------------------------------*/
-//     VSP_ASSERT(whichVar == 0 || whichVar == 1) ;
+//     TMP_ASSERT(whichVar == 0 || whichVar == 1) ;
 
 //     #ifdef VSP_DEBUG
 //         // // Check that all downflips are locked

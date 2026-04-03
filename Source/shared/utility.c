@@ -1033,7 +1033,7 @@ void Check_Array_Is_Binary
 {
     static long long unsigned count = 0 ;
     count++ ;
-    VSP_ASSERT(n > 0) ;
+    TMP_ASSERT(n > 0) ;
 
     VSPINT i ;
     for(i = 0 ; i < n ; i++)
@@ -1129,7 +1129,7 @@ void Fix_Lower_Bound_Issue
     }
 
     // Integer part of Aw[k] should be 0
-    VSP_ASSERT(Aw[k] == 0) ;
+    TMP_ASSERT(Aw[k] == 0) ;
     return ;
 }
 

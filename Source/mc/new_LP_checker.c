@@ -223,7 +223,7 @@ static bool Is_LP_Optimal_Case_1b2
     for(i = 0 ; i < n ; i++)
     {
         #ifdef VSP_DEBUG
-            VSP_ASSERT(z[i] == 0) ;
+            TMP_ASSERT(z[i] == 0) ;
         #endif
 
         ri = Val_Density(i, c[i], gamma, Aw) ;
@@ -372,7 +372,7 @@ static bool Is_LP_Optimal_Case_2a2
 
     for(i = 0 ; i < n ; i++)
     {
-        VSP_ASSERT(z[i] == 0) ;
+        TMP_ASSERT(z[i] == 0) ;
         ri = Val_Density(i, c[i], gamma, Aw) ;
         if(Is_Greater_Than(ri, 0, tol))
         {
@@ -488,7 +488,7 @@ static bool Is_LP_Optimal_Case_2b2
     for(i = 0 ; i < n ; i++)
     {
         ri = Val_Density(i, c[i], gamma, Aw) ;
-        VSP_ASSERT(z[i] == 0) ;
+        TMP_ASSERT(z[i] == 0) ;
         if(Is_Greater_Than(ri, 0, tol))
         {
             return false ;
@@ -539,7 +539,7 @@ static bool Is_LP_Optimal_Case_2b3
     for(i = 0 ; i < n ; i++)
     {
         ri = Val_Density(i, c[i], gamma, Aw) ;
-        VSP_ASSERT(z[i] == 1) ;
+        TMP_ASSERT(z[i] == 1) ;
         if(Is_Less_Than(ri, 0, tol))
         {
             return false ;
@@ -616,7 +616,7 @@ bool All_Ones_Case
 )
 {
     SET_FUNCTION_COUNTER ;
-    VSP_ASSERT(k == EMPTY) ;
+    TMP_ASSERT(k == EMPTY) ;
 
     VSPINT i, j,
     n = Aw->n ;
@@ -624,7 +624,7 @@ bool All_Ones_Case
 
     for(i = 0 ; i < n ; i++)
     {
-        VSP_ASSERT(z[i] == 1) ;
+        TMP_ASSERT(z[i] == 1) ;
         ri = Val_Density(i, c[i], gamma, Aw) ;
         if(Is_Less_Than(ri, 0, tol))
         {

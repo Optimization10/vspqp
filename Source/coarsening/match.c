@@ -231,10 +231,10 @@ static void Create_Match_3way_HEM
     matchtype_arr[k] = matchtype_3way;
 
     VSPINT cv = matchmap[i] ;
-    VSP_ASSERT(cv == matchmap[j]) ;
+    TMP_ASSERT(cv == matchmap[j]) ;
     matchmap[k] = cv ;
 
-    VSP_ASSERT(invmatchmap[cv] == i || invmatchmap[cv] == j) ;
+    TMP_ASSERT(invmatchmap[cv] == i || invmatchmap[cv] == j) ;
     
     return;
 }
@@ -373,7 +373,7 @@ static void Match_Singletons
         MinHeap_Get_Top_Val_v0(heap_sings, lookup_heap,n_heap_sings, c,&j);
         MinHeap_See_Top_Key_v0(heap_sings, c, *n_heap_sings, &ck) ;
 
-        VSP_ASSERT(i != EMPTY) ;
+        TMP_ASSERT(i != EMPTY) ;
         if(j != EMPTY && ck != EMPTY && c[i] + c[j] + ck <= gamma_coarse)
         {
             // extract k
@@ -525,7 +525,7 @@ void Graph_Simple_Match
     /*------------------------------------------------------------------------*/
     // Match singletons
     /*------------------------------------------------------------------------*/
-    VSP_ASSERT(n_heap_sings >= 0) ;
+    TMP_ASSERT(n_heap_sings >= 0) ;
 
     // Can occur if the graph consists entirely of singletons
     if(gamma_coarse == 0) gamma_coarse = pow2lp1 ;
@@ -560,7 +560,7 @@ void Graph_Simple_Match
         for (p = Ap[k]; p < Ap[k+1]; p++)
         {
             neigh = Ai[p] ;
-            VSP_ASSERT(Is_Matched(neigh, matching)) ;
+            TMP_ASSERT(Is_Matched(neigh, matching)) ;
 
             ew = Ae[p] ;
             if (ew > ew_pivot)
@@ -633,7 +633,7 @@ void Graph_Simple_Match
     VSPFLOAT ratio_compression = ((VSPFLOAT) n_coarse) / ((VSPFLOAT) n) ;
 
     #ifdef VSP_DEBUG
-        VSP_ASSERT(*cn == n_matches) ;
+        TMP_ASSERT(*cn == n_matches) ;
         VSPINT dbg_n_unmatched = 0 ;
         for(VSPINT ii = 0 ; ii < n ; ii++)
         {
@@ -720,7 +720,7 @@ void Graph_Simple_Match
                 }
                 else // ck != pow2l, i.e. k is not perfect
                 {
-                    VSP_ASSERT(ck < pow2l) ;
+                    TMP_ASSERT(ck < pow2l) ;
                     if(light != EMPTY)
                     {
                         Create_Match_2way
@@ -774,7 +774,7 @@ void Graph_Simple_Match
                 }
                 else // ck == pow2l, i.e. k is not perfect
                 {
-                    VSP_ASSERT(ck < pow2l) ;
+                    TMP_ASSERT(ck < pow2l) ;
                     if(light != EMPTY)
                     {
                         Create_Match_2way
@@ -1003,7 +1003,7 @@ static void Additional_Match_Check
     {
         j = VSP_get_match(i, matching) ;
         k = VSP_get_match(j, matching) ;
-        VSP_ASSERT( IN_RANGE(j, 0, n) ) ;
+        TMP_ASSERT( IN_RANGE(j, 0, n) ) ;
 
         if(matchtype[i] != matchtype[j])
         {
@@ -1054,8 +1054,8 @@ static void Additional_Match_Check
             case matchtype_3way:
                 // Check that i is in a 3-way match
                 k = VSP_get_match(j, matching) ;
-                VSP_ASSERT(k != i) ;
-                VSP_ASSERT(k != j) ;
+                TMP_ASSERT(k != i) ;
+                TMP_ASSERT(k != j) ;
                 if(VSP_get_match(k, matching) != i)
                 {
                     ERR("Error in 3-way matching") ;

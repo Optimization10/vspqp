@@ -164,7 +164,7 @@ VSPFLOAT VSP_LP_solver_4
                         Error("Issue in LP solver", DBG_INFO) ;
                     }
                     VSPFLOAT objEnd = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
-                    VSP_ASSERT(objStart <= objEnd) ;
+                    TMP_ASSERT(objStart <= objEnd) ;
                 #endif
                 if(useRandomness) free(perm) ;
                 return obj ;
@@ -225,7 +225,7 @@ VSPFLOAT VSP_LP_solver_4
                     }
 
                     VSPFLOAT objEnd = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
-                    VSP_ASSERT(objStart <= objEnd) ;
+                    TMP_ASSERT(objStart <= objEnd) ;
                 #endif
                 if(useRandomness) free(perm) ;
                 return obj ;
@@ -310,7 +310,7 @@ VSPFLOAT VSP_LP_solver_4
                 Error("Issue in LP solver", DBG_INFO) ;
             }
             VSPFLOAT objEnd = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
-            VSP_ASSERT(objStart <= objEnd) ;
+            TMP_ASSERT(objStart <= objEnd) ;
         #endif
 
         if(useRandomness) free(perm) ;
@@ -323,7 +323,7 @@ VSPFLOAT VSP_LP_solver_4
 
     while(true)
     {
-        VSP_ASSERT(n_L2 > 0) ;
+        TMP_ASSERT(n_L2 > 0) ;
         i = L2[0] ;
         ci = c[i] ;
         if(ind_frac_w == EMPTY)
@@ -422,7 +422,7 @@ VSPFLOAT VSP_LP_solver_4
             Error("Issue in LP solver", DBG_INFO) ;
         }
         VSPFLOAT objEnd = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
-        VSP_ASSERT(objStart - 1E-8 <= objEnd) ;
+        TMP_ASSERT(objStart - 1E-8 <= objEnd) ;
         if( !(objStart - 1E-8 <= objEnd ) )
         {
             printf("\n\nobj start: %f \nobj end : %f", objStart, objEnd) ;

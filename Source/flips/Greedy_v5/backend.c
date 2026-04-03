@@ -903,7 +903,7 @@ void Check_All_Data_v5
 //     givenFlip.u = u ;
 //     if(givenVarFlip == 'x')
 //     {
-//         VSP_ASSERT(givenIndFlip != EMPTY) ;
+//         TMP_ASSERT(givenIndFlip != EMPTY) ;
 //         givenFlip.wgt = wgtx ;
 //         givenFlip.zi   = x[givenIndFlip] ;
 //         givenFlip.Awi  = Ay[givenIndFlip] ;
@@ -919,7 +919,7 @@ void Check_All_Data_v5
 //     }
 //     else if(givenVarFlip == 'y')
 //     {
-//         VSP_ASSERT(givenIndFlip != EMPTY) ;
+//         TMP_ASSERT(givenIndFlip != EMPTY) ;
 //         givenFlip.wgt = wgty ;
 //         givenFlip.zi   = y[givenIndFlip] ;
 //         givenFlip.Awi  = Ax[givenIndFlip] ;
@@ -1352,7 +1352,7 @@ void Compute_Max_Group_Sizes_v5
 
     for(i = 0 ; i < n ; i++)
     {
-        VSP_ASSERT( (IN_RANGE(c[i], 1, gamma + 1)) ) ;
+        TMP_ASSERT( (IN_RANGE(c[i], 1, gamma + 1)) ) ;
         maxGroupSizes[ c[i] ]++ ;
     }
     return ;

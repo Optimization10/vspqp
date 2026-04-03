@@ -221,9 +221,9 @@ void Neutral_Downflip_v5s_v5
                 }
 
                 // Check that this is a neutral Downflip_v5
-                VSP_ASSERT( z[indFlip]  == 1 ) ;
-                VSP_ASSERT( Aw[indFlip] == 1 ) ;
-                VSP_ASSERT( c[indFlip]  == gamma ) ;
+                TMP_ASSERT( z[indFlip]  == 1 ) ;
+                TMP_ASSERT( Aw[indFlip] == 1 ) ;
+                TMP_ASSERT( c[indFlip]  == gamma ) ;
             #endif
 
             #ifdef LOG_FLIPS_V5
@@ -342,7 +342,7 @@ void Neutral_Upflip_v5s_In_z_And_Downflip_v5s_In_w1Az2_v5
         if(varFlip == 'z')
         {
             // Upflip_v5 in z
-            VSP_ASSERT(z[indFlip] == 0) ;
+            TMP_ASSERT(z[indFlip] == 0) ;
             Upflip_v5
             (
                 z, Az, w, Aw, wgtz, wgtw,
@@ -356,7 +356,7 @@ void Neutral_Upflip_v5s_In_z_And_Downflip_v5s_In_w1Az2_v5
         else if (varFlip == 'w')
         {
             // Downflip_v5 in w
-            VSP_ASSERT(w[indFlip] == 1) ;
+            TMP_ASSERT(w[indFlip] == 1) ;
             Downflip_v5
             (
                 w, Aw, z, Az, wgtw, wgtz,

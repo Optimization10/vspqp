@@ -262,7 +262,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     }
     else
     {
-        VSP_ASSERT(flipChoice == YDN) ;
+        TMP_ASSERT(flipChoice == YDN) ;
         *retFlipVar = 'y' ;
         if(maxFeasPosGain >= gamma)
         {
@@ -544,7 +544,7 @@ void SelectRandomOptimalBeneficialFlip_v5
     }
     else
     {
-        VSP_ASSERT(flipChoice == YDN) ;
+        TMP_ASSERT(flipChoice == YDN) ;
         *retFlipVar = 'y' ;
         if(maxFeasPosGain >= gamma)
         {
@@ -631,7 +631,7 @@ void FlipSelector_Check_v5
     givenFlip.u = u ;
     if(givenVarFlip == 'x')
     {
-        VSP_ASSERT(givenIndFlip != EMPTY) ;
+        TMP_ASSERT(givenIndFlip != EMPTY) ;
         givenFlip.wgt = wgtx ;
         givenFlip.zi   = x[givenIndFlip] ;
         givenFlip.Awi  = Ay[givenIndFlip] ;
@@ -648,7 +648,7 @@ void FlipSelector_Check_v5
     }
     else if(givenVarFlip == 'y')
     {
-        VSP_ASSERT(givenIndFlip != EMPTY) ;
+        TMP_ASSERT(givenIndFlip != EMPTY) ;
         givenFlip.wgt = wgty ;
         givenFlip.zi   = y[givenIndFlip] ;
         givenFlip.Awi  = Ax[givenIndFlip] ;
