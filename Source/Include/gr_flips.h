@@ -6,7 +6,7 @@ void GR_Flips
 (
     VSP_state *Xbest,
     VSP_state *Ybest,
-    VSP_problem *problem,
+    Problem *problem,
     VSPINT P
 ) ;
 

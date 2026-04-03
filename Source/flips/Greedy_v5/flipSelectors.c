@@ -22,7 +22,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     IdxGroupsByC *y1Ax2_groups,
     Direct_Access_List *y0Ax1_list, // only used in debugging
 
-    VSP_problem       *problem,
+    Problem       *problem,
     char           *retFlipVar, // '\0' if no flip
     VSPINT         *retIndFlip  // EMPTY if no flip
 )
@@ -316,7 +316,7 @@ void SelectRandomOptimalBeneficialFlip_v5
     IdxGroupsByC *y1Ax2_groups,
     Direct_Access_List *y0Ax1_list, // only used in debugging
 
-    VSP_problem       *problem,
+    Problem       *problem,
     char           *retFlipVar, // '\0' if no flip
     VSPINT         *retIndFlip  // EMPTY if no flip
 )
@@ -580,7 +580,7 @@ void FlipSelector_Check_v5
     VSPINT                        wgty,
     char                  givenVarFlip,
     VSPINT                givenIndFlip,
-    VSP_problem               *problem,
+    Problem               *problem,
     Expected_Flip_Effect_v5 expFlipEffect
 )
 {
@@ -870,7 +870,7 @@ void Compute_ps_And_cs_Dbg_v5
     VSPINT                    *y,
     VSPINT                   *Ay,
     VSPINT                  wgty,
-    VSP_problem         *problem,
+    Problem         *problem,
     VSPINT                 ps[4],
     VSPINT                 cs[4],
     VSPINT          witnesses[4]
@@ -1032,7 +1032,7 @@ void Compute_Feasibility_And_Gains_v5
     VSPINT                *Ay,
     VSPINT               wgtx,
     VSPINT               wgty,
-    VSP_problem      *problem,
+    Problem      *problem,
     VSPINT             inds[4],
     VSPINT        retIsFeas[4],
     VSPINT         retGains[4]
@@ -1077,7 +1077,7 @@ void Compute_Feasibility_And_Gains_v5
 void IdxGroupsByC_See_Top_Feasible_Cval_v5
 (
     IdxGroupsByC      *z0Aw0_groups,
-    VSP_problem            *problem,
+    Problem            *problem,
     VSPINT                     wgtz,
     VSPINT          *retMaxFeasCval,
     VSPINT                       *z, // Used for debugging only

@@ -25,7 +25,7 @@ VSPFLOAT VSP_LP_solver_4
     VSPINT                 *c,
     VSPINT                  u,
     VSPFLOAT            gamma,
-    VSP_problem      *problem,
+    Problem      *problem,
     VSP_options      *options,
     char                  var  /* Variable we are optimizing over */
 )
@@ -161,7 +161,7 @@ VSPFLOAT VSP_LP_solver_4
 
                     if(is_opt == false) 
                     {
-                        VSP_error("Issue in LP solver", DBG_INFO) ;
+                        Error("Issue in LP solver", DBG_INFO) ;
                     }
                     VSPFLOAT objEnd = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
                     VSP_ASSERT(objStart <= objEnd) ;
@@ -221,7 +221,7 @@ VSPFLOAT VSP_LP_solver_4
 
                     if(is_opt == false) 
                     {
-                        VSP_error("Issue in LP solver", DBG_INFO) ;
+                        Error("Issue in LP solver", DBG_INFO) ;
                     }
 
                     VSPFLOAT objEnd = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
@@ -307,7 +307,7 @@ VSPFLOAT VSP_LP_solver_4
             ) ;
             if(is_opt == false) 
             {
-                VSP_error("Issue in LP solver", DBG_INFO) ;
+                Error("Issue in LP solver", DBG_INFO) ;
             }
             VSPFLOAT objEnd = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
             VSP_ASSERT(objStart <= objEnd) ;
@@ -419,7 +419,7 @@ VSPFLOAT VSP_LP_solver_4
 
         if(is_opt == false) 
         {
-            VSP_error("Issue in LP solver", DBG_INFO) ;
+            Error("Issue in LP solver", DBG_INFO) ;
         }
         VSPFLOAT objEnd = VSP_compute_LP_objective(Z->point, c, gamma, Aw) ;
         VSP_ASSERT(objStart - 1E-8 <= objEnd) ;
@@ -542,7 +542,7 @@ VSPFLOAT VSP_LP_solver_0
         {
             if ((r_structs[i]).float_value < (r_structs[i + 1]).float_value)
             {
-                VSP_error("Value densities not sorted correctly", DBG_INFO);
+                Error("Value densities not sorted correctly", DBG_INFO);
                 break ;
             }
         }
@@ -553,7 +553,7 @@ VSPFLOAT VSP_LP_solver_0
         {
             if (x[i] < 0 || x[i] > 1)
             {
-                VSP_error("Entry not binary", DBG_INFO);
+                Error("Entry not binary", DBG_INFO);
                 break ;
             }
         }
@@ -561,7 +561,7 @@ VSPFLOAT VSP_LP_solver_0
         // check if the solution is feasible
         VSPINT weight_check = 0;
         for (i = 0; i < n; i++) weight_check += x[i] * c[i];
-        if (weight_check > u) VSP_error("Solution not feasible", DBG_INFO);
+        if (weight_check > u) Error("Solution not feasible", DBG_INFO);
     #endif
 
     // free memory

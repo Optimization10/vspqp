@@ -21,7 +21,7 @@ void Compute_ps_And_cs_Dbg
     VSPINT                   *Ay,
     VSPINT                  wgty,
     VSPINT              *ylocked, // Ignored if NULL
-    VSP_problem         *problem,
+    Problem         *problem,
     VSPINT                 ps[4],
     VSPINT                 cs[4],
     VSPINT          witnesses[4]
@@ -193,7 +193,7 @@ void Compute_Feasibility_And_Gains
     VSPINT                *Ay,
     VSPINT               wgtx,
     VSPINT               wgty,
-    VSP_problem      *problem,
+    Problem      *problem,
     VSPINT             inds[4],
     VSPINT        retIsFeas[4],
     VSPINT         retGains[4]

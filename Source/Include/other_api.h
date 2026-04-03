@@ -5,7 +5,7 @@
 void VSP_set_initial_guess(
     VSP_state *X,
     VSP_state *Y,
-    VSP_problem *problem,
+    Problem *problem,
     VSP_options *options
 ) ;
 
@@ -14,7 +14,7 @@ VSP_options* VSP_construct_options() ;
 
 void VSP_preprocess_finest_problem
 (
-    VSP_problem* problem,
+    Problem* problem,
     VSP_options* options
 ) ;
 

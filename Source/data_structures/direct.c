@@ -102,7 +102,7 @@ void Direct_Access_List_Reset
         {
             if(list->lookup[i] != EMPTY)
             {
-                VSP_error("Error in resetting list", DBG_INFO) ;
+                Error("Error in resetting list", DBG_INFO) ;
                 break ;
             }
         }

@@ -15,24 +15,24 @@ void Graph_Simple_Match
     VSP_options          *options
 ) ;
 
-VSP_problem* Problem_Coarsen
+Problem* Problem_Coarsen
 (
-    VSP_problem *P,
+    Problem *P,
     VSP_options *options
 ) ;
 
 void Uncoarsen_Point
 (
-    VSP_problem    *fine_graph,
+    Problem    *fine_graph,
     VSP_state          *fine_X,
     VSP_state          *fine_Y,
     VSP_state        *coarse_X,
     VSP_state        *coarse_Y
 ) ;
 
-VSP_problem *Problem_Recursive_Coarsen
+Problem *Problem_Recursive_Coarsen
 (
-    VSP_problem *probFinest,
+    Problem *probFinest,
     VSP_options    *options
 ) ;
 

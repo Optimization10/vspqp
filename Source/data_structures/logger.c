@@ -8,7 +8,7 @@ struct Logger_Record
 {
     VSP_state         *X ;
     VSP_state         *Y ;
-    VSP_problem *problem ;
+    Problem *problem ;
     char            *msg ;
 } ;
 
@@ -57,7 +57,7 @@ void LoggerDestroy()
 
 void LoggerStart
 (
-    VSP_state *X, VSP_state *Y, VSP_problem *problem,
+    VSP_state *X, VSP_state *Y, Problem *problem,
     const char *format, ...
 )
 {
@@ -94,7 +94,7 @@ void LoggerStart
     return ;
 }
 
-void LoggerStop(VSP_state *X, VSP_state *Y, VSP_problem *problem)
+void LoggerStop(VSP_state *X, VSP_state *Y, Problem *problem)
 {
     if(!LOG_G.enabled) return ;
     Logger_Record *rec = (Logger_Record*) DynamicStack_Pop(LOG_G.initRecords) ;    

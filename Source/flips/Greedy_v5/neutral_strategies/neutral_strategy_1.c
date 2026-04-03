@@ -73,7 +73,7 @@ void Neutral_Flips_Strategy_1_v5
     Direct_Access_List *y0Ax1_list, // only used in debugging
 
     VSPINT          maxNumPasses,
-    VSP_problem       *problem
+    Problem       *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -193,7 +193,7 @@ void Neutral_Downflip_v5s_v5
     IdxGroupsByC         *w1Az1_groups,
     IdxGroupsByC         *w1Az2_groups,
 
-    VSP_problem               *problem
+    Problem               *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -289,7 +289,7 @@ void Neutral_Upflip_v5s_In_z_And_Downflip_v5s_In_w1Az2_v5
     IdxGroupsByC         *w1Az1_groups,
     IdxGroupsByC         *w1Az2_groups,
 
-    VSP_problem               *problem
+    Problem               *problem
 )
 {
     static long long unsigned count = 0 ;
@@ -404,7 +404,7 @@ void Select_Random_Feasible_Neutral_Upflip_v5_In_z_Or_w1Az2_v5
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     randNum,
-    VSP_problem               *problem,
+    Problem               *problem,
     VSPINT                 *retIndFlip,
     char                   *retVarFlip
 )
@@ -494,7 +494,7 @@ void Select_Random_Feasible_Neutral_Upflip_v5_In_z_Or_w1Az2_v5_Check
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     randNum,
-    VSP_problem               *problem,
+    Problem               *problem,
     VSPINT                givenIndFlip,
     char                  givenVarFlip
 )

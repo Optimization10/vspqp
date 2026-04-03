@@ -8,12 +8,12 @@
 #include "shared_macros.h"
 
 
-bool Is_Coarsest_Problem(VSP_problem *problem)
+bool Is_Coarsest_Problem(Problem *problem)
 {
     return (problem->child_problem == NULL) ; 
 }
 
-bool Is_Finest_Problem(VSP_problem *problem)
+bool Is_Finest_Problem(Problem *problem)
 {
     return (problem->parent_problem == NULL) ; 
 }
@@ -310,7 +310,7 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
 // (
 //     VSP_state                 *Z, /* Resolve entry in Z */
 //     VSP_state                 *W,
-//     VSP_problem         *problem
+//     Problem         *problem
 // ) 
 // {
     // #ifdef VSP_DEBUG
@@ -380,7 +380,7 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
 // }
 /*----------------------------------------------------------------------------*/
 
-// void VSP_resolve_frac_entry(VSP_state *Z, VSP_problem *problem)
+// void VSP_resolve_frac_entry(VSP_state *Z, Problem *problem)
 // {
 
 //     #ifdef VSP_DEBUG
@@ -435,7 +435,7 @@ void VSP_resolve_frac_entry
 (
     VSP_state *Z,
     VSP_state *W,
-    VSP_problem *problem
+    Problem *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -510,7 +510,7 @@ void Force_To_Binary_Point
 (
     VSP_state           *Z,
     VSP_state           *W,
-    VSP_problem   *problem
+    Problem   *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -530,7 +530,7 @@ void Force_To_Binary_Point
 void State_Round_Down
 (
     VSP_state         *Z,
-    VSP_problem *problem
+    Problem *problem
 )
 {
     VSPINT k = Z->point->ind_frac ;
@@ -555,11 +555,7 @@ void State_Round_Down
 
 }
 
-VSPINT VSP_round(VSPFLOAT f) {
-    return (f - floor(f) > 0.5) ? ceil(f) : floor(f) ;
-}
-
-void VSP_error
+void Error
 ( 
     char* msg,
     char* file_name,
@@ -576,7 +572,7 @@ void VSP_error
         error_count++ ;
 
 
-        FILE* file = fopen ( "output/VSP_error_log.txt", "a" ) ;
+        FILE* file = fopen ( "output/Error_log.txt", "a" ) ;
         if(error_count <= 10000)
         {
             fprintf(file, "\n\n ERROR: %s", msg) ;
@@ -676,7 +672,7 @@ void VSP_array_to_point(
         else {
             #ifdef VSP_DEBUG
                 if (frac_entry) {
-                    VSP_error("Multiple frac entries", DBG_INFO) ;
+                    Error("Multiple frac entries", DBG_INFO) ;
                 }
                 frac_entry = true ;
             #endif
@@ -909,7 +905,7 @@ void VSP_SetFracEntry
     VSPINT         indFrac,
     VSPFLOAT       valFrac,
     VSP_state           *Z,
-    VSP_problem   *problem
+    Problem   *problem
 )
 {
     #ifdef VSP_DEBUG
@@ -1067,7 +1063,7 @@ void Fix_Lower_Bound_Issue
 (
     VSP_state         *Z,
     VSP_state         *W,
-    VSP_problem *problem
+    Problem *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -1185,7 +1181,7 @@ bool Is_Singleton
     return (Ap[i+1] - Ap[i] == 0) ;
 }
 
-VSPINT Problem_Get_N_Finest(const VSP_problem *P)
+VSPINT Problem_Get_N_Finest(const Problem *P)
 {
     if(P == NULL) return 0 ;
 
@@ -1196,7 +1192,7 @@ VSPINT Problem_Get_N_Finest(const VSP_problem *P)
     return P->Graph->n ;
 }
 
-VSPLONG Problem_Get_NZ_Finest(const VSP_problem *P)
+VSPLONG Problem_Get_NZ_Finest(const Problem *P)
 {
     if(P == NULL) return 0 ;
 
@@ -1225,7 +1221,7 @@ static void Write_EMPTYs_When_NULL
 // problem.txt Contains u, and any fractional entries of X and Y
 void Dump_Problem
 (
-    const VSP_problem *P,
+    const Problem *P,
     const VSP_state   *X,
     const VSP_state   *Y
 )

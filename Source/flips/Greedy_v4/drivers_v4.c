@@ -17,7 +17,7 @@ void Flips_v4
     VSPINT                     *y,
     VSPINT                    *Ay,
     VSPINT                  *wgty,
-    VSP_problem          *problem,
+    Problem          *problem,
     VSPINT           maxNumPasses
 )
 {
@@ -145,7 +145,7 @@ static void Get_Upflip
     VSPINT                      wgt_z,
     IdxGroupsByC        *z0Aw0_groups,
     Direct_Access_List    *z0Aw1_list,
-    VSP_problem                    *P,
+    Problem                    *P,
     VSPINT                  *ind_flip
 )
 {
@@ -192,7 +192,7 @@ static void Get_Downflip
 (
     IdxGroupsByC        *z1Aw2_groups,
     IdxGroupsByC        *z1Aw1_groups,
-    VSP_problem                    *P,
+    Problem                    *P,
     VSPINT                  *ind_flip
 )
 {
@@ -254,7 +254,7 @@ void Balance_Flips
     IdxGroupsByC           *y1Ax2_groups,
     Direct_Access_List       *y0Ax1_list,
 
-    VSP_problem                       *P
+    Problem                       *P
 )
 {
     // 1. Let z be the lighter variable and w the heavier one

@@ -91,7 +91,7 @@ void VSP_destruct_levels
 
 bool VSP_levels_is_member
 (
-    VSP_problem *problem,
+    Problem *problem,
     VSP_levels  *levels
 ) ;
 
@@ -149,7 +149,7 @@ void VSP_build_penalties
     VSPINT                 *z,
     Penalties     *Z_pens,
     VSPINT                *Aw,
-    VSP_problem      *problem
+    Problem      *problem
 ) ;
 
 
@@ -762,7 +762,7 @@ bool VSP_restart_decide
     VSP_restart_decision       *dec,
     VSPFLOAT                  objIn, /* If not using rule, EMPTY */
     VSPFLOAT                 objOut, /* If not using rule, EMPTY */
-    VSP_problem            *problem  /* If using levels, this is ignored   */
+    Problem            *problem  /* If using levels, this is ignored   */
 ) ;
 
 

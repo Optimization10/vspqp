@@ -19,7 +19,7 @@ static void CheckAllFMDataNoLock
     VSPINT             *bndptr,
     VSPINT                nbnd,
 
-    VSP_problem       *problem
+    Problem       *problem
 ) ;
 
 static void Where_To_States
@@ -28,7 +28,7 @@ static void Where_To_States
     VSP_state         *Z,
     VSP_state         *W,
     VSPINT      pwgts[3],
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 static void Check_Ext_Neigh_Wgts
@@ -61,7 +61,7 @@ static void Check_FM_Inputs
 (
     VSP_state         *Z,
     VSP_state         *W,
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 static void Fill_Int_Array_With_Value
@@ -106,7 +106,7 @@ void MovesImprovingCost
     VSPINT               *nbnd,
     VSPINT                pass,
     VSPINT allowedNeutralMoves,
-    VSP_problem       *problem
+    Problem       *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -328,7 +328,7 @@ void FM_Metis
 (
     VSP_state             *Z,
     VSP_state             *W,
-    VSP_problem     *problem,
+    Problem     *problem,
     UNUSED VSP_options     *options,
     VSPINT          n_passes
 )
@@ -701,11 +701,11 @@ void FM_Metis
                 QueueFM_Check_Heap_Light(queues[1]) ;
                 if(pwgts[0] > problem->u)
                 {
-                    VSP_error("Part 0 violated upper bound", DBG_INFO) ;
+                    Error("Part 0 violated upper bound", DBG_INFO) ;
                 }
                 if(pwgts[1] > problem->u)
                 {
-                    VSP_error("Part 1 violated upper bound", DBG_INFO) ;
+                    Error("Part 1 violated upper bound", DBG_INFO) ;
                 }
 
             #endif
@@ -758,7 +758,7 @@ void FM_Metis
                 #ifdef VSP_DEBUG
                     if(where[k] != 2)
                     {
-                        VSP_error("Node not in sep", DBG_INFO) ;
+                        Error("Node not in sep", DBG_INFO) ;
                     }
                 #endif
 
@@ -780,7 +780,7 @@ void FM_Metis
         #ifdef VSP_DEBUG
             if(mincut != pwgts[2])
             {
-                VSP_error("Mincut doesn't match size of separator", DBG_INFO) ;
+                Error("Mincut doesn't match size of separator", DBG_INFO) ;
             }
         #endif
 
@@ -823,7 +823,7 @@ void FM_Metis
         VSPFLOAT objout = VSP_compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
         if(objout < objin)
         {
-            VSP_error("Objective decreased during FM", DBG_INFO) ;
+            Error("Objective decreased during FM", DBG_INFO) ;
         }
     #endif
 
@@ -857,12 +857,12 @@ void BND_Check
     {
         if(bndind[i] < 0 || bndind[i] > n - 1)
         {
-            VSP_error("Boundary vertex out of bounds", DBG_INFO) ;
+            Error("Boundary vertex out of bounds", DBG_INFO) ;
         }
 
         if( where[bndind[i]] != 2 )
         {
-            VSP_error("Boundary vertex not in separator", DBG_INFO) ;
+            Error("Boundary vertex not in separator", DBG_INFO) ;
             break ;
         }
     }
@@ -873,7 +873,7 @@ void BND_Check
     {
         if(where[i] < 0 || where[i] > 2)
         {
-            VSP_error("Partition number out of bounds", DBG_INFO) ;
+            Error("Partition number out of bounds", DBG_INFO) ;
         }
 
         if(where[i] == 2)
@@ -882,13 +882,13 @@ void BND_Check
             j = bndptr[i] ;
             if( !IN_RANGE(j, 0, n) )
             {
-                VSP_error("Out of bounds", DBG_INFO) ;
+                Error("Out of bounds", DBG_INFO) ;
                 break ;
             }
 
             if(bndind[j] != i || j >= nbnd)
             {
-                VSP_error("Bndptr incorrect", DBG_INFO) ;
+                Error("Bndptr incorrect", DBG_INFO) ;
             }
 
 
@@ -904,14 +904,14 @@ void BND_Check
             }
             if(!found)
             {
-                VSP_error("Vertex in separator but not in bnd structure", DBG_INFO) ;
+                Error("Vertex in separator but not in bnd structure", DBG_INFO) ;
             }
         }
         else // if where[i] != 2
         {
             if(bndptr[i] != EMPTY)
             {
-                VSP_error("Bndptr claims vertex is in sep when it's not", DBG_INFO) ;
+                Error("Bndptr claims vertex is in sep when it's not", DBG_INFO) ;
                 break ;
             }
 
@@ -927,7 +927,7 @@ void BND_Check
             }
             if(found)
             {
-                VSP_error("Vertex in separator but not in bnd structure", DBG_INFO) ;
+                Error("Vertex in separator but not in bnd structure", DBG_INFO) ;
             }
         }
     }
@@ -970,7 +970,7 @@ static void BND_Delete
         {
             char msg[ERR_MSG_LEN];
             snprintf(msg, sizeof(msg), "Error: No nodes to delete. *nbnd = %lld", (long long) *nbnd);
-            VSP_error(msg, DBG_INFO);
+            Error(msg, DBG_INFO);
         }
 
         // Validate nodeToDel
@@ -978,7 +978,7 @@ static void BND_Delete
         {
             char msg[ERR_MSG_LEN];
             snprintf(msg, sizeof(msg), "Deleting invalid node") ;
-            VSP_error(msg, DBG_INFO);
+            Error(msg, DBG_INFO);
         }
 
         // Check if the node is present in list
@@ -986,7 +986,7 @@ static void BND_Delete
         {
             char msg[ERR_MSG_LEN];
             snprintf(msg, sizeof(msg), "Node not present in list");
-            VSP_error(msg, DBG_INFO);
+            Error(msg, DBG_INFO);
         }
     #endif
 
@@ -1014,14 +1014,14 @@ static void BND_Delete
         {
             char msg[ERR_MSG_LEN];
             snprintf(msg, sizeof(msg), "Invalid location") ;
-            VSP_error(msg, DBG_INFO);
+            Error(msg, DBG_INFO);
         }
 
         if (lastNode < 0)
         {
             char msg[ERR_MSG_LEN];
             snprintf(msg, sizeof(msg), "Invalid node") ;
-            VSP_error(msg, DBG_INFO);
+            Error(msg, DBG_INFO);
         }
     #endif
     return ;
@@ -1033,7 +1033,7 @@ static void Check_FM_Inputs
 (
     VSP_state         *Z,
     VSP_state         *W,
-    VSP_problem *problem
+    Problem *problem
 )
 {
     static long long unsigned count = 0 ;
@@ -1054,7 +1054,7 @@ static void Check_FM_Inputs
     /* Check for no fractional component */
     if(Z->point->ind_frac != EMPTY || W->point->ind_frac != EMPTY)
     {
-        VSP_error("Fractional component in FM", DBG_INFO) ;
+        Error("Fractional component in FM", DBG_INFO) ;
     }
 
     /* Check that we have a bona fide separator by checking the cross term's 0*/
@@ -1066,7 +1066,7 @@ static void Check_FM_Inputs
     }
     if(zAw != 0 || wAz != 0)
     {
-        VSP_error("Cross term isn't zero in FM", DBG_INFO) ;
+        Error("Cross term isn't zero in FM", DBG_INFO) ;
     }
     return ;
 }
@@ -1199,13 +1199,13 @@ static void Check_Ext_Neigh_Wgts
             /* Check the result */
             if(ext0 != extWgts[i].wgts[0])
             {
-                VSP_error("External weight into partition 0 incorrect", DBG_INFO) ;
+                Error("External weight into partition 0 incorrect", DBG_INFO) ;
                 break ;
             }
 
             if(ext1 != extWgts[i].wgts[1])
             {
-                VSP_error("External weight into partition 1 incorrect", DBG_INFO) ;
+                Error("External weight into partition 1 incorrect", DBG_INFO) ;
                 break ;
             }
         }
@@ -1220,7 +1220,7 @@ static void Where_To_States
     VSP_state         *Z,
     VSP_state         *W,
     VSPINT      pwgts[3],
-    VSP_problem *problem
+    Problem *problem
 )
 {
     #ifdef VSP_DEBUG
@@ -1296,13 +1296,13 @@ static void Where_To_States
         VSPFLOAT objout = VSP_compute_obj(Z, W, problem, problem->Graph->max_vtx_cost) ;
         if(objout < objin)
         {
-            VSP_error("Objective decreased after FM", DBG_INFO) ;
+            Error("Objective decreased after FM", DBG_INFO) ;
         }
 
         VSPINT objFM = pwgts[0] + pwgts[1] ;
         if(objout != objFM)
         {
-            VSP_error("Objective doesn't match", DBG_INFO) ;
+            Error("Objective doesn't match", DBG_INFO) ;
         }
 
         /* Cross term should be 0 */
@@ -1311,7 +1311,7 @@ static void Where_To_States
 
         if(zAw != 0 || wAz != 0)
         {
-            VSP_error("Penalty term nonzero", DBG_INFO) ;
+            Error("Penalty term nonzero", DBG_INFO) ;
         }
     #endif
 
@@ -1337,7 +1337,7 @@ static void CheckAllFMDataNoLock
     VSPINT             *bndptr,
     VSPINT                nbnd,
 
-    VSP_problem       *problem
+    Problem       *problem
 )
 {
     static long long unsigned count = 0 ; 

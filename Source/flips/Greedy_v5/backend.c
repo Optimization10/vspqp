@@ -97,7 +97,7 @@ void Upflip_v5
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     indFlip,
-    VSP_problem               *problem
+    Problem               *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -270,7 +270,7 @@ void Downflip_v5
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     indFlip,
-    VSP_problem               *problem
+    Problem               *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -447,7 +447,7 @@ void Initialize_All_Structs_v5
     IdxGroupsByC         *y1Ax1_groups,
     IdxGroupsByC         *y1Ax2_groups,
 
-    VSP_problem               *problem
+    Problem               *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -545,7 +545,7 @@ void Check_All_Data_v5
     IdxGroupsByC         *y1Ax1_groups,
     IdxGroupsByC         *y1Ax2_groups,
 
-    VSP_problem               *problem
+    Problem               *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -665,7 +665,7 @@ void Check_All_Data_v5
 //     VSPINT                wgty,
 //     char          givenVarFlip,
 //     VSPINT        givenIndFlip,
-//     VSP_problem       *problem
+//     Problem       *problem
 // )
 // {
 //     static long long unsigned count = 0 ;
@@ -1001,7 +1001,7 @@ void Check_Inputs_v5
     VSPINT                  *y,
     VSPINT                 *Ay,
     VSPINT                wgty,
-    VSP_problem       *problem
+    Problem       *problem
 )
 {
     static long long unsigned count = 0 ;
@@ -1099,7 +1099,7 @@ void Check_Outputs_v5
     VSPINT                  *y,
     VSPINT                 *Ay,
     VSPINT                wgty,
-    VSP_problem       *problem
+    Problem       *problem
 )
 {
     static long long unsigned count = 0 ;
@@ -1184,7 +1184,7 @@ void Check_Outputs_v5
 // running in performance mode
 void Flips_v5_UnitTest
 (
-    VSP_problem *problem
+    Problem *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -1377,7 +1377,7 @@ void Do_Flip_v5
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     indFlip,
-    VSP_problem               *problem
+    Problem               *problem
 )
 {
     SET_FUNCTION_COUNTER ;

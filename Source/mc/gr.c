@@ -8,7 +8,7 @@ VSPFLOAT VSP_minreduce_one_var
 (
     VSP_state         *Z,
     VSP_Az           *Aw,
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 
@@ -19,7 +19,7 @@ VSPFLOAT VSP_minreduce
     VSP_state         *X,
     VSP_state         *Y,
     VSP_options *options,
-    VSP_problem *problem
+    Problem *problem
 )
 {
     #ifdef VSP_DEBUG
@@ -62,7 +62,7 @@ VSPFLOAT VSP_minreduce_one_var
 (
     VSP_state         *Z,
     VSP_Az           *Aw,
-    VSP_problem *problem
+    Problem *problem
 )
 {
     #ifdef VSP_DEBUG
@@ -100,14 +100,14 @@ VSPFLOAT VSP_minreduce_one_var
         #ifdef VSP_DEBUG
             if(z_int[i] == 0 && Awi == 0)
             {
-                // VSP_error("Entered gamma reduction when not neccesary", DBG_INFO) ;
+                // Error("Entered gamma reduction when not neccesary", DBG_INFO) ;
             }
         #endif
     }
 
     #ifdef VSP_DEBUG
         if(gamma_t > problem->Graph->max_vtx_cost) {
-            VSP_error("Error in gamma reduction", DBG_INFO) ;
+            Error("Error in gamma reduction", DBG_INFO) ;
         }
     #endif
 

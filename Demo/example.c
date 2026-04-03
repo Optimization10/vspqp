@@ -183,7 +183,7 @@ void VSP_reset_file(char* name)
 
 static void SaveRndSeed(time_t seed)
 {
-    FILE* file = fopen("output/VSP_error_log.txt", "w") ;
+    FILE* file = fopen("output/Error_log.txt", "w") ;
     fprintf(file, "Seed: %li", seed) ;
     fclose(file) ;
 
@@ -205,7 +205,7 @@ void VSP_destruct_solve_result(VSP_solve_result *result)
 void VSP_reset_output_files()
 {
     VSP_reset_file("output/VSP_results.txt") ;
-    VSP_reset_file("output/VSP_error_log.txt") ;
+    VSP_reset_file("output/Error_log.txt") ;
     VSP_reset_file("output/VSP_stats.txt") ;
     return ;
 }

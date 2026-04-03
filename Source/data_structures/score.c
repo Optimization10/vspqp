@@ -25,7 +25,7 @@ VSPINT PointScore_Compare(PointScore *Score1, PointScore *Score2)
     return ret ;
 }
 
-void PointScore_Update(PointScore *Score, VSP_state *X, VSP_state *Y, VSP_problem *problem)
+void PointScore_Update(PointScore *Score, VSP_state *X, VSP_state *Y, Problem *problem)
 {
     VSPFLOAT obj = VSP_compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
     VSPINT   imb = IMBALANCE(X->weight, Y->weight) ;

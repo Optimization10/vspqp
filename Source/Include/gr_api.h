@@ -12,7 +12,7 @@ VSPFLOAT VSP_minreduce(
     VSP_state         *X,
     VSP_state         *Y,
     VSP_options *options,
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 #endif

@@ -39,7 +39,7 @@ void VSP_check_matrix_is_symmetric(
 ) ;
 
 /* Check each state individually, as well as the cross term */
-void VSP_check_states(VSP_state *X, VSP_state *Y, VSP_problem *problem)
+void VSP_check_states(VSP_state *X, VSP_state *Y, Problem *problem)
 {
     static long long unsigned count = 0 ;
     count++ ;
@@ -66,7 +66,7 @@ void VSP_check_states(VSP_state *X, VSP_state *Y, VSP_problem *problem)
 
     if( VSP_equal(xAy_1, xAy_2) == false )
     {
-        VSP_error("Cross terms don't agree", DBG_INFO) ;
+        Error("Cross terms don't agree", DBG_INFO) ;
     }
 
     /* Free memory */
@@ -84,7 +84,7 @@ void Check_Part
     VSPINT *Ay,
     VSPINT wgtx,
     VSPINT wgty,
-    VSP_problem *problem
+    Problem *problem
 )
 {
     static long long unsigned count = 0 ;
@@ -158,7 +158,7 @@ void VSP_check_max_of_array
     - The point is feasible
     - Az is correct
     - The weight is correct   */
-void VSP_check_state(VSP_state *Z, VSP_problem *problem)
+void VSP_check_state(VSP_state *Z, Problem *problem)
 {
     static long long unsigned count = 0 ;
     count++ ;
@@ -171,12 +171,12 @@ void VSP_check_state(VSP_state *Z, VSP_problem *problem)
     VSPINT nFromProblem = problem->Graph->n ;
     if(nFromZ != nFromProblem)
     {
-        VSP_error("n is incorrect", DBG_INFO) ;
+        Error("n is incorrect", DBG_INFO) ;
     }
 
     if(nFromAz != nFromProblem)
     {
-        VSP_error("n is incorrect", DBG_INFO) ;
+        Error("n is incorrect", DBG_INFO) ;
     }
 
     /* Check the point */
@@ -189,7 +189,7 @@ void VSP_check_state(VSP_state *Z, VSP_problem *problem)
     VSP_check_weight(Z, problem->Graph->c) ;
     if(Z->weight > problem->u)
     {
-        VSP_error("Upper balance violated ", DBG_INFO);
+        Error("Upper balance violated ", DBG_INFO);
     }
 
     return ;
@@ -223,7 +223,7 @@ void VSP_check_weight(VSP_state *Z, VSPINT *c) {
 
     if( !VSP_equal(weight_check_int + weight_check_frac, Z->weight) )
     {
-        VSP_error("Incorrect weight", DBG_INFO) ;
+        Error("Incorrect weight", DBG_INFO) ;
     }
 }
 
@@ -231,7 +231,7 @@ void VSP_check_Az
 (
     VSP_point         *z,
     VSP_Az           *Az,
-    VSP_problem *problem
+    Problem *problem
 )
 {
 
@@ -249,7 +249,7 @@ void VSP_check_Az
     /* Check that each entry in the integer part is in [0, n] */
     for(i = 0 ; i < n ; i++) {
         if(Az_int[i] < 0 || Az_int[i] > n) {
-            VSP_error("Problem in Az", DBG_INFO) ;
+            Error("Problem in Az", DBG_INFO) ;
             break ;
         }
     }
@@ -259,14 +259,14 @@ void VSP_check_Az
 
     /* Check that the fractional part is equal */
     if(Az->ind_frac_z != Az_dbg->ind_frac_z) {
-        VSP_error("Error in Az", DBG_INFO) ;
+        Error("Error in Az", DBG_INFO) ;
     }
 
     if(Az->ind_frac_z != EMPTY) {
 
         /* Check that the integer part of the fractional entry is < n*/
         if(Az_int[Az->ind_frac_z] > n - 1 || Az_int[Az->ind_frac_z] < 0) {
-            VSP_error("Problem with fractional index in Az", DBG_INFO) ;
+            Error("Problem with fractional index in Az", DBG_INFO) ;
         }
 
         /* Check that the fractional columns are the same */
@@ -293,15 +293,15 @@ void VSP_check_Az
 
         if(same == false)
         {
-            VSP_error("Fractional columns mismatch", DBG_INFO) ;
+            Error("Fractional columns mismatch", DBG_INFO) ;
         }
         if(one_is_ok == false) {
-            VSP_error("Problem with fractional column", DBG_INFO) ;
+            Error("Problem with fractional column", DBG_INFO) ;
         }
 
         /* Check that the fractional column has a one in index ind_frac_z */
         if(col_frac_z[Az->ind_frac_z] != one) {
-            VSP_error("Matrix column wrong", DBG_INFO) ;
+            Error("Matrix column wrong", DBG_INFO) ;
         }
     }
 
@@ -336,7 +336,7 @@ void VSP_check_arrays_are_equal
     }
     if(equal == false)
     {
-        VSP_error("Arrays not equal", DBG_INFO) ;
+        Error("Arrays not equal", DBG_INFO) ;
     }
     return ;
 }
@@ -364,7 +364,7 @@ void Check_Arrays_Are_Equal_VSPLONG
     }
     if(equal == false)
     {
-        VSP_error("Arrays not equal", DBG_INFO) ;
+        Error("Arrays not equal", DBG_INFO) ;
     }
     return ;
 }
@@ -442,10 +442,10 @@ VSPINT VSP_check_matrix
 
             /* Check that the edge cost is at least 1, and reasonably small */
             if ( Ae [p] < 1 ) {
-                VSP_error(" Error in edge weights", DBG_INFO) ;
+                Error(" Error in edge weights", DBG_INFO) ;
             }
             if ( Ae [p] > 1E10 ) {
-                VSP_error("Warning: probable error in edge weights", DBG_INFO) ;
+                Error("Warning: probable error in edge weights", DBG_INFO) ;
             }
 
         }
@@ -461,30 +461,30 @@ VSPINT VSP_check_matrix
 
     /* Print errors, if there are any */
     if ( Ap_not_increasing ) {
-        VSP_error("Ap not increasing", DBG_INFO) ;
+        Error("Ap not increasing", DBG_INFO) ;
     }
 
     if ( repeated_entry ) {
-        VSP_error("Repeated neighbor in Ai", DBG_INFO) ;
+        Error("Repeated neighbor in Ai", DBG_INFO) ;
         error = TRUE ;
     }
 
     if ( diag_nonzero ) {
-        VSP_error("Nonzero diagonal", DBG_INFO) ;
+        Error("Nonzero diagonal", DBG_INFO) ;
         error = TRUE ;
     }
 
     if ( invalid_neighbor ) {
-        VSP_error("Invalid neighbor in graph", DBG_INFO) ;
+        Error("Invalid neighbor in graph", DBG_INFO) ;
         error = TRUE ;
     }
 
     if ( last_entry_of_Ap_incorrect ) {
-        VSP_error("Last entry of Ap incorrect", DBG_INFO) ;
+        Error("Last entry of Ap incorrect", DBG_INFO) ;
     }
 
     if ( invalid_entry_in_Ap ) {
-        VSP_error("Invalid entry in Ap", DBG_INFO) ;
+        Error("Invalid entry in Ap", DBG_INFO) ;
     }
 
     /* Free memory */
@@ -504,7 +504,7 @@ void VSP_check_matrix_is_symmetric
     VSP_options* options
 ) {
     /* Get the transpose */
-    VSP_problem* T = VSP_transpose(Ai, Ap, Ae, nz, n, options) ;
+    Problem* T = VSP_transpose(Ai, Ap, Ae, nz, n, options) ;
     VSPINT *Ti = T->Graph->Ai, *Te = T->Graph->Ae ;
     VSPLONG *Tp = T->Graph->Ap ;
 
@@ -567,7 +567,7 @@ void VSP_check_entries_are_between_bounds(
     }
 
     if ( error ) {
-        VSP_error("Array entry out of bounds", DBG_INFO) ;
+        Error("Array entry out of bounds", DBG_INFO) ;
     }
 
 }
@@ -616,7 +616,7 @@ void VSP_check_max_of_array(
     }
 
     if (max_given != max_true) {
-        VSP_error("Max of array not correct", DBG_INFO) ;
+        Error("Max of array not correct", DBG_INFO) ;
     }
 }
 
@@ -636,7 +636,7 @@ void VSP_check_max_of_array(
  - The max degree stored in the problem is correct
 
  INPUTS:
- a) A VSP_problem struct
+ a) A Problem struct
 
  OUTPUTS:
  a) If the matrix passes all the checks, return TRUE (i.e. integer 1).
@@ -645,7 +645,7 @@ void VSP_check_max_of_array(
 
 VSPINT VSP_check_problem
 (
-    VSP_problem* problem,
+    Problem* problem,
     VSP_options* options
 )
 {
@@ -703,37 +703,37 @@ VSPINT VSP_check_problem
     }
 
     if (cost_is_wrong) {
-        VSP_error("Cost is wrong", DBG_INFO) ;
+        Error("Cost is wrong", DBG_INFO) ;
         is_there_an_error = TRUE ;
     }
 
     if (weight_is_wrong) {
-        VSP_error("Weight is wrong", DBG_INFO) ;
+        Error("Weight is wrong", DBG_INFO) ;
         is_there_an_error = TRUE ;
     }
 
     if (locally_computed_alpha != alpha) {
-        VSP_error("Gamma is wrong", DBG_INFO) ;
+        Error("Gamma is wrong", DBG_INFO) ;
         is_there_an_error = TRUE ;
     }
 
     if (locally_computed_gamma != gamma) {
-        VSP_error("Gamma is wrong", DBG_INFO) ;
+        Error("Gamma is wrong", DBG_INFO) ;
         is_there_an_error = TRUE ;
     }
 
     if (bal < 1) {
-        VSP_error("Balance constraints are wrong", DBG_INFO) ;
+        Error("Balance constraints are wrong", DBG_INFO) ;
         is_there_an_error = TRUE ;
     }
 
     if (sum_of_all_ci != problem->Graph->total_vtx_cost) {
-        VSP_error("Problem with sum of all ci", DBG_INFO) ;
+        Error("Problem with sum of all ci", DBG_INFO) ;
         is_there_an_error = TRUE ;
     }
     if(problem->ratioMaxCostNodes <= 0 || problem->ratioMaxCostNodes > 1)
     {
-        VSP_error("Wrong ratio of max weight nodes", DBG_INFO) ;
+        Error("Wrong ratio of max weight nodes", DBG_INFO) ;
         is_there_an_error = TRUE ;
     }
 
@@ -776,7 +776,7 @@ void VSP_check_permutation (
     }
 
     if (arrays_are_equal == FALSE) {
-        VSP_error("Array not a permutation", DBG_INFO ) ;
+        Error("Array not a permutation", DBG_INFO ) ;
     }
 
     /* Free memory */
@@ -800,7 +800,7 @@ void VSP_light_check_Az(
     /* Check that the integer part is between 0 and n */
     for(VSPINT i = 0 ; i < n ; i++) {
         if(Az_int[i] < 0 || Az_int[i] > n) {
-            VSP_error("Error in Az", DBG_INFO) ;
+            Error("Error in Az", DBG_INFO) ;
         }
     }
 
@@ -809,7 +809,7 @@ void VSP_light_check_Az(
     if(Az->ind_frac_z != EMPTY)
         {
         if(Az->col_frac_z[Az->ind_frac_z] != Az->one) {
-            VSP_error("Matrix column wrong", DBG_INFO) ;
+            Error("Matrix column wrong", DBG_INFO) ;
         }
     }
 }
@@ -830,31 +830,31 @@ void VSP_check_point(VSP_point *z) {
             binary = false ;
         }
     }
-    if( binary == false ) VSP_error("Not binary", DBG_INFO) ;
+    if( binary == false ) Error("Not binary", DBG_INFO) ;
 
 
     /* Check that the integer part of the fractional entry is 0 */
     VSPINT ind_frac = z->ind_frac ;
     if(ind_frac != EMPTY && z_int[ind_frac] != 0) {
-        VSP_error("Problem with integer part", DBG_INFO) ;
+        Error("Problem with integer part", DBG_INFO) ;
     }
 
     /* Check that the fractional index is empty or in the valid range */
 
     if( ind_frac != EMPTY && !(0 <= ind_frac && ind_frac <= n-1) ) {
-        VSP_error("Fractional index out of bounds", DBG_INFO) ;
+        Error("Fractional index out of bounds", DBG_INFO) ;
     }
 
     /* Check that the fractional value is in [0, 1] */
     VSPFLOAT val_frac = z->val_frac ;
     if(val_frac < 0 || val_frac > 1) {
-        VSP_error("Issue with fractional value", DBG_INFO) ;
+        Error("Issue with fractional value", DBG_INFO) ;
     }
 
     /* If frac index exists, check that the frac value is in (0, 1)*/
     if(ind_frac != EMPTY) {
         if(val_frac <= 0 || val_frac >= 1 ) {
-            VSP_error("Issue with fractional value", DBG_INFO) ;
+            Error("Issue with fractional value", DBG_INFO) ;
         }
     }
     return ;

@@ -49,7 +49,7 @@
 //     VSP_state         *Z,
 //     VSP_Az           *Aw,
 //     VSPFLOAT       gamma,
-//     VSP_problem *problem,
+//     Problem *problem,
 //     VSP_options *options
 // ) {
 
@@ -113,7 +113,7 @@
 //         (void) n ; // dummy
 //         if(is_opt != is_opt_dbg)
 //         {
-//             VSP_error("Error with optimality check", DBG_INFO) ;
+//             Error("Error with optimality check", DBG_INFO) ;
 //         }
 //     #endif
 
@@ -143,7 +143,7 @@
 //         count++ ;
 //         if(z->ind_frac != EMPTY)
 //         {
-//             VSP_error("Wrong case in optimality check", DBG_INFO) ;
+//             Error("Wrong case in optimality check", DBG_INFO) ;
 //         }
 //     #endif
 
@@ -207,7 +207,7 @@
 
 //         if(z->ind_frac == EMPTY)
 //         {
-//             VSP_error("Wrong case in optimality check", DBG_INFO) ;
+//             Error("Wrong case in optimality check", DBG_INFO) ;
 //         }
 //     #endif
 
@@ -266,7 +266,7 @@
 //         count++ ;
 //         if(z->ind_frac != EMPTY)
 //         {
-//             VSP_error("Wrong case in optimality check", DBG_INFO) ;
+//             Error("Wrong case in optimality check", DBG_INFO) ;
 //         }
 //     #endif
 
@@ -324,7 +324,7 @@
 //         count++ ;
 //         if(z->ind_frac == EMPTY)
 //         {
-//             VSP_error("Wrong case in optimality check", DBG_INFO) ;
+//             Error("Wrong case in optimality check", DBG_INFO) ;
 //         }
 //     #endif
 
@@ -378,7 +378,7 @@
 //         count++ ;
 //         if(z->ind_frac != EMPTY)
 //         {
-//             VSP_error("Wrong case in optimality check", DBG_INFO) ;
+//             Error("Wrong case in optimality check", DBG_INFO) ;
 //         }
 //     #endif
 

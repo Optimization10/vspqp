@@ -113,8 +113,8 @@ void Destroy_Graph(VSP_Graph *Graph)
 }
 
 
-/* *************** VSP_problem ********************************************** */
-VSP_problem* VSP_construct_problem
+/* *************** Problem ********************************************** */
+Problem* VSP_construct_problem
 (
     VSPINT       num_vertices,
     VSPLONG                nz,
@@ -125,7 +125,7 @@ VSP_problem* VSP_construct_problem
 )
 {
     /* Create the problem */
-    VSP_problem* problem = calloc(1, sizeof(VSP_problem));
+    Problem* problem = calloc(1, sizeof(Problem));
 
     /* Construct the name */
     problem->name = malloc( 350 * sizeof(char) ) ;
@@ -169,7 +169,7 @@ VSP_problem* VSP_construct_problem
     return problem;
 }
 
-void VSP_destruct_problem(VSP_problem* problem)
+void VSP_destruct_problem(Problem* problem)
 {
     /* Free the graph data */
     free(problem->name) ;

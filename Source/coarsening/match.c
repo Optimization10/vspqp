@@ -28,7 +28,7 @@ void Match_Check
     /* Check that matchmap composed with invmatchmap is the identiy */
     for (i = 0 ; i < cn ; i++) {
         if ( matchmap [ invmatchmap [i] ] != i ) {
-            VSP_error("Error in matching.", DBG_INFO) ;
+            Error("Error in matching.", DBG_INFO) ;
         }
     }
 
@@ -62,12 +62,12 @@ void Match_Check
     }
     if (matched_to_invalid_vertex)
     {
-        VSP_error("Matched to invalid vertex", DBG_INFO) ;
+        Error("Matched to invalid vertex", DBG_INFO) ;
     }
     
     if (wrong_matchtype)
     {
-        VSP_error("Invalid matchtype", DBG_INFO) ;
+        Error("Invalid matchtype", DBG_INFO) ;
     }
 
 
@@ -86,7 +86,7 @@ void Match_Check
         {
             if (matchtype [k0] != matchtype_orphan && matchtype [k0] != matchtype_selfMatch && matchtype [k0] != matchtype_singleton)
             {
-                VSP_error("Matchtype incorrect", DBG_INFO) ;
+                Error("Matchtype incorrect", DBG_INFO) ;
             }
         }
 
@@ -95,12 +95,12 @@ void Match_Check
         {
             if ( matchmap [k0] != matchmap [k1] )
             {
-                VSP_error("Error in matchmap", DBG_INFO) ;
+                Error("Error in matchmap", DBG_INFO) ;
             }
             if ( matchtype [k0] == matchtype_orphan ||
                  matchtype [k1] == matchtype_orphan     )
             {
-                VSP_error("Error with matchtype", DBG_INFO) ;
+                Error("Error with matchtype", DBG_INFO) ;
             }
         }
         /* If k0 is matched with precisely 2 other vertices */
@@ -109,18 +109,18 @@ void Match_Check
             if ( matchmap [k0] != matchmap [k1] || 
                     matchmap [k0] != matchmap [k2]     )
             {
-                VSP_error("Error in matchmap", DBG_INFO) ;
+                Error("Error in matchmap", DBG_INFO) ;
             }
             if ( matchtype [k0] == matchtype_orphan ||
                     matchtype [k1] == matchtype_orphan ||
                     matchtype [k2] == matchtype_orphan    )
             {
-                VSP_error("Error with matchtype", DBG_INFO) ;
+                Error("Error with matchtype", DBG_INFO) ;
             }
         }
         else {
             /* Code should never reach here */
-            VSP_error("Error with matching ll", DBG_INFO) ;
+            Error("Error with matching ll", DBG_INFO) ;
         }
     }
 }

@@ -149,7 +149,7 @@ void IdxGroupsByC_Num_Idx_With_Top_C
 void IdxGroupsByC_See_Top_Feasible_Cval_v5
 (
     IdxGroupsByC      *z0Aw0_groups,
-    VSP_problem            *problem,
+    Problem            *problem,
     VSPINT                     wgtz,
     VSPINT          *retMaxFeasCval,
     VSPINT                       *z, // Used for debugging only
@@ -201,7 +201,7 @@ void Initialize_All_Structs_v5
     IdxGroupsByC         *y1Ax1_groups,
     IdxGroupsByC         *y1Ax2_groups,
 
-    VSP_problem               *problem
+    Problem               *problem
 ) ;
 
 void SelectRandomOptimalStrictlyBeneficialFlip_v5
@@ -223,7 +223,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     IdxGroupsByC *y1Ax2_groups,
     Direct_Access_List *y0Ax1_list, // only used in debugging
 
-    VSP_problem       *problem,
+    Problem       *problem,
     char           *retFlipVar, // '\0' if no flip
     VSPINT         *retIndFlip  // EMPTY if no flip
 ) ;
@@ -247,7 +247,7 @@ void Do_Flip_v5
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     indFlip,
-    VSP_problem               *problem
+    Problem               *problem
 ) ;
 
 void Downflip_v5
@@ -269,7 +269,7 @@ void Downflip_v5
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     indFlip,
-    VSP_problem               *problem
+    Problem               *problem
 ) ;
 
 // Assume that Upflip_v5 happens in z
@@ -292,7 +292,7 @@ void Upflip_v5
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     indFlip,
-    VSP_problem               *problem
+    Problem               *problem
 ) ;
 
 void StrictlyBeneficialFlips_v5
@@ -314,7 +314,7 @@ void StrictlyBeneficialFlips_v5
     IdxGroupsByC           *y1Ax2_groups,
     Direct_Access_List       *y0Ax1_list,
 
-    VSP_problem                 *problem,
+    Problem                 *problem,
     VSPINT              *retNumFlipsDone
 ) ;
 
@@ -337,7 +337,7 @@ void FeasibleBeneficialFlips_v5
     IdxGroupsByC           *y1Ax2_groups,
     Direct_Access_List       *y0Ax1_list,
 
-    VSP_problem                 *problem,
+    Problem                 *problem,
     VSPINT              *retNumFlipsDone
 ) ;
 
@@ -359,7 +359,7 @@ void Neutral_Upflip_v5s_In_z_And_Downflip_v5s_In_w1Az2_v5
     IdxGroupsByC         *w1Az1_groups,
     IdxGroupsByC         *w1Az2_groups,
 
-    VSP_problem               *problem
+    Problem               *problem
 ) ;
 
 void Neutral_Flips_Strategy_1_v5
@@ -382,7 +382,7 @@ void Neutral_Flips_Strategy_1_v5
     Direct_Access_List *y0Ax1_list, // only used in debugging
 
     VSPINT          maxNumPasses,
-    VSP_problem       *problem
+    Problem       *problem
 ) ;
 
 
@@ -411,7 +411,7 @@ void SelectRandomOptimalBeneficialFlip_v5
     IdxGroupsByC *y1Ax2_groups,
     Direct_Access_List *y0Ax1_list, // only used in debugging
 
-    VSP_problem       *problem,
+    Problem       *problem,
     char           *retFlipVar, // '\0' if no flip
     VSPINT         *retIndFlip  // EMPTY if no flip
 ) ;
@@ -443,7 +443,7 @@ void Compute_ps_And_cs_Dbg_v5
     VSPINT                    *y,
     VSPINT                   *Ay,
     VSPINT                  wgty,
-    VSP_problem         *problem,
+    Problem         *problem,
     VSPINT                 ps[4],
     VSPINT                 cs[4],
     VSPINT          witnesses[4]
@@ -469,7 +469,7 @@ void FlipSelector_Check_v5
     VSPINT                        wgty,
     char                  givenVarFlip,
     VSPINT                givenIndFlip,
-    VSP_problem               *problem,
+    Problem               *problem,
     Expected_Flip_Effect_v5 expFlipEffect
 ) ;
 
@@ -491,7 +491,7 @@ void Check_All_Data_v5
     IdxGroupsByC         *y1Ax1_groups,
     IdxGroupsByC         *y1Ax2_groups,
 
-    VSP_problem               *problem
+    Problem               *problem
 ) ;
 
 
@@ -512,7 +512,7 @@ void Check_Given_Flip_Is_Optimal_v5
     VSPINT                wgty,
     char          givenVarFlip,
     VSPINT        givenIndFlip,
-    VSP_problem       *problem
+    Problem       *problem
 ) ;
 
 // Designed to be called at the very beginning of flips
@@ -524,7 +524,7 @@ void Check_Inputs_v5
     VSPINT                  *y,
     VSPINT                 *Ay,
     VSPINT                wgty,
-    VSP_problem       *problem
+    Problem       *problem
 ) ;
 
 // Designed to be called at the very end of flips
@@ -538,7 +538,7 @@ void Check_Outputs_v5
     VSPINT                  *y,
     VSPINT                 *Ay,
     VSPINT                wgty,
-    VSP_problem       *problem
+    Problem       *problem
 ) ;
 
 void Compute_Max_Group_Sizes_v5
@@ -609,7 +609,7 @@ void Compute_Feasibility_And_Gains_v5
     VSPINT                *Ay,
     VSPINT               wgtx,
     VSPINT               wgty,
-    VSP_problem      *problem,
+    Problem      *problem,
     VSPINT             inds[4],
     VSPINT        retIsFeas[4],
     VSPINT         retGains[4]
@@ -636,7 +636,7 @@ void Balance_Flips
     IdxGroupsByC           *y1Ax2_groups,
     Direct_Access_List       *y0Ax1_list,
 
-    VSP_problem                       *P
+    Problem                       *P
 ) ;
 
 #endif

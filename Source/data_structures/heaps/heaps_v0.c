@@ -152,7 +152,7 @@ void MaxHeap_Insert_v0
     #ifdef VSP_DEBUG
         if(Is_Array_Member(toInsert, heap, 1, *numNodes + 1) )
         {
-            VSP_error("Element already in heap", DBG_INFO) ;
+            Error("Element already in heap", DBG_INFO) ;
         }
 
         MaxHeap_Check_v0(heap, lookup, *numNodes, c) ;
@@ -480,7 +480,7 @@ void MinHeap_Insert_v0
 
         if(Is_Array_Member(toInsert, heap, 1, *numNodes + 1) )
         {
-            VSP_error("Element already in heap", DBG_INFO) ;
+            Error("Element already in heap", DBG_INFO) ;
         }
     #endif
 

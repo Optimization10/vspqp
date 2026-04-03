@@ -6,7 +6,7 @@
 #include "basic_flip_strats.h"
 
 // This code is finished except for calling flips
-void GR_Flips(VSP_state *Xbest, VSP_state *Ybest, VSP_problem *problem, VSPINT P)
+void GR_Flips(VSP_state *Xbest, VSP_state *Ybest, Problem *problem, VSPINT P)
 {
     static long long unsigned count = 0 ;
     count++ ;

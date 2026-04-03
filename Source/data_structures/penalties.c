@@ -75,7 +75,7 @@ void VSP_build_penalties
     VSPINT                 *z,
     Penalties     *Z_pens,
     VSPINT                *Aw,
-    VSP_problem      *problem
+    Problem      *problem
 )
 {
     #ifdef VSP_DEBUG
@@ -154,16 +154,16 @@ static void VSP_check_a_linked_list
         witness[p]++ ;
         if( rev_list[ fwd_list[p] ] != p)
         {
-            VSP_error("Linked list not correct", DBG_INFO) ;
+            Error("Linked list not correct", DBG_INFO) ;
             return ;
         }
         if( z[p] != z_val )
         {
-            VSP_error("Linked list not correct", DBG_INFO) ;
+            Error("Linked list not correct", DBG_INFO) ;
             return ;
         }
         if( Aw[p] != Aw_val ) {
-            VSP_error("Linked list not correct", DBG_INFO) ;
+            Error("Linked list not correct", DBG_INFO) ;
             return ;
         }
 
@@ -221,7 +221,7 @@ void Check_Linked_Lists
     /* Check that each node is present in precisely one linked list */
     for(VSPINT i = 0 ; i < n ; i++) {
         if(witness[i] != 1) {
-            VSP_error("Problem in linked lists", DBG_INFO) ;
+            Error("Problem in linked lists", DBG_INFO) ;
             break ;
         }
     }
@@ -286,12 +286,12 @@ static void VSP_check_penalties_one_state
 
     if(local_min_pen != Z_pen->min_pen)
     {
-        VSP_error("Error in min penalty.", DBG_INFO) ;
+        Error("Error in min penalty.", DBG_INFO) ;
     }
 
     if(local_max_pen != Z_pen->max_pen)
     {
-        VSP_error("Error in max penalty.", DBG_INFO) ;
+        Error("Error in max penalty.", DBG_INFO) ;
     }
 
     return ;

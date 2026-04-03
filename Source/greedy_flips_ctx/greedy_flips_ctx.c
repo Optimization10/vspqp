@@ -11,7 +11,7 @@ struct GreedyFlipsCtx
 
     VSPINT Ts[2][2] ;
     VSPINT n ;
-    VSP_problem *problem ;
+    Problem *problem ;
 
     bool randomize ; // randomize initialization of lists
 } ;

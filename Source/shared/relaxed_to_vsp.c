@@ -6,7 +6,7 @@ void improve
 (
     VSP_state         *X,
     VSP_state         *Y,
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 /* ============================================================================
@@ -32,7 +32,7 @@ void VSP_relaxed_to_vertex_separator
 (
     VSP_state            *X,
     VSP_state            *Y,
-    VSP_problem    *problem
+    Problem    *problem
 )
 {
     // printf("\nStarting Relaxed To VSP") ;
@@ -168,7 +168,7 @@ void VSP_relaxed_to_vertex_separator
                         if(neighbors[k] == 0 && k != i) break ;
                     }
                     #ifdef VSP_DEBUG
-                        if(k >= n) VSP_error("Problem", DBG_INFO) ;
+                        if(k >= n) Error("Problem", DBG_INFO) ;
                     #endif
 
                     /* Put i in x and k in y */
@@ -230,7 +230,7 @@ void VSP_relaxed_to_vertex_separator
             yAx_dbg += y [i] * Ax [i] ;
         }
         if ( xAy_dbg != 0 || yAx_dbg != 0 ) {
-            VSP_error("Contraint not satisfied", DBG_INFO) ;
+            Error("Contraint not satisfied", DBG_INFO) ;
         }
 
         /* Check that the objective has improved */
@@ -242,7 +242,7 @@ void VSP_relaxed_to_vertex_separator
 
         if (obj_new < obj_old && terribleSituation == false)
         {
-            VSP_error("Objective worsened when finding separator", DBG_INFO) ;
+            Error("Objective worsened when finding separator", DBG_INFO) ;
         }
     #endif
 
@@ -259,7 +259,7 @@ void VSP_relaxed_to_vertex_separator
             yAx_dbg += y [i] * Ax [i] ;
         }
         if ( xAy_dbg != 0 || yAx_dbg != 0 ) {
-            VSP_error("Contraint not satisfied", DBG_INFO) ;
+            Error("Contraint not satisfied", DBG_INFO) ;
         }
 
         /* Check that the objective has improved */
@@ -270,13 +270,13 @@ void VSP_relaxed_to_vertex_separator
         }
 
         if (obj_new < obj_old && terribleSituation == false) {
-            VSP_error("Objective worsened when improving point", DBG_INFO) ;
+            Error("Objective worsened when improving point", DBG_INFO) ;
         }
 
         VSPFLOAT objout = VSP_compute_obj(X, Y, problem, problem->Graph->max_vtx_cost) ;
         if(objout < objin && terribleSituation == false)
         {
-            VSP_error("Objective worsened after improve", DBG_INFO) ;
+            Error("Objective worsened after improve", DBG_INFO) ;
         }
     #endif
 
@@ -291,7 +291,7 @@ void improve
 (
     VSP_state *X,
     VSP_state *Y,
-    VSP_problem *problem
+    Problem *problem
 )
 {
     #ifdef VSP_DEBUG
@@ -354,7 +354,7 @@ void improve
                         }
                         if(xAy1 != 0 || xAy1 != xAy2)
                         {
-                            VSP_error("Not a separator", DBG_INFO) ;
+                            Error("Not a separator", DBG_INFO) ;
                         }
                     #endif
                     num_improves++ ;
@@ -379,7 +379,7 @@ void improve
                         }
                         if(xAy1 != 0 || xAy1 != xAy2)
                         {
-                            VSP_error("Not a separator", DBG_INFO) ;
+                            Error("Not a separator", DBG_INFO) ;
                         }
                     #endif
                     num_improves++ ;
@@ -406,7 +406,7 @@ void improve
                         }
                         if(xAy1 != 0 || xAy1 != xAy2)
                         {
-                            VSP_error("Not a separator", DBG_INFO) ;
+                            Error("Not a separator", DBG_INFO) ;
                         }
                 #endif
                 num_improves++ ;
@@ -432,7 +432,7 @@ void improve
                         }
                         if(xAy1 != 0 || xAy1 != xAy2)
                         {
-                            VSP_error("Not a separator", DBG_INFO) ;
+                            Error("Not a separator", DBG_INFO) ;
                         }
                 #endif
                 num_improves++ ;
@@ -450,7 +450,7 @@ void improve
         }
         if(xAy1 != 0 || xAy1 != xAy2)
         {
-            VSP_error("Not a separator", DBG_INFO) ;
+            Error("Not a separator", DBG_INFO) ;
         }
     #endif
 }

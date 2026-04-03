@@ -30,7 +30,7 @@ FlipsCtx *FlipsCtx_Init
 (
     VSP_state   *states[2],
     bool         randomize,
-    VSP_problem   *problem
+    Problem   *problem
 ) ;
 
 void FlipsCtx_Destroy(FlipsCtx *FC) ;

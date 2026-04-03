@@ -9,10 +9,10 @@ typedef struct Stopwatches
     size_t        numWatches ;
     size_t        maxNumWatches ;
     Stopwatch   **watches ;
-    VSP_problem  *problem ; // Associated with this collection of stopwatches
+    Problem  *problem ; // Associated with this collection of stopwatches
 } Stopwatches ;
 
-Stopwatches *Stopwatches_Construct(size_t maxNumWatches, VSP_problem *problem) ;
+Stopwatches *Stopwatches_Construct(size_t maxNumWatches, Problem *problem) ;
 void Stopwatches_Destroy(Stopwatches *SWS) ;
 void Stopwatches_Start(Stopwatches *SWS, char *name) ;
 void Stopwatches_Stop(Stopwatches *SWS, char *name) ;

@@ -50,6 +50,6 @@
 // cs *mirrorTriangular(cs *A);
 
 // /* My own functions */
-// VSP_problem* VSP_read_MM_file(const char* filename, VSP_options* options);
+// Problem* VSP_read_MM_file(const char* filename, VSP_options* options);
 
 // #endif

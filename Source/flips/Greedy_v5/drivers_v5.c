@@ -11,7 +11,7 @@ void Flips_v5
     VSPINT                     *y,
     VSPINT                    *Ay,
     VSPINT                  *wgty,
-    VSP_problem          *problem,
+    Problem          *problem,
     VSPINT           maxNumPasses
 )
 {
@@ -125,7 +125,7 @@ void StrictlyBeneficialFlips_v5
     IdxGroupsByC           *y1Ax2_groups,
     Direct_Access_List       *y0Ax1_list,
 
-    VSP_problem                 *problem,
+    Problem                 *problem,
     VSPINT              *retNumFlipsDone
 )
 {

@@ -23,7 +23,7 @@ void SelectRandomOptimalBeneficialFlip
     IdxGroupsByC *y1Ax2_groups,
     Direct_Access_List *y0Ax1_list, // only used in debugging
 
-    VSP_problem       *problem,
+    Problem       *problem,
     char           *retFlipVar, // '\0' if no flip
     VSPINT         *retIndFlip  // EMPTY if no flip
 )
@@ -297,7 +297,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     IdxGroupsByC *y1Ax2_groups,
     Direct_Access_List *y0Ax1_list, // only used in debugging
 
-    VSP_problem       *problem,
+    Problem       *problem,
     char           *retFlipVar, // '\0' if no flip
     VSPINT         *retIndFlip  // EMPTY if no flip
 )
@@ -567,7 +567,7 @@ void FeasibleStrictlyBeneficialFlipSelector_Check
     VSPINT                        wgty,
     char                  givenVarFlip,
     VSPINT                givenIndFlip,
-    VSP_problem               *problem,
+    Problem               *problem,
     Expected_Flip_Effect expFlipEffect
 )
 {
@@ -900,7 +900,7 @@ void FeasibleBeneficialFlipSelector_Check
     VSPINT                wgty,
     char          givenVarFlip,
     VSPINT        givenIndFlip,
-    VSP_problem       *problem
+    Problem       *problem
 )
 {
     static long long unsigned count = 0 ;

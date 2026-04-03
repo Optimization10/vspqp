@@ -7,7 +7,7 @@ void VSP_GetSepCost
 (
     VSP_state          *X,
     VSP_state          *Y,
-    VSP_problem  *problem,
+    Problem  *problem,
     VSPINT       *sepCost   /* Output*/
 )
 {
@@ -38,7 +38,7 @@ void VSP_num_pen
 (
     VSP_state *X,
     VSP_state *Y,
-    VSP_problem *problem,
+    Problem *problem,
     VSPFLOAT *numPen
 )
 {
@@ -69,7 +69,7 @@ void VSP_num_pen
         }
         if(xAy != yAx)
         {
-            VSP_error("Error in mixed term", DBG_INFO) ;
+            Error("Error in mixed term", DBG_INFO) ;
         }
     #endif
 
@@ -83,7 +83,7 @@ void VSP_xAy
 (
     VSP_state         *X,
     VSP_state         *Y,
-    VSP_problem *problem,
+    Problem *problem,
     VSPFLOAT        *xAy
 )
 {
@@ -274,7 +274,7 @@ void VSP_Az_pm_col_of_A (
     VSPINT             *Az, // vector to which we add/subtract
     VSPINT               i, // column to add/subtract
     VSPINT          operation, // 1 if add, -1 if subtract
-    VSP_problem   *problem
+    Problem   *problem
 ) {
     VSPINT *Ai = problem->Graph->Ai ;
     VSPLONG *Ap = problem->Graph->Ap ;
@@ -315,14 +315,14 @@ void VSP_compute_weight(VSP_point *Z, VSPINT *weight_z, VSPINT *c) {
         weight += lroundf(weight_frac_part) ;
         #ifdef VSP_DEBUG
             if( fabs(weight_frac_part - round(weight_frac_part)) > VSP_ZERO ) {
-                VSP_error("Error with weight", DBG_INFO) ;
+                Error("Error with weight", DBG_INFO) ;
             }
         #endif
     }
     *weight_z = weight ;
 }
 
-VSP_problem* VSP_transpose(
+Problem* VSP_transpose(
     VSPINT           *Ai, /* Row indices of non-zeros  */
     VSPLONG *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
@@ -338,7 +338,7 @@ VSP_problem* VSP_transpose(
 
     #ifdef VSP_DEBUG
         if (Ap [n] != nz) {
-            VSP_error("Nz doesn't match Ap[n]", __FILE__, __LINE__, count) ;
+            Error("Nz doesn't match Ap[n]", __FILE__, __LINE__, count) ;
         }
     #endif
 
@@ -349,7 +349,7 @@ VSP_problem* VSP_transpose(
     VSPLONG* num_nonzeros_in_row = calloc(n, sizeof(*num_nonzeros_in_row)) ;
 
     /* Prepare the transpose matrix T */
-    VSP_problem* T = VSP_construct_problem(n, nz, NULL, NULL, NULL, options) ;
+    Problem* T = VSP_construct_problem(n, nz, NULL, NULL, NULL, options) ;
     VSPINT *Ti = T->Graph->Ai , *Te = T->Graph->Ae ;
     VSPLONG *Tp = T->Graph->Ap ;
 
@@ -399,7 +399,7 @@ VSP_problem* VSP_transpose(
             }
         }
         if (error_in_transpose) {
-            VSP_error("Error in transpose", DBG_INFO) ;
+            Error("Error in transpose", DBG_INFO) ;
         }
 
         /* If the matrix is small enough, expand it out and check transpose */
@@ -440,7 +440,7 @@ VSP_problem* VSP_transpose(
                 }
             }
             if (transpose_wrong) {
-                VSP_error("Transpose wrong", DBG_INFO) ;
+                Error("Transpose wrong", DBG_INFO) ;
             }
 
             /* Free memory */
@@ -510,7 +510,7 @@ VSPLONG VSP_partial_sums_of_array(
 VSPFLOAT VSP_compute_obj(
     VSP_state         *X,
     VSP_state         *Y,
-    VSP_problem *problem,
+    Problem *problem,
     VSPFLOAT       gamma
 ) {
     #ifdef VSP_DEBUG
@@ -564,7 +564,7 @@ VSPFLOAT VSP_compute_obj(
             obj_val_dbg = VSP_compute_objective_0(X, Y, problem, gamma) ;
             if( fabs(obj_val - obj_val_dbg) > VSP_ZERO )
             {
-                VSP_error("Error in computing objective", DBG_INFO) ;
+                Error("Error in computing objective", DBG_INFO) ;
             }
         }
     #endif
@@ -580,7 +580,7 @@ VSPFLOAT VSP_compute_obj(
 VSPFLOAT VSP_compute_objective_0(
     VSP_state *X,
     VSP_state *Y,
-    VSP_problem *problem,
+    Problem *problem,
     VSPFLOAT gamma
 ) {
     /* Local vars */
@@ -650,7 +650,7 @@ void Compute_ObjValDbg
     VSPINT              *Ax,
     VSPINT               *y,
     VSPINT              *Ay,
-    VSP_problem    *problem,
+    Problem    *problem,
     VSPINT       *retObjVal
 )
 {
@@ -693,7 +693,7 @@ void Compute_ObjValSimple
     VSPINT               *y,
     VSPINT              *Ay,
     VSPINT             wgty,
-    VSP_problem    *problem,
+    Problem    *problem,
     VSPINT       *retObjVal
 )
 {

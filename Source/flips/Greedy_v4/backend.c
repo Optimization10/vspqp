@@ -97,7 +97,7 @@ void Upflip
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     indFlip,
-    VSP_problem               *problem
+    Problem               *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -270,7 +270,7 @@ void Downflip
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     indFlip,
-    VSP_problem               *problem
+    Problem               *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -434,7 +434,7 @@ void Initialize_All_Structs
     IdxGroupsByC         *y1Ax1_groups,
     IdxGroupsByC         *y1Ax2_groups,
 
-    VSP_problem               *problem
+    Problem               *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -532,7 +532,7 @@ void Check_All_Data
     IdxGroupsByC         *y1Ax1_groups,
     IdxGroupsByC         *y1Ax2_groups,
 
-    VSP_problem               *problem
+    Problem               *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -649,7 +649,7 @@ void Check_Inputs
     VSPINT                  *y,
     VSPINT                 *Ay,
     VSPINT                wgty,
-    VSP_problem       *problem
+    Problem       *problem
 )
 {
     static long long unsigned count = 0 ;
@@ -748,7 +748,7 @@ void Check_Outputs
     VSPINT                  *y,
     VSPINT                 *Ay,
     VSPINT                wgty,
-    VSP_problem       *problem
+    Problem       *problem
 )
 {
     static long long unsigned count = 0 ;
@@ -825,7 +825,7 @@ void Do_Flip
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     indFlip,
-    VSP_problem               *problem
+    Problem               *problem
 )
 {
     SET_FUNCTION_COUNTER ;

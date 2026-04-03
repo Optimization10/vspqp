@@ -22,9 +22,9 @@ Logger LOG_G ;
 
 
 
-void Destroy_Coarse_Problems(VSP_problem *problemFinest) ;
+void Destroy_Coarse_Problems(Problem *problemFinest) ;
 // {
-//     VSP_problem *cp, *p = problemFinest->child_problem ;
+//     Problem *cp, *p = problemFinest->child_problem ;
 //     while(p != NULL)
 //     {
 //         cp = p->child_problem ;
@@ -37,7 +37,7 @@ void Destroy_Coarse_Problems(VSP_problem *problemFinest) ;
 // Store x, y into result and free remaining memory
 void Final_Cleanup
 (
-    VSP_state *X, VSP_state *Y, VSP_problem *problemFinest, VSP_solve_result *result
+    VSP_state *X, VSP_state *Y, Problem *problemFinest, VSP_solve_result *result
 )
 {
     result->x = X->point->int_part ;
@@ -58,7 +58,7 @@ void Final_Cleanup
 // Output: all our improvements algorithms have been applied
 void Solve_Level
 (
-    VSP_state *X, VSP_state *Y, VSP_problem *problem, VSP_options *options
+    VSP_state *X, VSP_state *Y, Problem *problem, VSP_options *options
 )
 {
     VSPFLOAT u_ratio = 0.6 ;
@@ -80,7 +80,7 @@ void VSP_ResolveLevelDecideAndDo
 (
     VSP_state             *X,
     VSP_state             *Y,
-    VSP_problem     *problem,
+    Problem     *problem,
     VSP_options     *options
 )
 {
@@ -122,7 +122,7 @@ void VSP_ResolveLevelDecideAndDo
 }
 
 
-void VSP_check_for_complete_graph(VSP_problem *problem)
+void VSP_check_for_complete_graph(Problem *problem)
 {
     long long n_long  = (long long) problem->Graph->n ;
     long long nz_long = (long long) problem->Graph->nz ;

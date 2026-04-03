@@ -20,7 +20,7 @@ void Flips
 (
     VSP_state               *X,
     VSP_state               *Y,
-    VSP_problem       *problem,
+    Problem       *problem,
     VSPINT        maxNumPasses
 ) ;
 

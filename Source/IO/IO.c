@@ -12,7 +12,7 @@ void VSP_dump_graph
 (
     VSP_state *X,
     VSP_state *Y,
-    VSP_problem *problem
+    Problem *problem
 )
 {
     static long long unsigned count = 0 ;

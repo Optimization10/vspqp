@@ -24,7 +24,7 @@ void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     randNum,
-    VSP_problem               *problem,
+    Problem               *problem,
     VSPINT                 *retIndFlip,
     char                   *retVarFlip
 ) ;
@@ -48,7 +48,7 @@ void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2_Check
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     randNum,
-    VSP_problem               *problem,
+    Problem               *problem,
     VSPINT                givenIndFlip,
     char                  givenVarFlip
 ) ;
@@ -72,7 +72,7 @@ void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     randNum,
-    VSP_problem               *problem,
+    Problem               *problem,
     VSPINT                 *retIndFlip,
     char                   *retVarFlip
 ) ;
@@ -95,7 +95,7 @@ void Neutral_Downflips
     IdxGroupsByC         *w1Az1_groups,
     IdxGroupsByC         *w1Az2_groups,
 
-    VSP_problem               *problem
+    Problem               *problem
 ) ;
 
 #endif

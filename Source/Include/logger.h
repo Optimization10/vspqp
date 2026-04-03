@@ -20,9 +20,9 @@ void LoggerInit(bool enable) ;
 void LoggerDestroy() ;
 void LoggerStart
 (
-    VSP_state *X, VSP_state *Y, VSP_problem *problem,
+    VSP_state *X, VSP_state *Y, Problem *problem,
     const char *format, ...
 ) ;
-void LoggerStop(VSP_state *X, VSP_state *Y, VSP_problem *problem) ;
+void LoggerStop(VSP_state *X, VSP_state *Y, Problem *problem) ;
 
 #endif

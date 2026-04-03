@@ -7,7 +7,7 @@
 // running in performance mode
 void Flips_v7_UnitTest
 (
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 void Flips_v7
@@ -18,7 +18,7 @@ void Flips_v7
     VSPINT                     *y,
     VSPINT                    *Ay,
     VSPINT                  *wgty,
-    VSP_problem          *problem,
+    Problem          *problem,
     VSPINT           maxNumPasses
 ) ;
 

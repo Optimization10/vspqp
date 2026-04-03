@@ -16,7 +16,7 @@ void Doubly_Linked_Lists_Insert
     #ifdef VSP_DEBUG
         if(Doubly_Linked_Lists_Is_Member_Any_List(entries, fwd, rev, to_insert, n))
         {
-            VSP_error("Inserting member which is already there", DBG_INFO) ;
+            Error("Inserting member which is already there", DBG_INFO) ;
         }
     #endif
 
@@ -58,7 +58,7 @@ void Doubly_Linked_Lists_Delete
     #ifdef VSP_DEBUG
         if(!Doubly_Linked_Lists_Is_Member_Specific_List(entries, fwd, rev, which_ll, to_delete, n))
         {
-            VSP_error("Attempting to delete something that's not in the ll", DBG_INFO) ;
+            Error("Attempting to delete something that's not in the ll", DBG_INFO) ;
         }
     #endif
 
@@ -183,7 +183,7 @@ VSPINT *Doubly_Linked_Lists_Spread
         {
             if(spread[i] != 0 && spread[i] != 2)
             {
-                VSP_error("Problem in linked lists", DBG_INFO) ;
+                Error("Problem in linked lists", DBG_INFO) ;
             }
         }
     #endif
@@ -228,7 +228,7 @@ void Doubly_Linked_Lists_Check
         {
             if(in_L0 + in_L1 != 1)
             {
-                VSP_error("Error in linked lists", DBG_INFO) ;
+                Error("Error in linked lists", DBG_INFO) ;
                 break ;
             }
         }
@@ -237,7 +237,7 @@ void Doubly_Linked_Lists_Check
             VSPINT is_lkd = (locked[i]   == 1) ;
             if(in_L0 + in_L1 + is_lkd != 1)
             {
-                VSP_error("Error in linked lists", DBG_INFO) ;
+                Error("Error in linked lists", DBG_INFO) ;
                 break ;
             }
         }
@@ -259,7 +259,7 @@ void Doubly_Linked_Lists_Check
         {
             if(z[i] != 0 || Aw[i] != whichll)
             {
-                VSP_error("Problem in linked lists", DBG_INFO) ;
+                Error("Problem in linked lists", DBG_INFO) ;
             }
 
             if(locked != NULL && locked[i])
@@ -280,7 +280,7 @@ void Doubly_Linked_Lists_Check
         {
             if(z[i] != 1 || Aw[i] != whichll)
             {
-                VSP_error("Problem in linked lists", DBG_INFO) ;
+                Error("Problem in linked lists", DBG_INFO) ;
             }
 
             if(locked != NULL && locked[i])

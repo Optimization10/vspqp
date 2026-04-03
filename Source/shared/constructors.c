@@ -22,7 +22,7 @@ VSPINT** VSP_construct_explicit_matrix
     /* Make pointers for the rows of A */
     VSPINT** A = malloc( n * sizeof(VSPINT*) ) ;
     if ( A == NULL ) {
-        VSP_error("Memory allocation failed", DBG_INFO) ;
+        Error("Memory allocation failed", DBG_INFO) ;
         exit(1) ;
     }
 
@@ -30,7 +30,7 @@ VSPINT** VSP_construct_explicit_matrix
     for (i = 0 ; i < n ; i++) {
         A [i] = malloc( n * sizeof(VSPINT) ) ;
         if ( A [i] == NULL ) {
-            VSP_error("Memory allocation failed", DBG_INFO) ;
+            Error("Memory allocation failed", DBG_INFO) ;
             exit(1) ;
         }
     }
@@ -66,11 +66,11 @@ VSPINT** VSP_construct_explicit_matrix
     {
         if (values == NULL)
         {
-            VSP_error("Adjacency matrix not symmetric", DBG_INFO) ;
+            Error("Adjacency matrix not symmetric", DBG_INFO) ;
         }
         else
         {
-            VSP_error("Edge weights matrix not symmetric", DBG_INFO) ;
+            Error("Edge weights matrix not symmetric", DBG_INFO) ;
         }
     }
 

@@ -12,18 +12,18 @@
 
 static void RecordCoarsestLvlNum
 (
-    VSP_problem *coarsest_p
+    Problem *coarsest_p
 ) ;
 
 static void SetUpperBound
 (
-    VSP_problem *problem,
+    Problem *problem,
     VSP_options *options
 ) ;
 
 static void SetRatioOfNodesWithMaxWeight
 (
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 
@@ -92,7 +92,7 @@ static VSP_Graph* Graph_Coarsen
     // Q: I am using the fine problem nz here, is this a problem?
     // A: No. The fine nz should be an upper bound on the coarse nz. And later
     //    on, we set problem_coarse->Graph->nz = munch, which is the true coarse nz
-    // VSP_problem* problem_coarse = VSP_construct_problem(n_coarse, GraphFine->nz, options) ;
+    // Problem* problem_coarse = VSP_construct_problem(n_coarse, GraphFine->nz, options) ;
     VSP_Graph *Graph_Coarse = Construct_Graph(n_coarse, GraphFine->nz, NULL, NULL, NULL) ;
 
     VSPLONG *Ap_coarse = Graph_Coarse->Ap;
@@ -274,7 +274,7 @@ static VSP_Graph* Graph_Coarsen
             if ( Ap_coarse [i] > Ap_coarse [i+1] ) Ap_increasing = FALSE ;
         }
         if (Ap_increasing == FALSE) {
-            VSP_error("Ap not increasing", DBG_INFO ) ;
+            Error("Ap not increasing", DBG_INFO ) ;
         }
 
         /* Check that entries of Ai and Ap are within bounds */
@@ -356,7 +356,7 @@ static VSP_Graph* Graph_Coarsen
                 
                 if (is_edge == FALSE)
                 {
-                    VSP_error("Missing edge in coarse graph", DBG_INFO) ;
+                    Error("Missing edge in coarse graph", DBG_INFO) ;
                 }
 
                 edge_weight_coarse_claimed = VSP_get_edge_weight(
@@ -367,12 +367,12 @@ static VSP_Graph* Graph_Coarsen
                 
                 if ( edge_weight_coarse_computed != edge_weight_coarse_claimed)
                 {
-                    VSP_error("Edge weight not correct.", DBG_INFO) ;
+                    Error("Edge weight not correct.", DBG_INFO) ;
                 }
 
                 if (cost_k != c_coarse [k])
                 {
-                    VSP_error("Cost of coarse vertex not correct", DBG_INFO) ;
+                    Error("Cost of coarse vertex not correct", DBG_INFO) ;
                 }
 
                 /* Free preimages */
@@ -410,7 +410,7 @@ static VSP_Graph* Graph_Coarsen
                                     k_image, i_image, Ai_coarse, Ap_coarse) ;
 
                     if (is_fine_edge != is_coarse_edge) {
-                        VSP_error("Wrong edge in coarsening", DBG_INFO) ;
+                        Error("Wrong edge in coarsening", DBG_INFO) ;
                     }
 
                     free (matches_i) ;
@@ -438,9 +438,9 @@ static VSP_Graph* Graph_Coarsen
 
 
 // Generate a coarser version of the current problem
-VSP_problem *Problem_Coarsen
+Problem *Problem_Coarsen
 (
-    VSP_problem *P,
+    Problem *P,
     VSP_options *options
 )
 {
@@ -453,7 +453,7 @@ VSP_problem *Problem_Coarsen
         P->matching, options
     ) ;
 
-    VSP_problem *P_coarse = VSP_construct_problem
+    Problem *P_coarse = VSP_construct_problem
     (
         Graph_Coarse->n,
         Graph_Coarse->nz,
@@ -485,7 +485,7 @@ VSP_problem *Problem_Coarsen
 
     // Set coarsest level num for each problem in the chain
     VSPINT L = P_coarse->level ;
-    VSP_problem *Q = P ;
+    Problem *Q = P ;
     while(Q != NULL)
     {
         Q->coarsest_level_num = L ;
@@ -508,7 +508,7 @@ VSP_problem *Problem_Coarsen
 
 static void SetRatioOfNodesWithMaxWeight
 (
-    VSP_problem *problem
+    Problem *problem
 )
 {
     VSPINT n = problem->Graph->n ;
@@ -530,7 +530,7 @@ static void SetRatioOfNodesWithMaxWeight
 
 static void SetUpperBound
 (
-    VSP_problem *problem,
+    Problem *problem,
     VSP_options *options
 )
 {
@@ -563,11 +563,11 @@ static void SetUpperBound
 
 static void RecordCoarsestLvlNum
 (
-    VSP_problem *coarsest_p
+    Problem *coarsest_p
 )
 {
     VSPINT coarsest_level_num = coarsest_p->level ;
-    VSP_problem *p = coarsest_p ;
+    Problem *p = coarsest_p ;
     while(p != NULL)
     {
         p->coarsest_level_num = coarsest_level_num ;
@@ -578,7 +578,7 @@ static void RecordCoarsestLvlNum
 
 // Returns true if the child of P is "bad", in which case the child should be
 // destroyed
-static bool Stop_Coarsening(VSP_problem *P, VSP_options *options)
+static bool Stop_Coarsening(Problem *P, VSP_options *options)
 {    
     // As a safeguard against weird edge cases, stop coarsening if the child
     // problem is extremely small
@@ -603,9 +603,9 @@ static bool Stop_Coarsening(VSP_problem *P, VSP_options *options)
     return stop ;
 }
 
-VSP_problem *Problem_Recursive_Coarsen
+Problem *Problem_Recursive_Coarsen
 (
-    VSP_problem *probFinest,
+    Problem *probFinest,
     VSP_options    *options
 )
 {
@@ -613,7 +613,7 @@ VSP_problem *Problem_Recursive_Coarsen
     count++ ;
 
     VSPINT n_finest = probFinest->Graph->n ;
-    VSP_problem *P, *coarse_P, *coarsest_P ;
+    Problem *P, *coarse_P, *coarsest_P ;
 
     P = probFinest ;
     bool stop = false ;
@@ -684,7 +684,7 @@ VSP_problem *Problem_Recursive_Coarsen
     coarsest_P->child_problem = NULL ;
 
     /* Set upper bounds */
-    VSP_problem *pA = coarsest_P ;
+    Problem *pA = coarsest_P ;
     while(pA != NULL)
     {
        SetUpperBound(pA, options) ;

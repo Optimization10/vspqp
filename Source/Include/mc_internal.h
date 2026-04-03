@@ -53,7 +53,7 @@ bool VSP_LP_is_optimal
     VSP_state         *Z,
     VSP_Az           *Aw,
     VSPFLOAT       gamma,
-    VSP_problem *problem,
+    Problem *problem,
     VSP_options *options
 ) ;
 

@@ -19,15 +19,15 @@
 extern struct timespec  G_START_TIME, G_END_TIME ;
 extern long double G_COMPRESS_TIME ;
 
-const VSP_problem *G_P = NULL ;
+const Problem *G_P = NULL ;
 
 void SetUpperBound
 (
-    VSP_problem *problem,
+    Problem *problem,
     VSP_options *options
 ) ;
 
-static void Set_Global_Problem(VSP_problem *P)
+static void Set_Global_Problem(Problem *P)
 {
     G_P = P ;
     return ;
@@ -37,22 +37,22 @@ static void Set_Global_Problem(VSP_problem *P)
 // Output: all our improvements algorithms have been applied
 void Solve_Level
 (
-    VSP_state *X, VSP_state *Y, VSP_problem *problem, VSP_options *options
+    VSP_state *X, VSP_state *Y, Problem *problem, VSP_options *options
 ) ;
 
 VSP_solve_result *Solve_Null_Graph
 (
-    VSP_problem *probFinest
+    Problem *probFinest
 ) ;
 
 void Final_Cleanup
 (
-    VSP_state *X, VSP_state *Y, VSP_problem *problemFinest, VSP_solve_result *result
+    VSP_state *X, VSP_state *Y, Problem *problemFinest, VSP_solve_result *result
 ) ;
 
-void Destroy_Coarse_Problems(VSP_problem *problemFinest)
+void Destroy_Coarse_Problems(Problem *problemFinest)
 {
-    VSP_problem *cp, *p = problemFinest->child_problem ;
+    Problem *cp, *p = problemFinest->child_problem ;
     while(p != NULL)
     {
         cp = p->child_problem ;
@@ -63,7 +63,7 @@ void Destroy_Coarse_Problems(VSP_problem *problemFinest)
 }
 
 
-void VSP_set_default_problem_data(VSP_problem* problem) ;
+void VSP_set_default_problem_data(Problem* problem) ;
 
 static void Open_Log_File
 (
@@ -78,7 +78,7 @@ static void Open_Log_File
 static void Log_Problem_Info
 (
     FILE *fp,
-    VSP_problem *problem
+    Problem *problem
 )
 {
     fprintf(fp, "Coarsening problem: %s", problem->name) ;
@@ -126,7 +126,7 @@ VSP_solve_result *VSP_Solve
     static long long unsigned count = 0 ;
     count++ ;
 
-    VSP_problem *probFinest, *probCoarsest, *P ;
+    Problem *probFinest, *probCoarsest, *P ;
 
     probFinest = VSP_construct_problem(n, Ap[n], Ai, Ap, Ae, options) ;
     VSP_set_default_problem_data(probFinest) ;
@@ -223,7 +223,7 @@ VSP_solve_result *VSP_Solve
 // Output: 
 VSP_solve_result *Solve_Null_Graph
 (
-    VSP_problem *probFinest
+    Problem *probFinest
 )
 {
     VSPINT i,

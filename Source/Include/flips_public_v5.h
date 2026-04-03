@@ -7,7 +7,7 @@
 // running in performance mode
 void Flips_v5_UnitTest
 (
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 void Flips_v5
@@ -18,7 +18,7 @@ void Flips_v5
     VSPINT                     *y,
     VSPINT                    *Ay,
     VSPINT                  *wgty,
-    VSP_problem          *problem,
+    Problem          *problem,
     VSPINT           maxNumPasses
 ) ;
 
@@ -30,7 +30,7 @@ void TryFlipsManyStartingPoints
     VSPINT                 **yBestHome,
     VSPINT                **AyBestHome,
     VSPINT               *wgtyBestHome,
-    VSP_problem               *problem,
+    Problem               *problem,
     VSP_options               *options,
     VSPINT                 numFlipRuns,
     VSPINT            numPassesInFlips

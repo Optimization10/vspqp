@@ -9,7 +9,7 @@ void VSP_set_centroid
 (
     VSP_state         *X,
     VSP_state         *Y,
-    VSP_problem *problem,
+    Problem *problem,
     VSP_options *options
 ) ;
 
@@ -28,7 +28,7 @@ void Force_To_Binary_Point
 (
     VSP_state           *Z,
     VSP_state           *W,
-    VSP_problem   *problem
+    Problem   *problem
 ) ;
 
 VSPINT VSP_penalty_term
@@ -67,7 +67,7 @@ void VSP_GetSepCost
 (
     VSP_state          *X,
     VSP_state          *Y,
-    VSP_problem  *problem,
+    Problem  *problem,
     VSPINT       *sepCost   /* Output*/
 ) ;
 
@@ -90,7 +90,7 @@ void VSP_xAy
 (
     VSP_state         *X,
     VSP_state         *Y,
-    VSP_problem *problem,
+    Problem *problem,
     VSPFLOAT        *xAy
 ) ;
 
@@ -100,7 +100,7 @@ VSPLONG VSP_partial_sums_of_array(
     VSPINT             n
 ) ;
 
-VSP_problem* VSP_transpose(
+Problem* VSP_transpose(
     VSPINT           *Ai, /* Row indices of non-zeros  */
     VSPLONG *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
@@ -146,11 +146,11 @@ void VSP_check_linear_constraint (
 ) ;
 
 VSPINT VSP_check_problem(
-    VSP_problem* problem,
+    Problem* problem,
     VSP_options* options
 ) ;
 
-void VSP_error( 
+void Error( 
     char* msg,
     char* file_name,
     VSPINT line_num,
@@ -175,7 +175,7 @@ void VSP_check_max_of_array(
 void VSP_check_Az(
     VSP_point         *z,
     VSP_Az           *Az,
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 void VSP_check_arrays_are_equal
@@ -208,9 +208,9 @@ void VSP_check_permutation
 ) ;
 
 
-void VSP_check_state(VSP_state *Z, VSP_problem *problem) ;
+void VSP_check_state(VSP_state *Z, Problem *problem) ;
 
-void VSP_check_states(VSP_state *X, VSP_state *Y, VSP_problem *problem) ;
+void VSP_check_states(VSP_state *X, VSP_state *Y, Problem *problem) ;
 
 void Check_Part
 (
@@ -220,7 +220,7 @@ void Check_Part
     VSPINT *Ay,
     VSPINT wgtx,
     VSPINT wgty,
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 
@@ -237,7 +237,7 @@ void VSP_light_check_Az
 void VSP_relaxed_to_vertex_separator(
     VSP_state* X,
     VSP_state* Y,
-    VSP_problem* problem
+    Problem* problem
 ) ;
 
 void VSP_copy_point(
@@ -276,7 +276,7 @@ void VSP_compute_weight(VSP_point *Z, VSPINT *weight_z, VSPINT *c) ;
 
 int VSP_comparison_increasing(const void *a, const void *b) ;
 
-void VSP_resolve_frac_entry(VSP_state *Z, VSP_state *W, VSP_problem *problem) ;
+void VSP_resolve_frac_entry(VSP_state *Z, VSP_state *W, Problem *problem) ;
 
 VSPINT Is_Array_Member
 (
@@ -344,14 +344,14 @@ void VSP_Az_pm_col_of_A
     VSPINT             *Az, // vector to which we add/subtract
     VSPINT               i, // column to add/subtract
     VSPINT          operation, // 1 if add, -1 if subtract
-    VSP_problem   *problem
+    Problem   *problem
 ) ;
 
 VSPFLOAT VSP_compute_objective_0
 (
     VSP_state *X,
     VSP_state *Y,
-    VSP_problem *problem,
+    Problem *problem,
     VSPFLOAT gamma
 ) ;
 
@@ -363,7 +363,7 @@ void Compute_ObjValSimple
     VSPINT               *y,
     VSPINT              *Ay,
     VSPINT             wgty,
-    VSP_problem    *problem,
+    Problem    *problem,
     VSPINT       *retObjVal
 ) ;
 
@@ -371,7 +371,7 @@ VSPFLOAT VSP_compute_obj
 (
     VSP_state *X,
     VSP_state *Y,
-    VSP_problem *problem,
+    Problem *problem,
     VSPFLOAT gamma
 ) ;
 
@@ -381,7 +381,7 @@ void Compute_ObjValDbg
     VSPINT              *Ax,
     VSPINT               *y,
     VSPINT              *Ay,
-    VSP_problem    *problem,
+    Problem    *problem,
     VSPINT       *retObjVal
 ) ;
 
@@ -398,7 +398,7 @@ void VSP_SetFracEntry
     VSPINT         indFrac,
     VSPFLOAT       valFrac,
     VSP_state           *Z,
-    VSP_problem   *problem
+    Problem   *problem
 ) ;
 
 VSPFLOAT VSP_ComputeFracEntry
@@ -437,7 +437,7 @@ bool Is_N1_Optimal_Dbg
 (
     VSP_state         *X,
     VSP_state         *Y,
-    VSP_problem *problem,
+    Problem *problem,
     bool          strict  // If true, check for strict N1 Optimality
 ) ;
 
@@ -448,7 +448,7 @@ bool Is_N1_Optimal_Dbg
 (
     VSP_state                   *X,
     VSP_state                   *Y,
-    VSP_problem           *problem,
+    Problem           *problem,
     bool          strictly_optimal  // If true, check for strict N1 Optimality
 ) ;
 
@@ -458,14 +458,14 @@ VSPFLOAT VSP_minreduce
     VSP_state         *X,
     VSP_state         *Y,
     VSP_options *options,
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 void VSP_set_random_initial_guess
 (
     VSP_state         *X,
     VSP_state         *Y,
-    VSP_problem *problem,
+    Problem *problem,
     VSP_options *options
 ) ;
 
@@ -539,8 +539,8 @@ void Print_Neighs
 
 
 
-bool Is_Coarsest_Problem(VSP_problem *problem) ;
-bool Is_Finest_Problem(VSP_problem *problem) ;
+bool Is_Coarsest_Problem(Problem *problem) ;
+bool Is_Finest_Problem(Problem *problem) ;
 void Swap_Mem(void *a, void *b, size_t size) ;
 
 
@@ -563,7 +563,7 @@ void Fix_Lower_Bound_Issue
 (
     VSP_state         *Z,
     VSP_state         *W,
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 
@@ -594,19 +594,19 @@ bool Is_Greater_Than(VSPFLOAT a, VSPFLOAT b, VSPFLOAT tol) ;
 void State_Round_Down
 (
     VSP_state         *Z,
-    VSP_problem *problem
+    Problem *problem
 ) ;
 
 VSPINT Get_Max_Degree(VSPLONG *Ap, VSPINT n) ;
 
-VSPINT Problem_Get_N_Finest(const VSP_problem *P) ;
-VSPLONG Problem_Get_NZ_Finest(const VSP_problem *P) ;
+VSPINT Problem_Get_N_Finest(const Problem *P) ;
+VSPLONG Problem_Get_NZ_Finest(const Problem *P) ;
 
 // problem.hager6 n nz Ai Ap c x y (integer parts) Ax Ay (integer parts)
 // problem.txt Contains u, and any fractional entries of X and Y
 void Dump_Problem
 (
-    const VSP_problem *P,
+    const Problem *P,
     const VSP_state   *X,
     const VSP_state   *Y
 ) ;

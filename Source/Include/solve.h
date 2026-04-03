@@ -6,13 +6,13 @@
 /*----------------------------------------------------------------------------*/
 /*  Declarations                                                              */
 /*----------------------------------------------------------------------------*/
-void VSP_check_for_complete_graph(VSP_problem *problem) ;
+void VSP_check_for_complete_graph(Problem *problem) ;
 
 void VSP_ResolveLevelDecideAndDo
 (
     VSP_state             *X,
     VSP_state             *Y,
-    VSP_problem     *problem,
+    Problem     *problem,
     VSP_options     *options
 ) ;
 
@@ -21,7 +21,7 @@ void Optimize
 (
     VSP_state                     *X,
     VSP_state                     *Y,
-    VSP_problem             *problem,
+    Problem             *problem,
     VSP_options             *options,
     bool          useManyFlipsPoints,
     VSPINT         whereToUseFMFlips

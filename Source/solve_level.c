@@ -18,7 +18,7 @@ static void Best_Of_MC_And_Greedy_Flips
 (
     VSP_state                *X,
     VSP_state                *Y,
-    VSP_problem        *problem,
+    Problem        *problem,
     VSP_options        *options,
     VSPINT         numFlipsRuns
 ) ;
@@ -28,7 +28,7 @@ void FM_Flips
 (
     VSP_state         *X,
     VSP_state         *Y,
-    VSP_problem *problem
+    Problem *problem
 ) ; 
 
 static void Determine_Num_GR
@@ -59,7 +59,7 @@ static void Determine_Num_GR
 // partition, and the separator only contains a node of minimal weight, then
 // X, Y is globally optimal, or nearly globally optimal
 // Note that we are not taking into account the penalty term
-bool Early_Exit(VSP_state *X, VSP_state *Y, VSP_problem *P)
+bool Early_Exit(VSP_state *X, VSP_state *Y, Problem *P)
 {
     VSPFLOAT obj = VSP_compute_obj(X, Y, P, P->Graph->max_vtx_cost) ;
     bool ret = false ;
@@ -75,7 +75,7 @@ void Optimize
 (
     VSP_state                     *X,
     VSP_state                     *Y,
-    VSP_problem             *problem,
+    Problem             *problem,
     VSP_options             *options,
     bool          useManyFlipsPoints,
     VSPINT         whereToUseFMFlips
@@ -237,7 +237,7 @@ void Flips
 (
     VSP_state               *X,
     VSP_state               *Y,
-    VSP_problem       *problem,
+    Problem       *problem,
     VSPINT        maxNumPasses
 )
 {
@@ -270,7 +270,7 @@ void Flips
 // (
 //     VSP_state         *X,
 //     VSP_state         *Y,
-//     VSP_problem *problem
+//     Problem *problem
 // )
 // {
 //     #ifdef VSP_DEBUG
@@ -294,7 +294,7 @@ static void Best_Of_MC_And_Greedy_Flips
 (
     VSP_state                *X,
     VSP_state                *Y,
-    VSP_problem        *problem,
+    Problem        *problem,
     VSP_options        *options,
     VSPINT         numFlipsRuns
 )

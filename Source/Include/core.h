@@ -54,7 +54,7 @@ typedef enum VSP_match_type_enum
 } VSP_match_type ;
 
 
-typedef struct VSP_problem_struct VSP_problem;
+typedef struct Problem_struct Problem;
 
 typedef struct
 {
@@ -75,7 +75,7 @@ typedef struct
 
 
 
-typedef struct VSP_problem_struct
+typedef struct Problem_struct
 {
     // This is the graph which is being solved
     VSP_Graph             *Graph ;
@@ -97,11 +97,11 @@ typedef struct VSP_problem_struct
     VSPLONG                   cnz ;
 
     /* Link to parent problem. NULL if this is finest graph */
-    struct VSP_problem_struct* parent_problem ;
+    struct Problem_struct* parent_problem ;
     bool was_coarsened_w_comm ;
 
     /* Link to child problem. NULL if this is the coarsest graph */
-    struct VSP_problem_struct* child_problem ;
+    struct Problem_struct* child_problem ;
 
     /* The number of coarsenings which were done to reach this Graph-> The
        finest problem is at level 0 */
@@ -120,7 +120,7 @@ typedef struct VSP_problem_struct
     /* The maximum degree in the graph */
     VSPINT maxDegree ;
 
-} VSP_problem ;
+} Problem ;
 
 /* Store an almost binary point.                                              */
 typedef struct {
@@ -159,7 +159,7 @@ typedef struct {
 // Constructors and Destructors for Core Types
 /* ========================================================================== */
 
-VSP_problem* VSP_construct_problem
+Problem* VSP_construct_problem
 (
     VSPINT       num_vertices,
     VSPLONG                nz,
@@ -169,7 +169,7 @@ VSP_problem* VSP_construct_problem
     VSP_options      *options
 ) ;
 
-void VSP_destruct_problem(VSP_problem* problem) ;
+void VSP_destruct_problem(Problem* problem) ;
 
 
 
@@ -189,7 +189,7 @@ void VSP_destruct_state(VSP_state* state);
 /* ========================================================================== */
 // Global Variables
 /* ========================================================================== */
-extern const VSP_problem* G_P ;
+extern const Problem* G_P ;
 
 
 #endif

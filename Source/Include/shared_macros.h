@@ -124,7 +124,7 @@
 #define GET_AWI(flip, i, Avars) ( (Avars)[GET_OTHER_VAR( (flip) )][ (i) ] )
 
 #define DBG_INFO __FILE__, __LINE__, count
-#define ERR(msg) VSP_error( msg, __FILE__, __LINE__, count)
+#define ERR(msg) Error( msg, __FILE__, __LINE__, count)
 #define CAST(arg, type) ( ((type) (arg)) )
 
 // Plug in 0, 1, 2, or 3 according to our encoding
@@ -181,7 +181,7 @@
     #define VSP_ASSERT( cond ) \
         do { \
         if ( !(cond) ) { \
-           VSP_error("Failed assert.", __FILE__, __LINE__, count) ; \
+           Error("Failed assert.", __FILE__, __LINE__, count) ; \
         } \
     } while (0)
 #else

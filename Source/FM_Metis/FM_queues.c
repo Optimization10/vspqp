@@ -55,7 +55,7 @@ VSPINT QueueFM_See_Top_Key(QueueFM *q)
         count++ ;
         if(q->numNodes < 1)
         {
-            VSP_error("Acessing top key of an empty FM queue", DBG_INFO) ;
+            Error("Acessing top key of an empty FM queue", DBG_INFO) ;
         }
     #endif
 
@@ -92,7 +92,7 @@ void QueueFM_Insert(QueueFM *q, VSPINT newValue, VSPINT newKey)
         count++ ;
         if(q->locator[newValue] != EMPTY)
         {
-            VSP_error("Trying to insert duplicate value in FM heap", DBG_INFO) ;
+            Error("Trying to insert duplicate value in FM heap", DBG_INFO) ;
         }
 
         QueueFM_Check_Heap_Light(q) ;
@@ -148,7 +148,7 @@ void QueueFM_Delete(QueueFM *q, VSPINT valueToDelete)
         /* Check that the value is in the heap */
         if(oldNode == EMPTY)
         {
-            VSP_error("Trying to delete node which is not in the queue", DBG_INFO) ;
+            Error("Trying to delete node which is not in the queue", DBG_INFO) ;
         }
     #endif
 
@@ -233,12 +233,12 @@ void QueueFM_Update(QueueFM *q, VSPINT value, VSPINT newKey)
 
         if(value < 0 || value > q->maxNumNodes - 1)
         {
-            VSP_error("Invalid node", DBG_INFO) ;
+            Error("Invalid node", DBG_INFO) ;
         }
 
         if(q->locator[value] == EMPTY)
         {
-            VSP_error("Value not in heap", DBG_INFO) ;
+            Error("Value not in heap", DBG_INFO) ;
         }
         QueueFM_Check_Heap_Light(q) ;
     #endif
@@ -328,7 +328,7 @@ void QueueFM_Check_Heap_Light(QueueFM *q)
         char msg[ERR_MSG_LEN] ;
         sprintf(msg, "Num nodes in FM heap: %lld, which is negative",
                      (long long) q->numNodes) ;
-        VSP_error(msg, DBG_INFO) ;
+        Error(msg, DBG_INFO) ;
     }
 
     /* Check that maxNumNodes is positive */
@@ -337,7 +337,7 @@ void QueueFM_Check_Heap_Light(QueueFM *q)
         char msg[ERR_MSG_LEN] ;
         sprintf(msg, "Max num nodes in FM heap: %lld, which is non-positive",
                      (long long) q->maxNumNodes) ;
-        VSP_error(msg, DBG_INFO) ;
+        Error(msg, DBG_INFO) ;
     }
 
     /* Check that numNodes does not exceed maxNumNodes */
@@ -346,7 +346,7 @@ void QueueFM_Check_Heap_Light(QueueFM *q)
         char msg[ERR_MSG_LEN] ;
         sprintf(msg, "Num nodes in FM heap: %lld, which is greater than the"
                      "maximum, %lld", (long long) q->numNodes, (long long) q->maxNumNodes              ) ;
-        VSP_error(msg, DBG_INFO) ;
+        Error(msg, DBG_INFO) ;
     }
 
     for(VSPINT i = 1 ; i <= q->numNodes ; i++)
@@ -354,7 +354,7 @@ void QueueFM_Check_Heap_Light(QueueFM *q)
         // Check that the value is in the correct range
         if( !(0 <= heap[i].value && heap[i].value < q->maxNumNodes) )
         {
-            VSP_error("Out of bounds value in the heap", DBG_INFO) ;
+            Error("Out of bounds value in the heap", DBG_INFO) ;
             break ;
         }
 
@@ -364,7 +364,7 @@ void QueueFM_Check_Heap_Light(QueueFM *q)
         {
             if(heap[i].key < heap[child].key)
             {
-                VSP_error("Heap property violated in an FM queue", DBG_INFO) ;
+                Error("Heap property violated in an FM queue", DBG_INFO) ;
                 break ;
             }
         }
@@ -375,7 +375,7 @@ void QueueFM_Check_Heap_Light(QueueFM *q)
         {
             if(heap[i].key < heap[child].key)
             {
-                VSP_error("Heap property violated in an FM queue", DBG_INFO) ;
+                Error("Heap property violated in an FM queue", DBG_INFO) ;
                 break ;
             }
         }
@@ -383,7 +383,7 @@ void QueueFM_Check_Heap_Light(QueueFM *q)
         /* Check that the locator is correct */
         if(locator[heap[i].value] != i)
         {
-            VSP_error("Locator is incorrect in FM queue", DBG_INFO) ;
+            Error("Locator is incorrect in FM queue", DBG_INFO) ;
             break ;
         }
     }
@@ -407,14 +407,14 @@ void QueueFM_Check_Heap_Light(QueueFM *q)
         {
             if(locator[i] != k)
             {
-                VSP_error("Locator in FM queue is incorrect", DBG_INFO) ;
+                Error("Locator in FM queue is incorrect", DBG_INFO) ;
             }
         }
         else
         {
             if(locator[i] != EMPTY)
             {
-                VSP_error("Locator in FM queue says a node is in"
+                Error("Locator in FM queue says a node is in"
                          "the heap, when it's not", DBG_INFO) ;
             }
         }
@@ -427,7 +427,7 @@ void QueueFM_Check_Heap_Light(QueueFM *q)
         valsSeen[i]++ ;
         if(valsSeen[i] != 0 && valsSeen[1] != 1)
         {
-            VSP_error("Duplicate value in heap", DBG_INFO) ;
+            Error("Duplicate value in heap", DBG_INFO) ;
         }
     }
     free(valsSeen) ;

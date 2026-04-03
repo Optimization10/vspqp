@@ -7,7 +7,7 @@
 
 
 
-Stopwatches *Stopwatches_Construct(size_t maxNumWatches, VSP_problem *problem)
+Stopwatches *Stopwatches_Construct(size_t maxNumWatches, Problem *problem)
 {
     Stopwatches *SWS = calloc(1, sizeof(*SWS)) ;
 

@@ -52,7 +52,7 @@ void VSP_set_default_options(VSP_options* options)
 
 /* Set the cost of each vector to 1, each edge weight to 1, and
    the balance constraints as 60% of the total number of vertices             */
-void VSP_set_default_problem_data(VSP_problem* problem) {
+void VSP_set_default_problem_data(Problem* problem) {
     VSPLONG i ;
     VSPINT n = problem->Graph->n ;
     VSPLONG nz = problem->Graph->nz ;
@@ -78,7 +78,7 @@ void VSP_set_default_problem_data(VSP_problem* problem) {
    true */
 void    VSP_preprocess_finest_problem
 (
-    VSP_problem* problem,
+    Problem* problem,
     VSP_options* options
 )
 {

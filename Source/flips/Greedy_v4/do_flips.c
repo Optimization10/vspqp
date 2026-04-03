@@ -20,7 +20,7 @@ void FeasibleBeneficialFlips
     IdxGroupsByC           *y1Ax2_groups,
     Direct_Access_List       *y0Ax1_list,
 
-    VSP_problem                 *problem,
+    Problem                 *problem,
     VSPINT              *retNumFlipsDone
 )
 {
@@ -156,7 +156,7 @@ void StrictlyBeneficialFlips
     IdxGroupsByC           *y1Ax2_groups,
     Direct_Access_List       *y0Ax1_list,
 
-    VSP_problem                 *problem,
+    Problem                 *problem,
     VSPINT              *retNumFlipsDone
 )
 {

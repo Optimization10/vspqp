@@ -17,7 +17,7 @@ VSPINT PointScore_Compare(PointScore *Score1, PointScore *Score2) ;
 
 void PointScore_Update
 (
-    PointScore *Score, VSP_state *X, VSP_state *Y, VSP_problem *problem
+    PointScore *Score, VSP_state *X, VSP_state *Y, Problem *problem
 ) ;
 
 bool PointScore_IsStrictlyBetter(PointScore *New, PointScore *Base) ;

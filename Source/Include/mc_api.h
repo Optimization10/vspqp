@@ -18,7 +18,7 @@ VSPFLOAT Reduce_Gamma
     VSP_state           *Z,
     VSP_state           *W,
     VSP_options   *options,
-    VSP_problem   *problem
+    Problem   *problem
 ) ;
 
 /* This file contains functions involving mc which are to be exposed to the
@@ -27,7 +27,7 @@ void VSP_mountain_climbing
 (
     VSP_state               *X,
     VSP_state               *Y,
-    VSP_problem       *problem,
+    Problem       *problem,
     VSP_options       *options,
     VSPFLOAT             gamma,
     bool          is_gamma_org
@@ -38,7 +38,7 @@ void VSP_mountain_climbing_v2
 (
     VSP_state                  *X,
     VSP_state                  *Y,
-    VSP_problem          *problem,
+    Problem          *problem,
     VSP_options          *options,
     VSPFLOAT                gamma,
     VSPINT                 numLPs /* >= 0. If 0, we launch directly into ortho*/
@@ -51,7 +51,7 @@ VSPFLOAT VSP_LP_solver_4
     VSPINT *c,
     VSPINT u,
     VSPFLOAT gamma,
-    VSP_problem *problem,
+    Problem *problem,
     VSP_options *options,
     char             var  /* Variable we are optimizing over */
 ) ;

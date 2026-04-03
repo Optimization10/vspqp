@@ -58,7 +58,7 @@ VSP_levels* VSP_construct_levels
     else
     {
         #ifdef VSP_DEBUG
-            VSP_error("Invalid selection type", DBG_INFO) ;
+            Error("Invalid selection type", DBG_INFO) ;
         #endif
     }
 
@@ -86,7 +86,7 @@ void VSP_destruct_levels
 
 bool VSP_levels_is_member
 (
-    VSP_problem *problem,
+    Problem *problem,
     VSP_levels  *levels
 )
 {
@@ -102,7 +102,7 @@ bool VSP_levels_is_member
                         levels->specify_unselected_levels ;
         if(sum != 1)
         {
-            VSP_error("Invalid selection type", DBG_INFO) ;
+            Error("Invalid selection type", DBG_INFO) ;
         }
     #endif
     VSPINT problem_level = problem->level ;
@@ -123,7 +123,7 @@ bool VSP_levels_is_member
     {
         /* Find the bottom level */
         VSPINT bot_level = problem->level ;
-        VSP_problem *p = problem ;
+        Problem *p = problem ;
         while(p->child_problem != NULL)
         {
             p = p->child_problem ;
@@ -152,7 +152,7 @@ bool VSP_levels_is_member
     else
     {
         #ifdef VSP_DEBUG
-            VSP_error("Invalid selection type", DBG_INFO) ;
+            Error("Invalid selection type", DBG_INFO) ;
         #endif
     }
     return false ;
@@ -169,14 +169,14 @@ void VSP_levels_select
         count++ ;
         if( levels->specify_selected_levels == false)
         {
-            VSP_error("Using wrong function to select levels", DBG_INFO) ;
+            Error("Using wrong function to select levels", DBG_INFO) ;
         }
     #endif
 
     #ifdef VSP_DEBUG
         if(VSP_dyn_stk_is_member(level_num, levels->levels_selected))
         {
-            VSP_error("Level already selected", DBG_INFO) ;
+            Error("Level already selected", DBG_INFO) ;
         }
     #endif
 
@@ -195,7 +195,7 @@ void VSP_levels_unselect
         count++ ;
         if( levels->specify_unselected_levels == false)
         {
-            VSP_error("Using wrong function to select levels", DBG_INFO) ;
+            Error("Using wrong function to select levels", DBG_INFO) ;
         }
     #endif
 
@@ -206,7 +206,7 @@ void VSP_levels_unselect
                 levels->levels_not_selected
             ) )
         {
-            VSP_error("Level already unselected", DBG_INFO) ;
+            Error("Level already unselected", DBG_INFO) ;
         }
     #endif
 
@@ -227,7 +227,7 @@ void VSP_levels_select_top
         count++ ;
         if(levels->top_levels == false)
         {
-            VSP_error("Using wrong function to select levels", DBG_INFO) ;
+            Error("Using wrong function to select levels", DBG_INFO) ;
         }
     #endif
 
@@ -247,7 +247,7 @@ void VSP_levels_select_bot
         count++ ;
         if(levels->bot_levels == false)
         {
-            VSP_error("Using wrong function to select levels", DBG_INFO) ;
+            Error("Using wrong function to select levels", DBG_INFO) ;
         }
     #endif
 
@@ -360,7 +360,7 @@ bool VSP_restart_decide
     VSP_restart_decision       *dec,
     VSPFLOAT                  objIn, /* If not using rule, this is ignored */
     VSPFLOAT                 objOut, /* If not using rule, this is ignored */
-    VSP_problem            *problem  /* If using levels, this is ignored   */
+    Problem            *problem  /* If using levels, this is ignored   */
 )
 {
     #ifdef VSP_DEBUG
@@ -369,26 +369,26 @@ bool VSP_restart_decide
 
         if(dec->use_levels + dec->use_rule != 1)
         {
-            VSP_error("Error in restart decision", DBG_INFO) ;
+            Error("Error in restart decision", DBG_INFO) ;
         }
 
         if(dec->use_rule)
         {
             if(dec->restarts_done > dec->restarts_allowed)
             {
-                VSP_error("Error in restart decision", DBG_INFO) ;
+                Error("Error in restart decision", DBG_INFO) ;
             }
 
             if(objOut < objIn)
             {
-                VSP_error("Probable error. Final objective worse.", DBG_INFO) ;
+                Error("Probable error. Final objective worse.", DBG_INFO) ;
             }
         }
         else
         {
             if(dec->levels == NULL)
             {
-                VSP_error("Error in restart decision", DBG_INFO) ;
+                Error("Error in restart decision", DBG_INFO) ;
             }
         }
     #endif

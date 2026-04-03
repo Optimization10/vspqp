@@ -20,7 +20,7 @@ struct FlipsCtx
     Doubly_LLs_Sized *Lists[2][2] ;
     VSPINT Ts[2][2] ;
     VSPINT n ;
-    VSP_problem *problem ;
+    Problem *problem ;
 
     bool randomize ; // randomize initialization of lists
 } ;
@@ -73,7 +73,7 @@ void FlipsCtx_Check
         }
     }
 
-    VSP_problem *problem          = FC->problem ;
+    Problem *problem          = FC->problem ;
     VSPINT n = problem->Graph->n ;
 
     /*------------------------------------------------------------------------*/
@@ -222,7 +222,7 @@ FlipsCtx *FlipsCtx_Init
 (
     VSP_state   *states[2],
     bool         randomize,
-    VSP_problem   *problem
+    Problem   *problem
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -768,7 +768,7 @@ void FlipsCtx_Apply_Flip
     VSPINT var = flip->var;
     VSPINT otherVar = OTHER_VAR(var);
 
-    VSP_problem *problem = FC->problem;
+    Problem *problem = FC->problem;
     VSPINT n = problem->Graph->n;
     VSPINT *z = FC->vars[var];
     VSPINT *Az = FC->Avars[var];
@@ -918,7 +918,7 @@ VSPINT FlipsCtx_Get_n(FlipsCtx* FC)
     return FC->n ;
 }
 
-VSP_problem *FlipsCtx_Get_Problem(FlipsCtx* FC)
+Problem *FlipsCtx_Get_Problem(FlipsCtx* FC)
 {
     return FC->problem ;
 }
