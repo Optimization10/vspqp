@@ -4,7 +4,7 @@
 #include "coarsen_api.h"
 #include "io_api.h"
 #include "shared_functions.h"
-#include "shared_macros.h"
+
 #include <bits/time.h>
 #include <string.h>
 #include <time.h>

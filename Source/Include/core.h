@@ -26,6 +26,33 @@
 
 #define PRI(A) ( (long long int) A )
 
+#define UNUSED __attribute__((unused))
+
+/* Return true if low <= num < high, and false otherwise */
+#define IN_RANGE(num, low, high) ( ( (low) <= (num) ) && ( (num) < (high) ) ) 
+
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+
+/* Returns true iff a/b < c/d */
+#define CMP_FRAC(a, b, c, d) ((a) * (d) < (c) * (b))
+#define CMPEQ_FRAC(a, b, c, d) ((a) * (d) <= (c) * (b))
+
+#define DBG_INFO __FILE__, __LINE__, count
+#define ERR(msg) Error( msg, __FILE__, __LINE__, count)
+#define CAST(arg, type) ( ((type) (arg)) )
+
+#define IMBALANCE(wgtz, wgtw) \
+({ \
+    typeof(wgtz) _diff = (wgtz) - (wgtw); \
+    _diff < 0 ? -_diff : _diff; \
+})
+
+// A, B are logical conditions
+#define IFF(A, B) ( ((A) + (B) == 0) || ((A) + (B) == 2) )
+
+
+
 #ifdef DEBUG
     #define IFDBG(someCode) ( someCode )
 #else
@@ -34,10 +61,38 @@
 
 
 
+// Swap the values of A and B
+#define SWAP(a, b, type) do {                     \
+    type VSPTempForSwappingONLYDoNOTUse = (a);    \
+    (a) = (b) ;                                   \
+    (b) = VSPTempForSwappingONLYDoNOTUse ;        \
+} while (0)
 
 
 
+#ifdef DEBUG
+    #define VSP_ASSERT( cond ) \
+        do { \
+        if ( !(cond) ) { \
+           Error("Failed assert.", __FILE__, __LINE__, count) ; \
+        } \
+    } while (0)
+#else
+    #define VSP_ASSERT( cond ) 
+#endif
 
+#if defined(DEBUG) || defined(DEBUG_COARSENING)
+    #define WARN_IF_NOT_DEBUG_MODE
+#else
+    #define WARN_IF_NOT_DEBUG_MODE printf("\n\nWARNING: Calling debugging function when not in debug mode. File: %s  Line: %lld\n\n", __FILE__, (long long) __LINE__)
+#endif
+
+
+#ifdef DEBUG
+    #define SET_FUNCTION_COUNTER static long long unsigned count = 0 ; count++
+#else
+    #define SET_FUNCTION_COUNTER
+#endif
 
 
 #define TIMER_INIT \

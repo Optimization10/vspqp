@@ -4,6 +4,7 @@
 #include "score.h"
 #include "states_manager.h"
 #include "basic_flip_strats.h"
+#include "flips_common_api.h"
 
 // This code is finished except for calling flips
 void GR_Flips(State *Xbest, State *Ybest, Problem *problem, VSPINT P)

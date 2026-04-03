@@ -1,6 +1,6 @@
 #include "core.h"
 #include "flips_private_v5.h"
-
+#include "flips_common_api.h"
 
 // ASSUMED: p_(x, 1) and p_(y, 1) are each <= 2
 void SelectRandomOptimalStrictlyBeneficialFlip_v5

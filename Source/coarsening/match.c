@@ -1,9 +1,9 @@
 #include "core.h"
 #include "shared_api.h"
 #include "coarsen_internal.h"
-#include "shared_macros.h"
+
 #include "shared_functions.h"
-#include "shared_macros.h"
+
 #include "coarsen_internal.h"
 #include "ds_api.h"
 

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include "flips_common_api.h"
-#include "shared_macros.h"
+
 
 
 bool Is_Coarsest_Problem(Problem *problem)
