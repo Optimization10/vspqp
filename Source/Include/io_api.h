@@ -4,7 +4,7 @@
 #include "shared_api.h"
 
 
-Problem* VSP_read_problem(char* file_name, VSP_options* options) ;
+Problem* VSP_read_problem(char* file_name, Options* options) ;
 
 /* Dump graph to a file in coordinate format */
 void VSP_dump_graph

@@ -26,7 +26,7 @@ VSPFLOAT VSP_LP_solver_4
     VSPINT                  u,
     VSPFLOAT            gamma,
     Problem      *problem,
-    VSP_options      *options,
+    Options      *options,
     char                  var  /* Variable we are optimizing over */
 )
 {
@@ -454,7 +454,7 @@ VSPFLOAT VSP_LP_solver_0
     VSPINT     l,            /* Lower bound. Must be 0 or 1                   */
     VSPINT     u,            /* RHS of constraint. Must be at least 1         */
     VSPINT     n,            /* size of problem                               */
-    VSP_options *options /* Choose randomness or not                          */
+    Options *options /* Choose randomness or not                          */
 )
 {
 #ifdef VSP_DEBUG

@@ -431,16 +431,16 @@ void VSP_restart_decide_reset(VSP_restart_decision *dec)
 
 
 
-/***************** VSP_options ************************************************/
-VSP_options* VSP_construct_options()
+/***************** Options ************************************************/
+Options* VSP_construct_options()
 {
-    VSP_options* options = malloc(sizeof(VSP_options));
+    Options* options = malloc(sizeof(Options));
     options->restart_decision     = NULL ;
     return options;
 }
 
 
-void VSP_destruct_options(VSP_options* options)
+void VSP_destruct_options(Options* options)
 {
     if(options->restart_decision != NULL)
     {

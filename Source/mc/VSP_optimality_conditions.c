@@ -50,7 +50,7 @@
 //     VSP_Az           *Aw,
 //     VSPFLOAT       gamma,
 //     Problem *problem,
-//     VSP_options *options
+//     Options *options
 // ) {
 
 //     #ifdef VSP_DEBUG

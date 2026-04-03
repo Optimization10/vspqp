@@ -19,7 +19,7 @@ static void Best_Of_MC_And_Greedy_Flips
     State                *X,
     State                *Y,
     Problem        *problem,
-    VSP_options        *options,
+    Options        *options,
     VSPINT         numFlipsRuns
 ) ;
 
@@ -34,7 +34,7 @@ void FM_Flips
 static void Determine_Num_GR
 (
     VSPINT             n,
-    VSP_options *options,
+    Options *options,
     VSPINT        *numGR  // output
 )
 {
@@ -76,7 +76,7 @@ void Optimize
     State                     *X,
     State                     *Y,
     Problem             *problem,
-    VSP_options             *options,
+    Options             *options,
     bool          useManyFlipsPoints,
     VSPINT         whereToUseFMFlips
 )
@@ -295,7 +295,7 @@ static void Best_Of_MC_And_Greedy_Flips
     State                *X,
     State                *Y,
     Problem        *problem,
-    VSP_options        *options,
+    Options        *options,
     VSPINT         numFlipsRuns
 )
 {

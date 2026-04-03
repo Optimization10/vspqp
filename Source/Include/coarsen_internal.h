@@ -51,7 +51,7 @@ void VSP_check_matrix_is_symmetric
     VSPINT           *Ae,
     VSPLONG           nz,
     VSPINT             n,
-    VSP_options* options
+    Options* options
 ) ;
 
 VSPINT VSP_check_for_edge_between_arrays_of_vertices
@@ -70,7 +70,7 @@ VSPINT VSP_check_matrix
     VSPINT*           Ae,
     VSPLONG           nz,
     VSPINT             n,
-    VSP_options* options
+    Options* options
 ) ;
 
 bool Is_Matched(VSPINT vertex, VSPINT* matching) ;

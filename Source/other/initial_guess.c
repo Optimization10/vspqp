@@ -5,7 +5,7 @@ static void VSP_set_manual_initial_guess(
     State         *X,
     State         *Y,
     Problem *problem,
-    VSP_options *options
+    Options *options
 ) ;
 
 void VSP_set_random_initial_guess
@@ -13,7 +13,7 @@ void VSP_set_random_initial_guess
     State         *X,
     State         *Y,
     Problem *problem,
-    VSP_options *options
+    Options *options
 ) ;
 
 
@@ -22,7 +22,7 @@ void VSP_set_centroid
     State             *X,
     State             *Y,
     Problem     *problem,
-    VSP_options     *options
+    Options     *options
 ) ;
 
 
@@ -31,7 +31,7 @@ void VSP_set_initial_guess
     State         *X,
     State         *Y,
     Problem *problem,
-    VSP_options *options
+    Options *options
 )
 {
     switch(options->initial_guess)
@@ -60,7 +60,7 @@ static void VSP_set_manual_initial_guess(
     State         *X,
     State         *Y,
     Problem *problem,
-    VSP_options *options
+    Options *options
 ) {
     VSPINT n = problem->Graph->n ;
     VSPINT i ;
@@ -100,7 +100,7 @@ void VSP_set_random_initial_guess
     State         *X,
     State         *Y,
     Problem *problem,
-    VSP_options *options
+    Options *options
 )
 {
     VSPINT i, k, temp, xwgt, ywgt ;
@@ -226,7 +226,7 @@ void VSP_set_centroid
     State             *X,
     State             *Y,
     Problem     *problem,
-    VSP_options     *options
+    Options     *options
 )
 {
     VSPINT i ;

@@ -31,7 +31,7 @@ VSPFLOAT VSP_LP_solver_0 (
     VSPINT             l, /* Lower bound. Must be 0 or 1                      */
     VSPINT             u, /* RHS of constraint. Must be at least 1            */
     VSPINT             n, /* size of problem                                  */
-    VSP_options *options  /* Choose randomness or not                         */
+    Options *options  /* Choose randomness or not                         */
 ) ;
 
 bool Is_LP_Optimal
@@ -45,7 +45,7 @@ bool Is_LP_Optimal
   VSPINT               u,
   VSPFLOAT         gamma,
   VSPINT      sum_all_ci,
-  VSP_options   *options
+  Options   *options
 ) ;
 
 bool VSP_LP_is_optimal
@@ -54,7 +54,7 @@ bool VSP_LP_is_optimal
     VSP_Az           *Aw,
     VSPFLOAT       gamma,
     Problem *problem,
-    VSP_options *options
+    Options *options
 ) ;
 
 

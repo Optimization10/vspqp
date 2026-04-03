@@ -34,7 +34,7 @@ typedef struct VSP_restart_decision_struct
 
 } VSP_restart_decision ;
 
-typedef struct VSP_options_struct
+typedef struct Options_struct
 {
 
     /* Coarsening 
@@ -116,7 +116,7 @@ typedef struct VSP_options_struct
     // To disable Hager BM always, set compression_threshold = 1
     VSPFLOAT compression_threshold ;
 
-} VSP_options;
+} Options;
 
 
 typedef struct {
@@ -162,15 +162,15 @@ VSP_solve_result *VSP_Solve
     VSPLONG          *Ap,
     VSPINT           *Ai,
     VSPINT *          Ae, // Temporary argument while I'm refactoring
-    VSP_options *options
+    Options *options
 ) ;
 
-void VSP_destruct_options(VSP_options* options) ;
+void VSP_destruct_options(Options* options) ;
 
 void VSP_restart_decide_reset(VSP_restart_decision *dec) ;
 
-VSP_options* VSP_construct_options() ;
-void VSP_set_default_options(VSP_options* options) ;
+Options* VSP_construct_options() ;
+void VSP_set_default_options(Options* options) ;
 
 
 long double VSP_compute_elapsed_time(struct timespec start, struct timespec end) ;

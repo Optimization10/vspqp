@@ -8,9 +8,9 @@
 Problem *Read_Dot_Ovi_File
 (
     const char* filename,
-    VSP_options* options
+    Options* options
 ) ;
 
-Problem* VSP_read_MM_file(const char* filename, VSP_options* options) ;
+Problem* VSP_read_MM_file(const char* filename, Options* options) ;
 
 #endif

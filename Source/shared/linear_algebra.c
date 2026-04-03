@@ -328,7 +328,7 @@ Problem* VSP_transpose(
     VSPINT           *Ae, /* Entries                   */
     VSPLONG nz, /* Number of rows/columns    */
     VSPINT             n, /* Number of nonzeros        */
-    VSP_options* options
+    Options* options
 ) {
  
     #ifdef VSP_DEBUG

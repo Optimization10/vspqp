@@ -7,7 +7,7 @@ void FM_Metis
     State             *Z,
     State             *W,
     Problem     *problem,
-    VSP_options     *options,
+    Options     *options,
     VSPINT        num_passes
 ) ;
 #endif

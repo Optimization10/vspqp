@@ -2,7 +2,7 @@
 
 
 
-void VSP_set_default_options(VSP_options* options)
+void VSP_set_default_options(Options* options)
 {
     /* Coarsening */
     options->use_coarsening             = true ;
@@ -79,7 +79,7 @@ void VSP_set_default_problem_data(Problem* problem) {
 void    VSP_preprocess_finest_problem
 (
     Problem* problem,
-    VSP_options* options
+    Options* options
 )
 {
     VSPINT node, num_nodes, c_node, alpha, gamma, total_graph_weight ;

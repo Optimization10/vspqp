@@ -58,7 +58,7 @@ void Final_Cleanup
 // Output: all our improvements algorithms have been applied
 void Solve_Level
 (
-    State *X, State *Y, Problem *problem, VSP_options *options
+    State *X, State *Y, Problem *problem, Options *options
 )
 {
     VSPFLOAT u_ratio = 0.6 ;
@@ -81,7 +81,7 @@ void VSP_ResolveLevelDecideAndDo
     State             *X,
     State             *Y,
     Problem     *problem,
-    VSP_options     *options
+    Options     *options
 )
 {
     #ifdef VSP_DEBUG

@@ -24,7 +24,7 @@ const Problem *G_P = NULL ;
 void SetUpperBound
 (
     Problem *problem,
-    VSP_options *options
+    Options *options
 ) ;
 
 static void Set_Global_Problem(Problem *P)
@@ -37,7 +37,7 @@ static void Set_Global_Problem(Problem *P)
 // Output: all our improvements algorithms have been applied
 void Solve_Level
 (
-    State *X, State *Y, Problem *problem, VSP_options *options
+    State *X, State *Y, Problem *problem, Options *options
 ) ;
 
 VSP_solve_result *Solve_Null_Graph
@@ -120,7 +120,7 @@ VSP_solve_result *VSP_Solve
     VSPLONG          *Ap,
     VSPINT           *Ai,
     VSPINT *          Ae, // Temporary argument while I'm refactoring
-    VSP_options *options
+    Options *options
 )
 {
     static long long unsigned count = 0 ;

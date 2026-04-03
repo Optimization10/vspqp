@@ -18,7 +18,7 @@ static void RecordCoarsestLvlNum
 static void SetUpperBound
 (
     Problem *problem,
-    VSP_options *options
+    Options *options
 ) ;
 
 static void SetRatioOfNodesWithMaxWeight
@@ -60,7 +60,7 @@ static VSP_Graph* Graph_Coarsen
     VSPINT           *matchmap,
     VSPINT        *invmatchmap,
     VSPINT           *matching,
-    VSP_options       *options
+    Options       *options
 )
 {
     clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
@@ -441,7 +441,7 @@ static VSP_Graph* Graph_Coarsen
 Problem *Problem_Coarsen
 (
     Problem *P,
-    VSP_options *options
+    Options *options
 )
 {
     VSP_Graph *Graph_Coarse = Graph_Coarsen
@@ -531,7 +531,7 @@ static void SetRatioOfNodesWithMaxWeight
 static void SetUpperBound
 (
     Problem *problem,
-    VSP_options *options
+    Options *options
 )
 {
     if(options->relaxUB == false || problem->coarsest_level_num == 0 )
@@ -578,7 +578,7 @@ static void RecordCoarsestLvlNum
 
 // Returns true if the child of P is "bad", in which case the child should be
 // destroyed
-static bool Stop_Coarsening(Problem *P, VSP_options *options)
+static bool Stop_Coarsening(Problem *P, Options *options)
 {    
     // As a safeguard against weird edge cases, stop coarsening if the child
     // problem is extremely small
@@ -606,7 +606,7 @@ static bool Stop_Coarsening(Problem *P, VSP_options *options)
 Problem *Problem_Recursive_Coarsen
 (
     Problem *probFinest,
-    VSP_options    *options
+    Options    *options
 )
 {
     static long long unsigned count = 0 ;

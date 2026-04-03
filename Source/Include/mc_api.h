@@ -17,7 +17,7 @@ VSPFLOAT Reduce_Gamma
     GR_Reduce_Type redType,
     State           *Z,
     State           *W,
-    VSP_options   *options,
+    Options   *options,
     Problem   *problem
 ) ;
 
@@ -28,7 +28,7 @@ void VSP_mountain_climbing
     State               *X,
     State               *Y,
     Problem       *problem,
-    VSP_options       *options,
+    Options       *options,
     VSPFLOAT             gamma,
     bool          is_gamma_org
 ) ;
@@ -39,7 +39,7 @@ void VSP_mountain_climbing_v2
     State                  *X,
     State                  *Y,
     Problem          *problem,
-    VSP_options          *options,
+    Options          *options,
     VSPFLOAT                gamma,
     VSPINT                 numLPs /* >= 0. If 0, we launch directly into ortho*/
 ) ;
@@ -52,7 +52,7 @@ VSPFLOAT VSP_LP_solver_4
     VSPINT u,
     VSPFLOAT gamma,
     Problem *problem,
-    VSP_options *options,
+    Options *options,
     char             var  /* Variable we are optimizing over */
 ) ;
 

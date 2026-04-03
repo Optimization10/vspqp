@@ -10,7 +10,7 @@ void VSP_set_centroid
     State         *X,
     State         *Y,
     Problem *problem,
-    VSP_options *options
+    Options *options
 ) ;
 
 bool Is_Complete_Graph
@@ -106,7 +106,7 @@ Problem* VSP_transpose(
     VSPINT           *Ae, /* Entries                   */
     VSPLONG nz, /* Number of rows/columns    */
     VSPINT             n, /* Number of nonzeros        */
-    VSP_options* options
+    Options* options
 ) ;
 
 
@@ -147,7 +147,7 @@ void VSP_check_linear_constraint (
 
 VSPINT VSP_check_problem(
     Problem* problem,
-    VSP_options* options
+    Options* options
 ) ;
 
 void Error( 
@@ -302,8 +302,8 @@ bool VSP_lteq
 
 
 
-VSP_options* VSP_construct_options();
-void VSP_destruct_options(VSP_options* options);
+Options* VSP_construct_options();
+void VSP_destruct_options(Options* options);
 
 VSPINT** VSP_construct_explicit_matrix (
     VSPINT* values, VSPINT* Ai, VSPLONG nz, VSPLONG* Ap, VSPINT n
@@ -429,7 +429,7 @@ VSPFLOAT VSP_LP_solver_0
     VSPINT l,            /* Lower bound. Must be 0 or 1                      */
     VSPINT u,            /* RHS of constraint. Must be at least 1            */
     VSPINT n,            /* size of problem                                  */
-    VSP_options *options /* Choose randomness or not                         */
+    Options *options /* Choose randomness or not                         */
 ) ;
 
 
@@ -457,7 +457,7 @@ VSPFLOAT VSP_minreduce
 (
     State         *X,
     State         *Y,
-    VSP_options *options,
+    Options *options,
     Problem *problem
 ) ;
 
@@ -466,7 +466,7 @@ void VSP_set_random_initial_guess
     State         *X,
     State         *Y,
     Problem *problem,
-    VSP_options *options
+    Options *options
 ) ;
 
 

@@ -433,7 +433,7 @@ void Graph_Simple_Match
     VSPINT           *invmatchmap,
     VSP_match_type     *matchtype,
     VSPINT                    *cn,
-    VSP_options          *options
+    Options          *options
 )
 {
     TIMER_START ;

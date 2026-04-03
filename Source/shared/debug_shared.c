@@ -35,7 +35,7 @@ void VSP_check_matrix_is_symmetric(
     VSPINT           *Ae,
     VSPLONG nz,
     VSPINT             n,
-    VSP_options* options
+    Options* options
 ) ;
 
 /* Check each state individually, as well as the cross term */
@@ -385,7 +385,7 @@ VSPINT VSP_check_matrix
     VSPINT* Ae,
     VSPLONG nz,
     VSPINT n,
-    VSP_options* options
+    Options* options
 ) {
     static long long unsigned count = 0 ;
     count += 1;
@@ -501,7 +501,7 @@ void VSP_check_matrix_is_symmetric
     VSPINT           *Ae,
     VSPLONG nz,
     VSPINT             n,
-    VSP_options* options
+    Options* options
 ) {
     /* Get the transpose */
     Problem* T = VSP_transpose(Ai, Ap, Ae, nz, n, options) ;
@@ -646,7 +646,7 @@ void VSP_check_max_of_array(
 VSPINT VSP_check_problem
 (
     Problem* problem,
-    VSP_options* options
+    Options* options
 )
 {
     static long long unsigned count = 0 ;

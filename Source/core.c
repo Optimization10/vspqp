@@ -121,7 +121,7 @@ Problem* VSP_construct_problem
     VSPINT                *Ai, // If NULL, then this is allocated
     VSPLONG               *Ap, // If NULL, then this is allocated
     VSPINT                *Ae, // If NULL, then this is allocated
-    VSP_options      *options
+    Options      *options
 )
 {
     /* Create the problem */

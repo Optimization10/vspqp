@@ -218,7 +218,7 @@ void VSP_reset_output_files()
 void Read_hager6_File
 (
     char           *path,
-    VSP_options *options,
+    Options *options,
 
     // Output
     VSPINT    *n,
@@ -409,7 +409,7 @@ void VSP_write_to_csv_2
     char                *col_title_given, /* If empty string, a title is
                                              generated from the options       */
     VSP_solution_stats  *solStats,
-    VSP_options          *options
+    Options          *options
 )
 {
     static long long unsigned count = 0 ;
@@ -453,7 +453,7 @@ void VSP_write_to_csv_2
 }
 
 
-static void SetCustomOptions(VSP_options *options)
+static void SetCustomOptions(Options *options)
 {
     /*------------------------------------------------------------------------*/
     /* Coarsening Options                                                     */
@@ -615,7 +615,7 @@ int main(int argc, char** argv)
     long double           sum_time ;
     struct timespec     start, end ;
     long double       elapsed_time ;
-    VSP_options           *options ;
+    Options           *options ;
     VSP_solve_result       *result = NULL ;
 
     /*** Options **************************************************************/

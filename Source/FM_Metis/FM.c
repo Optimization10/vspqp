@@ -329,7 +329,7 @@ void FM_Metis
     State             *Z,
     State             *W,
     Problem     *problem,
-    UNUSED VSP_options     *options,
+    UNUSED Options     *options,
     VSPINT          n_passes
 )
 {

@@ -13,7 +13,7 @@ void VSP_ResolveLevelDecideAndDo
     State             *X,
     State             *Y,
     Problem     *problem,
-    VSP_options     *options
+    Options     *options
 ) ;
 
 
@@ -22,7 +22,7 @@ void Optimize
     State                     *X,
     State                     *Y,
     Problem             *problem,
-    VSP_options             *options,
+    Options             *options,
     bool          useManyFlipsPoints,
     VSPINT         whereToUseFMFlips
 ) ;

@@ -645,7 +645,7 @@ bool Is_LP_Optimal
   VSPINT               u,
   VSPFLOAT         gamma,
   VSPINT      sum_all_ci,
-  VSP_options   *options
+  Options   *options
 )
 {
     SET_FUNCTION_COUNTER ;

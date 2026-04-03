@@ -12,13 +12,13 @@ void Graph_Simple_Match
     VSPINT           *invmatchmap,
     VSP_match_type     *matchtype,
     VSPINT                    *cn,
-    VSP_options          *options
+    Options          *options
 ) ;
 
 Problem* Problem_Coarsen
 (
     Problem *P,
-    VSP_options *options
+    Options *options
 ) ;
 
 void Uncoarsen_Point
@@ -33,7 +33,7 @@ void Uncoarsen_Point
 Problem *Problem_Recursive_Coarsen
 (
     Problem *probFinest,
-    VSP_options    *options
+    Options    *options
 ) ;
 
 #endif

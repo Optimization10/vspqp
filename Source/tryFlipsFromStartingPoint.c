@@ -18,7 +18,7 @@ void TryFlipsManyStartingPoints
     VSPINT                **AyBestHome,
     VSPINT               *wgtyBestHome,
     Problem               *problem,
-    VSP_options               *options,
+    Options               *options,
     VSPINT                 numFlipRuns,
     VSPINT            numPassesInFlips
 )
