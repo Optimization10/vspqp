@@ -10,13 +10,7 @@
 typedef struct VSP_levels_struct VSP_levels ;
 typedef struct VSP_coarsen_dec_struct VSP_coarsen_dec ;
 
-typedef enum VSP_coarsen_dec_type_enum
-{
-    CRSN_DEC_useCommAtAllLevels,
-    CRSN_DEC_useCommAtNoLevels,
-    CRSN_DEC_useCommAtCertainLevels,
-    CRSN_DEC_useCommWithBoundary
-} VSP_coarsen_dec_type ;
+
 
 
 
@@ -176,7 +170,6 @@ void VSP_levels_unselect
 
 
 
-VSP_coarsen_dec *VSP_construct_coarsen_dec(VSP_coarsen_dec_type decType) ;
 
 VSP_solve_result *VSP_Solve
 (

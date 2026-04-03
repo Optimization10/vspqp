@@ -446,27 +446,6 @@ void VSP_DecideComm
 }
 
 
-/***************** VSP_coarsen_dec ********************************************/
-/* Does NOT construct levels struct */
-VSP_coarsen_dec *VSP_construct_coarsen_dec(VSP_coarsen_dec_type decType)
-{
-    VSP_coarsen_dec *ret = calloc( 1, sizeof(*ret) ) ;
-    ret->decType = decType ;
-    ret->levels  = NULL ;
-    
-    return ret ;
-}
-
-void VSP_destruct_coarsen_dec(VSP_coarsen_dec *dec)
-{
-    if(dec->levels != NULL)
-    {
-        VSP_destruct_levels(dec->levels) ;
-    }
-    free(dec) ;
-}
-
-
 /***************** VSP_options ************************************************/
 VSP_options* VSP_construct_options()
 {

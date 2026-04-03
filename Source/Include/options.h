@@ -72,18 +72,6 @@ typedef struct VSP_levels_struct
 
 
 
-typedef struct VSP_coarsen_dec_struct
-{
-    VSP_coarsen_dec_type decType ;
-
-    /* Used for useCommunityAtCertainLevels. The levels where comm is ENABLED */
-    VSP_levels *levels ;
-
-    /*  If problem->ratioMaxCostNodes > decBoundary, coarsen this problem
-        WITHOUT community matching. Otherwise, use community matching.  */
-    VSPFLOAT decBounday ;
-
-} VSP_coarsen_dec ;
 
 /*----------------------------------------------------------------------------*/
 /* Dynamic Stack */
@@ -97,7 +85,5 @@ bool VSP_dyn_stk_is_member(VSPINT i, VSP_dyn_stk* ds) ;
 VSP_dyn_stk *VSP_dyn_stk_copy(VSP_dyn_stk *stack_in) ;
 
 
-
-VSP_coarsen_dec *VSP_construct_coarsen_dec(VSP_coarsen_dec_type decType) ;
 
 #endif
