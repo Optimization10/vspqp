@@ -4,8 +4,8 @@
 
 void GR_Flips
 (
-    VSP_state *Xbest,
-    VSP_state *Ybest,
+    State *Xbest,
+    State *Ybest,
     Problem *problem,
     VSPINT P
 ) ;

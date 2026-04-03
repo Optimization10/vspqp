@@ -11,8 +11,8 @@
 
 struct StatesMan
 {
-    VSP_state *best[2] ;
-    VSP_state *work[2] ;
+    State *best[2] ;
+    State *work[2] ;
 } ;
 
 
@@ -43,7 +43,7 @@ void StatesMan_UpdateBestStates(StatesMan *Man)
     return ;
 }
 
-VSP_state *StatesMan_GetState
+State *StatesMan_GetState
 (
     StatesMan *SM, StateManStateType type, VSPINT which
 )
@@ -63,7 +63,7 @@ VSP_state *StatesMan_GetState
 }
 
 
-StatesMan *StatesMan_Init(VSP_state *Xbest, VSP_state *Ybest)
+StatesMan *StatesMan_Init(State *Xbest, State *Ybest)
 {
     VSPINT n = Xbest->point->n ;
     StatesMan *ret = malloc(sizeof(StatesMan)) ;

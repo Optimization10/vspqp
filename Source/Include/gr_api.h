@@ -9,8 +9,8 @@ typedef enum {
 } VSP_reduction_type ;
 
 VSPFLOAT VSP_minreduce(
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     VSP_options *options,
     Problem *problem
 ) ;

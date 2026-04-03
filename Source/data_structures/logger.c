@@ -6,8 +6,8 @@
 
 struct Logger_Record
 {
-    VSP_state         *X ;
-    VSP_state         *Y ;
+    State         *X ;
+    State         *Y ;
     Problem *problem ;
     char            *msg ;
 } ;
@@ -57,7 +57,7 @@ void LoggerDestroy()
 
 void LoggerStart
 (
-    VSP_state *X, VSP_state *Y, Problem *problem,
+    State *X, State *Y, Problem *problem,
     const char *format, ...
 )
 {
@@ -73,8 +73,8 @@ void LoggerStart
     va_end(args);
 
     Logger_Record *rec = calloc(1, sizeof(*rec)) ;
-    VSP_state *Xcpy = VSP_construct_state(problem->Graph->n) ;
-    VSP_state *Ycpy = VSP_construct_state(problem->Graph->n) ;
+    State *Xcpy = VSP_construct_state(problem->Graph->n) ;
+    State *Ycpy = VSP_construct_state(problem->Graph->n) ;
     VSP_copy_state(X, Xcpy) ;
     VSP_copy_state(Y, Ycpy) ;
     rec->X = Xcpy ;
@@ -94,7 +94,7 @@ void LoggerStart
     return ;
 }
 
-void LoggerStop(VSP_state *X, VSP_state *Y, Problem *problem)
+void LoggerStop(State *X, State *Y, Problem *problem)
 {
     if(!LOG_G.enabled) return ;
     Logger_Record *rec = (Logger_Record*) DynamicStack_Pop(LOG_G.initRecords) ;    

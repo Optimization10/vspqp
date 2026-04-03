@@ -92,11 +92,11 @@ VSP_Graph *Compress_Graph
 }
 
 
-VSP_state *Compress_Binary_State
+State *Compress_Binary_State
 (
     VSP_Graph        *compGraph,
     VSPINT            *newIndex,
-    VSP_state             *Zorg
+    State             *Zorg
 )
 {
     if(Zorg->point->ind_frac != EMPTY)
@@ -108,7 +108,7 @@ VSP_state *Compress_Binary_State
     VSPINT norg = Zorg->point->n ;
     VSPINT ncmp = compGraph->n ;
 
-    VSP_state *Zcmpr = VSP_construct_state(ncmp) ;
+    State *Zcmpr = VSP_construct_state(ncmp) ;
 
     VSPINT i, j,
     *zorg     = Zorg->point->int_part,
@@ -148,11 +148,11 @@ VSP_state *Compress_Binary_State
 // Given a state for the compressed problem, return the corresponding state
 // for the uncompressed problem where the vertices which were not kept are in
 // the separator 
-VSP_state *Uncompress_State
+State *Uncompress_State
 (
     VSP_Graph        *compGraph,
     VSPINT            *newIndex,
-    VSP_state             *Zcmp,
+    State             *Zcmp,
     VSPINT               *AiOrg,
     VSPLONG *ApOrg,
     VSPINT                 nOrg
@@ -164,7 +164,7 @@ VSP_state *Uncompress_State
     /*------------------------------------------------------------------------*/
     // Allocate memory for uncompressed state
     /*------------------------------------------------------------------------*/
-    VSP_state *ret = VSP_construct_state(nOrg) ;
+    State *ret = VSP_construct_state(nOrg) ;
     zOrg = ret->point->int_part ;
     
 

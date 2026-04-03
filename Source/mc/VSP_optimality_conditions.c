@@ -46,7 +46,7 @@
 // */
 // bool VSP_LP_is_optimal
 // (
-//     VSP_state         *Z,
+//     State         *Z,
 //     VSP_Az           *Aw,
 //     VSPFLOAT       gamma,
 //     Problem *problem,
@@ -69,7 +69,7 @@
 
 //         /* Get optimal objective by solving the LP                            */
 //         VSPFLOAT obj_opt = 0 ;
-//         VSP_state *Z_copy = VSP_construct_state(problem->Graph->n) ;
+//         State *Z_copy = VSP_construct_state(problem->Graph->n) ;
 //         VSP_copy_state(Z, Z_copy) ;
 //         obj_opt = VSP_LP_solver_4(Z_copy      , Aw   , problem->Graph->c, 1,
 //                                   problem->u, gamma, problem   , options, 'x');

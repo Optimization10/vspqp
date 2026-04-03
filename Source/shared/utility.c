@@ -51,8 +51,8 @@ VSPINT VSP_penalty_term
 
 VSPFLOAT VSP_zAw
 (
-    VSP_state *X,
-    VSP_state *Y
+    State *X,
+    State *Y
 )
 {
     /* Local vars */
@@ -308,8 +308,8 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
 /* Go through z and see if there is anything we could swap in fully */
 // void VSP_resolve_frac_entry_v2
 // (
-//     VSP_state                 *Z, /* Resolve entry in Z */
-//     VSP_state                 *W,
+//     State                 *Z, /* Resolve entry in Z */
+//     State                 *W,
 //     Problem         *problem
 // ) 
 // {
@@ -380,7 +380,7 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
 // }
 /*----------------------------------------------------------------------------*/
 
-// void VSP_resolve_frac_entry(VSP_state *Z, Problem *problem)
+// void VSP_resolve_frac_entry(State *Z, Problem *problem)
 // {
 
 //     #ifdef VSP_DEBUG
@@ -433,8 +433,8 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az)
 
 void VSP_resolve_frac_entry
 (
-    VSP_state *Z,
-    VSP_state *W,
+    State *Z,
+    State *W,
     Problem *problem
 )
 {
@@ -508,8 +508,8 @@ void VSP_resolve_frac_entry
 
 void Force_To_Binary_Point
 (
-    VSP_state           *Z,
-    VSP_state           *W,
+    State           *Z,
+    State           *W,
     Problem   *problem
 )
 {
@@ -529,7 +529,7 @@ void Force_To_Binary_Point
 // Round down the fractional component, if there is one
 void State_Round_Down
 (
-    VSP_state         *Z,
+    State         *Z,
     Problem *problem
 )
 {
@@ -705,7 +705,7 @@ VSPFLOAT* Point_to_array(Point *z) {
 
 
 // Create a deep copy. Assume that all memory is already allocated
-void VSP_copy_state(VSP_state *from, VSP_state *to)
+void VSP_copy_state(State *from, State *to)
 {
     VSPINT  i ;
     VSPINT  n = from->point->n ;
@@ -904,7 +904,7 @@ void VSP_SetFracEntry
 (
     VSPINT         indFrac,
     VSPFLOAT       valFrac,
-    VSP_state           *Z,
+    State           *Z,
     Problem   *problem
 )
 {
@@ -1013,10 +1013,10 @@ void Swap_Mem(void *a, void *b, size_t size)
 // Return a pointer to a state containing a deep copy of z, Az, and wgtz
 void Save_State_Copy
 (
-    VSPINT *z, VSPINT *Az, VSPINT wgtz, VSPINT n, VSP_state **stateHome
+    VSPINT *z, VSPINT *Az, VSPINT wgtz, VSPINT n, State **stateHome
 )
 {
-    VSP_state *ret = VSP_construct_state(n) ;
+    State *ret = VSP_construct_state(n) ;
     VSP_copy_array_int(z , ret->point->int_part, n) ;
     VSP_copy_array_int(Az, ret->Az   ->int_part, n) ;
     ret->weight = wgtz ;
@@ -1061,8 +1061,8 @@ void Check_Array_Is_Binary
 // be < 1
 void Fix_Lower_Bound_Issue
 (
-    VSP_state         *Z,
-    VSP_state         *W,
+    State         *Z,
+    State         *W,
     Problem *problem
 )
 {
@@ -1222,8 +1222,8 @@ static void Write_EMPTYs_When_NULL
 void Dump_Problem
 (
     const Problem *P,
-    const VSP_state   *X,
-    const VSP_state   *Y
+    const State   *X,
+    const State   *Y
 )
 {
     int32_t i_32 ;
@@ -1320,7 +1320,7 @@ void Dump_Problem
 
 VSPINT State_Get_Wgt_Int_Part
 (
-    VSP_state *Z,
+    State *Z,
     VSPINT    *c
 )
 {

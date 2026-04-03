@@ -89,7 +89,7 @@ void FlipsCtx_Check
     structAy = {.int_part   = Avars[W_VAR] , .ind_frac_z = EMPTY , .n = n   ,
                 .val_frac_z = 0            , .col_frac_z = NULL  , .one = 1   };
 
-    VSP_state
+    State
     X = {.point = &ptX, .Az = &structAx, .weight = wgts[Z_VAR]},
     Y = {.point = &ptY, .Az = &structAy, .weight = wgts[W_VAR]} ;
     VSP_check_states(&X, &Y, problem) ;
@@ -220,7 +220,7 @@ void FlipsCtx_Initialize_Lists_And_Ts(FlipsCtx *FC)
 
 FlipsCtx *FlipsCtx_Init
 (
-    VSP_state   *states[2],
+    State   *states[2],
     bool         randomize,
     Problem   *problem
 )
@@ -232,7 +232,7 @@ FlipsCtx *FlipsCtx_Init
     FlipsCtx *FC = malloc( sizeof(FlipsCtx) ) ;
     if(!FC) return NULL ;
 
-    VSP_state *Z = states[0], *W = states[1] ;
+    State *Z = states[0], *W = states[1] ;
 
     // Vars, Avars, wgts
     FC->vars [0] = Z->point->int_part ;

@@ -39,7 +39,7 @@ void VSP_check_matrix_is_symmetric(
 ) ;
 
 /* Check each state individually, as well as the cross term */
-void VSP_check_states(VSP_state *X, VSP_state *Y, Problem *problem)
+void VSP_check_states(State *X, State *Y, Problem *problem)
 {
     static long long unsigned count = 0 ;
     count++ ;
@@ -123,7 +123,7 @@ void Check_Part
     Aystruct.col_frac_z  = calloc(n, sizeof(VSPINT)) ;
     Aystruct.one         = 1 ;
 
-    VSP_state X, Y ;
+    State X, Y ;
 
     X.point  = &xPoint ;
     X.Az     = &Axstruct ;
@@ -158,7 +158,7 @@ void VSP_check_max_of_array
     - The point is feasible
     - Az is correct
     - The weight is correct   */
-void VSP_check_state(VSP_state *Z, Problem *problem)
+void VSP_check_state(State *Z, Problem *problem)
 {
     static long long unsigned count = 0 ;
     count++ ;
@@ -197,7 +197,7 @@ void VSP_check_state(VSP_state *Z, Problem *problem)
 
 
 
-void VSP_check_weight(VSP_state *Z, VSPINT *c) {
+void VSP_check_weight(State *Z, VSPINT *c) {
 
     static long long unsigned count = 0 ;
     count++ ;

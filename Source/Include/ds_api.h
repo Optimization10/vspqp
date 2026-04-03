@@ -155,8 +155,8 @@ void VSP_build_penalties
 
 void VSP_check_penalties
 (
-    VSP_state *X,
-    VSP_state *Y,
+    State *X,
+    State *Y,
     Penalties *X_pen,
     Penalties *Y_pen,
     VSPINT n

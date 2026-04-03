@@ -5,8 +5,8 @@
 
 void VSP_GetSepCost
 (
-    VSP_state          *X,
-    VSP_state          *Y,
+    State          *X,
+    State          *Y,
     Problem  *problem,
     VSPINT       *sepCost   /* Output*/
 )
@@ -36,8 +36,8 @@ void VSP_GetSepCost
 /* Given a binary point, return xAy */
 void VSP_num_pen
 (
-    VSP_state *X,
-    VSP_state *Y,
+    State *X,
+    State *Y,
     Problem *problem,
     VSPFLOAT *numPen
 )
@@ -81,8 +81,8 @@ void VSP_num_pen
 /* Given a binary point, return xAy */
 void VSP_xAy
 (
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem,
     VSPFLOAT        *xAy
 )
@@ -508,8 +508,8 @@ VSPLONG VSP_partial_sums_of_array(
    at the end.
 */
 VSPFLOAT VSP_compute_obj(
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem,
     VSPFLOAT       gamma
 ) {
@@ -578,8 +578,8 @@ VSPFLOAT VSP_compute_obj(
    by uncompressing the matrix A and converting X, Y to arrays
    of floats                                                     */
 VSPFLOAT VSP_compute_objective_0(
-    VSP_state *X,
-    VSP_state *Y,
+    State *X,
+    State *Y,
     Problem *problem,
     VSPFLOAT gamma
 ) {

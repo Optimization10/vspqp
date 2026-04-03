@@ -589,7 +589,7 @@ void Check_All_Data_v5
     Aystruct.col_frac_z  = calloc(n, sizeof(VSPINT)) ;
     Aystruct.one         = 1 ;
 
-    VSP_state X, Y ;
+    State X, Y ;
 
     X.point  = &xPoint ;
     X.Az     = &Axstruct ;
@@ -1047,7 +1047,7 @@ void Check_Inputs_v5
     Aystruct.col_frac_z  = calloc(n, sizeof(VSPINT)) ;
     Aystruct.one         = 1 ;
 
-    VSP_state X, Y ;
+    State X, Y ;
 
     X.point  = &xPoint ;
     X.Az     = &Axstruct ;

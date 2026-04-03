@@ -7,8 +7,8 @@
 
 void VSP_mountain_climbing
 (
-    VSP_state               *X,
-    VSP_state               *Y,
+    State               *X,
+    State               *Y,
     Problem       *problem,
     VSP_options       *options,
     VSPFLOAT             gamma,
@@ -53,8 +53,8 @@ void VSP_mountain_climbing
     VSPINT n   = problem->Graph->n;
 
     /* Allocate memory */
-    VSP_state *Xstar = VSP_construct_state(n);
-    VSP_state *Ystar = VSP_construct_state(n);
+    State *Xstar = VSP_construct_state(n);
+    State *Ystar = VSP_construct_state(n);
 
     /* Initialize Xstar and Ystar as X and Y */
     VSP_copy_state(X, Xstar);
@@ -138,7 +138,7 @@ void VSP_mountain_climbing
             optimal_var = 'x';
 
             // TEMP
-            // VSPFLOAT obj_dbg = VSP_compute_obj(VSP_state *X, VSP_state *Y, Problem *problem, VSPFLOAT gamma)
+            // VSPFLOAT obj_dbg = VSP_compute_obj(State *X, State *Y, Problem *problem, VSPFLOAT gamma)
         }
 
         mc_count++ ;
@@ -219,8 +219,8 @@ void VSP_mountain_climbing
     and compares (x2, y1) with (x*, y2*) */
 // void VSP_mountain_climbing_v2
 // (
-//     VSP_state                  *X,
-//     VSP_state                  *Y,
+//     State                  *X,
+//     State                  *Y,
 //     Problem          *problem,
 //     VSP_options          *options,
 //     VSPFLOAT                gamma,
@@ -248,8 +248,8 @@ void VSP_mountain_climbing
 
 
 //     /* Allocate memory */
-//     VSP_state *Xstar = VSP_construct_state(n);
-//     VSP_state *Ystar = VSP_construct_state(n);
+//     State *Xstar = VSP_construct_state(n);
+//     State *Ystar = VSP_construct_state(n);
 
 //     /* Initialize Xstar and Ystar as X and Y */
 //     VSP_copy_state(X, Xstar);
@@ -355,8 +355,8 @@ VSPFLOAT Reduce_Gamma
 (
     VSPFLOAT       gammaIn,
     GR_Reduce_Type redType,
-    VSP_state           *Z,
-    VSP_state           *W,
+    State           *Z,
+    State           *W,
     VSP_options   *options,
     Problem   *problem
 )

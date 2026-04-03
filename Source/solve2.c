@@ -37,7 +37,7 @@ static void Set_Global_Problem(Problem *P)
 // Output: all our improvements algorithms have been applied
 void Solve_Level
 (
-    VSP_state *X, VSP_state *Y, Problem *problem, VSP_options *options
+    State *X, State *Y, Problem *problem, VSP_options *options
 ) ;
 
 VSP_solve_result *Solve_Null_Graph
@@ -47,7 +47,7 @@ VSP_solve_result *Solve_Null_Graph
 
 void Final_Cleanup
 (
-    VSP_state *X, VSP_state *Y, Problem *problemFinest, VSP_solve_result *result
+    State *X, State *Y, Problem *problemFinest, VSP_solve_result *result
 ) ;
 
 void Destroy_Coarse_Problems(Problem *problemFinest)
@@ -157,7 +157,7 @@ VSP_solve_result *VSP_Solve
         exit(1) ;
     }
 
-    VSP_state *X_l = NULL, *Y_l = NULL, *X_lp1 = NULL , *Y_lp1 = NULL,
+    State *X_l = NULL, *Y_l = NULL, *X_lp1 = NULL , *Y_lp1 = NULL,
               *X_0 = NULL, *Y_0 = NULL ;
 
     /*------------------------------------------------------------------------*/

@@ -4,8 +4,8 @@
 
 void improve
 (
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem
 ) ;
 
@@ -30,8 +30,8 @@ void improve
 
 void VSP_relaxed_to_vertex_separator
 (
-    VSP_state            *X,
-    VSP_state            *Y,
+    State            *X,
+    State            *Y,
     Problem    *problem
 )
 {
@@ -289,8 +289,8 @@ void VSP_relaxed_to_vertex_separator
 /* Assumes (x, y) is fully binary */
 void improve
 (
-    VSP_state *X,
-    VSP_state *Y,
+    State *X,
+    State *Y,
     Problem *problem
 )
 {

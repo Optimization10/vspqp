@@ -10,8 +10,8 @@
 /* Dump a graph in coordinate form. Make the indexing 1-based */
 void VSP_dump_graph
 (
-    VSP_state *X,
-    VSP_state *Y,
+    State *X,
+    State *Y,
     Problem *problem
 )
 {

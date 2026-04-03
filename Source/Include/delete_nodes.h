@@ -12,21 +12,21 @@ VSP_Graph *Compress_Graph
     VSPINT    *newIndex    // Output
 ) ;
 
-VSP_state *Compress_Binary_State
+State *Compress_Binary_State
 (
     VSP_Graph *compGraph,
     VSPINT     *newIndex,
-    VSP_state      *Zorg
+    State      *Zorg
 ) ;
 
 // Given a state for the compressed problem, return the corresponding state
 // for the uncompressed problem where the vertices which were not kept are in
 // the separator 
-VSP_state *Uncompress_State
+State *Uncompress_State
 (
     VSP_Graph *compGraph,
     VSPINT     *newIndex,
-    VSP_state      *Zcmp,
+    State      *Zcmp,
     VSPINT        *AiOrg,
     VSPLONG *ApOrg,
     VSPINT          nOrg

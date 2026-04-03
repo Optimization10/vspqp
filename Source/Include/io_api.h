@@ -9,8 +9,8 @@ Problem* VSP_read_problem(char* file_name, VSP_options* options) ;
 /* Dump graph to a file in coordinate format */
 void VSP_dump_graph
 (
-    VSP_state *X,
-    VSP_state *Y,
+    State *X,
+    State *Y,
     Problem *problem
 ) ;
 

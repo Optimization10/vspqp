@@ -18,8 +18,8 @@ typedef struct
 
 void Flips
 (
-    VSP_state               *X,
-    VSP_state               *Y,
+    State               *X,
+    State               *Y,
     Problem       *problem,
     VSPINT        maxNumPasses
 ) ;

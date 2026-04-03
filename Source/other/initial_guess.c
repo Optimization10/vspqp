@@ -2,16 +2,16 @@
 #include "mc_internal.h"
 
 static void VSP_set_manual_initial_guess(
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem,
     VSP_options *options
 ) ;
 
 void VSP_set_random_initial_guess
 (
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem,
     VSP_options *options
 ) ;
@@ -19,8 +19,8 @@ void VSP_set_random_initial_guess
 
 void VSP_set_centroid
 (
-    VSP_state             *X,
-    VSP_state             *Y,
+    State             *X,
+    State             *Y,
     Problem     *problem,
     VSP_options     *options
 ) ;
@@ -28,8 +28,8 @@ void VSP_set_centroid
 
 void VSP_set_initial_guess
 (
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem,
     VSP_options *options
 )
@@ -57,8 +57,8 @@ void VSP_set_initial_guess
 
 
 static void VSP_set_manual_initial_guess(
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem,
     VSP_options *options
 ) {
@@ -97,8 +97,8 @@ static void VSP_set_manual_initial_guess(
 
 void VSP_set_random_initial_guess
 (
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem,
     VSP_options *options
 )
@@ -223,8 +223,8 @@ void VSP_set_random_initial_guess
      */
 void VSP_set_centroid
 (
-    VSP_state             *X,
-    VSP_state             *Y,
+    State             *X,
+    State             *Y,
     Problem     *problem,
     VSP_options     *options
 )

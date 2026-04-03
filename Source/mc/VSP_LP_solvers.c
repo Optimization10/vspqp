@@ -20,7 +20,7 @@
 /* Does NOT use partial max sort */
 VSPFLOAT VSP_LP_solver_4
 (
-    VSP_state              *Z, /* Solution */
+    State              *Z, /* Solution */
     VSP_Az                *Aw,
     VSPINT                 *c,
     VSPINT                  u,

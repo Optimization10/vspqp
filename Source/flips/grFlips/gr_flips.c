@@ -6,7 +6,7 @@
 #include "basic_flip_strats.h"
 
 // This code is finished except for calling flips
-void GR_Flips(VSP_state *Xbest, VSP_state *Ybest, Problem *problem, VSPINT P)
+void GR_Flips(State *Xbest, State *Ybest, Problem *problem, VSPINT P)
 {
     static long long unsigned count = 0 ;
     count++ ;
@@ -26,12 +26,12 @@ void GR_Flips(VSP_state *Xbest, VSP_state *Ybest, Problem *problem, VSPINT P)
     gammaOrg = problem->Graph->max_vtx_cost ;
 
     StatesMan *SM    = StatesMan_Init(Xbest, Ybest) ;
-    VSP_state *Xwork = StatesMan_GetState(SM, WORK_STATES, X_VAR) ;
-    VSP_state *Ywork = StatesMan_GetState(SM, WORK_STATES, Y_VAR) ;
+    State *Xwork = StatesMan_GetState(SM, WORK_STATES, X_VAR) ;
+    State *Ywork = StatesMan_GetState(SM, WORK_STATES, Y_VAR) ;
     IFDBG(VSP_check_states(Xbest, Ybest, problem)) ;
     IFDBG(VSP_check_states(Xwork, Ywork, problem)) ;
 
-    FlipsCtx *FC = FlipsCtx_Init((VSP_state *[2]){Xwork, Ywork}, true, problem);
+    FlipsCtx *FC = FlipsCtx_Init((State *[2]){Xwork, Ywork}, true, problem);
 
     /*------------------------------------------------------------------------*/
     // Main algorithm

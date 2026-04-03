@@ -9,11 +9,11 @@ typedef enum
 } StateManStateType ;
 
 typedef struct StatesMan StatesMan ;
-StatesMan *StatesMan_Init(VSP_state *Xbest, VSP_state *Ybest) ;
+StatesMan *StatesMan_Init(State *Xbest, State *Ybest) ;
 void StatesMan_Destroy(StatesMan *Man) ;
 void StatesMan_UpdateWorkStates(StatesMan *Man) ;
 void StatesMan_UpdateBestStates(StatesMan *Man) ;
-VSP_state *StatesMan_GetState
+State *StatesMan_GetState
 (
     StatesMan *SM, StateManStateType type, VSPINT which
 ) ;

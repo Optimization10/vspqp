@@ -7,8 +7,8 @@
 
 void VSP_set_centroid
 (
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem,
     VSP_options *options
 ) ;
@@ -20,14 +20,14 @@ bool Is_Complete_Graph
 
 VSPFLOAT VSP_zAw
 (
-    VSP_state *X,
-    VSP_state *Y
+    State *X,
+    State *Y
 ) ;
 
 void Force_To_Binary_Point
 (
-    VSP_state           *Z,
-    VSP_state           *W,
+    State           *Z,
+    State           *W,
     Problem   *problem
 ) ;
 
@@ -65,8 +65,8 @@ VSPFLOAT VSP_Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, VSP_Az *Az) ;
 
 void VSP_GetSepCost
 (
-    VSP_state          *X,
-    VSP_state          *Y,
+    State          *X,
+    State          *Y,
     Problem  *problem,
     VSPINT       *sepCost   /* Output*/
 ) ;
@@ -88,8 +88,8 @@ VSPINT VSP_bin_points_diff
 
 void VSP_xAy
 (
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem,
     VSPFLOAT        *xAy
 ) ;
@@ -164,7 +164,7 @@ void Log
     ...
 ) ;
 
-void VSP_check_weight(VSP_state *Z, VSPINT *c) ;
+void VSP_check_weight(State *Z, VSPINT *c) ;
 
 void VSP_check_max_of_array(
     VSPINT        *c,
@@ -208,9 +208,9 @@ void VSP_check_permutation
 ) ;
 
 
-void VSP_check_state(VSP_state *Z, Problem *problem) ;
+void VSP_check_state(State *Z, Problem *problem) ;
 
-void VSP_check_states(VSP_state *X, VSP_state *Y, Problem *problem) ;
+void VSP_check_states(State *X, State *Y, Problem *problem) ;
 
 void Check_Part
 (
@@ -235,8 +235,8 @@ void VSP_light_check_Az
 
 
 void VSP_relaxed_to_vertex_separator(
-    VSP_state* X,
-    VSP_state* Y,
+    State* X,
+    State* Y,
     Problem* problem
 ) ;
 
@@ -268,15 +268,15 @@ VSPFLOAT* Point_to_array(Point *z) ;
 
 void VSP_copy_state
 (
-    VSP_state      *from,
-    VSP_state        *to
+    State      *from,
+    State        *to
 ) ;
 
 void VSP_compute_weight(Point *Z, VSPINT *weight_z, VSPINT *c) ;
 
 int VSP_comparison_increasing(const void *a, const void *b) ;
 
-void VSP_resolve_frac_entry(VSP_state *Z, VSP_state *W, Problem *problem) ;
+void VSP_resolve_frac_entry(State *Z, State *W, Problem *problem) ;
 
 VSPINT Is_Array_Member
 (
@@ -349,8 +349,8 @@ void VSP_Az_pm_col_of_A
 
 VSPFLOAT VSP_compute_objective_0
 (
-    VSP_state *X,
-    VSP_state *Y,
+    State *X,
+    State *Y,
     Problem *problem,
     VSPFLOAT gamma
 ) ;
@@ -369,8 +369,8 @@ void Compute_ObjValSimple
 
 VSPFLOAT VSP_compute_obj
 (
-    VSP_state *X,
-    VSP_state *Y,
+    State *X,
+    State *Y,
     Problem *problem,
     VSPFLOAT gamma
 ) ;
@@ -397,7 +397,7 @@ void VSP_SetFracEntry
 (
     VSPINT         indFrac,
     VSPFLOAT       valFrac,
-    VSP_state           *Z,
+    State           *Z,
     Problem   *problem
 ) ;
 
@@ -435,8 +435,8 @@ VSPFLOAT VSP_LP_solver_0
 
 bool Is_N1_Optimal_Dbg
 (
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem,
     bool          strict  // If true, check for strict N1 Optimality
 ) ;
@@ -446,8 +446,8 @@ void limited_printf(const char *fmt, ...) ;
 
 bool Is_N1_Optimal_Dbg
 (
-    VSP_state                   *X,
-    VSP_state                   *Y,
+    State                   *X,
+    State                   *Y,
     Problem           *problem,
     bool          strictly_optimal  // If true, check for strict N1 Optimality
 ) ;
@@ -455,16 +455,16 @@ bool Is_N1_Optimal_Dbg
 
 VSPFLOAT VSP_minreduce
 (
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     VSP_options *options,
     Problem *problem
 ) ;
 
 void VSP_set_random_initial_guess
 (
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem,
     VSP_options *options
 ) ;
@@ -547,13 +547,13 @@ void Swap_Mem(void *a, void *b, size_t size) ;
 // Return a pointer to a state containing a deep copy of z, Az, and wgtz
 void Save_State_Copy
 (
-    VSPINT *z, VSPINT *Az, VSPINT wgtz, VSPINT n, VSP_state **stateHome
+    VSPINT *z, VSPINT *Az, VSPINT wgtz, VSPINT n, State **stateHome
 ) ;
 
 // Return a pointer to a state containing a deep copy of z, Az, and wgtz
 void Save_State_Copy
 (
-    VSPINT *z, VSPINT *Az, VSPINT wgtz, VSPINT n, VSP_state **stateHome
+    VSPINT *z, VSPINT *Az, VSPINT wgtz, VSPINT n, State **stateHome
 ) ;
 
 void Call_Stack_Print() ;
@@ -561,8 +561,8 @@ void Call_Stack_Print() ;
 
 void Fix_Lower_Bound_Issue
 (
-    VSP_state         *Z,
-    VSP_state         *W,
+    State         *Z,
+    State         *W,
     Problem *problem
 ) ;
 
@@ -593,7 +593,7 @@ bool Is_Greater_Than(VSPFLOAT a, VSPFLOAT b, VSPFLOAT tol) ;
 
 void State_Round_Down
 (
-    VSP_state         *Z,
+    State         *Z,
     Problem *problem
 ) ;
 
@@ -607,13 +607,13 @@ VSPLONG Problem_Get_NZ_Finest(const Problem *P) ;
 void Dump_Problem
 (
     const Problem *P,
-    const VSP_state   *X,
-    const VSP_state   *Y
+    const State   *X,
+    const State   *Y
 ) ;
 
 VSPINT State_Get_Wgt_Int_Part
 (
-    VSP_state *Z,
+    State *Z,
     VSPINT    *c
 ) ;
 

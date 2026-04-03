@@ -6,7 +6,7 @@
 
 VSPFLOAT VSP_minreduce_one_var
 (
-    VSP_state         *Z,
+    State         *Z,
     VSP_Az           *Aw,
     Problem *problem
 ) ;
@@ -16,8 +16,8 @@ VSPFLOAT VSP_minreduce_one_var
    a stationary point                                                         */
 VSPFLOAT VSP_minreduce
 (
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     VSP_options *options,
     Problem *problem
 )
@@ -60,7 +60,7 @@ VSPFLOAT VSP_minreduce
 
 VSPFLOAT VSP_minreduce_one_var
 (
-    VSP_state         *Z,
+    State         *Z,
     VSP_Az           *Aw,
     Problem *problem
 )

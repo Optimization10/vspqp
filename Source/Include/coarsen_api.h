@@ -24,10 +24,10 @@ Problem* Problem_Coarsen
 void Uncoarsen_Point
 (
     Problem    *fine_graph,
-    VSP_state          *fine_X,
-    VSP_state          *fine_Y,
-    VSP_state        *coarse_X,
-    VSP_state        *coarse_Y
+    State          *fine_X,
+    State          *fine_Y,
+    State        *coarse_X,
+    State        *coarse_Y
 ) ;
 
 Problem *Problem_Recursive_Coarsen

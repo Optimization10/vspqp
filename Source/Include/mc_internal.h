@@ -50,7 +50,7 @@ bool Is_LP_Optimal
 
 bool VSP_LP_is_optimal
 (
-    VSP_state         *Z,
+    State         *Z,
     VSP_Az           *Aw,
     VSPFLOAT       gamma,
     Problem *problem,

@@ -150,10 +150,10 @@ typedef struct {
 
 /* Container for all the information pertaining to x or y */
 typedef struct {
-    Point         *point ; /* x or y                                      */
+    Point             *point ; /* x or y                                      */
     VSP_Az               *Az ; /* Ax or Ay                                    */
     VSPINT            weight ; /* c'x or c'y                                  */
-} VSP_state ;
+} State ;
 
 /* ========================================================================== */
 // Constructors and Destructors for Core Types
@@ -182,8 +182,8 @@ void VSP_destruct_Az(VSP_Az* Az) ;
 Point* VSP_construct_point(VSPINT n ) ;
 void VSP_destruct_point(Point* point) ;
 
-VSP_state* VSP_construct_state(VSPINT n);
-void VSP_destruct_state(VSP_state* state);
+State* VSP_construct_state(VSPINT n);
+void VSP_destruct_state(State* state);
 
 
 /* ========================================================================== */

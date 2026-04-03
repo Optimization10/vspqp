@@ -239,8 +239,8 @@ void Check_Linked_Lists
 
 static void VSP_check_penalties_one_state
 (
-    VSP_state *Z,
-    VSP_state *W,
+    State *Z,
+    State *W,
     Penalties *Z_pen,
     VSPINT n
 )
@@ -299,8 +299,8 @@ static void VSP_check_penalties_one_state
 
 void VSP_check_penalties
 (
-    VSP_state *X,
-    VSP_state *Y,
+    State *X,
+    State *Y,
     Penalties *X_pen,
     Penalties *Y_pen,
     VSPINT n

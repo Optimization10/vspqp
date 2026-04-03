@@ -28,7 +28,7 @@ typedef enum
 
 FlipsCtx *FlipsCtx_Init
 (
-    VSP_state   *states[2],
+    State   *states[2],
     bool         randomize,
     Problem   *problem
 ) ;

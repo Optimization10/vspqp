@@ -50,11 +50,11 @@ void VSP_destruct_Az(VSP_Az* Az) {
     free(Az) ;
 }
 
-/***************** VSP_state **************************************************/
+/***************** State **************************************************/
 
-VSP_state* VSP_construct_state(VSPINT n)
+State* VSP_construct_state(VSPINT n)
 {
-    VSP_state* Z = malloc(sizeof(VSP_state)) ;
+    State* Z = malloc(sizeof(State)) ;
     Z->point     = VSP_construct_point(n) ;
     Z->Az        = VSP_construct_Az(n) ;
 
@@ -64,7 +64,7 @@ VSP_state* VSP_construct_state(VSPINT n)
     return Z ;
 }
 
-void VSP_destruct_state(VSP_state* Z)
+void VSP_destruct_state(State* Z)
 {
     VSP_destruct_point(Z->point) ;
     VSP_destruct_Az(Z->Az) ;

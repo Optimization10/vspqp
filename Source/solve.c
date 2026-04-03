@@ -37,7 +37,7 @@ void Destroy_Coarse_Problems(Problem *problemFinest) ;
 // Store x, y into result and free remaining memory
 void Final_Cleanup
 (
-    VSP_state *X, VSP_state *Y, Problem *problemFinest, VSP_solve_result *result
+    State *X, State *Y, Problem *problemFinest, VSP_solve_result *result
 )
 {
     result->x = X->point->int_part ;
@@ -58,7 +58,7 @@ void Final_Cleanup
 // Output: all our improvements algorithms have been applied
 void Solve_Level
 (
-    VSP_state *X, VSP_state *Y, Problem *problem, VSP_options *options
+    State *X, State *Y, Problem *problem, VSP_options *options
 )
 {
     VSPFLOAT u_ratio = 0.6 ;
@@ -78,8 +78,8 @@ void Solve_Level
 /* Determine if we should resolve, and if so, do it */
 void VSP_ResolveLevelDecideAndDo
 (
-    VSP_state             *X,
-    VSP_state             *Y,
+    State             *X,
+    State             *Y,
     Problem     *problem,
     VSP_options     *options
 )
@@ -97,8 +97,8 @@ void VSP_ResolveLevelDecideAndDo
     /* Local vars */
     VSPFLOAT obj_best, obj_cent ;
 
-    VSP_state *Xcent = VSP_construct_state(problem->Graph->n) ;
-    VSP_state *Ycent = VSP_construct_state(problem->Graph->n) ;
+    State *Xcent = VSP_construct_state(problem->Graph->n) ;
+    State *Ycent = VSP_construct_state(problem->Graph->n) ;
 
     VSP_set_initial_guess(Xcent, Ycent, problem, options) ;
     Optimize(Xcent, Ycent, problem, options, true, 0) ;
@@ -112,8 +112,8 @@ void VSP_ResolveLevelDecideAndDo
     {
         problem->resolveSuccess = true ;
 
-        Swap_Mem(X, Xcent, sizeof( VSP_state )  ) ;
-        Swap_Mem(Y, Ycent, sizeof( VSP_state )  ) ;
+        Swap_Mem(X, Xcent, sizeof( State )  ) ;
+        Swap_Mem(Y, Ycent, sizeof( State )  ) ;
     }
 
     VSP_destruct_state(Xcent) ;

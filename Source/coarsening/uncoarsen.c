@@ -9,8 +9,8 @@
 
 static void CheckForFracEntryAndRefineIt
 (
-    VSP_state        *Zcrs,
-    VSP_state       *Zfine,
+    State        *Zcrs,
+    State       *Zfine,
     Problem  *probFine
 ) ;
 
@@ -18,9 +18,9 @@ static void CheckForFracEntryAndRefineIt
 static void RefineOneVar
 (
     Problem     *fineGraph,
-    VSP_state           *fineZ,
+    State           *fineZ,
     Problem   *coarseGraph, 
-    VSP_state         *coarseZ
+    State         *coarseZ
 )
 {
     #ifdef VSP_DEBUG
@@ -125,8 +125,8 @@ static void RefineOneVar
 static void CheckForFracEntryAndRefineIt
 (
     
-    VSP_state        *Zcrs,
-    VSP_state       *Zfine,
+    State        *Zcrs,
+    State       *Zfine,
     Problem  *probFine
 )
 {
@@ -192,10 +192,10 @@ static void CheckForFracEntryAndRefineIt
 void Uncoarsen_Point
 (
     Problem    *fine_graph,
-    VSP_state          *fine_X,
-    VSP_state          *fine_Y,
-    VSP_state        *coarse_X,
-    VSP_state        *coarse_Y
+    State          *fine_X,
+    State          *fine_Y,
+    State        *coarse_X,
+    State        *coarse_Y
 )
 {
     #ifdef VSP_DEBUG

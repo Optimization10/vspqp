@@ -15,8 +15,8 @@ VSPFLOAT Reduce_Gamma
 (
     VSPFLOAT       gammaIn,
     GR_Reduce_Type redType,
-    VSP_state           *Z,
-    VSP_state           *W,
+    State           *Z,
+    State           *W,
     VSP_options   *options,
     Problem   *problem
 ) ;
@@ -25,8 +25,8 @@ VSPFLOAT Reduce_Gamma
    outside */
 void VSP_mountain_climbing
 (
-    VSP_state               *X,
-    VSP_state               *Y,
+    State               *X,
+    State               *Y,
     Problem       *problem,
     VSP_options       *options,
     VSPFLOAT             gamma,
@@ -36,8 +36,8 @@ void VSP_mountain_climbing
 
 void VSP_mountain_climbing_v2
 (
-    VSP_state                  *X,
-    VSP_state                  *Y,
+    State                  *X,
+    State                  *Y,
     Problem          *problem,
     VSP_options          *options,
     VSPFLOAT                gamma,
@@ -46,7 +46,7 @@ void VSP_mountain_climbing_v2
 
 VSPFLOAT VSP_LP_solver_4
 (
-    VSP_state *Z, /* Solution */
+    State *Z, /* Solution */
     VSP_Az *Aw,
     VSPINT *c,
     VSPINT u,

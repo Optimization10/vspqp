@@ -16,8 +16,8 @@
 
 static void Best_Of_MC_And_Greedy_Flips
 (
-    VSP_state                *X,
-    VSP_state                *Y,
+    State                *X,
+    State                *Y,
     Problem        *problem,
     VSP_options        *options,
     VSPINT         numFlipsRuns
@@ -26,8 +26,8 @@ static void Best_Of_MC_And_Greedy_Flips
 
 void FM_Flips
 (
-    VSP_state         *X,
-    VSP_state         *Y,
+    State         *X,
+    State         *Y,
     Problem *problem
 ) ; 
 
@@ -59,7 +59,7 @@ static void Determine_Num_GR
 // partition, and the separator only contains a node of minimal weight, then
 // X, Y is globally optimal, or nearly globally optimal
 // Note that we are not taking into account the penalty term
-bool Early_Exit(VSP_state *X, VSP_state *Y, Problem *P)
+bool Early_Exit(State *X, State *Y, Problem *P)
 {
     VSPFLOAT obj = VSP_compute_obj(X, Y, P, P->Graph->max_vtx_cost) ;
     bool ret = false ;
@@ -73,8 +73,8 @@ bool Early_Exit(VSP_state *X, VSP_state *Y, Problem *P)
 
 void Optimize
 (
-    VSP_state                     *X,
-    VSP_state                     *Y,
+    State                     *X,
+    State                     *Y,
     Problem             *problem,
     VSP_options             *options,
     bool          useManyFlipsPoints,
@@ -93,8 +93,8 @@ void Optimize
 
     VSPFLOAT f_x_y, f_xstar_ystar ;
 
-    VSP_state *Xstar = VSP_construct_state( n ) ;
-    VSP_state *Ystar = VSP_construct_state( n ) ;
+    State *Xstar = VSP_construct_state( n ) ;
+    State *Ystar = VSP_construct_state( n ) ;
 
     /* 2. Solve the problem using the original gamma */
     VSPFLOAT gamma = problem->Graph->max_vtx_cost ;
@@ -188,8 +188,8 @@ void Optimize
 
         if(f_xstar_ystar > f_x_y + fabs(f_x_y) * 1E-13 )
         {
-            Swap_Mem(X, Xstar, sizeof(VSP_state) ) ;
-            Swap_Mem(Y, Ystar, sizeof(VSP_state) ) ;
+            Swap_Mem(X, Xstar, sizeof(State) ) ;
+            Swap_Mem(Y, Ystar, sizeof(State) ) ;
             k = 0 ; // Set k so that we call minreduce again
 
             if(Early_Exit(X, Y, problem))
@@ -235,8 +235,8 @@ extern long double G_FLIPS_TIME ;
 // as large as it started with after projecting the fractional entry to 0 or 1
 void Flips
 (
-    VSP_state               *X,
-    VSP_state               *Y,
+    State               *X,
+    State               *Y,
     Problem       *problem,
     VSPINT        maxNumPasses
 )
@@ -268,8 +268,8 @@ void Flips
 
 // void FM_Flips
 // (
-//     VSP_state         *X,
-//     VSP_state         *Y,
+//     State         *X,
+//     State         *Y,
 //     Problem *problem
 // )
 // {
@@ -292,8 +292,8 @@ void Flips
 
 static void Best_Of_MC_And_Greedy_Flips
 (
-    VSP_state                *X,
-    VSP_state                *Y,
+    State                *X,
+    State                *Y,
     Problem        *problem,
     VSP_options        *options,
     VSPINT         numFlipsRuns

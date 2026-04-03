@@ -3,8 +3,8 @@
 
 #include "shared_api.h"
 void VSP_set_initial_guess(
-    VSP_state *X,
-    VSP_state *Y,
+    State *X,
+    State *Y,
     Problem *problem,
     VSP_options *options
 ) ;

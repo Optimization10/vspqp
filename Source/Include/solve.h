@@ -10,8 +10,8 @@ void VSP_check_for_complete_graph(Problem *problem) ;
 
 void VSP_ResolveLevelDecideAndDo
 (
-    VSP_state             *X,
-    VSP_state             *Y,
+    State             *X,
+    State             *Y,
     Problem     *problem,
     VSP_options     *options
 ) ;
@@ -19,8 +19,8 @@ void VSP_ResolveLevelDecideAndDo
 
 void Optimize
 (
-    VSP_state                     *X,
-    VSP_state                     *Y,
+    State                     *X,
+    State                     *Y,
     Problem             *problem,
     VSP_options             *options,
     bool          useManyFlipsPoints,

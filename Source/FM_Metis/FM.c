@@ -25,8 +25,8 @@ static void CheckAllFMDataNoLock
 static void Where_To_States
 (
     VSPINT        *where,
-    VSP_state         *Z,
-    VSP_state         *W,
+    State         *Z,
+    State         *W,
     VSPINT      pwgts[3],
     Problem *problem
 ) ;
@@ -59,8 +59,8 @@ static void BND_Delete
 
 static void Check_FM_Inputs
 (
-    VSP_state         *Z,
-    VSP_state         *W,
+    State         *Z,
+    State         *W,
     Problem *problem
 ) ;
 
@@ -326,8 +326,8 @@ void MovesImprovingCost
 /* Assume we start with a bona fide separator */
 void FM_Metis
 (
-    VSP_state             *Z,
-    VSP_state             *W,
+    State             *Z,
+    State             *W,
     Problem     *problem,
     UNUSED VSP_options     *options,
     VSPINT          n_passes
@@ -1031,8 +1031,8 @@ static void BND_Delete
    we have a bona fide separator (i.e. the cross term is 0)                   */
 static void Check_FM_Inputs
 (
-    VSP_state         *Z,
-    VSP_state         *W,
+    State         *Z,
+    State         *W,
     Problem *problem
 )
 {
@@ -1213,12 +1213,12 @@ static void Check_Ext_Neigh_Wgts
     return ;
 }
 
-/* Convert where array into VSP_states */
+/* Convert where array into States */
 static void Where_To_States
 (
     VSPINT        *where,
-    VSP_state         *Z,
-    VSP_state         *W,
+    State         *Z,
+    State         *W,
     VSPINT      pwgts[3],
     Problem *problem
 )
@@ -1237,7 +1237,7 @@ static void Where_To_States
     points[0] = Z->point->int_part ;
     points[1] = W->point->int_part ;
 
-    VSP_state *states[2] ;
+    State *states[2] ;
     states[0] = Z ;
     states[1] = W ;
 
