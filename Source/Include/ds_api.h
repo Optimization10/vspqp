@@ -133,21 +133,21 @@ typedef struct
 
     VSPINT n ;             /* Size of the matrix */
 
-} VSP_penalties ;
+} Penalties ;
 
-VSP_penalties *VSP_construct_penalties(VSPINT n) ;
-void VSP_destruct_penalties(VSP_penalties *pens) ;
+Penalties *VSP_construct_penalties(VSPINT n) ;
+void VSP_destruct_penalties(Penalties *pens) ;
 
 void VSP_copy_penalties
 (
-    VSP_penalties *from,
-    VSP_penalties *to
+    Penalties *from,
+    Penalties *to
 ) ;
 
 void VSP_build_penalties
 (
     VSPINT                 *z,
-    VSP_penalties     *Z_pens,
+    Penalties     *Z_pens,
     VSPINT                *Aw,
     VSP_problem      *problem
 ) ;
@@ -157,8 +157,8 @@ void VSP_check_penalties
 (
     VSP_state *X,
     VSP_state *Y,
-    VSP_penalties *X_pen,
-    VSP_penalties *Y_pen,
+    Penalties *X_pen,
+    Penalties *Y_pen,
     VSPINT n
 ) ;
 

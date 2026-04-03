@@ -1,6 +1,7 @@
 #ifndef DELETE_NODES_H
 #define DELETE_NODES_H
 
+#include "core.h"
 #include "shared_api.h"
 
 

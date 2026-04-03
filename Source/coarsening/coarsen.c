@@ -1,10 +1,10 @@
+#include "core.h"
 #include "shared_api.h"
 #include "coarsen_internal.h"
 #include "coarsen_api.h"
 #include "io_api.h"
 #include "shared_functions.h"
 #include "shared_macros.h"
-#include "shared_types.h"
 #include <bits/time.h>
 #include <string.h>
 #include <time.h>
@@ -15,7 +15,7 @@ static void RecordCoarsestLvlNum
     VSP_problem *coarsest_p
 ) ;
 
-void SetUpperBound
+static void SetUpperBound
 (
     VSP_problem *problem,
     VSP_options *options
@@ -53,7 +53,7 @@ extern long double G_COARSEN_TIME ;
 
 
 
-VSP_Graph* Graph_Coarsen
+static VSP_Graph* Graph_Coarsen
 (
     VSP_Graph       *GraphFine,
     VSPINT            n_coarse,
@@ -528,7 +528,7 @@ static void SetRatioOfNodesWithMaxWeight
     return ;
 }
 
-void SetUpperBound
+static void SetUpperBound
 (
     VSP_problem *problem,
     VSP_options *options

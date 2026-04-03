@@ -2,20 +2,10 @@
 #include "shared_api.h"
 #include "coarsen_internal.h"
 #include "shared_macros.h"
-#include "shared_types.h"
 #include "shared_functions.h"
-#include "shared_globals.h"
 #include "shared_macros.h"
-#include "shared_types.h"
 #include "coarsen_internal.h"
 #include "ds_api.h"
-
-/* Matching function declarations */
-void Heavy_Edge_Matching(VSP_problem* problem, VSP_options* options);
-void VSP_matching_SR_HEM(VSP_problem* problem, VSP_options* options);
-
-
-
 
 void Match_Check
 (

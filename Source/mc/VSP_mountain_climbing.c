@@ -1,7 +1,6 @@
 #include "shared_api.h"
 #include "mc_internal.h"
 #include "shared_functions.h"
-#include "shared_globals.h"
 #include <stdio.h>
 
 #define VSP_EPS (1E-10)

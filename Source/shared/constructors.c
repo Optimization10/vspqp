@@ -1,7 +1,7 @@
+#include "core.h"
 #include "shared_api.h"
 #include "ds_api.h"
 #include <string.h>
-#include "shared_types.h"
 
 /* ************* Explicit Matrix ******************************************* **/
 VSPINT** VSP_construct_explicit_matrix

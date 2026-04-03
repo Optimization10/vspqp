@@ -6,7 +6,6 @@
 #include "solve.h"
 #include "FM_api.h"
 #include "flips_api.h"
-#include "FM_flips_api.h"
 #include <time.h>
 #include "flips_public_v4.h"
 #include "flips_public_v5.h"
@@ -16,7 +15,6 @@
 #include "coarsen_api.h"
 #include "limits.h"
 #include "shared_functions.h"
-#include "shared_globals.h"
 
 
 

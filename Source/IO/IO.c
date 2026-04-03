@@ -1,17 +1,11 @@
+#include "core.h"
 #include "shared_api.h"
-#include "shared_types.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
 #include <stdlib.h>
 #include <assert.h>
-
-
-
-
-
-
 
 /* Dump a graph in coordinate form. Make the indexing 1-based */
 void VSP_dump_graph
@@ -114,77 +108,6 @@ void VSP_dump_graph
     return ;
 }
 
-
-// Example usage:
-// VSP_create_dot_ovi_file(problem, argv[file_num], "data/test_ovi/") ;
-void VSP_create_dot_ovi_file
-(
-    VSP_problem *problem,
-    char           *name,    /* From cmnd line. Ex: data / **** / bcspwr08.mtx */
-    char         *outDir
-)
-{
-    VSPLONG i ;
-    VSPINT k ;
-    k = 0 ; // To silence warning
-
-    /* 1. Figure out file name */
-    /* 1a. Set the prefix as data/ovi/*/
-    char *prefix = outDir ;
-    char file_name[500] ;
-    file_name[0] = '\0' ;
-    strcpy(file_name, prefix) ;
-
-    /* 1b. Find last slash in name and copy after the slash, stopping 
-           before the extension */
-    VSPINT outDir_len = strlen(outDir);
-    char *slash = strrchr(name, '/') ;
-    for(i = 0 ; slash[i] != '.' ; i++ )
-    {
-        k = outDir_len + i ;
-        file_name[k] = slash[i] ;
-    }
-
-    /* 1c. Add a .ovi extension */
-    file_name[++k]   = '.' ;
-    file_name[++k] = 'o' ;
-    file_name[++k] = 'v' ;
-    file_name[++k] = 'i' ;
-    file_name[++k] = '\0' ;
-
-    printf("\n%s", file_name) ;
-
-    /* 2. Write the problem to a file */
-    VSPINT *Ai = problem->Graph->Ai ;
-    VSPLONG *Ap = problem->Graph->Ap ;
-    VSPINT  n  = problem->Graph->n  ;
-    VSPLONG nz = problem->Graph->nz ;
-
-    /* 2a. Write n and nz */
-    FILE *file = fopen(file_name, "w") ;
-    fprintf(file, "n: %lld    nz: %lld", (long long) n, (long long) nz) ;
-
-    /* 2b. Write Ap */
-    fprintf(file, "\nAp:") ;
-    for(i = 0 ; i <= n ; i++)
-    {
-        fprintf(file, "\n%lld", (long long) Ap[i]) ;
-    }
-
-    /* 2c. Write Ai */
-    /* Leave one blank line between Ai and Ap */
-    fprintf(file, "\n") ;
-    fprintf(file, "\nAi:") ;
-    for(i = 0 ; i < nz ; i++)
-    {
-        fprintf(file, "\n%lld", (long long) Ai[i]) ;
-    }
-    fprintf(file, "\n") ;
-
-    fclose(file) ;
-
-    return ;
-}
 
 // Write the partition to output/filename
 // First, n is written as an int32

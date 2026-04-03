@@ -1,5 +1,6 @@
 #ifndef COARSENING_API_H
 #define COARSENING_API_H
+#include "core.h"
 #include "shared_api.h"
 
 void Graph_Simple_Match
@@ -27,6 +28,12 @@ void Uncoarsen_Point
     VSP_state          *fine_Y,
     VSP_state        *coarse_X,
     VSP_state        *coarse_Y
+) ;
+
+VSP_problem *Problem_Recursive_Coarsen
+(
+    VSP_problem *probFinest,
+    VSP_options    *options
 ) ;
 
 #endif

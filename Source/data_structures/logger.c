@@ -30,7 +30,8 @@ static char* LoggerCreateFormattedBuffer(const char *format, va_list args)
     va_end(args_copy);
     
     char *buffer = (char *)malloc(size);
-    if (!buffer) {
+    if (!buffer)
+    {
         return NULL; // Handle allocation failure
     }
     

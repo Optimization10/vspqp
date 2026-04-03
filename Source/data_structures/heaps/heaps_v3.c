@@ -6,11 +6,9 @@
 #define AZ(i) (Az_int[ i ] + val_frac_z * (is_z_frac) * (one == col_A[ i ]) )
 
 
-
-
 /******************************************************************************
 VERSION 3
-(I think it's the same as version 2)
+Sort by (Az)_i / c_i
 *******************************************************************************/
 
 /* On input:
@@ -118,8 +116,8 @@ void VSP_min_heapify_v3
 void VSP_min_heap_build_v3
 (
     VSPINT*    heap, /* on input, an unsorted set of indices */
-    VSP_Az*     Az, /* size n. Numerator vector to sort by */
-    VSPINT*     c, /* size n. Denominator vector to sort by */
+    VSP_Az*      Az, /* size n. Numerator vector to sort by */
+    VSPINT*       c, /* size n. Denominator vector to sort by */
     VSPINT        n  /* number of elements to build into the heap */
 )
 {

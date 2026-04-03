@@ -8,8 +8,6 @@
     #include "stdlib.h"  
 
     // Things commonly used throughout the project
-    #include "shared_types.h"
     #include "shared_functions.h"
-    #include "shared_globals.h"
     #include "shared_macros.h"
 #endif

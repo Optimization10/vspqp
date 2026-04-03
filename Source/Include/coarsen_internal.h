@@ -2,7 +2,7 @@
 #define COARSEN_INTERNAL_H
 
 #include "shared_api.h"
-#include "coarsen_api.h" // IWYU pragma: keep
+#include "coarsen_api.h"
 
 
 VSPINT* VSP_get_all_matches
@@ -47,9 +47,9 @@ VSPINT VSP_there_is_an_edge
 void VSP_check_matrix_is_symmetric
 (
     VSPINT           *Ai,
-    VSPLONG *Ap,
+    VSPLONG          *Ap,
     VSPINT           *Ae,
-    VSPLONG nz,
+    VSPLONG           nz,
     VSPINT             n,
     VSP_options* options
 ) ;
@@ -60,20 +60,18 @@ VSPINT VSP_check_for_edge_between_arrays_of_vertices
     VSPINT *arr2,
     VSPINT  size,
     VSPINT   *Ai,
-    VSPLONG *Ap
+    VSPLONG  *Ap
 ) ;
 
 VSPINT VSP_check_matrix
 (
-    VSPINT* Ai,
-    VSPLONG* Ap,
-    VSPINT* Ae,
-    VSPLONG nz,
-    VSPINT n,
+    VSPINT*           Ai,
+    VSPLONG*          Ap,
+    VSPINT*           Ae,
+    VSPLONG           nz,
+    VSPINT             n,
     VSP_options* options
 ) ;
-
-void Heavy_Edge_Matching(VSP_problem* problem, VSP_options* options) ;
 
 bool Is_Matched(VSPINT vertex, VSPINT* matching) ;
 

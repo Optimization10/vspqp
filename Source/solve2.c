@@ -1,10 +1,10 @@
 #include "VSPQP.h"
+#include "core.h"
 #include "coarsen_api.h"
 #include "shared_api.h"
 #include "delete_nodes.h"
 #include "shared_functions.h"
 #include "shared_macros.h"
-#include "shared_types.h"
 #include <bits/time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,12 +61,6 @@ void Destroy_Coarse_Problems(VSP_problem *problemFinest)
     }
     return ;
 }
-
-VSP_problem *Problem_Recursive_Coarsen
-(
-    VSP_problem *probFinest,
-    VSP_options    *options
-) ;
 
 
 void VSP_set_default_problem_data(VSP_problem* problem) ;

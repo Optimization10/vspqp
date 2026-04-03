@@ -1,3 +1,4 @@
+#include "core.h"
 #include "shared_api.h"
 #include "ds_api.h"
 #include <stdint.h>
@@ -5,8 +6,6 @@
 #include <stdarg.h>
 #include "flips_common_api.h"
 #include "shared_macros.h"
-#include "shared_types.h"
-
 
 
 bool Is_Coarsest_Problem(VSP_problem *problem)
@@ -707,31 +706,7 @@ VSPFLOAT* VSP_point_to_array(VSP_point *z) {
     return z_arr ;
 }
 
-void VSP_copy_penalties
-(
-    VSP_penalties *from,
-    VSP_penalties *to
-)
-{
-    VSPINT n = from->n ;
-    
-    to->n = n ;
-    to->max_pen = from->max_pen ;
-    to->min_pen = from->min_pen ;
-    for(VSPINT i = 0 ; i < n ; i++)
-    {
-        to->z0_entry[i]    = from->z0_entry[i] ;
-        to->z0_fwd_list[i] = from->z0_fwd_list[i] ;
-        to->z0_rev_list[i] = from->z0_rev_list[i] ;
 
-        to->z1_entry[i]    = from->z1_entry[i] ;
-        to->z1_fwd_list[i] = from->z1_fwd_list[i] ;
-        to->z1_rev_list[i] = from->z1_rev_list[i] ;
-    }
-    to->z0_entry[n]    = from->z0_entry[n] ;
-    to->z1_entry[n]    = from->z1_entry[n] ;
-    return ;
-}
 
 // Create a deep copy. Assume that all memory is already allocated
 void VSP_copy_state(VSP_state *from, VSP_state *to)

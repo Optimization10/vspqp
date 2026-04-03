@@ -1,8 +1,8 @@
 #ifndef SHARED_FUNCTIONS_H
 #define SHARED_FUNCTIONS_H
 
+#include "core.h"
 #include "VSPQP.h"
-#include "shared_types.h"
 #include "time.h"
 
 void VSP_set_centroid

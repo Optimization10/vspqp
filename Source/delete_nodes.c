@@ -1,7 +1,7 @@
 #include "delete_nodes.h"
 #include "shared_api.h"
 #include "shared_functions.h"
-#include "shared_types.h"
+#include "core.h"
 
 // Return NULL if the input graph is all singletons
 VSP_Graph *Compress_Graph

@@ -5,10 +5,34 @@
 #include <stdbool.h>
 #include "VSPQP.h"
 
+
 /* ========================================================================== */
 // Core Macros
 /* ========================================================================== */
 #define EMPTY -1
+
+    #define TIMER_INIT \
+    struct timespec hidden_timespec_struct_start ; \
+    struct timespec hidden_timespec_struct_end ;
+
+    #define TIMER_START \
+    struct timespec hidden_timespec_struct_start ; \
+    clock_gettime(CLOCK_REALTIME, &hidden_timespec_struct_start)
+
+    #define TIMER_ELAPSED \
+    (VSP_compute_elapsed_time(hidden_timespec_struct_start, hidden_timespec_struct_end))
+    
+    #define TIMER_END \
+    struct timespec hidden_timespec_struct_end ;   \
+    clock_gettime(CLOCK_REALTIME, &hidden_timespec_struct_end)
+
+    #define PERFORMANCE_UPDATE_TIME(PREFIX) \
+    // do { \
+    //     G_Performance_Struct.PREFIX##_Count++; \
+    //     G_Performance_Struct.PREFIX##_Seconds += \
+    //     (   (hidden_timespec_struct_end.tv_sec - hidden_timespec_struct_start.tv_sec) \
+    //     + (hidden_timespec_struct_end.tv_nsec - hidden_timespec_struct_start.tv_nsec) / 1e9L ) ;\
+    // } while(0)
 
 /* ========================================================================== */
 // Core Types
@@ -160,5 +184,12 @@ void VSP_destruct_point(VSP_point* point) ;
 
 VSP_state* VSP_construct_state(VSPINT n);
 void VSP_destruct_state(VSP_state* state);
+
+
+/* ========================================================================== */
+// Global Variables
+/* ========================================================================== */
+extern const VSP_problem* G_P ;
+
 
 #endif
