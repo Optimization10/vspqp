@@ -53,8 +53,8 @@ void mountain_climbing
     VSPINT n   = problem->Graph->n;
 
     /* Allocate memory */
-    State *Xstar = construct_state(n);
-    State *Ystar = construct_state(n);
+    State *Xstar = Construct_State(n);
+    State *Ystar = Construct_State(n);
 
     /* Initialize Xstar and Ystar as X and Y */
     copy_state(X, Xstar);
@@ -113,8 +113,8 @@ void mountain_climbing
     }
 
     /* Free memory */
-    destruct_state(Xstar);
-    destruct_state(Ystar);
+    Destroy_State(Xstar);
+    Destroy_State(Ystar);
 
     /*** Orthogonal Phase *****************************************************/
     VSPFLOAT old_obj = compute_obj(X, Y, problem, gamma);
@@ -248,8 +248,8 @@ void mountain_climbing
 
 
 //     /* Allocate memory */
-//     State *Xstar = construct_state(n);
-//     State *Ystar = construct_state(n);
+//     State *Xstar = Construct_State(n);
+//     State *Ystar = Construct_State(n);
 
 //     /* Initialize Xstar and Ystar as X and Y */
 //     copy_state(X, Xstar);
@@ -309,8 +309,8 @@ void mountain_climbing
 //         copy_state(Ystar, Y) ;
 //     }
 
-//     destruct_state(Xstar) ;
-//     destruct_state(Ystar) ;
+//     Destroy_State(Xstar) ;
+//     Destroy_State(Ystar) ;
 
 //     /*** Orthogonal Phase *****************************************************/
 //     optimal_var = 'x' ;

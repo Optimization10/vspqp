@@ -20,8 +20,8 @@ struct StatesMan
 
 void StatesMan_Destroy(StatesMan *Man)
 {
-    destruct_state(Man->work[0]) ;
-    destruct_state(Man->work[1]) ;
+    Destroy_State(Man->work[0]) ;
+    Destroy_State(Man->work[1]) ;
     free(Man) ;
     return ; 
 }
@@ -71,8 +71,8 @@ StatesMan *StatesMan_Init(State *Xbest, State *Ybest)
     ret->best[0] = Xbest ;
     ret->best[1] = Ybest ;
 
-    ret->work[0] = construct_state(n) ;
-    ret->work[1] = construct_state(n) ;
+    ret->work[0] = Construct_State(n) ;
+    ret->work[1] = Construct_State(n) ;
 
     StatesMan_UpdateWorkStates(ret) ;
     

@@ -217,7 +217,7 @@ void Uncoarsen_Point
         }
     #endif 
 
-    destruct_state(coarse_X) ;
-    destruct_state(coarse_Y) ;
+    Destroy_State(coarse_X) ;
+    Destroy_State(coarse_Y) ;
     return ;
 }

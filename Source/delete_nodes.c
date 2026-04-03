@@ -108,7 +108,7 @@ State *Compress_Binary_State
     VSPINT norg = Zorg->point->n ;
     VSPINT ncmp = compGraph->n ;
 
-    State *Zcmpr = construct_state(ncmp) ;
+    State *Zcmpr = Construct_State(ncmp) ;
 
     VSPINT i, j,
     *zorg     = Zorg->point->int_part,
@@ -164,7 +164,7 @@ State *Uncompress_State
     /*------------------------------------------------------------------------*/
     // Allocate memory for uncompressed state
     /*------------------------------------------------------------------------*/
-    State *ret = construct_state(nOrg) ;
+    State *ret = Construct_State(nOrg) ;
     zOrg = ret->point->int_part ;
     
 

@@ -92,7 +92,7 @@ static Graph* Graph_Coarsen
     // Q: I am using the fine problem nz here, is this a problem?
     // A: No. The fine nz should be an upper bound on the coarse nz. And later
     //    on, we set problem_coarse->Graph->nz = munch, which is the true coarse nz
-    // Problem* problem_coarse = construct_problem(n_coarse, GraphFine->nz, options) ;
+    // Problem* problem_coarse = Construct_Problem(n_coarse, GraphFine->nz, options) ;
     Graph *Graph_Coarse = Construct_Graph(n_coarse, GraphFine->nz, NULL, NULL, NULL) ;
 
     VSPLONG *Ap_coarse = Graph_Coarse->Ap;
@@ -453,7 +453,7 @@ Problem *Problem_Coarsen
         P->matching, options
     ) ;
 
-    Problem *P_coarse = construct_problem
+    Problem *P_coarse = Construct_Problem
     (
         Graph_Coarse->n,
         Graph_Coarse->nz,
@@ -654,7 +654,7 @@ Problem *Problem_Recursive_Coarsen
         // if(Stop_Coarsening(P, options))
         // {
         //     // Destroy the problem corresponding to a complete graph
-        //     destruct_problem(coarse_P) ;
+        //     Destroy_Problem(coarse_P) ;
         //     coarsest_P = P ;
         //     break ;
         // }
@@ -666,13 +666,13 @@ Problem *Problem_Recursive_Coarsen
         }
         else if(Is_Complete_Graph(coarse_P->Graph->n, coarse_P->Graph->nz))
         {
-            destruct_problem(coarse_P) ;
+            Destroy_Problem(coarse_P) ;
             coarsest_P = P ;
             break ;
         }
         // else if(coarse_P->Graph->max_vtx_cost > 0.2 * coarse_P->Graph->total_vtx_cost)
         // {
-        //     destruct_problem(coarse_P) ;
+        //     Destroy_Problem(coarse_P) ;
         //     coarsest_P = P ;
         //     break ;
         // }

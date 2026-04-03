@@ -349,7 +349,7 @@ Problem* transpose(
     VSPLONG* num_nonzeros_in_row = calloc(n, sizeof(*num_nonzeros_in_row)) ;
 
     /* Prepare the transpose matrix T */
-    Problem* T = construct_problem(n, nz, NULL, NULL, NULL, options) ;
+    Problem* T = Construct_Problem(n, nz, NULL, NULL, NULL, options) ;
     VSPINT *Ti = T->Graph->Ai , *Te = T->Graph->Ae ;
     VSPLONG *Tp = T->Graph->Ap ;
 

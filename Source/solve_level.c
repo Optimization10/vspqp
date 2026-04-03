@@ -93,8 +93,8 @@ void Optimize
 
     VSPFLOAT f_x_y, f_xstar_ystar ;
 
-    State *Xstar = construct_state( n ) ;
-    State *Ystar = construct_state( n ) ;
+    State *Xstar = Construct_State( n ) ;
+    State *Ystar = Construct_State( n ) ;
 
     /* 2. Solve the problem using the original gamma */
     VSPFLOAT gamma = problem->Graph->max_vtx_cost ;
@@ -216,8 +216,8 @@ void Optimize
     /*------------------------------------------------------------------------*/
     EARLY_EXIT:
 
-    destruct_state(Xstar) ;
-    destruct_state(Ystar) ;
+    Destroy_State(Xstar) ;
+    Destroy_State(Ystar) ;
 
     #ifdef DEBUG
         check_states(X, Y, problem) ;

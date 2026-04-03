@@ -243,7 +243,7 @@ void check_Az
     VSPINT *Az_int = az->int_part ;
 
     /* Compute Az from scratch */
-    Az *Az_dbg = construct_Az(n) ;
+    Az *Az_dbg = Construct_Az(n) ;
     Compute_Az(z, Az_dbg, problem->Graph->Ai, problem->Graph->Ap, problem->Graph->n) ;
 
     /* Check that each entry in the integer part is in [0, n] */
@@ -306,7 +306,7 @@ void check_Az
     }
 
     /* Free memory */
-    destruct_Az(Az_dbg) ;
+    Destroy_Az(Az_dbg) ;
 
     return ;
 }
@@ -519,7 +519,7 @@ void check_matrix_is_symmetric
     if (Ae != NULL) check_permutation(Ae, Te, nz) ;
 
     /* Free memory */
-    destruct_problem(T) ;
+    Destroy_Problem(T) ;
 }
 
 

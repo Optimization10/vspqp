@@ -56,7 +56,7 @@ void Destroy_Coarse_Problems(Problem *problemFinest)
     while(p != NULL)
     {
         cp = p->child_problem ;
-        destruct_problem(p) ;
+        Destroy_Problem(p) ;
         p = cp ;
     }
     return ;
@@ -128,11 +128,11 @@ solve_result *Solve
 
     Problem *probFinest, *probCoarsest, *P ;
 
-    probFinest = construct_problem(n, Ap[n], Ai, Ap, Ae, options) ;
+    probFinest = Construct_Problem(n, Ap[n], Ai, Ap, Ae, options) ;
     set_default_problem_data(probFinest) ;
 
     /* Preprocessing */
-    construct_problem(n, Ap[n], Ai, Ap, NULL, options) ;
+    Construct_Problem(n, Ap[n], Ai, Ap, NULL, options) ;
     check_for_complete_graph(probFinest) ;
     preprocess_finest_problem(probFinest, options) ;
 
@@ -164,8 +164,8 @@ solve_result *Solve
     // Solve the coarsest level
     /*------------------------------------------------------------------------*/
     P = probCoarsest ;
-    X_lp1 = construct_state(P->Graph->n) ;
-    Y_lp1 = construct_state(P->Graph->n) ;
+    X_lp1 = Construct_State(P->Graph->n) ;
+    Y_lp1 = Construct_State(P->Graph->n) ;
     set_initial_guess(X_lp1, Y_lp1, P, options) ;
 
     Set_Global_Problem(P) ;
@@ -185,8 +185,8 @@ solve_result *Solve
 
         // Uncoarsen point from level l+1
 
-        X_l = construct_state(P->Graph->n) ;
-        Y_l = construct_state(P->Graph->n) ;
+        X_l = Construct_State(P->Graph->n) ;
+        Y_l = Construct_State(P->Graph->n) ;
         Uncoarsen_Point(P, X_l, Y_l, X_lp1, Y_lp1) ;
 
 

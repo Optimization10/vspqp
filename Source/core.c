@@ -3,7 +3,7 @@
 
 
 /**************** Point ***************************************************/
-Point* construct_point(VSPINT n) {
+Point* Construct_Point(VSPINT n) {
     Point* point = malloc( sizeof(Point) ) ;
     point->int_part  = calloc( n, sizeof(VSPINT) ) ; // calloc to initialize 0
 
@@ -15,7 +15,7 @@ Point* construct_point(VSPINT n) {
     return point ;
 }
 
-void destruct_point(Point* point)
+void Destroy_Point(Point* point)
 {
     #ifdef DEBUG
         static long long unsigned count = 0 ;
@@ -30,7 +30,7 @@ void destruct_point(Point* point)
 
 
 /**************** Az ******************************************************/
-Az* construct_Az(VSPINT n) {
+Az* Construct_Az(VSPINT n) {
     Az* Az     = malloc( sizeof(*Az) ) ;
     Az->int_part   = calloc(n, sizeof(VSPINT)) ; // calloc to 0
     Az->col_frac_z = calloc(n, sizeof(VSPINT)) ;    // calloc to 0
@@ -44,7 +44,7 @@ Az* construct_Az(VSPINT n) {
     return Az ;
 }
 
-void destruct_Az(Az* Az)
+void Destroy_Az(Az* Az)
 {
     free(Az->int_part) ;
     free(Az->col_frac_z) ;
@@ -53,11 +53,11 @@ void destruct_Az(Az* Az)
 
 /***************** State **************************************************/
 
-State* construct_state(VSPINT n)
+State* Construct_State(VSPINT n)
 {
     State* Z = malloc(sizeof(State)) ;
-    Z->point     = construct_point(n) ;
-    Z->Az        = construct_Az(n) ;
+    Z->point     = Construct_Point(n) ;
+    Z->Az        = Construct_Az(n) ;
 
     /* Set default values */
     Z->weight    = 0 ;
@@ -65,10 +65,10 @@ State* construct_state(VSPINT n)
     return Z ;
 }
 
-void destruct_state(State* Z)
+void Destroy_State(State* Z)
 {
-    destruct_point(Z->point) ;
-    destruct_Az(Z->Az) ;
+    Destroy_Point(Z->point) ;
+    Destroy_Az(Z->Az) ;
     free(Z) ;
     return ;
 }
@@ -115,7 +115,7 @@ void Destroy_Graph(Graph *Graph)
 
 
 /* *************** Problem ********************************************** */
-Problem* construct_problem
+Problem* Construct_Problem
 (
     VSPINT       num_vertices,
     VSPLONG                nz,
@@ -170,7 +170,7 @@ Problem* construct_problem
     return problem;
 }
 
-void destruct_problem(Problem* problem)
+void Destroy_Problem(Problem* problem)
 {
     /* Free the graph data */
     free(problem->name) ;

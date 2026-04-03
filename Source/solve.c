@@ -28,7 +28,7 @@ void Destroy_Coarse_Problems(Problem *problemFinest) ;
 //     while(p != NULL)
 //     {
 //         cp = p->child_problem ;
-//         destruct_problem(p) ;
+//         Destroy_Problem(p) ;
 //         p = cp ;
 //     }
 //     return ;
@@ -43,11 +43,11 @@ void Final_Cleanup
     result->x = X->point->int_part ;
     result->y = Y->point->int_part ;
 
-    destruct_Az(X->Az) ;
+    Destroy_Az(X->Az) ;
     free(X->point) ;
     free(X) ;
 
-    destruct_Az(Y->Az) ;
+    Destroy_Az(Y->Az) ;
     free(Y->point) ;
     free(Y) ;
  
@@ -97,8 +97,8 @@ void ResolveLevelDecideAndDo
     /* Local vars */
     VSPFLOAT obj_best, obj_cent ;
 
-    State *Xcent = construct_state(problem->Graph->n) ;
-    State *Ycent = construct_state(problem->Graph->n) ;
+    State *Xcent = Construct_State(problem->Graph->n) ;
+    State *Ycent = Construct_State(problem->Graph->n) ;
 
     set_initial_guess(Xcent, Ycent, problem, options) ;
     Optimize(Xcent, Ycent, problem, options, true, 0) ;
@@ -116,8 +116,8 @@ void ResolveLevelDecideAndDo
         Swap_Mem(Y, Ycent, sizeof( State )  ) ;
     }
 
-    destruct_state(Xcent) ;
-    destruct_state(Ycent) ;
+    Destroy_State(Xcent) ;
+    Destroy_State(Ycent) ;
     return ;
 }
 

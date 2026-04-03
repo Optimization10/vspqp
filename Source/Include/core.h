@@ -7,116 +7,108 @@
 
 
 /* ========================================================================== */
-// Core Macros
+/*  Core Macros                                                               */
 /* ========================================================================== */
-#define EMPTY -1
 
-#define PLUS   1
-#define MINUS -1
+/* -------------------------------------------------------------------------- */
+/*  Constants                                                                 */
+/* -------------------------------------------------------------------------- */
 
-#define UP    1
-#define DOWN -1
+#define EMPTY  -1
+#define PLUS    1
+#define MINUS  -1
+#define UP      1
+#define DOWN   -1
 
-#define ZERO 1E-6
+#define TRUE    1
+#define FALSE   0
 
-#define TRUE  1
-#define FALSE 0
+#define ZERO    1E-6
+
+
+
+/* -------------------------------------------------------------------------- */
+/*  Utility                                                                   */
+/* -------------------------------------------------------------------------- */
+
+#define MIN(a, b)  (((a) < (b)) ? (a) : (b))
+#define MAX(a, b)  (((a) > (b)) ? (a) : (b))
+
+#define IN_RANGE(num, low, high) ( ((low) <= (num)) && ((num) < (high)) )
+
+#define IFF(A, B) ( ((A) + (B) == 0) || ((A) + (B) == 2) )
+
+#define CAST(arg, type)  ((type)(arg))
+#define PRI(A)           ((long long int)(A))
+
+#define UNUSED  __attribute__((unused))
+
+/* Returns true iff a/b < c/d  (and <= variant) */
+#define CMP_FRAC(a, b, c, d)    ((a) * (d) <  (c) * (b))
+#define CMPEQ_FRAC(a, b, c, d)  ((a) * (d) <= (c) * (b))
+
+#define IMBALANCE(wgtz, wgtw) \
+({                             \
+    typeof(wgtz) _diff = (wgtz) - (wgtw); \
+    _diff < 0 ? -_diff : _diff;            \
+})
+
+#define SWAP(a, b, type) do {                  \
+    type _swap_tmp_do_not_use_ = (a);          \
+    (a) = (b);                                 \
+    (b) = _swap_tmp_do_not_use_;               \
+} while (0)
+
+/* -------------------------------------------------------------------------- */
+/*  Debug                                                                     */
+/* -------------------------------------------------------------------------- */
 
 #define ERR_MSG_LEN 300
 
-#define PRI(A) ( (long long int) A )
-
-#define UNUSED __attribute__((unused))
-
-/* Return true if low <= num < high, and false otherwise */
-#define IN_RANGE(num, low, high) ( ( (low) <= (num) ) && ( (num) < (high) ) ) 
-
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-
-/* Returns true iff a/b < c/d */
-#define CMP_FRAC(a, b, c, d) ((a) * (d) < (c) * (b))
-#define CMPEQ_FRAC(a, b, c, d) ((a) * (d) <= (c) * (b))
-
-#define DBG_INFO __FILE__, __LINE__, count
-#define ERR(msg) Error( msg, __FILE__, __LINE__, count)
-#define CAST(arg, type) ( ((type) (arg)) )
-
-#define IMBALANCE(wgtz, wgtw) \
-({ \
-    typeof(wgtz) _diff = (wgtz) - (wgtw); \
-    _diff < 0 ? -_diff : _diff; \
-})
-
-// A, B are logical conditions
-#define IFF(A, B) ( ((A) + (B) == 0) || ((A) + (B) == 2) )
-
-
+#define DBG_INFO  __FILE__, __LINE__, count
+#define ERR(msg)  Error(msg, __FILE__, __LINE__, count)
 
 #ifdef DEBUG
-    #define IFDBG(someCode) ( someCode )
-#else
-    #define IFDBG(some_code)
-#endif
-
-
-
-// Swap the values of A and B
-#define SWAP(a, b, type) do {                     \
-    type VSPTempForSwappingONLYDoNOTUse = (a);    \
-    (a) = (b) ;                                   \
-    (b) = VSPTempForSwappingONLYDoNOTUse ;        \
-} while (0)
-
-
-
-#ifdef DEBUG
-    #define VSP_ASSERT( cond ) \
-        do { \
-        if ( !(cond) ) { \
-           Error("Failed assert.", __FILE__, __LINE__, count) ; \
-        } \
+    #define IFDBG(code)               (code)
+    #define SET_FUNCTION_COUNTER      static long long unsigned count = 0; count++
+    #define VSP_ASSERT(cond) do {                              \
+        if (!(cond)) Error("Failed assert.", DBG_INFO);        \
     } while (0)
 #else
-    #define VSP_ASSERT( cond ) 
+    #define IFDBG(code)
+    #define SET_FUNCTION_COUNTER
+    #define VSP_ASSERT(cond)
 #endif
 
 #if defined(DEBUG) || defined(DEBUG_COARSENING)
     #define WARN_IF_NOT_DEBUG_MODE
 #else
-    #define WARN_IF_NOT_DEBUG_MODE printf("\n\nWARNING: Calling debugging function when not in debug mode. File: %s  Line: %lld\n\n", __FILE__, (long long) __LINE__)
+    #define WARN_IF_NOT_DEBUG_MODE \
+        printf("\n\nWARNING: Calling debug function outside debug mode. " \
+               "File: %s  Line: %lld\n\n", __FILE__, (long long)__LINE__)
 #endif
 
+/* -------------------------------------------------------------------------- */
+/*  Timer                                                                     */
+/* -------------------------------------------------------------------------- */
 
-#ifdef DEBUG
-    #define SET_FUNCTION_COUNTER static long long unsigned count = 0 ; count++
-#else
-    #define SET_FUNCTION_COUNTER
-#endif
+#define TIMER_START                                          \
+    struct timespec _vsp_timer_start;                            \
+    clock_gettime(CLOCK_REALTIME, &_vsp_timer_start)
 
+#define TIMER_END                                            \
+    struct timespec _vsp_timer_end;                              \
+    clock_gettime(CLOCK_REALTIME, &_vsp_timer_end)
 
-#define TIMER_INIT \
-struct timespec hidden_timespec_struct_start ; \
-struct timespec hidden_timespec_struct_end ;
-
-#define TIMER_START \
-struct timespec hidden_timespec_struct_start ; \
-clock_gettime(CLOCK_REALTIME, &hidden_timespec_struct_start)
-
-#define TIMER_ELAPSED \
-(compute_elapsed_time(hidden_timespec_struct_start, hidden_timespec_struct_end))
-
-#define TIMER_END \
-struct timespec hidden_timespec_struct_end ;   \
-clock_gettime(CLOCK_REALTIME, &hidden_timespec_struct_end)
+#define TIMER_ELAPSED  compute_elapsed_time(_timer_start, _timer_end)
 
 #define PERFORMANCE_UPDATE_TIME(PREFIX) \
 // do { \
 //     G_Performance_Struct.PREFIX##_Count++; \
 //     G_Performance_Struct.PREFIX##_Seconds += \
-//     (   (hidden_timespec_struct_end.tv_sec - hidden_timespec_struct_start.tv_sec) \
-//     + (hidden_timespec_struct_end.tv_nsec - hidden_timespec_struct_start.tv_nsec) / 1e9L ) ;\
-// } while(0)
+//     (   (_vsp_timer_end.tv_sec - _vsp_timer_start.tv_sec) \
+//     + (_vsp_timer_end.tv_nsec - _vsp_timer_start.tv_nsec) / 1e9L ); \
+// } while(0) */
 
 /* ========================================================================== */
 // Core Types
@@ -137,9 +129,6 @@ typedef enum match_type_enum
     matchtype_3way
 } match_type ;
 
-
-typedef struct Problem_struct Problem;
-
 typedef struct
 {
     VSPINT  n ;
@@ -154,10 +143,6 @@ typedef struct
     VSPINT max_vtx_cost ;
     VSPINT total_vtx_cost ;
 } Graph ;
-
-
-
-
 
 typedef struct Problem_struct
 {
@@ -206,8 +191,9 @@ typedef struct Problem_struct
 
 } Problem ;
 
-/* Store an almost binary point.                                              */
-typedef struct {
+/* Store an almost binary point */
+typedef struct
+{
     VSPINT    *int_part ; /* Integer part*/
     VSPINT     ind_frac ; /* Index of fractional entry. EMPTY if none.        */
     VSPFLOAT   val_frac ; /* Value of fractional entry. No guarantees
@@ -219,7 +205,8 @@ typedef struct {
 /* Store Az where A is a binary matrix and z has at most one fractional entry
    Entry i in Az is
    int_part[i] + val_frac_z * ( col_frac_z[i] == one ) * (ind_frac_z != EMPTY)*/
-typedef struct {
+typedef struct
+{
     VSPINT     *int_part ; /* A times the integer part of z                   */
     VSPINT    ind_frac_z ; /* Index of fractional entry in z. EMPTY if none.  */
     VSPFLOAT  val_frac_z ; /* Value of fractional entry in z. No guarantees if
@@ -233,9 +220,10 @@ typedef struct {
 } Az ;
 
 /* Container for all the information pertaining to x or y */
-typedef struct {
+typedef struct
+{
     Point             *point ; /* x or y                                      */
-    Az               *Az ; /* Ax or Ay                                    */
+    Az                   *Az ; /* Ax or Ay                                    */
     VSPINT            weight ; /* c'x or c'y                                  */
 } State ;
 
@@ -243,7 +231,7 @@ typedef struct {
 // Constructors and Destructors for Core Types
 /* ========================================================================== */
 
-Problem* construct_problem
+Problem* Construct_Problem
 (
     VSPINT       num_vertices,
     VSPLONG                nz,
@@ -253,21 +241,21 @@ Problem* construct_problem
     Options      *options
 ) ;
 
-void destruct_problem(Problem* problem) ;
+void Destroy_Problem(Problem* problem) ;
 
 
 
 Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae) ;
 void Destroy_Graph(Graph *Graph) ;
 
-Az* construct_Az(VSPINT n) ;
-void destruct_Az(Az* Az) ;
+Az* Construct_Az(VSPINT n) ;
+void Destroy_Az(Az* Az) ;
 
-Point* construct_point(VSPINT n ) ;
-void destruct_point(Point* point) ;
+Point* Construct_Point(VSPINT n ) ;
+void Destroy_Point(Point* point) ;
 
-State* construct_state(VSPINT n);
-void destruct_state(State* state);
+State* Construct_State(VSPINT n);
+void Destroy_State(State* state);
 
 
 /* ========================================================================== */

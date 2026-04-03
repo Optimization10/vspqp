@@ -69,7 +69,7 @@
 
 //         /* Get optimal objective by solving the LP                            */
 //         VSPFLOAT obj_opt = 0 ;
-//         State *Z_copy = construct_state(problem->Graph->n) ;
+//         State *Z_copy = Construct_State(problem->Graph->n) ;
 //         copy_state(Z, Z_copy) ;
 //         obj_opt = LP_solver_4(Z_copy      , Aw   , problem->Graph->c, 1,
 //                                   problem->u, gamma, problem   , options, 'x');
@@ -81,7 +81,7 @@
 //         bool is_opt_dbg = equal(obj_given, obj_opt) ;
 
 //         /* Free memory */
-//         destruct_state(Z_copy) ;
+//         Destroy_State(Z_copy) ;
 //     #endif
 
 //     bool is_opt ;

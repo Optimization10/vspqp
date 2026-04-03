@@ -1016,7 +1016,7 @@ void Save_State_Copy
     VSPINT *z, VSPINT *Az, VSPINT wgtz, VSPINT n, State **stateHome
 )
 {
-    State *ret = construct_state(n) ;
+    State *ret = Construct_State(n) ;
     copy_array_int(z , ret->point->int_part, n) ;
     copy_array_int(Az, ret->Az   ->int_part, n) ;
     ret->weight = wgtz ;

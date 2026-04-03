@@ -73,8 +73,8 @@ void LoggerStart
     va_end(args);
 
     Logger_Record *rec = calloc(1, sizeof(*rec)) ;
-    State *Xcpy = construct_state(problem->Graph->n) ;
-    State *Ycpy = construct_state(problem->Graph->n) ;
+    State *Xcpy = Construct_State(problem->Graph->n) ;
+    State *Ycpy = Construct_State(problem->Graph->n) ;
     copy_state(X, Xcpy) ;
     copy_state(Y, Ycpy) ;
     rec->X = Xcpy ;
@@ -113,8 +113,8 @@ void LoggerStop(State *X, State *Y, Problem *problem)
     }
     fprintf(LOG_G.log, "Stop  : %s   Obj change %%: %f", rec->msg, 100*(objFin - objInit)/objFin ) ;
 
-    destruct_state(rec->X) ;
-    destruct_state(rec->Y) ;
+    Destroy_State(rec->X) ;
+    Destroy_State(rec->Y) ;
     free(rec->msg) ;
     free(rec) ;
     return ;
