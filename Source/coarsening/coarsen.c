@@ -496,10 +496,6 @@ Problem *Problem_Coarsen
     // Set ratio of nodes with max weight
     SetRatioOfNodesWithMaxWeight(P_coarse) ;
 
-    // Set max degree
-    VSPINT deg = Get_Max_Degree(Graph_Coarse->Ap, Graph_Coarse->n) ;
-    P_coarse->maxDegree = deg ;
-
     return P_coarse ;
 }
 
@@ -523,8 +519,6 @@ static void SetRatioOfNodesWithMaxWeight
             num++ ;
         }
     }
-
-    problem->ratioMaxCostNodes = ( (VSPFLOAT) num ) / n ;
     return ;
 }
 

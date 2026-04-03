@@ -152,17 +152,10 @@ Problem* Construct_Problem
     problem->graph->nz = nz;
     problem->cn = 0;
     problem->cnz = 0;
-    problem->singleton = EMPTY ;
     problem->parent_problem = NULL ;
     problem->child_problem  = NULL ;
     problem->level = 0 ;
     problem->coarsest_level_num = 0 ;
-    problem->ratioMaxCostNodes = 0 ;
-
-    problem->maxDegree = 0 ;
-
-    problem->resolveTried   = false ;
-    problem->resolveSuccess = false ;
 
     /* The graph is assumed to be uncompressed */
     problem->graph         = problem->graph ;

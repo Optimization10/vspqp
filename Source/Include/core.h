@@ -146,47 +146,29 @@ typedef struct
 
 typedef struct Problem_struct
 {
-    Graph             *graph ;  /* the graph being solved                     */
-
-    char                   *name ;  /* name of the graph                     */
-
-    /* Balance constraint */
-    VSPINT                     u ;  /* upper balance constraint              */
+    Graph *graph ;  /* the graph being solved */
+    char   *name ;  /* name of the graph */
+    VSPINT     u ;  /* upper balance constraint */
 
     /* Matching info */
     VSPINT             *matching ;
     VSPINT             *matchmap ;
     VSPINT          *invmatchmap ;
-    match_type       *matchtype ;
-    VSPINT             singleton ;
+    match_type        *matchtype ;
 
     /* Coarser graph size */
     VSPINT                    cn ;
     VSPLONG                   cnz ;
 
-    /* Link to parent problem. NULL if this is finest graph */
+    /* Pointers to parent and child problem */
     struct Problem_struct *parent_problem ;
-    bool was_coarsened_w_comm ;
-
-    /* Link to child problem. NULL if this is the coarsest graph */
     struct Problem_struct *child_problem ;
 
-    /* The number of coarsenings done to reach this graph. The finest
-       problem is at level 0 */
+    /* Number of coarsenings done to reach this graph Finest is level 0*/
     VSPINT level ;
     VSPINT coarsest_level_num ; /* the level of the coarsest problem */
 
-    /* Re-solve */
-    bool resolveTried ;
-    bool resolveSuccess ;
-
     VSPINT ubFinest ;
-
-    /* The ratio of nodes which have maximal cost */
-    VSPFLOAT ratioMaxCostNodes ;
-
-    /* The maximum degree in the graph */
-    VSPINT maxDegree ;
 
 } Problem ;
 
@@ -202,7 +184,7 @@ typedef struct
 
 /* Store Az where A is a binary matrix and z has at most one fractional entry.
    Entry i in Az is
-   int_part[i] + val_frac_z * ( col_frac_z[i] == one ) * (ind_frac_z != EMPTY) */
+   int_part[i] + val_frac_z * ( col_frac_z[i] == one ) * (ind_frac_z != EMPTY)*/
 typedef struct
 {
     VSPINT     *int_part ; /* A times the integer part of z                   */
@@ -235,7 +217,7 @@ Problem* Construct_Problem
     VSPINT                *Ai, // If NULL, then this is allocated
     VSPLONG               *Ap, // If NULL, then this is allocated
     VSPINT                *Ae, // If NULL, then this is allocated
-    Options      *options
+    Options          *options
 ) ;
 
 void Destroy_Problem(Problem* problem) ;

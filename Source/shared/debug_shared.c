@@ -697,11 +697,6 @@ VSPINT check_problem
         }
     }
 
-    if(maxDeg != problem->maxDegree)
-    {
-        ERR("Max degree of problem is wrong") ;
-    }
-
     if (cost_is_wrong) {
         Error("Cost is wrong", DBG_INFO) ;
         is_there_an_error = TRUE ;
@@ -729,11 +724,6 @@ VSPINT check_problem
 
     if (sum_of_all_ci != problem->graph->total_vtx_cost) {
         Error("Problem with sum of all ci", DBG_INFO) ;
-        is_there_an_error = TRUE ;
-    }
-    if(problem->ratioMaxCostNodes <= 0 || problem->ratioMaxCostNodes > 1)
-    {
-        Error("Wrong ratio of max weight nodes", DBG_INFO) ;
         is_there_an_error = TRUE ;
     }
 

@@ -60,7 +60,6 @@ void set_default_problem_data(Problem* problem) {
     /* Set cost of each vertex to 1 */
     VSPINT* c = problem->graph->c ;
     for(i = 0 ; i < n ; i++) c[i] = 1 ;
-    problem->ratioMaxCostNodes    = 1 ;
 
     /* Set the edge weights to 1 */
     VSPINT* Ae = problem->graph->Ae ;
@@ -85,7 +84,6 @@ void    preprocess_finest_problem
     VSPINT node, num_nodes, c_node, alpha, gamma, total_graph_weight ;
     VSPINT* c ;
     num_nodes = problem->graph->n ;
-    problem->was_coarsened_w_comm = false ;
 
     /* Finest problem has no parent. Lets us know when to stop refining */
     problem->parent_problem = NULL ;
@@ -101,7 +99,6 @@ void    preprocess_finest_problem
             maxDeg =  Ap[node + 1] - Ap[node] ;
         }
     }
-    problem->maxDegree = maxDeg ;
 
     /* Compute alpha, gamma, and the sum of all costs */
     if (options->c_is_all_ones == TRUE )

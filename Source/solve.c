@@ -110,8 +110,6 @@ void ResolveLevelDecideAndDo
 
     if(obj_cent > obj_best)
     {
-        problem->resolveSuccess = true ;
-
         Swap_Mem(X, Xcent, sizeof( State )  ) ;
         Swap_Mem(Y, Ycent, sizeof( State )  ) ;
     }
