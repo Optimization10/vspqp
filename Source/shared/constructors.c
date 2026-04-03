@@ -1,48 +1,7 @@
 #include "shared_api.h"
 #include "ds_api.h"
 #include <string.h>
-
 #include "shared_types.h"
-
-
-
-
-
-
-/**************** VSP_solve_result ********************************************/
-
-
-
-
-/************** VSP_flips_dec *************************************************/
-VSP_flips_dec *VSP_construct_flips_dec(VSP_flips_dec_type decType)
-{
-    VSP_flips_dec *ret = calloc(1, sizeof( *ret) ) ;
-    ret->decType = decType ;
-    ret->levels = NULL ;
-    ret->decBoundary = EMPTY ;
-
-    return ret ;
-}
-
-void VSP_destruct_flips_dec(VSP_flips_dec *dec)
-{
-    if(dec->levels != NULL)
-    { 
-        free(dec->levels) ;
-    }
-    free(dec) ;
-
-    return ;
-}
-
-
-
-
-
-
-
-
 
 /* ************* Explicit Matrix ******************************************* **/
 VSPINT** VSP_construct_explicit_matrix

@@ -305,10 +305,6 @@ bool VSP_lteq
 VSP_options* VSP_construct_options();
 void VSP_destruct_options(VSP_options* options);
 
-
-VSP_flips_dec *VSP_construct_flips_dec(VSP_flips_dec_type decType) ;
-void VSP_destruct_flips_dec(VSP_flips_dec *dec) ;
-
 VSPINT** VSP_construct_explicit_matrix (
     VSPINT* values, VSPINT* Ai, VSPLONG nz, VSPLONG* Ap, VSPINT n
 ) ;
@@ -436,13 +432,6 @@ VSPFLOAT VSP_LP_solver_0
     VSP_options *options /* Choose randomness or not                         */
 ) ;
 
-
-void Check_Obj_Change
-(
-    double                           objOld,
-    double                           objNew,
-    Obj_Effect          expectation
-) ;
 
 bool Is_N1_Optimal_Dbg
 (

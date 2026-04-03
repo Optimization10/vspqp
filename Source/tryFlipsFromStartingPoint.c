@@ -83,7 +83,6 @@ void TryFlipsManyStartingPoints
         ) ;
 
         // Apply flips to the star point
-        // Flips() 
         Flips_v5
         (
             xstar, Axstar, &wgtxstar,

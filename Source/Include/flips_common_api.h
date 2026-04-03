@@ -43,22 +43,6 @@ void Compute_Feasibility_And_Gains
     VSPINT         retGains[4]
 ) ;
 
-void GeneralFlipSelector_Check
-(
-    VSPINT                          *x,
-    VSPINT                         *Ax,
-    VSPINT                        wgtx,
-    VSPINT                    *xlocked, // Ignored if NULL
-    VSPINT                          *y,
-    VSPINT                         *Ay,
-    VSPINT                        wgty,
-    VSPINT                    *ylocked, // Ignored if NULL
-    VSPINT               givenFlipType, // NONE, X0, Y0, X1, Y1
-    VSPINT                givenIndFlip, 
-    VSP_problem               *problem,
-    Obj_Effect           expFlipEffect
-) ;
-
 void Do_Flip_Basic
 (
     VSPINT    *z,

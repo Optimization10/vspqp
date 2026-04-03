@@ -8,9 +8,6 @@ void VSP_set_default_options(VSP_options* options)
     options->use_coarsening             = true ;
     options->max_size_of_coarsest_graph = 10;
     options->do_community_match         = true ;
-    options->matching_strategy          = HEMSR ;
-    // Value by which coarsening should compress the graph
-    options->compress_threshold = 0.7 ;
 
     /* Initial guess */
     options->initial_guess                  = VSP_centroid_initial_guess;
@@ -49,7 +46,6 @@ void VSP_set_default_options(VSP_options* options)
     options->max_density     = 0.8 ;
     options->limit_num_nodes = 100 ;
     options->compression_threshold = 0.65 ;
-
 
     return ;
 }

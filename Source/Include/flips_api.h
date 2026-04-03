@@ -21,8 +21,7 @@ void Flips
     VSP_state               *X,
     VSP_state               *Y,
     VSP_problem       *problem,
-    VSPINT        maxNumPasses,
-    VersionNum         version
+    VSPINT        maxNumPasses
 ) ;
 
 #endif

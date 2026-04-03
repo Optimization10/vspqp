@@ -111,7 +111,7 @@ void Optimize
 
     // 2. Flips
     LoggerStart(X, Y, problem, "Flips") ;
-    Flips(X, Y, problem, 9, VERSION_DEFAULT) ;
+    Flips(X, Y, problem, 9) ;
     LoggerStop(X, Y, problem) ;
 
     // 3. Get vertex separator in preparation for FM_METIS
@@ -169,7 +169,7 @@ void Optimize
         /* (x*, y*) <- Solution starting from (x*, y*), using original gamma  */
         /*--------------------------------------------------------------------*/
         VSP_mountain_climbing(Xstar, Ystar, problem, options, gamma_org, true) ;
-        Flips(Xstar, Ystar, problem, 9, VERSION_DEFAULT) ;
+        Flips(Xstar, Ystar, problem, 9) ;
 
         VSP_relaxed_to_vertex_separator(Xstar, Ystar, problem) ;
 
@@ -209,7 +209,7 @@ void Optimize
     // can produce penalties. This is the last thing done do the x, y point
     /*------------------------------------------------------------------------*/
     LoggerStart(X, Y, problem, "Final Flips") ;
-    Flips(X, Y, problem, 5, VERSION_DEFAULT) ;
+    Flips(X, Y, problem, 5) ;
     LoggerStop(X, Y, problem) ;
 
     /*------------------------------------------------------------------------*/
@@ -239,13 +239,9 @@ void Flips
     VSP_state               *X,
     VSP_state               *Y,
     VSP_problem       *problem,
-    VSPINT        maxNumPasses,
-    VersionNum         version
+    VSPINT        maxNumPasses
 )
 {
-    // printf("\nStarting flips") ;
-    fflush(stdout) ;
-
     clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
 
     SET_FUNCTION_COUNTER ;
@@ -258,28 +254,13 @@ void Flips
     VSPINT *wgtx = &(X->weight) ;
     VSPINT *wgty = &(Y->weight) ;
 
-
-    switch (version)
+    if(problem->level <= 2)
     {
-        case VERSION_DEFAULT:
-            if(problem->level <= 2)
-            {
-                Flips_v5(x, Ax, wgtx, y, Ay, wgty, problem, maxNumPasses) ;
-            }
-            else
-            {
-                Flips_v4(x, Ax, wgtx, y, Ay, wgty, problem, maxNumPasses) ;
-            }
-            break ;
-        case VERSION_4:
-            Flips_v4(x, Ax, wgtx, y, Ay, wgty, problem, maxNumPasses) ;
-            break ;
-        case VERSION_5:
-            Flips_v5(x, Ax, wgtx, y, Ay, wgty, problem, maxNumPasses) ;
-            break ;
-        default:
-            printf("\nError: Did not select correct flips version") ;
-            break ;
+        Flips_v5(x, Ax, wgtx, y, Ay, wgty, problem, maxNumPasses) ;
+    }
+    else
+    {
+        Flips_v4(x, Ax, wgtx, y, Ay, wgty, problem, maxNumPasses) ;
     }
 
     clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;

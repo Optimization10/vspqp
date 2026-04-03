@@ -11,24 +11,12 @@ typedef struct VSP_levels_struct VSP_levels ;
 typedef struct VSP_coarsen_dec_struct VSP_coarsen_dec ;
 
 
-
-
-
 typedef enum VSP_initial_guess_enum
 {
     VSP_centroid_initial_guess,
     VSP_random_initial_guess,
     VSP_manual_initial_guess
 } VSP_initial_guess ;
-
-typedef enum VSP_matching_strategy_enum
-{
-    HEM    = 0,
-    HEMSR  = 1,
-    LOW_GAMMA_MATCHING,
-
-} VSP_matching_strategy ;
-
 
 typedef struct VSP_restart_decision_struct
 {
@@ -54,10 +42,7 @@ typedef struct VSP_options_struct
     bool                    use_coarsening ;
     VSPINT                  max_size_of_coarsest_graph ;
     bool                    do_community_match ;
-    VSP_matching_strategy   matching_strategy;
 
-    // Value by which coarsening should compress the graph
-    VSPFLOAT compress_threshold ;
 
     /* Initial guess */
     VSP_initial_guess      initial_guess;
