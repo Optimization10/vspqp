@@ -19,7 +19,7 @@ void Flips_v5
     SET_FUNCTION_COUNTER ;
     g_num_vert_curr_lvl_v5 = problem->graph->n ;
     #ifdef DEBUG
-        Check_Inputs_v5(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
+        Check_Inputs(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
     #endif
 
 

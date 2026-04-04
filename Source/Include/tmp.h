@@ -96,3 +96,51 @@ void Compute_Max_Group_Sizes
     VSPINT gamma,
     VSPINT n
 ) ;
+
+void Assign_By_Weight
+(
+    VSPINT **z,
+    VSPINT **w,
+    VSPINT **Az,
+    VSPINT **Aw,
+    VSPINT **wgtz,
+    VSPINT **wgtw,
+
+    IdxGroupsByC **z0Aw0_groups,
+    IdxGroupsByC **z1Aw1_groups,
+    IdxGroupsByC **z1Aw2_groups,
+    Direct_Access_List **z0Aw1_list,
+
+    IdxGroupsByC **w0Az0_groups,
+    IdxGroupsByC **w1Az1_groups,
+    IdxGroupsByC **w1Az2_groups,
+    Direct_Access_List **w0Az1_list,
+
+    VSPINT *x,
+    VSPINT *y,
+    VSPINT *Ax,
+    VSPINT *Ay,
+    VSPINT *wgtx,
+    VSPINT *wgty,
+
+    IdxGroupsByC *x0Ay0_groups,
+    IdxGroupsByC *x1Ay1_groups,
+    IdxGroupsByC *x1Ay2_groups,
+    Direct_Access_List *x0Ay1_list,
+
+    IdxGroupsByC *y0Ax0_groups,
+    IdxGroupsByC *y1Ax1_groups,
+    IdxGroupsByC *y1Ax2_groups,
+    Direct_Access_List *y0Ax1_list
+) ;
+
+void Check_Inputs
+(
+    VSPINT                  *x,
+    VSPINT                 *Ax,
+    VSPINT                wgtx,
+    VSPINT                  *y,
+    VSPINT                 *Ay,
+    VSPINT                wgty,
+    Problem       *problem
+) ;

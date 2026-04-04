@@ -106,7 +106,7 @@ void Neutral_Flips_Strategy_1_v5
         // one and w the heavier one
         /*--------------------------------------------------------------------*/
         // Let z be the lighter variable and w the heavier one
-        Assign_By_Weight_v5
+        Assign_By_Weight
         (
             &z, &w, &Az, &Aw, &wgtz, &wgtw,
             &z0Aw0_groups, &z1Aw1_groups, &z1Aw2_groups, &z0Aw1_list,
@@ -309,7 +309,7 @@ void Neutral_Upflip_v5s_In_z_And_Downflip_v5s_In_w1Az2_v5
         if(numFlips >= max_num_upflips) break ;
 
         #ifdef DEBUG
-            Check_All_Data_v5
+            Check_All_Data
             (
                 z, Az, *wgtz, w, Aw, *wgtw,
                 z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
@@ -375,7 +375,7 @@ void Neutral_Upflip_v5s_In_z_And_Downflip_v5s_In_w1Az2_v5
             break ;
         }
         #ifdef DEBUG
-            Check_All_Data_v5
+            Check_All_Data
             (
                 z, Az, *wgtz, w, Aw, *wgtw,
                 z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
@@ -416,7 +416,7 @@ void Select_Random_Feasible_Neutral_Upflip_v5_In_z_Or_w1Az2_v5
     VSPINT gamma = problem->graph->max_vtx_cost ;
     VSPINT u = problem->u ;
     #ifdef DEBUG
-        Check_All_Data_v5
+        Check_All_Data
         (
             z, Az, *wgtz, w, Aw, *wgtw,
             z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,

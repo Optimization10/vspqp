@@ -29,7 +29,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
 {
     SET_FUNCTION_COUNTER ;
     #ifdef DEBUG
-        Check_All_Data_v5
+        Check_All_Data
         (
             x, Ax, wgtx, y, Ay, wgty,
             x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
@@ -323,7 +323,7 @@ void SelectRandomOptimalBeneficialFlip_v5
 {
     SET_FUNCTION_COUNTER ;
     #ifdef DEBUG
-        Check_All_Data_v5
+        Check_All_Data
         (
             x, Ax, wgtx, y, Ay, wgty,
             x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,

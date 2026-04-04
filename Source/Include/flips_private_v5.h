@@ -429,7 +429,7 @@ void FlipSelector_Check_v5
     Expected_Flip_Effect_v5 expFlipEffect
 ) ;
 
-void Check_All_Data_v5
+void Check_All_Data
 (
     VSPINT                          *x,
     VSPINT                         *Ax,
@@ -471,17 +471,6 @@ void Check_Given_Flip_Is_Optimal_v5
     Problem       *problem
 ) ;
 
-// Designed to be called at the very beginning of flips
-void Check_Inputs_v5
-(
-    VSPINT                  *x,
-    VSPINT                 *Ax,
-    VSPINT                wgtx,
-    VSPINT                  *y,
-    VSPINT                 *Ay,
-    VSPINT                wgty,
-    Problem       *problem
-) ;
 
 // Designed to be called at the very end of flips
 // In addition to checking the data,check that there are no strictly beneficial
@@ -497,51 +486,6 @@ void Check_Outputs_v5
     Problem       *problem
 ) ;
 
-void Compute_Max_Group_Sizes_v5
-(
-    VSPINT *maxGroupSizes,
-    VSPINT *c,
-    VSPINT gamma,
-    VSPINT n
-) ;
-
-// Let z be the lighter variable and w the heavier one
-void Assign_By_Weight_v5
-(
-    VSPINT **z,
-    VSPINT **w,
-    VSPINT **Az,
-    VSPINT **Aw,
-    VSPINT **wgtz,
-    VSPINT **wgtw,
-
-    IdxGroupsByC **z0Aw0_groups,
-    IdxGroupsByC **z1Aw1_groups,
-    IdxGroupsByC **z1Aw2_groups,
-    Direct_Access_List **z0Aw1_list,
-
-    IdxGroupsByC **w0Az0_groups,
-    IdxGroupsByC **w1Az1_groups,
-    IdxGroupsByC **w1Az2_groups,
-    Direct_Access_List **w0Az1_list,
-
-    VSPINT *x,
-    VSPINT *y,
-    VSPINT *Ax,
-    VSPINT *Ay,
-    VSPINT *wgtx,
-    VSPINT *wgty,
-
-    IdxGroupsByC *x0Ay0_groups,
-    IdxGroupsByC *x1Ay1_groups,
-    IdxGroupsByC *x1Ay2_groups,
-    Direct_Access_List *x0Ay1_list,
-
-    IdxGroupsByC *y0Ax0_groups,
-    IdxGroupsByC *y1Ax1_groups,
-    IdxGroupsByC *y1Ax2_groups,
-    Direct_Access_List *y0Ax1_list
-) ;
 
 /*------------------------------------------------------------------------------
 Encoding: 
