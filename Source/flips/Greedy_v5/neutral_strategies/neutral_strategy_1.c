@@ -53,27 +53,7 @@ Rmk 2: When we say "do all feasible, strictly beneficial flips", it is only
 #include "neutral_strategies_v5.h"
 
 
-void Upflip
-(
-    VSPINT                          *z,
-    VSPINT                         *Az,
-    VSPINT                          *w,
-    VSPINT                         *Aw,
-    VSPINT                       *wgtz,
-    VSPINT                       *wgtw,
-    IdxGroupsByC         *z0Aw0_groups,
-    Direct_Access_List     *z0Aw1_list,
-    IdxGroupsByC         *z1Aw1_groups,
-    IdxGroupsByC         *z1Aw2_groups,
-
-    IdxGroupsByC         *w0Az0_groups,
-    Direct_Access_List     *w0Az1_list,
-    IdxGroupsByC         *w1Az1_groups,
-    IdxGroupsByC         *w1Az2_groups,
-
-    VSPINT                     indFlip,
-    Problem               *problem
-) ;
+#include "tmp.h"
 
 
 void Neutral_Flips_Strategy_1_v5
@@ -262,7 +242,7 @@ void Neutral_Downflip_v5s_v5
             #endif
 
             // Do this flip
-            Downflip_v5
+            Downflip
             (
                 z, Az, w, Aw, wgtz, wgtw,
                 z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
@@ -380,7 +360,7 @@ void Neutral_Upflip_v5s_In_z_And_Downflip_v5s_In_w1Az2_v5
         {
             // Downflip_v5 in w
             VSP_ASSERT(w[indFlip] == 1) ;
-            Downflip_v5
+            Downflip
             (
                 w, Aw, z, Az, wgtw, wgtz,
                 w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,

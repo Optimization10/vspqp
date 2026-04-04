@@ -1,28 +1,7 @@
 #include "core.h"
 #include "flips_private_v5.h"
 
-void Upflip
-(
-    VSPINT                          *z,
-    VSPINT                         *Az,
-    VSPINT                          *w,
-    VSPINT                         *Aw,
-    VSPINT                       *wgtz,
-    VSPINT                       *wgtw,
-    IdxGroupsByC         *z0Aw0_groups,
-    Direct_Access_List     *z0Aw1_list,
-    IdxGroupsByC         *z1Aw1_groups,
-    IdxGroupsByC         *z1Aw2_groups,
-
-    IdxGroupsByC         *w0Az0_groups,
-    Direct_Access_List     *w0Az1_list,
-    IdxGroupsByC         *w1Az1_groups,
-    IdxGroupsByC         *w1Az2_groups,
-
-    VSPINT                     indFlip,
-    Problem                   *problem
-) ;
-
+#include "tmp.h"
 
 void z0Aw1_List_Check_v5
 (
@@ -100,185 +79,6 @@ void z0Aw1_List_Check_v5
     return ;
 }
 
-
-// ASSUME: that Upflip_v5 happens in z
-// ASSUME: the Aw_indFlip is either 1 or 2
-void Downflip_v5
-(
-    VSPINT                          *z,
-    VSPINT                         *Az,
-    VSPINT                          *w,
-    VSPINT                         *Aw,
-    VSPINT                       *wgtz,
-    VSPINT                       *wgtw, // used for debugging
-    IdxGroupsByC         *z0Aw0_groups,
-    Direct_Access_List     *z0Aw1_list,
-    IdxGroupsByC         *z1Aw1_groups,
-    IdxGroupsByC         *z1Aw2_groups,
-
-    IdxGroupsByC         *w0Az0_groups,
-    Direct_Access_List     *w0Az1_list,
-    IdxGroupsByC         *w1Az1_groups,
-    IdxGroupsByC         *w1Az2_groups,
-
-    VSPINT                     indFlip,
-    Problem               *problem
-)
-{
-    SET_FUNCTION_COUNTER ;
-    VSPINT n = problem->graph->n ;
-    VSPINT gamma = problem->graph->max_vtx_cost ;
-    VSPINT *c = problem->graph->c ;
-    VSPINT *Ai   = problem->graph->Ai ;
-    VSPLONG *Ap   = problem->graph->Ap ;
-    VSPINT i, k, Azk ;
-    VSPLONG start, end, p ;
-
-    #ifdef DEBUG
-        Check_All_Data_v5
-        (
-            z, Az, *wgtz, w, Aw, *wgtw,
-            z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
-            w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
-            problem
-        ) ;
-    #endif
-
-    z[indFlip] = 0 ;
-    *wgtz -= c[indFlip] ;
-
-    /*------------------------------------------------------------------------*/
-    // Do all changes pertaining to indFlip leaving a struct
-    /*------------------------------------------------------------------------*/
-    VSPINT AwindFlip = Aw[indFlip] ;
-    if( AwindFlip == 1 )
-    {
-        IdxGroupsByC_Delete(z1Aw1_groups, indFlip) ;
-    }
-    else if( AwindFlip == 2)
-    {
-        IdxGroupsByC_Delete(z1Aw2_groups, indFlip) ;
-    }
-
-    /*------------------------------------------------------------------------*/
-    // Do all changes pertaining to indFlip entering a struct
-    /*------------------------------------------------------------------------*/
-    if(AwindFlip == 1 && c[indFlip] == gamma)
-    {
-        Direct_Access_List_Insert(z0Aw1_list, indFlip) ;
-    }
-
-
-    /*------------------------------------------------------------------------*/
-    // Do all changes pertaining Awk increasing in N(indFlip) \cup {indFlip}
-    /*------------------------------------------------------------------------*/
-    start = Ap[indFlip] ;
-    end   = Ap[indFlip + 1] ;
-    for(p = start ; p < end ; p++)
-    {
-        k   = Ai[p] ;
-        Azk = Az[k]-- ;
-        if(w[k]) // wk = 1
-        {
-            if(Azk == 1)
-            {
-                IdxGroupsByC_Delete(w1Az1_groups, k) ;
-            }
-            else if(Azk == 2)
-            {
-                IdxGroupsByC_Delete(w1Az2_groups, k) ;
-                IdxGroupsByC_Insert(w1Az1_groups, k) ;
-            }
-            else if(Azk == 3)
-            {
-                IdxGroupsByC_Insert(w1Az2_groups, k) ;
-            }
-        }
-        else // wk = 0
-        {
-            if(Azk == 1)
-            {
-                IdxGroupsByC_Insert(w0Az0_groups, k) ;
-                if(c[k] == gamma)
-                {
-                    Direct_Access_List_Delete_By_Value(w0Az1_list, k) ;
-                }
-            }
-            else if(Azk == 2)
-            {
-                if(c[k] == gamma)
-                {
-                    Direct_Access_List_Insert(w0Az1_list, k) ;
-                }
-            }
-        }
-    }
-
-
-    /*------------------------------------------------------------------------*/
-    /* Take care of indFlip itself                                            */
-    /*------------------------------------------------------------------------*/
-    // #ifdef DEBUG
-    //     IdxGroupsByC_Check(z0Aw0_groups, n) ;
-    //     IdxGroupsByC_Check(z1Aw1_groups, n) ;
-    //     IdxGroupsByC_Check(z1Aw2_groups, n) ;
-
-    //     IdxGroupsByC_Check(w0Az0_groups, n) ;
-    //     IdxGroupsByC_Check(w1Az1_groups, n) ;
-    //     IdxGroupsByC_Check(w1Az2_groups, n) ;
-
-    //     z0Aw1_List_Check_v5(z0Aw1_list, c, z, Aw, gamma, n) ;
-    //     z0Aw1_List_Check_v5(w0Az1_list, c, w, Az, gamma, n) ;
-    // #endif
-
-    k   = indFlip ;
-    Azk = Az[k]-- ;
-    if(w[k]) // wk = 1
-    {
-        if(Azk == 1)
-        {
-            IdxGroupsByC_Delete(w1Az1_groups, k) ;
-        }
-        else if(Azk == 2)
-        {
-            IdxGroupsByC_Delete(w1Az2_groups, k) ;
-            IdxGroupsByC_Insert(w1Az1_groups, k) ;
-        }
-        else if(Azk == 3)
-        {
-            IdxGroupsByC_Insert(w1Az2_groups, k) ;
-        }
-    }
-    else // wk = 0
-    {
-        if(Azk == 1)
-        {
-            IdxGroupsByC_Insert(w0Az0_groups, k) ;
-            if(c[k] == gamma)
-            {
-                Direct_Access_List_Delete_By_Value(w0Az1_list, k) ;
-            }
-        }
-        else if(Azk == 2)
-        {
-            if(c[k] == gamma)
-            {
-                Direct_Access_List_Insert(w0Az1_list, k) ;
-            }
-        }
-    }
-
-    #ifdef DEBUG
-        Check_All_Data_v5
-        (
-            z, Az, *wgtz, w, Aw, *wgtw,
-            z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
-            w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
-            problem
-        ) ;
-    #endif
-    return ;
-}
 
 
 void Initialize_All_Structs_v5
@@ -1094,7 +894,7 @@ void Do_Flip_v5
 
     if(z[indFlip])
     {
-        Downflip_v5
+        Downflip
         (
             z, Az, w, Aw, wgtz, wgtw,
             z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
