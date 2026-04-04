@@ -1,5 +1,6 @@
 #include "core.h"
 #include "flips_private_v5.h"
+#include "tmp.h"
 
 void FeasibleBeneficialFlips_v5
 (
@@ -84,7 +85,7 @@ void FeasibleBeneficialFlips_v5
         // Do the best flip
         if(flipVar == 'x')
         {
-            Do_Flip_v5
+            Do_Flip
             (
                 x, Ax, wgtx, y, Ay, wgty,
                 x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
@@ -94,7 +95,7 @@ void FeasibleBeneficialFlips_v5
         }
         else if(flipVar == 'y')
         {
-            Do_Flip_v5
+            Do_Flip
             (
                 y, Ay, wgty, x, Ax, wgtx,
                 y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
