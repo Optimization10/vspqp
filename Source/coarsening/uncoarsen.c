@@ -40,7 +40,7 @@ static void RefineOneVar
     fz    = fineZ     ->point->int_part ;
     fu    = fineGraph->u ;
     fWgtz = 0 ;
-    matchMap = fineGraph->matchmap ;
+    matchMap = fineGraph->matching->matchmap ;
 
     /*------------------------------------------------------------------------*/
     // Set all entries of fine Az to 0
@@ -148,7 +148,7 @@ static void CheckForFracEntryAndRefineIt
     }
     VSP_ASSERT( Zfine->point->ind_frac == EMPTY ) ;
 
-    VSPINT firstFineVert = probFine->invmatchmap[crsIndFrac] ;
+    VSPINT firstFineVert = probFine->matching->invmatchmap[crsIndFrac] ;
     VSPINT fineVert = firstFineVert ;
     while( 1 )
     {
@@ -178,7 +178,7 @@ static void CheckForFracEntryAndRefineIt
             break ;
         }
 
-        fineVert = get_match(fineVert, probFine->matching) ;
+        fineVert = get_match(fineVert, probFine->matching->match) ;
         if(fineVert == firstFineVert)
         {
             break ;

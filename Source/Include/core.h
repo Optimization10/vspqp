@@ -114,6 +114,21 @@
 /*  Core Types                                                                */
 /* ========================================================================== */
 
+typedef struct
+{
+    VSPINT  n ;
+    VSPLONG nz ;
+
+    VSPINT  *Ai ;
+    VSPLONG *Ap ;
+    VSPINT  *Ae ;
+
+    VSPINT *c ;
+    VSPINT min_vtx_cost ;
+    VSPINT max_vtx_cost ;
+    VSPINT total_vtx_cost ;
+} Graph ;
+
 typedef enum match_type_enum
 {
     matchtype_unmatched = 0,
@@ -131,18 +146,12 @@ typedef enum match_type_enum
 
 typedef struct
 {
-    VSPINT  n ;
-    VSPLONG nz ;
-
-    VSPINT  *Ai ;
-    VSPLONG *Ap ;
-    VSPINT  *Ae ;
-
-    VSPINT *c ;
-    VSPINT min_vtx_cost ;
-    VSPINT max_vtx_cost ;
-    VSPINT total_vtx_cost ;
-} Graph ;
+    VSPINT           *match ;
+    VSPINT        *matchmap ;
+    VSPINT     *invmatchmap ;
+    match_type   *matchtype ;
+    VSPINT               cn ; // Number of vertices in coarse graph
+} Matching ;
 
 typedef struct Problem_struct
 {
@@ -151,14 +160,7 @@ typedef struct Problem_struct
     VSPINT     u ;  /* upper balance constraint */
 
     /* Matching info */
-    VSPINT             *matching ;
-    VSPINT             *matchmap ;
-    VSPINT          *invmatchmap ;
-    match_type        *matchtype ;
-
-    /* Coarser graph size */
-    VSPINT                    cn ;
-    VSPLONG                   cnz ;
+    Matching *matching ;
 
     /* Pointers to parent and child problem */
     struct Problem_struct *parent_problem ;

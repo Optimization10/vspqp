@@ -470,7 +470,7 @@ static void SetCustomOptions(Options *options)
     /*------------------------------------------------------------------------*/
     // Low gamma matching
     /*------------------------------------------------------------------------*/
-    // options->matching_strategy = LOW_GAMMA_MATCHING ;
+    // options->matching->matching_strategy = LOW_GAMMA_MATCHING ;
 
 
 

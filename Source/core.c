@@ -113,8 +113,34 @@ void Destroy_Graph(Graph *Graph)
     free(Graph) ;
 }
 
+/* *************** Matching ************************************************* */
+/* Note: matching is not really a core module. However, it is here because
+   because the problem destroyer should call the matching destroyer, and if
+   I make matching a part of the coarsening module, I would have to include the
+   coarsening api into core .c, which I don't want to do since */
+Matching *Matching_Construct(VSPINT n)
+{
+    /* Construct matching arrays. Need to use calloc */
+    Matching *matching    = malloc(sizeof(*matching)) ;
+    matching->match       = calloc( n, sizeof(VSPINT)) ;
+    matching->matchmap    = calloc( n, sizeof(VSPINT)) ;
+    matching->invmatchmap = calloc( n, sizeof(VSPINT)) ;
+    matching->matchtype   = calloc( n, sizeof(match_type)) ;
+    matching->cn          = 0 ;
+    return matching ;
+}
 
-/* *************** Problem ********************************************** */
+void Matching_Destroy(Matching *matching)
+{
+    free(matching->match) ;
+    free(matching->matchmap) ;
+    free(matching->invmatchmap) ;
+    free(matching->matchtype) ;
+    free(matching) ;
+}
+
+
+/* *************** Problem ************************************************** */
 Problem* Construct_Problem
 (
     VSPINT       num_vertices,
@@ -130,54 +156,30 @@ Problem* Construct_Problem
 
     /* Construct the name */
     problem->name = malloc( 350 * sizeof(char) ) ;
-    if(problem->name == NULL)
-    {
-        printf("\n\nOUT OF MEMORY FOR NAME\n\n") ;
-        exit(1) ;
-    }
     problem->name[0] = '\0' ;
 
     /* Construct adjacency matrix */
-    problem->graph     = Construct_Graph(num_vertices, nz, Ap, Ai, Ae) ;
+    problem->graph = Construct_Graph(num_vertices, nz, Ap, Ai, Ae) ;
 
-    /* Construct matching arrays. Need to use calloc */
-    problem->matching = calloc( num_vertices, sizeof(VSPINT));
-    problem->matchmap = calloc( num_vertices, sizeof(VSPINT));
-    problem->invmatchmap = calloc( num_vertices, sizeof(VSPINT));
-    problem->matchtype = calloc( num_vertices, sizeof(match_type));
-
+    /* Initialize the matching to NULL */
+    problem->matching = Matching_Construct(num_vertices) ;
 
     /* Initialize scalars */
     problem->graph->n  = num_vertices;
     problem->graph->nz = nz;
-    problem->cn = 0;
-    problem->cnz = 0;
     problem->parent_problem = NULL ;
     problem->child_problem  = NULL ;
     problem->level = 0 ;
     problem->coarsest_level_num = 0 ;
 
-    /* The graph is assumed to be uncompressed */
-    problem->graph         = problem->graph ;
-
     return problem;
 }
 
+// Npte: does NOT free matching
 void Destroy_Problem(Problem* problem)
 {
-    /* Free the graph data */
-    free(problem->name) ;
-
     Destroy_Graph(problem->graph) ;
-
-    /* Free matching arrays */
-    free(problem->matching);
-    free(problem->matchmap);
-    free(problem->invmatchmap);
-    free(problem->matchtype);
-
-    /* Free the struct itself */
-    /* Note: we are not freeing cproblem, since each problem frees itself*/
-    /* via the following line */
+    Matching_Destroy(problem->matching) ;
+    free(problem->name) ;
     free(problem);
 }

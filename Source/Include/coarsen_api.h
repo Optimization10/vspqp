@@ -5,14 +5,10 @@
 
 void Graph_Simple_Match
 (
-    Graph              *Graph,
-    VSPINT                    lvl,
-    VSPINT              *matching,
-    VSPINT              *matchmap,
-    VSPINT           *invmatchmap,
-    match_type     *matchtype,
-    VSPINT                    *cn,
-    Options          *options
+    Graph       *Graph,
+    Matching        *M,
+    VSPINT         lvl,
+    Options   *options
 ) ;
 
 Problem* Problem_Coarsen

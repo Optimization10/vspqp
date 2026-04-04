@@ -3,7 +3,7 @@
 
 #include "shared_api.h"
 #include "coarsen_api.h"
-
+#include "core.h"
 
 VSPINT* get_all_matches
 (
@@ -11,11 +11,6 @@ VSPINT* get_all_matches
     VSPINT *matching
 ) ;
 
-VSPINT get_match
-(
-    VSPINT vertex,
-    VSPINT* matching
-) ;
 
 VSPINT get_edge_weight
 (
@@ -73,24 +68,6 @@ VSPINT check_matrix
     Options* options
 ) ;
 
-bool Is_Matched(VSPINT vertex, VSPINT* matching) ;
-
-bool IsMatchedMatchtype
-(
-    VSPINT vertex,
-    VSPINT* matchingArray,
-    match_type *matchtypeArray,
-    match_type desiredType
-) ;
-
-void Match_Check
-(
-    VSPINT                     n,
-    VSPINT                    cn,
-    VSPINT             *matching,
-    VSPINT             *matchmap,
-    VSPINT          *invmatchmap,
-    match_type    *matchtype
-) ;
+VSPINT get_match(VSPINT vertex, VSPINT* match) ;
 
 #endif

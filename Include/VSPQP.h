@@ -144,11 +144,6 @@ void Levels_unselect
 ) ;
 
 
-
-
-
-
-
 solve_result *Solve
 (
     VSPINT             n,

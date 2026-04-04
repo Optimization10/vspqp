@@ -55,12 +55,12 @@ extern long double G_COARSEN_TIME ;
 
 static Graph* Graph_Coarsen
 (
-    Graph       *GraphFine,
+    Graph           *GraphFine,
     VSPINT            n_coarse,
     VSPINT           *matchmap,
     VSPINT        *invmatchmap,
     VSPINT           *matching,
-    Options       *options
+    Options           *options
 )
 {
     clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
@@ -81,9 +81,9 @@ static Graph* Graph_Coarsen
     #endif
 
     VSPLONG *Ap_fine = GraphFine->Ap;
-    VSPINT *Ai_fine = GraphFine->Ai;
-    VSPINT *Ae_fine = GraphFine->Ae;
-    VSPINT *c_fine  = GraphFine->c;
+    VSPINT *Ai_fine  = GraphFine->Ai;
+    VSPINT *Ae_fine  = GraphFine->Ae;
+    VSPINT *c_fine   = GraphFine->c;
 
 
 
@@ -447,10 +447,10 @@ Problem *Problem_Coarsen
     Graph *Graph_Coarse = Graph_Coarsen
     (
         P->graph,
-        P->cn,
-        P->matchmap,
-        P->invmatchmap,
-        P->matching, options
+        P->matching->cn,
+        P->matching->matchmap,
+        P->matching->invmatchmap,
+        P->matching->match, options
     ) ;
 
     Problem *P_coarse = Construct_Problem
@@ -622,12 +622,8 @@ Problem *Problem_Recursive_Coarsen
         Graph_Simple_Match
         (
             P->graph,
-            P->level,
             P->matching,
-            P->matchmap,
-            P->invmatchmap,
-            P->matchtype,
-            &(P->cn),
+            P->level,
             options
         ) ;
 

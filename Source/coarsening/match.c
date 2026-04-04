@@ -1,24 +1,26 @@
 #include "core.h"
 #include "shared_api.h"
 #include "coarsen_internal.h"
-
 #include "shared_functions.h"
-
 #include "coarsen_internal.h"
 #include "ds_api.h"
 
-void Match_Check
+
+
+static void Match_Check
 (
-    VSPINT                     n,
-    VSPINT                    cn,
-    VSPINT             *matching,
-    VSPINT             *matchmap,
-    VSPINT          *invmatchmap,
-    match_type    *matchtype
+    VSPINT    n, // fine n
+    Matching *M
 )
 {
     static long long unsigned count = 0 ;
     count ++ ;
+
+    VSPINT cn = M->cn ;
+    VSPINT *matching = M->match ;
+    VSPINT *matchmap = M->matchmap ;
+    VSPINT *invmatchmap = M->invmatchmap ;
+    match_type *matchtype = M->matchtype ;
 
     VSPINT i, k0, k1, k2, k3 ;
     VSPINT matched_to_invalid_vertex = FALSE ;
@@ -127,18 +129,18 @@ void Match_Check
 
 
 
-VSPINT get_match(VSPINT vertex, VSPINT* matching)
+VSPINT get_match(VSPINT vertex, VSPINT* match)
 {
-    return matching[vertex] - 1;
+    return match[vertex] - 1;
 }
 
 
-bool Is_Matched(VSPINT vertex, VSPINT* matching)
+static bool Is_Matched(VSPINT vertex, VSPINT* matching)
 {
     return matching[vertex] ;
 }
 
-bool IsMatchedMatchtype
+static bool IsMatchedMatchtype
 (
     VSPINT vertex,
     VSPINT* matchingArray,
@@ -167,7 +169,7 @@ static void Create_Match_2way
     VSPINT                       j,
     VSPINT*               matching,
     VSPINT*            invmatchmap,
-    match_type*  matchtype_arr,
+    match_type*      matchtype_arr,
     VSPINT*               matchmap,
     VSPINT*                 cn_ptr,
     match_type           mtype
@@ -426,19 +428,20 @@ static void Match_Singletons
 
 void Graph_Simple_Match
 (
-    Graph              *Graph,
-    VSPINT                    lvl,
-    VSPINT              *matching,
-    VSPINT              *matchmap,
-    VSPINT           *invmatchmap,
-    match_type     *matchtype,
-    VSPINT                    *cn,
-    Options          *options
+    Graph       *Graph,
+    Matching        *M,
+    VSPINT         lvl,
+    Options   *options
 )
 {
     TIMER_START ;
-
     SET_FUNCTION_COUNTER ;
+
+    VSPINT *cn = &(M->cn) ;
+    VSPINT *matching = M->match ;
+    VSPINT *matchmap = M->matchmap ;
+    VSPINT *invmatchmap = M->invmatchmap ;
+    match_type *matchtype = M->matchtype ;
 
     VSPINT i, j, k, v, q, j_ew, k_ew, ck, cj, ci_coarse ;
     VSPLONG p, end ;
@@ -973,12 +976,12 @@ static void Check_cn
 
 static void Additional_Match_Check
 (
-    Graph             *Graph,
+    Graph                 *Graph,
     VSPINT                   lvl,
     VSPINT             *matching,
     VSPINT             *matchmap,
     VSPINT          *invmatchmap,
-    match_type    *matchtype,
+    match_type        *matchtype,
     VSPINT                    cn
 )
 {
