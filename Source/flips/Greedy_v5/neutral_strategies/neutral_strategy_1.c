@@ -153,7 +153,7 @@ void Neutral_Flips_Strategy_1_v5
         do
         {
             // Neutral Downflip_v5s
-            Neutral_Downflip_v5s_v5
+            Neutral_Downflips
             (
                 w, Aw, z, Az, wgtw, wgtz,
                 w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
@@ -172,105 +172,6 @@ void Neutral_Flips_Strategy_1_v5
         } while(numFeasibleStrictlyBenFlips) ;
     }
 }
-
-
-
-
-/*----------------------------------------------------------------------------*/
-// Do all feasible, neutral Downflip_v5s in z (first variable)
-void Neutral_Downflip_v5s_v5
-(
-    VSPINT                          *z,
-    VSPINT                         *Az,
-    VSPINT                          *w,
-    VSPINT                         *Aw,
-    VSPINT                       *wgtz,
-    VSPINT                       *wgtw,
-    IdxGroupsByC         *z0Aw0_groups,
-    Direct_Access_List     *z0Aw1_list,
-    IdxGroupsByC         *z1Aw1_groups,
-    IdxGroupsByC         *z1Aw2_groups,
-
-    IdxGroupsByC         *w0Az0_groups,
-    Direct_Access_List     *w0Az1_list,
-    IdxGroupsByC         *w1Az1_groups,
-    IdxGroupsByC         *w1Az2_groups,
-
-    Problem               *problem
-)
-{
-    SET_FUNCTION_COUNTER ;
-    VSPINT gamma  = problem->graph->max_vtx_cost ;
-    VSPINT *group =  z1Aw1_groups->groups[gamma] ;
-    VSPINT *size  = &( z1Aw1_groups->sizes[gamma] ) ;
-    VSPINT *c     = problem->graph->c ;
-    VSPINT n      = problem->graph->n ;
-
-    VSPINT numFlips = 0 ;
-    while( 1 )
-    { 
-        if( *size )
-        {
-            VSPINT randNum = (VSPINT) rand() ;
-            
-            // Choose Downflip_v5 at random
-            VSPINT indFlip = group[ randNum % *size ] ;
-
-            #ifdef DEBUG
-                // Check that the flip is neutral
-                if( !IN_RANGE(indFlip, 0, n) ) 
-                {
-                    ERR("Flip out of bounds") ;
-                }
-
-                // Check that this is a neutral Downflip_v5
-                VSP_ASSERT( z[indFlip]  == 1 ) ;
-                VSP_ASSERT( Aw[indFlip] == 1 ) ;
-                VSP_ASSERT( c[indFlip]  == gamma ) ;
-            #endif
-
-            #ifdef LOG_FLIPS_V5
-                if( LOG_CONDITION )
-                {
-                    if(indFlip != EMPTY)
-                    {
-                        char filename[150] ;
-                        snprintf(filename, sizeof(filename), "Flips_v5/problem_%s_Level_%lld.csv", problem->name, (long long) problem->level) ;
-                        Log(filename, "%c, %lld", z1Aw1_groups->var, (long long) indFlip) ;
-                    }
-                }
-            #endif
-
-            // Do this flip
-            Downflip
-            (
-                z, Az, w, Aw, wgtz, wgtw,
-                z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
-                w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
-
-                indFlip, problem
-            ) ;
-            numFlips++ ;
-        }
-        else
-        {
-            #ifdef DEBUG
-                // Check that there is no feasible, neutral Downflip_v5 in z
-                for(VSPINT i = 0 ; i < n ; i++)
-                {
-                    if(z[i] == 1 && Aw[i] == 1 && c[i] == gamma)
-                    {
-                        ERR("Neutral Downflip_v5 exists but it was not detected") ;
-                        break ;
-                    }
-                }
-            #endif
-            break ;
-        }
-    }
-    return ;
-}
-
 
 /*----------------------------------------------------------------------------*/
 
