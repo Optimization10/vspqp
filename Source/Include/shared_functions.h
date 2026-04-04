@@ -477,22 +477,7 @@ VSPINT Count_Ones
 ) ;
 
 
-void Copy_Data
-(
-    VSPINT *xfrom,
-    VSPINT *Axfrom,
-    VSPINT *wgtxfrom,
-    VSPINT *yfrom,
-    VSPINT *Ayfrom,
-    VSPINT *wgtyfrom,
-    VSPINT *xto,
-    VSPINT *Axto,
-    VSPINT *wgtxto,
-    VSPINT *yto,
-    VSPINT *Ayto,
-    VSPINT *wgtyto,
-    VSPINT n
-) ;
+
 
 
 void Get_Permutation(VSPINT *arr, VSPINT n) ;

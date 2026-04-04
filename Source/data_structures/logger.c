@@ -4,12 +4,14 @@
 #include <stdarg.h>
 #include "dynamic_stack.h"
 
+Logger LOG_G ;
+
 struct Logger_Record
 {
     State         *X ;
     State         *Y ;
     Problem *problem ;
-    char            *msg ;
+    char        *msg ;
 } ;
 
 // Function to create formatted string buffer

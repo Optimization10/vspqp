@@ -451,3 +451,51 @@ void destruct_options(Options* options)
     /* Free the struct itself */
     free(options);
 }
+
+
+void set_default_options(Options* options)
+{
+    /* Coarsening */
+    options->use_coarsening             = true ;
+    options->max_size_of_coarsest_graph = 10;
+
+    /* Initial guess */
+    options->initial_guess                  = centroid_initial_guess;
+    options->random_point_weight_proportion = 0.58 ;
+    options->centroidVal = 0.6 ;
+
+    /* Gamma reduction */
+    options->use_gamma_reduction        = true ;
+    options->num_gr_for_large_graphs    = 15 ;
+    options->num_gr_for_small_graphs    = 30 ;
+    options->max_num_vert_small_graph   = 150 ;
+
+    options->sep_at_each_level          = false ;
+    options->c_is_all_ones              = FALSE ;
+    options->eps                        = 1E-8 ;
+
+
+    /* Restart optimization at the current level */
+    options->restart_decision = NULL ;
+
+    /* Relaxing or constricting upper bound */
+    options->relaxUB = false ;
+    options->ratioUBLimit = 0.6 ;
+
+    /* FM Options */
+    options->FM_Limit = 400 ;
+
+    /* ====================================================================== */
+    // Mountain Climbing Options
+    /* ====================================================================== */
+    options->tol_LP_opt_checker = 1E-8 ;
+
+    /* ====================================================================== */
+    // Simple Coarsening options
+    /* ====================================================================== */
+    options->max_density     = 0.8 ;
+    options->limit_num_nodes = 100 ;
+    options->compression_threshold = 0.65 ;
+
+    return ;
+}

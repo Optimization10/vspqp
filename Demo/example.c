@@ -461,19 +461,6 @@ static void SetCustomOptions(Options *options)
     options->use_coarsening             = true ;
     options->max_size_of_coarsest_graph = 10  ;
 
-
-    /*------------------------------------------------------------------------*/
-    // Tim Davis Coarsening with Boundary for Community Matching
-    /*------------------------------------------------------------------------*/
-    options->do_community_match         = true ;
-
-    /*------------------------------------------------------------------------*/
-    // Low gamma matching
-    /*------------------------------------------------------------------------*/
-    // options->matching->matching_strategy = LOW_GAMMA_MATCHING ;
-
-
-
     /*------------------------------------------------------------------------*/
     /* Restart Level Options                                                  */
     /*------------------------------------------------------------------------*/

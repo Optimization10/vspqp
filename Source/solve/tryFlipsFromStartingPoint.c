@@ -1,8 +1,6 @@
 #include "shared_api.h"
-#include "flips_public_v4.h"
 #include "flips_public_v5.h"
-#include "flips_public_v7.h"
-#include "flips_api.h"
+#include "solve_internal.h"
 
 
 /*----------------------------------------------------------------------------*/
@@ -17,8 +15,8 @@ void TryFlipsManyStartingPoints
     VSPINT                 **yBestHome,
     VSPINT                **AyBestHome,
     VSPINT               *wgtyBestHome,
-    Problem               *problem,
-    Options               *options,
+    Problem                   *problem,
+    Options                   *options,
     VSPINT                 numFlipRuns,
     VSPINT            numPassesInFlips
 )

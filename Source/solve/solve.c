@@ -1,0 +1,392 @@
+#include "VSPQP.h"
+#include "core.h"
+#include "coarsen_api.h"
+#include "shared_api.h"
+#include "delete_nodes.h"
+#include "shared_functions.h"
+
+#include <bits/time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <limits.h>
+#include "other_api.h"
+#include "solve_internal.h"
+#include "mc_api.h"
+#include "coarsen_api.h"
+
+extern struct timespec  G_START_TIME, G_END_TIME ;
+extern long double G_COMPRESS_TIME ;
+
+const Problem *G_P = NULL ;
+
+
+static void Set_Global_Problem(Problem *P)
+{
+    G_P = P ;
+    return ;
+}
+
+
+// Input: an almost binary point. Initial point at this level
+// Output: all our improvements algorithms have been applied
+void Solve_Level
+(
+    State *X, State *Y, Problem *problem, Options *options
+)
+{
+    VSPFLOAT u_ratio = 0.6 ;
+    VSPFLOAT s_ratio = 0.47 ;
+    VSPFLOAT curr_ratio ;
+    VSPINT   L = problem->coarsest_level_num ;
+
+    curr_ratio = (s_ratio - u_ratio) / L + u_ratio ;
+
+    Optimize(X, Y, problem, options, true, 0) ;
+    relaxed_to_vertex_separator(X, Y, problem) ;
+    ResolveLevelDecideAndDo(X, Y, problem, options) ;
+}
+
+void Destroy_Coarse_Problems(Problem *problemFinest)
+{
+    Problem *cp, *p = problemFinest->child_problem ;
+    while(p != NULL)
+    {
+        cp = p->child_problem ;
+        Destroy_Problem(p) ;
+        p = cp ;
+    }
+    return ;
+}
+
+
+// Solve the VSP in the case that the graph has no edges
+// Input: The graph has no edges, all vertex costs are 1
+// Output: 
+solve_result *Solve_Null_Graph
+(
+    Problem *probFinest
+)
+{
+    VSPINT i,
+    n    = probFinest->graph->n,
+    u    = probFinest->u ;
+
+    VSPINT M    = MIN(u, n / 2) ;
+
+
+    solve_result *result = malloc( sizeof(*result) ) ;
+    result->x = calloc(n, sizeof(VSPINT)) ;
+    result->y = calloc(n, sizeof(VSPINT)) ;
+
+    if( u < n/2 )
+    {
+        for(i = 0 ; i < u ; i++)
+        {
+            result->x[  i  ] = 1 ;
+            result->y[u + i] = 1 ;
+        }
+        result->weight_x = u ;
+        result->weight_y = u ;
+    }
+    else // u >= n/2
+    {
+        for(i = 0 ; i < n/2 ; i++)
+        {
+            result->x[  i  ] = 1 ;
+            result->y[n/2 + i] = 1 ;
+            result->weight_x = n/2 ;
+            result->weight_y = n/2 ;
+        }
+
+        if(n % 2)
+        {
+            result->y[n-1] = 1 ;
+            result->weight_y += 1 ;
+        }
+    }
+    result->obj_val  = result->weight_x + result->weight_y ;
+    Destroy_Coarse_Problems(probFinest) ;
+    return result ;
+}
+
+// Store x, y into result and free remaining memory
+void Final_Cleanup
+(
+    State *X, State *Y, Problem *problemFinest, solve_result *result
+)
+{
+    result->x = X->point->int_part ;
+    result->y = Y->point->int_part ;
+
+    Destroy_Az(X->Az) ;
+    free(X->point) ;
+    free(X) ;
+
+    Destroy_Az(Y->Az) ;
+    free(Y->point) ;
+    free(Y) ;
+ 
+    Destroy_Coarse_Problems(problemFinest) ;
+}
+
+/* Set the cost of each vector to 1, each edge weight to 1, and
+   the balance constraints as 60% of the total number of vertices             */
+void set_default_problem_data(Problem* problem) {
+    VSPLONG i ;
+    VSPINT n = problem->graph->n ;
+    VSPLONG nz = problem->graph->nz ;
+
+    /* Set cost of each vertex to 1 */
+    VSPINT* c = problem->graph->c ;
+    for(i = 0 ; i < n ; i++) c[i] = 1 ;
+
+    /* Set the edge weights to 1 */
+    VSPINT* Ae = problem->graph->Ae ;
+    for(i = 0 ; i < nz ; i++) Ae[i] = 1 ;
+
+    /* Set the upper balance constraint to 60%, and lower constraint to 1 */
+    problem->u = (VSPINT) (problem->graph->n * 0.6);
+
+    problem->ubFinest = (VSPINT) (problem->graph->n * 0.6) ;
+
+    return ;
+}
+
+/* Compute alpha, gamma, sum of all costs, and set the is_original flag to
+   true */
+void    preprocess_finest_problem
+(
+    Problem* problem,
+    Options* options
+)
+{
+    VSPINT node, num_nodes, c_node, alpha, gamma, total_graph_weight ;
+    VSPINT* c ;
+    num_nodes = problem->graph->n ;
+
+    /* Finest problem has no parent. Lets us know when to stop refining */
+    problem->parent_problem = NULL ;
+    problem->level = 0 ;
+
+    /* Compute the maximum degree */
+    VSPINT maxDeg = 0 ;
+    VSPLONG *Ap    = problem->graph->Ap ;
+    for(node = 0 ; node < num_nodes ; node++)
+    {
+        if( Ap[node + 1] - Ap[node] > maxDeg )
+        {
+            maxDeg =  Ap[node + 1] - Ap[node] ;
+        }
+    }
+
+    /* Compute alpha, gamma, and the sum of all costs */
+    if (options->c_is_all_ones == TRUE )
+    {
+        alpha = 1 ;
+        gamma = 1 ;
+        total_graph_weight = num_nodes ;
+    }
+    else
+    {
+        c = problem->graph->c ;
+        alpha = c[0] ;
+        gamma = c[0] ;
+        total_graph_weight = 0 ;
+
+        for (node = 0 ; node < num_nodes ; node++) {
+            c_node = c [node] ;
+            total_graph_weight += c_node ;
+            if ( c_node > gamma ) gamma = c_node ;
+            if ( c_node < alpha ) alpha = c_node ;
+        }
+    }
+    problem->graph->min_vtx_cost = alpha ;
+    problem->graph->max_vtx_cost = gamma ;
+    problem->graph->total_vtx_cost = total_graph_weight ;
+
+
+    return ;
+}
+
+
+
+
+void check_for_complete_graph(Problem *problem)
+{
+    long long n_long  = (long long) problem->graph->n ;
+    long long nz_long = (long long) problem->graph->nz ;
+    long long upper_bnd_nz = n_long * n_long - n_long ;
+    if( nz_long == upper_bnd_nz )
+    {
+        fprintf(stderr, "ERROR: Graph %s is complete\n", problem->name) ;
+        exit(1) ;
+    }
+    else if(nz_long > upper_bnd_nz)
+    {
+        fprintf(stderr, "ERROR: nz > n^2 - n\n") ;
+        exit(1) ;
+    }
+    return ;
+}
+
+
+solve_result *Solve
+(
+    VSPINT             n,
+    VSPLONG          *Ap,
+    VSPINT           *Ai,
+    VSPINT           *Ae, // Temporary argument while I'm refactoring
+    Options     *options
+)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+
+    Problem *probFinest, *probCoarsest, *P ;
+
+    probFinest = Construct_Problem(n, Ap[n], Ai, Ap, Ae, options) ;
+    set_default_problem_data(probFinest) ;
+
+    /* Preprocessing */
+    check_for_complete_graph(probFinest) ;
+    preprocess_finest_problem(probFinest, options) ;
+
+    #ifdef DEBUG
+        check_problem(probFinest, options) ;
+    #endif
+
+    if(probFinest->graph->nz == 0)
+    {
+        solve_result *ret = Solve_Null_Graph(probFinest) ;
+        Destroy_Coarse_Problems(probFinest) ;
+        return ret ;
+    }
+
+    /*--------------------------------------------------------------------*/
+    // Coarsen
+    /*--------------------------------------------------------------------*/
+    probCoarsest = Problem_Recursive_Coarsen(probFinest, options) ;
+    if(probCoarsest == NULL)
+    {
+        printf("\nExiting for unknown reason. Graph: %s", probFinest->name) ;
+        exit(1) ;
+    }
+
+    State *X_l = NULL, *Y_l = NULL, *X_lp1 = NULL , *Y_lp1 = NULL,
+              *X_0 = NULL, *Y_0 = NULL ;
+
+    /*------------------------------------------------------------------------*/
+    // Solve the coarsest level
+    /*------------------------------------------------------------------------*/
+    P = probCoarsest ;
+    X_lp1 = Construct_State(P->graph->n) ;
+    Y_lp1 = Construct_State(P->graph->n) ;
+    set_initial_guess(X_lp1, Y_lp1, P, options) ;
+
+    Set_Global_Problem(P) ;
+
+    Solve_Level(X_lp1, Y_lp1, P, options) ;
+
+
+    // Invariant: X_l, Y_l holds the solution at level l
+    for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
+    {
+        // printf("u: %f\n", (double) P->u / P->graph->total_vtx_cost) ;
+        // fflush(stdout) ;
+
+        Set_Global_Problem(P) ;
+
+
+
+        // Uncoarsen point from level l+1
+
+        X_l = Construct_State(P->graph->n) ;
+        Y_l = Construct_State(P->graph->n) ;
+        Uncoarsen_Point(P, X_l, Y_l, X_lp1, Y_lp1) ;
+
+
+        // Solve level l
+        Solve_Level(X_l, Y_l, P, options) ;
+        relaxed_to_vertex_separator(X_l, Y_l, P) ;
+
+        X_lp1 = X_l ;
+        Y_lp1 = Y_l ;
+    }
+
+    // X_0, Y_0 is the solution at the finest, uncompressed level
+    X_0 = X_lp1 ;
+    Y_0 = Y_lp1 ;
+    
+
+    // Cleanup
+    relaxed_to_vertex_separator(X_0, Y_0, probFinest) ;
+    solve_result *result = malloc( sizeof(*result) ) ;
+    Final_Cleanup(X_0, Y_0, probFinest, result) ;
+
+    Set_Global_Problem(NULL) ;
+    return result ;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+void Destroy_Coarse_Problems(Problem *problemFinest) ;
+
+
+
+
+
+
+/* Determine if we should resolve, and if so, do it */
+void ResolveLevelDecideAndDo
+(
+    State             *X,
+    State             *Y,
+    Problem     *problem,
+    Options     *options
+)
+{
+    #ifdef DEBUG
+        static long long unsigned count = 0 ;
+        count++ ;
+    #endif
+
+    bool dec ;
+    dec = restart_decide(options->restart_decision, 0, 0, problem);
+
+    if(dec == false || problem->child_problem == NULL) return ;
+
+    /* Local vars */
+    VSPFLOAT obj_best, obj_cent ;
+
+    State *Xcent = Construct_State(problem->graph->n) ;
+    State *Ycent = Construct_State(problem->graph->n) ;
+
+    set_initial_guess(Xcent, Ycent, problem, options) ;
+    Optimize(Xcent, Ycent, problem, options, true, 0) ;
+    Force_To_Binary_Point(Xcent, Ycent, problem) ;
+
+    /* If the centroid is better, switch */
+    obj_best = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
+    obj_cent = compute_obj(Xcent, Ycent, problem, problem->graph->max_vtx_cost) ;
+
+    if(obj_cent > obj_best)
+    {
+        Swap_Mem(X, Xcent, sizeof( State )  ) ;
+        Swap_Mem(Y, Ycent, sizeof( State )  ) ;
+    }
+
+    Destroy_State(Xcent) ;
+    Destroy_State(Ycent) ;
+    return ;
+}

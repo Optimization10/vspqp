@@ -1,3 +1,6 @@
+#ifndef SOLVE_INTERNAL_H
+#define SOLVE_INTERNAL_H
+
 #include "shared_api.h"
 #include "other_api.h"
 #include "coarsen_api.h"
@@ -6,7 +9,6 @@
 /*----------------------------------------------------------------------------*/
 /*  Declarations                                                              */
 /*----------------------------------------------------------------------------*/
-void check_for_complete_graph(Problem *problem) ;
 
 void ResolveLevelDecideAndDo
 (
@@ -15,7 +17,6 @@ void ResolveLevelDecideAndDo
     Problem     *problem,
     Options     *options
 ) ;
-
 
 void Optimize
 (
@@ -26,3 +27,22 @@ void Optimize
     bool          useManyFlipsPoints,
     VSPINT         whereToUseFMFlips
 ) ;
+
+void Copy_Data
+(
+    VSPINT *xfrom,
+    VSPINT *Axfrom,
+    VSPINT *wgtxfrom,
+    VSPINT *yfrom,
+    VSPINT *Ayfrom,
+    VSPINT *wgtyfrom,
+    VSPINT *xto,
+    VSPINT *Axto,
+    VSPINT *wgtxto,
+    VSPINT *yto,
+    VSPINT *Ayto,
+    VSPINT *wgtyto,
+    VSPINT n
+) ;
+
+#endif

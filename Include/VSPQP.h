@@ -38,8 +38,6 @@ typedef struct Options_struct
        If use_coarsening is false, all other coarsening parameters are ignored*/
     bool                    use_coarsening ;
     VSPINT                  max_size_of_coarsest_graph ;
-    bool                    do_community_match ;
-
 
     /* Initial guess */
     initial_guess      initial_guess;
