@@ -21,7 +21,7 @@ void Compute_ps_And_cs_Dbg
     VSPINT                   *Ay,
     VSPINT                  wgty,
     VSPINT              *ylocked, // Ignored if NULL
-    Problem         *problem,
+    Problem             *problem,
     VSPINT                 ps[4],
     VSPINT                 cs[4],
     VSPINT          witnesses[4]

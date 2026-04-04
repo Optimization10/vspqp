@@ -391,20 +391,6 @@ typedef struct
 } Flip ;
 
 
-void Compute_ps_And_cs_Dbg_v5
-(
-    VSPINT                    *x,
-    VSPINT                   *Ax,
-    VSPINT                  wgtx,
-    VSPINT                    *y,
-    VSPINT                   *Ay,
-    VSPINT                  wgty,
-    Problem         *problem,
-    VSPINT                 ps[4],
-    VSPINT                 cs[4],
-    VSPINT          witnesses[4]
-) ;
-
 void z0Aw1_List_Check_v5
 (
     Direct_Access_List *List,

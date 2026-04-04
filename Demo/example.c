@@ -565,9 +565,9 @@ int main(int argc, char** argv)
     /*------------------------------------------------------------------------*/
      
     // Text file from which to read matrix names, one per line
-    // char matricesList[] = "doc/mats/ManualMatsList.txt" ;
+    char matricesList[] = "doc/mats/ManualMatsList.txt" ;
     // char matricesList[] = "doc/mats/1.txt" ;
-    char matricesList[] = "/home/ovi/data/int32-n-sorted.txt" ;
+    // char matricesList[] = "/home/ovi/data/int32-n-sorted.txt" ;
 
     // Set data directory
     char matricesDir[256];

@@ -107,7 +107,7 @@ void Check_Outputs_v5
     VSPINT gamma = problem->graph->max_vtx_cost ;
 
     VSPINT ps[4], cs[4], witness[4], isFeas[4], gains[4] ;
-    Compute_ps_And_cs_Dbg_v5(x, Ax, wgtx, y, Ay, wgty, problem, ps, cs, witness) ;
+    Compute_ps_And_cs_Dbg(x, Ax, wgtx, NULL, y, Ay, wgty, NULL, problem, ps, cs, witness) ;
 
     Compute_Feasibility_And_Gains_v5
     (

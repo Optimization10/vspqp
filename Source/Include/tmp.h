@@ -144,3 +144,20 @@ void Check_Inputs
     VSPINT                wgty,
     Problem       *problem
 ) ;
+
+
+void Compute_ps_And_cs_Dbg
+(
+    VSPINT                    *x,
+    VSPINT                   *Ax,
+    VSPINT                  wgtx,
+    VSPINT              *xlocked, // Ignored if NULL
+    VSPINT                    *y,
+    VSPINT                   *Ay,
+    VSPINT                  wgty,
+    VSPINT              *ylocked, // Ignored if NULL
+    Problem             *problem,
+    VSPINT                 ps[4],
+    VSPINT                 cs[4],
+    VSPINT          witnesses[4]
+) ;
