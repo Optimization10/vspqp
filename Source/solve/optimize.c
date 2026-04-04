@@ -7,7 +7,6 @@
 #include "flips_public_v4.h"
 #include "flips_public_v5.h"
 #include "shared_functions.h"
-#include "gr_flips.h"
 #include "logger.h"
 #include <stdio.h>
 #include "solve_internal.h"
