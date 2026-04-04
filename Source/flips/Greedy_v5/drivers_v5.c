@@ -32,7 +32,7 @@ void Flips_v5
     // Initialize all structs
     /*------------------------------------------------------------------------*/
     VSPINT *maxGroupSizes = malloc((gamma + 1) * sizeof(*maxGroupSizes)) ;
-    Compute_Max_Group_Sizes_v5(maxGroupSizes, c, gamma, n) ;
+    Compute_Max_Group_Sizes(maxGroupSizes, c, gamma, n) ;
 
     // x structs
     IdxGroupsByC *x0Ay0_groups = IdxGroupsByC_Init(gamma, maxGroupSizes, c, n, 0, 0, x, Ay, 'x', MAX_HEAP_FLAG) ;

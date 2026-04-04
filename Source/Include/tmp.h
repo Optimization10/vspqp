@@ -88,3 +88,11 @@ void Initialize_All_Structs
 
     Problem               *problem
 ) ;
+
+void Compute_Max_Group_Sizes
+(
+    VSPINT *maxGroupSizes,
+    VSPINT *c,
+    VSPINT gamma,
+    VSPINT n
+) ;

@@ -735,33 +735,6 @@ void Check_Outputs_v5
 
 
 
-// ASSUMED: No assumptions on maxGroupSizes, it is set to 0 at beginning. It
-// may start out as garbage
-void Compute_Max_Group_Sizes_v5
-(
-    VSPINT *maxGroupSizes,
-    VSPINT *c,
-    VSPINT gamma,
-    VSPINT n
-)
-{
-    SET_FUNCTION_COUNTER ;
-    VSPINT i ;
-    for(i = 0 ; i <= gamma ; i++)
-    {
-        maxGroupSizes[i] = 0 ;
-    }
-
-    for(i = 0 ; i < n ; i++)
-    {
-        VSP_ASSERT( (IN_RANGE(c[i], 1, gamma + 1)) ) ;
-        maxGroupSizes[ c[i] ]++ ;
-    }
-    return ;
-}
-
-
-
 
 // Assign the lighter variable to z and the heavier one to w
 void Assign_By_Weight_v5
