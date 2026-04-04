@@ -49,7 +49,7 @@ void Flips_v5
     IdxGroupsByC *y1Ax1_groups = IdxGroupsByC_Init(gamma, maxGroupSizes, c, n, 1, 1, y, Ax, 'y', MIN_HEAP_FLAG) ;
     IdxGroupsByC *y1Ax2_groups = IdxGroupsByC_Init(gamma, maxGroupSizes, c, n, 1, 2, y, Ax, 'y', MIN_HEAP_FLAG) ;
 
-    Initialize_All_Structs_v5
+    Initialize_All_Structs
     (
         x, Ax, *wgtx, y, Ay, *wgty,
         x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,

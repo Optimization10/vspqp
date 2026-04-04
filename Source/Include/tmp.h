@@ -66,3 +66,25 @@ void Do_Flip
     VSPINT                     indFlip,
     Problem               *problem
 ) ;
+
+
+void Initialize_All_Structs
+(
+    VSPINT                          *x,
+    VSPINT                         *Ax,
+    VSPINT                        wgtx,
+    VSPINT                          *y,
+    VSPINT                         *Ay,
+    VSPINT                        wgty,
+    IdxGroupsByC         *x0Ay0_groups,
+    Direct_Access_List     *x0Ay1_list,
+    IdxGroupsByC         *x1Ay1_groups,
+    IdxGroupsByC         *x1Ay2_groups,
+
+    IdxGroupsByC         *y0Ax0_groups,
+    Direct_Access_List     *y0Ax1_list,
+    IdxGroupsByC         *y1Ax1_groups,
+    IdxGroupsByC         *y1Ax2_groups,
+
+    Problem               *problem
+) ;
