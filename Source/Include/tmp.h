@@ -207,3 +207,16 @@ void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2
     VSPINT                 *retIndFlip,
     char                   *retVarFlip
 ) ;
+
+
+void Compute_Feasibility_And_Gains
+(
+    VSPINT                *Ax,
+    VSPINT                *Ay,
+    VSPINT               wgtx,
+    VSPINT               wgty,
+    Problem      *problem,
+    VSPINT             inds[4],
+    VSPINT        retIsFeas[4],
+    VSPINT         retGains[4]
+) ;

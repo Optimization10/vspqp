@@ -21,7 +21,7 @@ void FeasibleBeneficialFlips_v5
     IdxGroupsByC           *y1Ax2_groups,
     Direct_Access_List       *y0Ax1_list,
 
-    Problem                 *problem,
+    Problem                     *problem,
     VSPINT              *retNumFlipsDone
 )
 {
@@ -66,21 +66,6 @@ void FeasibleBeneficialFlips_v5
             &flipVar, // '\0' if no flip
             &indFlip  // EMPTY if no flip
         ) ;
-
-
-
-        #ifdef LOG_FLIPS_V5
-            // Log the flip
-            if( LOG_CONDITION )
-            {
-                if(indFlip != EMPTY)
-                {
-                    char filename[150] ;
-                    snprintf(filename, sizeof(filename), "Flips_v5/problem_%s_Level_%lld.csv", problem->name, (long long) problem->level) ;
-                    Log(filename, "%c, %lld", flipVar, (long long) indFlip) ;
-                }
-            }
-        #endif
 
         // Do the best flip
         if(flipVar == 'x')

@@ -489,7 +489,7 @@ retIsFeas[k] - if inds[k] != EMPTY and the flip is feasible, the it's 1
 retGains[k] - if retIsFeas[k] = 1, then this is the gain of the flip. If
               retIsFeas[k] = 0, then this is garbage
 ------------------------------------------------------------------------------*/
-void Compute_Feasibility_And_Gains_v5
+void Compute_Feasibility_And_Gains
 (
     VSPINT                *Ax,
     VSPINT                *Ay,

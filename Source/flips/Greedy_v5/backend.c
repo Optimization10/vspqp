@@ -1,85 +1,6 @@
 #include "core.h"
 #include "flips_private_v5.h"
-
 #include "tmp.h"
-
-void z0Aw1_List_Check_v5
-(
-    Direct_Access_List *List,
-    VSPINT                *c,
-    VSPINT                *z,
-    VSPINT               *Aw,
-    VSPINT             gamma,
-    VSPINT                 n
-)
-{
-    SET_FUNCTION_COUNTER ;
-    WARN_IF_NOT_DEBUG_MODE ;
-
-    #ifdef DEBUG
-    Direct_Access_List_Check(List) ;
-    VSPINT i, p ;
-    VSPINT *list = List->list ;
-    VSPINT size  = List->size ;
-    
-    // Get a witness array of all i in the list, and make sure all i satisfy
-    // zi = 0, Awi = 1, ci = gamma
-    VSPINT *witnessList = calloc(n, sizeof(VSPINT)) ;
-    for(p = 0 ; p < size ; p++)
-    {
-        i = list[p] ;
-        witnessList[i]++ ;
-        if(z[i] != 0)
-        {
-            ERR("i with zi = 1 in z0Aw1 list") ;
-        }
-
-        if(Aw[i] != 1)
-        {
-            ERR("i with Awi != 1 in z0Aw1 list") ;
-        }
-
-        if(c[i] != gamma)
-        {
-            ERR("i with  ci != gamma in z0Aw1 list") ;
-        }
-    }
-
-    VSPINT *witnessAccurate = calloc(n, sizeof(VSPINT)) ;
-    for(i = 0 ; i < n ; i++)
-    {
-        if(z[i] == 0 && Aw[i] == 1 && c[i] == gamma)
-        {
-            witnessAccurate[i]++ ;
-        }
-    }
-
-    for(i = 0 ; i < n ; i++)
-    {
-        if(witnessAccurate[i] != witnessList[i])
-        {
-            ERR("Mismatch between witnesses") ;
-        }
-
-        if(witnessList[i] != 0 && witnessList[i] != 1)
-        {
-            ERR("An i is in a list more than once") ;
-        }
-
-        if(witnessAccurate[i] != 0 && witnessAccurate[i] != 1)
-        {
-            ERR("Very strange error") ;
-        }
-    }
-
-
-    free(witnessList) ;
-    free(witnessAccurate) ;
-    #endif
-    return ;
-}
-
-
 
 
 // In addition to checking the data,check that there are no strictly beneficial
@@ -92,7 +13,7 @@ void Check_Outputs_v5
     VSPINT                  *y,
     VSPINT                 *Ay,
     VSPINT                wgty,
-    Problem       *problem
+    Problem           *problem
 )
 {
     static long long unsigned count = 0 ;
@@ -109,7 +30,7 @@ void Check_Outputs_v5
     VSPINT ps[4], cs[4], witness[4], isFeas[4], gains[4] ;
     Compute_ps_And_cs_Dbg(x, Ax, wgtx, NULL, y, Ay, wgty, NULL, problem, ps, cs, witness) ;
 
-    Compute_Feasibility_And_Gains_v5
+    Compute_Feasibility_And_Gains
     (
         Ax, Ay, wgtx, wgty, problem,
         witness, isFeas, gains
