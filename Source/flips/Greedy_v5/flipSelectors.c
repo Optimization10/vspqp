@@ -353,7 +353,7 @@ void SelectRandomOptimalBeneficialFlip_v5
     VSPINT numFeasPosGain[4] = {0} ;
 
     // x Upflip_v5
-    IdxGroupsByC_See_Top_Feasible_Cval_v5(x0Ay0_groups, problem, wgtx, &cval, x, Ay) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(x0Ay0_groups, wgtx, u, true, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain = cval ;
@@ -367,7 +367,7 @@ void SelectRandomOptimalBeneficialFlip_v5
     }
 
     // y Upflip_v5
-    IdxGroupsByC_See_Top_Feasible_Cval_v5(y0Ax0_groups, problem, wgty, &cval, y, Ax) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(y0Ax0_groups, wgty, u, true, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain = cval ;
@@ -381,7 +381,7 @@ void SelectRandomOptimalBeneficialFlip_v5
     }
 
     // x Downflip_v5
-    IdxGroupsByC_See_Top_Cval_If_Feasible(x1Ay2_groups, wgtx, u, &cval) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(x1Ay2_groups, wgtx, u, false, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain =  -(cval - gamma * 2) ;
@@ -395,7 +395,7 @@ void SelectRandomOptimalBeneficialFlip_v5
     }
     else // if cval == EMPTY
     {
-        IdxGroupsByC_See_Top_Cval_If_Feasible(x1Ay1_groups, wgtx, u, &cval) ;
+        IdxGroupsByC_See_Best_Feasible_Cval(x1Ay1_groups, wgtx, u, false, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
         if(cval != EMPTY)
         {
             gain =  -(cval - gamma * 1) ;
@@ -410,7 +410,7 @@ void SelectRandomOptimalBeneficialFlip_v5
     }
 
     // y dnflip
-    IdxGroupsByC_See_Top_Cval_If_Feasible(y1Ax2_groups, wgty, u, &cval) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(y1Ax2_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain =  -(cval - gamma * 2) ;
@@ -424,7 +424,7 @@ void SelectRandomOptimalBeneficialFlip_v5
     }
     else // if cval == EMPTY
     {
-        IdxGroupsByC_See_Top_Cval_If_Feasible(y1Ax1_groups, wgty, u, &cval) ;
+        IdxGroupsByC_See_Best_Feasible_Cval(y1Ax1_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
         if(cval != EMPTY)
         {
             gain =  -(cval - gamma * 1) ;
