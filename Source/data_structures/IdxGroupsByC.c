@@ -502,32 +502,6 @@ void IdxGroupsByC_Num_Idx_With_Top_C
 
 
 
-void IdxGroupsByC_See_Random_Idx_Top_C_v5
-(
-    IdxGroupsByC    *Groups,
-    VSPINT          randInt, // Used for randInt % sizeGroup
-    VSPINT       *idxReturn  // Return
-)
-{
-    VSPINT cval ;
-    if(Groups->flag == MIN_HEAP_FLAG)
-    {
-        cval = Groups->minHeap->heap[1] ;
-    }
-    else
-    {
-        cval = Groups->maxHeap->heap[1] ;
-    }
-
-    VSPINT *group   = Groups->groups[cval] ;
-    VSPINT  size    = Groups->sizes[cval] ;
-    VSPINT  randPtr = randInt % size ;
-    *idxReturn      = group[randPtr] ;
-
-    return ;
-}
-
-
 void IdxGroupsByC_See_Random_Idx_Given_C
 (
     IdxGroupsByC    *Groups,

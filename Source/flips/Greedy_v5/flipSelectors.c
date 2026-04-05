@@ -254,11 +254,11 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
         *retFlipVar = 'x' ;
         if(maxFeasPosGain >= gamma)
         {
-            IdxGroupsByC_See_Random_Idx_Top_C_v5(x1Ay2_groups, baseRandNum, retIndFlip) ;
+            IdxGroupsByC_See_Random_Idx_Top_C(x1Ay2_groups, baseRandNum, retIndFlip) ;
         }
         else
         {
-            IdxGroupsByC_See_Random_Idx_Top_C_v5(x1Ay1_groups, baseRandNum, retIndFlip) ;
+            IdxGroupsByC_See_Random_Idx_Top_C(x1Ay1_groups, baseRandNum, retIndFlip) ;
         }
     }
     else
@@ -267,11 +267,11 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
         *retFlipVar = 'y' ;
         if(maxFeasPosGain >= gamma)
         {
-            IdxGroupsByC_See_Random_Idx_Top_C_v5(y1Ax2_groups, baseRandNum, retIndFlip) ;
+            IdxGroupsByC_See_Random_Idx_Top_C(y1Ax2_groups, baseRandNum, retIndFlip) ;
         }
         else
         {
-            IdxGroupsByC_See_Random_Idx_Top_C_v5(y1Ax1_groups, baseRandNum, retIndFlip) ;
+            IdxGroupsByC_See_Random_Idx_Top_C(y1Ax1_groups, baseRandNum, retIndFlip) ;
         }
     }
 
@@ -536,11 +536,11 @@ void SelectRandomOptimalBeneficialFlip_v5
         *retFlipVar = 'x' ;
         if(maxFeasPosGain >= gamma)
         {
-            IdxGroupsByC_See_Random_Idx_Top_C_v5(x1Ay2_groups, baseRandNum, retIndFlip) ;
+            IdxGroupsByC_See_Random_Idx_Top_C(x1Ay2_groups, baseRandNum, retIndFlip) ;
         }
         else
         {
-            IdxGroupsByC_See_Random_Idx_Top_C_v5(x1Ay1_groups, baseRandNum, retIndFlip) ;
+            IdxGroupsByC_See_Random_Idx_Top_C(x1Ay1_groups, baseRandNum, retIndFlip) ;
         }
     }
     else
@@ -549,11 +549,11 @@ void SelectRandomOptimalBeneficialFlip_v5
         *retFlipVar = 'y' ;
         if(maxFeasPosGain >= gamma)
         {
-            IdxGroupsByC_See_Random_Idx_Top_C_v5(y1Ax2_groups, baseRandNum, retIndFlip) ;
+            IdxGroupsByC_See_Random_Idx_Top_C(y1Ax2_groups, baseRandNum, retIndFlip) ;
         }
         else
         {
-            IdxGroupsByC_See_Random_Idx_Top_C_v5(y1Ax1_groups, baseRandNum, retIndFlip) ;
+            IdxGroupsByC_See_Random_Idx_Top_C(y1Ax1_groups, baseRandNum, retIndFlip) ;
         }
     }
 

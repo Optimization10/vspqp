@@ -127,7 +127,7 @@ void IdxGroupsByC_Get_Random_Idx_Top_C_v5
     VSPINT       *idxReturn  // Return
 ) ;
 
-void IdxGroupsByC_See_Random_Idx_Top_C_v5
+void IdxGroupsByC_See_Random_Idx_Top_C
 (
     IdxGroupsByC    *Groups,
     VSPINT          randInt, // Used for randInt % sizeGroup
