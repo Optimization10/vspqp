@@ -336,6 +336,9 @@ void Optimize
 extern struct timespec G_START_TIME, G_END_TIME ;
 extern long double G_FLIPS_TIME ;
 
+
+
+
 // Takes in a feasible point for the continuous problem, forces it to a binary
 // point, and optimizes it
 // Returns a feasible point for the binary problem with objective at least
