@@ -73,7 +73,7 @@ void SelectRandomOptimalBeneficialFlip
     }
 
     // y upflip
-    IdxGroupsByC_See_Top_Cval_If_Feasible(y0Ax0_groups, wgty, u, &cval) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(y0Ax0_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain = cval ;
@@ -116,7 +116,7 @@ void SelectRandomOptimalBeneficialFlip
     }
 
     // y dnflip
-    IdxGroupsByC_See_Top_Cval_If_Feasible(y1Ax2_groups, wgty, u, &cval) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(y1Ax2_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain =  -(cval - gamma * 2) ;
@@ -130,7 +130,7 @@ void SelectRandomOptimalBeneficialFlip
     }
     else // if cval == EMPTY
     {
-        IdxGroupsByC_See_Top_Cval_If_Feasible(y1Ax1_groups, wgty, u, &cval) ;
+        IdxGroupsByC_See_Best_Feasible_Cval(y1Ax1_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
         if(cval != EMPTY)
         {
             gain =  -(cval - gamma * 1) ;
@@ -347,7 +347,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     }
 
     // y upflip
-    IdxGroupsByC_See_Top_Cval_If_Feasible(y0Ax0_groups, wgty, u, &cval) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(y0Ax0_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain = cval ;
@@ -390,7 +390,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     }
 
     // y dnflip
-    IdxGroupsByC_See_Top_Cval_If_Feasible(y1Ax2_groups, wgty, u, &cval) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(y1Ax2_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain =  -(cval - gamma * 2) ;
@@ -404,7 +404,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     }
     else // if cval == EMPTY
     {
-        IdxGroupsByC_See_Top_Cval_If_Feasible(y1Ax1_groups, wgty, u, &cval) ;
+        IdxGroupsByC_See_Best_Feasible_Cval(y1Ax1_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
         if(cval != EMPTY)
         {
             gain =  -(cval - gamma * 1) ;
