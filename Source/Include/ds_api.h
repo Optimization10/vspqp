@@ -542,6 +542,14 @@ typedef struct
     MinMax_Heap_Flag flag ; // -1 for min, 1 for max
 } IdxGroupsByC ;
 
+void IdxGroupsByC_See_Random_Idx_Given_C
+(
+    IdxGroupsByC    *Groups,
+    VSPINT          randInt, // Used for randInt % sizeGroup
+    VSPINT        givenCval,
+    VSPINT       *idxReturn  // Return
+) ;
+
 IdxGroupsByC *IdxGroupsByC_Init
 (
     VSPINT  gamma,

@@ -58,7 +58,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     VSPINT numFeasPosGain[4] = {0} ;
 
     // x Upflip_v5
-    IdxGroupsByC_See_Top_Feasible_Cval_v5(x0Ay0_groups, problem, wgtx, &cval, x, Ay) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(x0Ay0_groups, wgtx, u, true, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain = cval ;
@@ -72,7 +72,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     }
 
     // y Upflip_v5
-    IdxGroupsByC_See_Top_Feasible_Cval_v5(y0Ax0_groups, problem, wgty, &cval, y, Ax) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(y0Ax0_groups, wgty, u, true, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain = cval ;

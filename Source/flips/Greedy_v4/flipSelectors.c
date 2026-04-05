@@ -230,12 +230,12 @@ void SelectRandomOptimalBeneficialFlip
 
     if(flipChoice == XUP)
     {
-        IdxGroupsByC_See_Random_Idx_Top_C(x0Ay0_groups, baseRandNum, retIndFlip) ;
+        IdxGroupsByC_See_Random_Idx_Given_C(x0Ay0_groups, baseRandNum, feasPosGains[X0], retIndFlip) ;
         *retFlipVar = 'x' ;
     }
     else if(flipChoice == YUP)
     {
-        IdxGroupsByC_See_Random_Idx_Top_C(y0Ax0_groups, baseRandNum, retIndFlip) ;
+        IdxGroupsByC_See_Random_Idx_Given_C(y0Ax0_groups, baseRandNum, feasPosGains[Y0], retIndFlip) ;
         *retFlipVar = 'y' ;
     }
     else if(flipChoice == XDN)
