@@ -2,10 +2,7 @@
 #include "shared_api.h"
 #include "coarsen_internal.h"
 #include "coarsen_api.h"
-#include "io_api.h"
 #include "shared_functions.h"
-
-#include <bits/time.h>
 #include <string.h>
 #include <time.h>
 

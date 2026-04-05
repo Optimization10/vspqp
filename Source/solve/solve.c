@@ -2,7 +2,6 @@
 #include "core.h"
 #include "coarsen_api.h"
 #include "shared_api.h"
-#include "delete_nodes.h"
 #include "shared_functions.h"
 
 #include <bits/time.h>
@@ -11,7 +10,6 @@
 #include <string.h>
 #include <time.h>
 #include <limits.h>
-#include "other_api.h"
 #include "solve_internal.h"
 #include "mc_api.h"
 #include "coarsen_api.h"

@@ -2,7 +2,6 @@
 #define SOLVE_INTERNAL_H
 
 #include "shared_api.h"
-#include "other_api.h"
 #include "coarsen_api.h"
 #include "flips_api.h"
 
