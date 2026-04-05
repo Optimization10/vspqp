@@ -476,10 +476,6 @@ VSPINT Count_Ones
     VSPINT  n  // size of x
 ) ;
 
-
-
-
-
 void Get_Permutation(VSPINT *arr, VSPINT n) ;
 
 void Check_Feasibility

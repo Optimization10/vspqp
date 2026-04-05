@@ -606,6 +606,21 @@ void IdxGroupsByC_Check
     IdxGroupsByC *Groups,
     VSPINT             n  // Size of z and Aw arrays
 ) ;
+
+
+void IdxGroupsByC_See_Best_Feasible_Cval
+(
+    IdxGroupsByC    *Groups,
+    VSPINT              wgt,
+    VSPINT                u,
+    bool        deep_search, // If false, only look at top. If true, search heap
+    VSPINT         *cvalRet, // EMPTY if not feasible
+    VSPINT               *z, // Used for debugging only
+    VSPINT              *Aw, // Used for debugging only
+    VSPINT                n, // Used for debugging only
+    VSPINT               *c  // Used for debugging only
+) ;
+
 /*----------------------------------------------------------------------------*/
 /* Miscellaneous */
 /*----------------------------------------------------------------------------*/

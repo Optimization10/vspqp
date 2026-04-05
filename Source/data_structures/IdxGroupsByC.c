@@ -557,3 +557,109 @@ void IdxGroupsByC_Num_Idx_With_Given_C
     *retNumIdx = Groups->sizes[givenCval] ;
     return ;
 }
+
+
+#define FEASIBLE_UPFLIP(wgt, ci, u) ( (wgt) + (ci) <= (u) )
+void IdxGroupsByC_See_Best_Feasible_Cval
+(
+    IdxGroupsByC    *Groups,
+    VSPINT              wgt,
+    VSPINT                u,
+    bool        deep_search, // If false, only look at top. If true, search heap
+    VSPINT         *cvalRet, // EMPTY if not feasible
+    VSPINT               *z, // Used for debugging only
+    VSPINT              *Aw, // Used for debugging only
+    VSPINT                n, // Used for debugging only
+    VSPINT               *c  // Used for debugging only
+)
+{
+    #ifdef DEBUG
+        static long long unsigned count = 0 ;
+        count++ ;
+    #endif
+
+    VSPINT cval ;
+
+    if(!deep_search)
+    {
+        /* Only check the top of the heap. Supports both heap types. */
+
+        if(Groups->flag == MIN_HEAP_FLAG)
+        {
+            if(Groups->minHeap->sizeHeap)
+            {
+                cval = Groups->minHeap->heap[1] ;
+            }
+            else
+            {
+                *cvalRet = EMPTY ;
+                return ;
+            }
+
+            *cvalRet = (wgt != cval) ? cval : EMPTY ;
+        }
+        else
+        {
+            if(Groups->maxHeap->sizeHeap)
+            {
+                cval = Groups->maxHeap->heap[1] ;
+            }
+            else
+            {
+                *cvalRet = EMPTY ;
+                return ;
+            }
+
+            *cvalRet = FEASIBLE_UPFLIP(wgt, cval, u) ? cval : EMPTY ;
+        }
+
+        return ;
+    }
+
+    /* deep_search == true. Assumes max-heap. */
+
+    VSPINT *heap    = Groups->maxHeap->heap ;
+    VSPINT sizeHeap = Groups->maxHeap->sizeHeap ;
+
+    /* Fast path: if the max (heap root) is feasible, it's the answer. */
+    if(sizeHeap && FEASIBLE_UPFLIP(wgt, heap[1], u))
+    {
+        *cvalRet = heap[1] ;
+        goto RET ;
+    }
+
+    /* Slow path: linear scan for the best feasible value. */
+    VSPINT maxFeasCval = EMPTY ;
+    VSPINT p ;
+    for(p = 2 ; p <= sizeHeap ; p++)
+    {
+        if(FEASIBLE_UPFLIP(wgt, heap[p], u) && heap[p] > maxFeasCval)
+        {
+            maxFeasCval = heap[p] ;
+        }
+    }
+    *cvalRet = maxFeasCval ;
+
+    RET:
+    #ifdef DEBUG
+    {
+        VSPINT maxFeasCval_dbg = EMPTY ;
+        VSPINT i ;
+        for(i = 0 ; i < n ; i++)
+        {
+            if(z[i] == 0 && Aw[i] == 0
+               && FEASIBLE_UPFLIP(wgt, c[i], u) && c[i] > maxFeasCval_dbg)
+            {
+                maxFeasCval_dbg = c[i] ;
+            }
+        }
+
+        if(*cvalRet != maxFeasCval_dbg)
+        {
+            ERR("Mismatch when searching for upflip") ;
+        }
+    }
+    #endif
+
+    return ;
+}
