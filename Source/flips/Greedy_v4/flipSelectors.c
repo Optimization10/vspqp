@@ -63,7 +63,7 @@ void SelectRandomOptimalBeneficialFlip
     if(cval != EMPTY)
     {
         gain = cval ;
-        if(gain > maxFeasPosGain && FEASIBLE_UPFLIP(wgtx, cval, u))
+        if(gain > maxFeasPosGain)
         {
             maxFeasPosGain = gain ;
             feasPosGains[XUP]   = gain ;
@@ -337,7 +337,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     if(cval != EMPTY)
     {
         gain = cval ;
-        if(gain > maxFeasPosGain && FEASIBLE_UPFLIP(wgtx, cval, u))
+        if(gain > maxFeasPosGain)
         {
             maxFeasPosGain = gain ;
             feasPosGains[XUP]   = gain ;
