@@ -452,7 +452,7 @@ bool Is_N1_Optimal_Dbg
     bool          strictly_optimal  // If true, check for strict N1 Optimality
 ) ;
 
-
+ 
 VSPFLOAT minreduce
 (
     State         *X,
