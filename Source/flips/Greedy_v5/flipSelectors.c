@@ -86,7 +86,8 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     }
 
     // x Downflip_v5
-    IdxGroupsByC_See_Top_Cval_If_Feasible(x1Ay2_groups, wgtx, u, &cval) ;
+    // Do not have to do a deep search for downflips
+    IdxGroupsByC_See_Best_Feasible_Cval(x1Ay2_groups, wgtx, u, false, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain =  -(cval - gamma * 2) ;
@@ -100,7 +101,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     }
     else // if cval == EMPTY
     {
-        IdxGroupsByC_See_Top_Cval_If_Feasible(x1Ay1_groups, wgtx, u, &cval) ;
+        IdxGroupsByC_See_Best_Feasible_Cval(x1Ay1_groups, wgtx, u, false, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
         if(cval != EMPTY)
         {
             gain =  -(cval - gamma * 1) ;
@@ -115,7 +116,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     }
 
     // y dnflip
-    IdxGroupsByC_See_Top_Cval_If_Feasible(y1Ax2_groups, wgty, u, &cval) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(y1Ax2_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain =  -(cval - gamma * 2) ;
@@ -129,7 +130,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
     }
     else // if cval == EMPTY
     {
-        IdxGroupsByC_See_Top_Cval_If_Feasible(y1Ax1_groups, wgty, u, &cval) ;
+        IdxGroupsByC_See_Best_Feasible_Cval(y1Ax1_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
         if(cval != EMPTY)
         {
             gain =  -(cval - gamma * 1) ;
