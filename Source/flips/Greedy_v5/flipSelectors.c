@@ -866,7 +866,7 @@ void FlipSelector_Check_v5
 void IdxGroupsByC_See_Top_Feasible_Cval_v5
 (
     IdxGroupsByC      *z0Aw0_groups,
-    Problem            *problem,
+    Problem                *problem,
     VSPINT                     wgtz,
     VSPINT          *retMaxFeasCval,
     VSPINT                       *z, // Used for debugging only
