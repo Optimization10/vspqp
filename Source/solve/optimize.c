@@ -3,7 +3,7 @@
 #include "gr_api.h"
 #include "mc_api.h"
 #include "FM_api.h"
-#include "greedy_flips.h"
+#include "greedy_flips_api.h"
 #include "shared_functions.h"
 #include "logger.h"
 #include <stdio.h>
@@ -230,7 +230,7 @@ void Optimize
 
     // 2. Flips
     LoggerStart(X, Y, problem, "Flips") ;
-    Flips(X, Y, problem, 9) ;
+    Flips_Dep(X, Y, problem, 9) ;
     LoggerStop(X, Y, problem) ;
 
     // 3. Get vertex separator in preparation for FM_METIS
@@ -288,7 +288,7 @@ void Optimize
         /* (x*, y*) <- Solution starting from (x*, y*), using original gamma  */
         /*--------------------------------------------------------------------*/
         mountain_climbing(Xstar, Ystar, problem, options, gamma_org, true) ;
-        Flips(Xstar, Ystar, problem, 9) ;
+        Flips_Dep(Xstar, Ystar, problem, 9) ;
 
         relaxed_to_vertex_separator(Xstar, Ystar, problem) ;
 
@@ -328,7 +328,7 @@ void Optimize
     // can produce penalties. This is the last thing done do the x, y point
     /*------------------------------------------------------------------------*/
     LoggerStart(X, Y, problem, "Final Flips") ;
-    Flips(X, Y, problem, 5) ;
+    Flips_Dep(X, Y, problem, 5) ;
     LoggerStop(X, Y, problem) ;
 
     /*------------------------------------------------------------------------*/

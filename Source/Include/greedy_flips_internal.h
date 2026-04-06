@@ -2,7 +2,6 @@
 #define GREEDY_FLIPS_INTERNAL_H
 #include "shared_api.h"
 #include "ds_api.h"
-#include "greedy_flips.h"
 #include "flips_common_api.h"
 #include <stdbool.h>
 #define LOG_CONDITION (problem->level == 0)
