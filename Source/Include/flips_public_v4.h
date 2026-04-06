@@ -1,9 +1,10 @@
 #ifndef FLIPS_PUBLIC_V4_H
 #define FLIPS_PUBLIC_V4_H
 #include "shared_api.h"
+#include <stdbool.h>
 
 
-void Flips_v4
+void Flips_v999
 (
     VSPINT                     *x,
     VSPINT                    *Ax,
@@ -11,8 +12,9 @@ void Flips_v4
     VSPINT                     *y,
     VSPINT                    *Ay,
     VSPINT                  *wgty,
-    Problem          *problem,
-    VSPINT           maxNumPasses
+    Problem              *problem,
+    VSPINT           maxNumPasses,
+    bool              deep_search
 ) ;
 
 #endif

@@ -230,18 +230,6 @@ void Neutral_Downflips
                 VSP_ASSERT( c[indFlip]  == gamma ) ;
             #endif
 
-            #ifdef LOG_FLIPS_V4
-                if( LOG_CONDITION )
-                {
-                    if(indFlip != EMPTY)
-                    {
-
-                        char filename[150] ;
-                        snprintf(filename, sizeof(filename), "Flips_v4/problem_%s_Level_%lld.csv", problem->name, (long long) problem->level) ;
-                        Log(filename, "%c, %lld", z1Aw1_groups->var, (long long) indFlip) ;
-                    }
-                }
-            #endif
 
             // Do this flip
             Downflip
@@ -332,19 +320,6 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
         ) ;
 
 
-        #ifdef LOG_FLIPS_V4
-            // Log the flip
-            if( LOG_CONDITION )
-            {
-                if(indFlip != EMPTY)
-                {
-                    char realVarFlip = (varFlip == 'z') ? z0Aw0_groups->var : w0Az0_groups->var ;
-                    char filename[150] ;
-                    snprintf(filename, sizeof(filename), "Flips_v4/problem_%s_Level_%lld.csv", problem->name, (long long) problem->level) ;
-                    Log(filename, "%c, %lld", realVarFlip, (long long) indFlip) ;
-                }
-            }
-        #endif
 
         // Do the selected flip
         if(varFlip == 'z')

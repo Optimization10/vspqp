@@ -363,14 +363,9 @@ void Flips
     VSPINT *wgtx = &(X->weight) ;
     VSPINT *wgty = &(Y->weight) ;
 
-    if(problem->level <= 2)
-    {
-        Flips_v5(x, Ax, wgtx, y, Ay, wgty, problem, maxNumPasses) ;
-    }
-    else
-    {
-        Flips_v4(x, Ax, wgtx, y, Ay, wgty, problem, maxNumPasses) ;
-    }
+    bool deep_search = (problem->level <= 2) ;
+    Flips_v999(x, Ax, wgtx, y, Ay, wgty, problem, maxNumPasses, deep_search) ;
+
 
     clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;
     G_FLIPS_TIME += compute_elapsed_time(G_START_TIME, G_END_TIME) ;
