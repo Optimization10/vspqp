@@ -109,29 +109,6 @@ void Upflip
     Problem               *problem
 ) ;
 
-void StrictlyBeneficialFlips
-(
-    VSPINT                            *x,
-    VSPINT                            *y,
-    VSPINT                           *Ax,
-    VSPINT                           *Ay,
-    VSPINT                         *wgtx,
-    VSPINT                         *wgty,
-
-    IdxGroupsByC           *x0Ay0_groups,
-    IdxGroupsByC           *x1Ay1_groups,
-    IdxGroupsByC           *x1Ay2_groups,
-    Direct_Access_List       *x0Ay1_list,
-
-    IdxGroupsByC           *y0Ax0_groups,
-    IdxGroupsByC           *y1Ax1_groups,
-    IdxGroupsByC           *y1Ax2_groups,
-    Direct_Access_List       *y0Ax1_list,
-
-    Problem                 *problem,
-    VSPINT              *retNumFlipsDone
-) ;
-
 void FeasibleBeneficialFlips
 (
     VSPINT                            *x,
