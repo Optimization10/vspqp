@@ -80,15 +80,41 @@ void TryFlipsManyStartingPoints
             n
         ) ;
 
-        // Apply flips to the star point
-        Flips_v999
-        (
-            xstar, Axstar, &wgtxstar,
-            ystar, Aystar, &wgtystar,
-            problem, numPassesInFlips, true
-        ) ;
 
 
+
+// Apply flips to the star point
+        State Xstar, Ystar ;
+        Point xstarPoint, ystarPoint ;
+        Az    xstarAz,    ystarAz ;
+
+        Xstar.point = &xstarPoint ;
+        Xstar.Az    = &xstarAz ;
+        Ystar.point = &ystarPoint ;
+        Ystar.Az    = &ystarAz ;
+
+        Xstar.point->int_part = xstar ;
+        Xstar.point->ind_frac = EMPTY ;
+        Xstar.point->n = problem->graph->n ;
+        Xstar.Az->int_part = Axstar ;
+        Xstar.Az->col_frac_z = NULL ;
+        Xstar.Az->ind_frac_z = EMPTY ;
+        Xstar.Az->n = problem->graph->n ;
+        Xstar.weight = wgtxstar ;
+
+        Ystar.point->int_part = ystar ;
+        Ystar.point->ind_frac = EMPTY ;
+        Ystar.point->n = problem->graph->n ;
+        Ystar.Az->int_part = Aystar ;
+        Ystar.Az->col_frac_z = NULL ;
+        Ystar.Az->ind_frac_z = EMPTY ;
+        Ystar.Az->n = problem->graph->n ;
+        Ystar.weight = wgtystar ;
+
+        Flips_v999(&Xstar, &Ystar, problem, numPassesInFlips, true) ;
+
+        wgtxstar = Xstar.weight ;
+        wgtystar = Ystar.weight ;
 
         #ifdef DEBUG
             Check_Part

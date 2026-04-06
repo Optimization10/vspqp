@@ -33,7 +33,7 @@ void Flips
     VSPINT *wgty = &(Y->weight) ;
 
     bool deep_search = (problem->level <= 2) ;
-    Flips_v999(x, Ax, wgtx, y, Ay, wgty, problem, maxNumPasses, deep_search) ;
+    Flips_v999(X, Y, problem, maxNumPasses, deep_search) ;
 
 
     // clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;
@@ -44,12 +44,8 @@ void Flips
 
 void Flips_v999
 (
-    VSPINT                     *x,
-    VSPINT                    *Ax,
-    VSPINT                  *wgtx,
-    VSPINT                     *y,
-    VSPINT                    *Ay,
-    VSPINT                  *wgty,
+    State *X,
+    State *Y,
     Problem              *problem,
     VSPINT           maxNumPasses,
     bool              deep_search
@@ -62,6 +58,13 @@ void Flips_v999
         Check_Inputs(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
     #endif
 
+    VSPINT *x = X->point->int_part ;
+    VSPINT *Ax = X->Az->int_part ;
+    VSPINT *wgtx = &(X->weight) ;
+
+    VSPINT *y = Y->point->int_part ;
+    VSPINT *Ay = Y->Az->int_part ;
+    VSPINT *wgty = &(Y->weight) ;
 
     VSPINT n     = problem->graph->n ;
     VSPINT *c    = problem->graph->c ;

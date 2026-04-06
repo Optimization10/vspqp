@@ -15,12 +15,8 @@ void Flips
 
 void Flips_v999
 (
-    VSPINT                     *x,
-    VSPINT                    *Ax,
-    VSPINT                  *wgtx,
-    VSPINT                     *y,
-    VSPINT                    *Ay,
-    VSPINT                  *wgty,
+    State *X,
+    State *Y,
     Problem              *problem,
     VSPINT           maxNumPasses,
     bool              deep_search
