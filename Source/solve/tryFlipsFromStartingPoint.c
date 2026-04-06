@@ -1,5 +1,6 @@
 #include "shared_api.h"
 #include "solve_internal.h"
+#include "greedy_flips.h"
 
 
 /*----------------------------------------------------------------------------*/
@@ -80,11 +81,11 @@ void TryFlipsManyStartingPoints
         ) ;
 
         // Apply flips to the star point
-        Flips_v5
+        Flips_v999
         (
             xstar, Axstar, &wgtxstar,
             ystar, Aystar, &wgtystar,
-            problem, numPassesInFlips
+            problem, numPassesInFlips, true
         ) ;
 
 

@@ -43,6 +43,8 @@ LIBS = -lm
 # =============================================================================
 ifeq ($(VERSION),debug)
 CFLAGS += -O0 -DDEBUG
+else ifeq ($(VERSION),dev)
+CFLAGS += -O0
 else
 CFLAGS += -O3 -flto -march=native
 endif

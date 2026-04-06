@@ -1,5 +1,5 @@
 #include "core.h"
-#include "flips_private_v4.h"
+#include "greedy_flips_internal.h"
 
 void z0Aw1_List_Check
 (

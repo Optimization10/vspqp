@@ -1,6 +1,6 @@
 #ifndef NEUTRAL_STRATEGIES_H
 #define NEUTRAL_STRATEGIES_H
-#include "flips_private_v4.h"
+#include "greedy_flips_internal.h"
 
 /*------------------------------------------------------------------------*/
 // Strategy 1

@@ -19,6 +19,21 @@ extern long double G_COMPRESS_TIME ;
 
 const Problem *G_P = NULL ;
 
+bool restart_decide
+(
+    restart_decision       *dec,
+    VSPFLOAT                  objIn, /* If not using rule, this is ignored */
+    VSPFLOAT                 objOut, /* If not using rule, this is ignored */
+    Problem                *problem  /* If using levels, this is ignored   */
+) ;
+
+void set_initial_guess
+(
+    State         *X,
+    State         *Y,
+    Problem *problem,
+    Options *options
+) ;
 
 static void Set_Global_Problem(Problem *P)
 {

@@ -1,10 +1,9 @@
 #include "shared_api.h"
 #include "ds_api.h"
 #include "gr_api.h"
-#include "flips_api.h"
 #include "mc_api.h"
 #include "FM_api.h"
-#include "flips_public_v4.h"
+#include "greedy_flips.h"
 #include "shared_functions.h"
 #include "logger.h"
 #include <stdio.h>
@@ -353,35 +352,4 @@ extern long double G_FLIPS_TIME ;
 
 
 
-// Takes in a feasible point for the continuous problem, forces it to a binary
-// point, and optimizes it
-// Returns a feasible point for the binary problem with objective at least
-// as large as it started with after projecting the fractional entry to 0 or 1
-void Flips
-(
-    State               *X,
-    State               *Y,
-    Problem       *problem,
-    VSPINT        maxNumPasses
-)
-{
-    clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
-
-    SET_FUNCTION_COUNTER ;
-    Force_To_Binary_Point(X, Y, problem) ;
-
-    VSPINT *x  = X->point->int_part ;
-    VSPINT *Ax = X->Az->int_part ;
-    VSPINT *y  = Y->point->int_part ;
-    VSPINT *Ay = Y->Az->int_part ;
-    VSPINT *wgtx = &(X->weight) ;
-    VSPINT *wgty = &(Y->weight) ;
-
-    bool deep_search = (problem->level <= 2) ;
-    Flips_v999(x, Ax, wgtx, y, Ay, wgty, problem, maxNumPasses, deep_search) ;
-
-
-    clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;
-    G_FLIPS_TIME += compute_elapsed_time(G_START_TIME, G_END_TIME) ;
-}
 

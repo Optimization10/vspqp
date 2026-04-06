@@ -3,6 +3,15 @@
 #include "shared_api.h"
 #include <stdbool.h>
 
+void Flips
+(
+    State               *X,
+    State               *Y,
+    Problem       *problem,
+    VSPINT        maxNumPasses
+) ;
+
+
 
 void Flips_v999
 (

@@ -1,8 +1,8 @@
-#ifndef FLIPS_PRIVATE_V4_H
-#define FLIPS_PRIVATE_V4_H
+#ifndef GREEDY_FLIPS_INTERNAL_H
+#define GREEDY_FLIPS_INTERNAL_H
 #include "shared_api.h"
 #include "ds_api.h"
-#include "flips_public_v4.h"
+#include "greedy_flips.h"
 #include "flips_common_api.h"
 #include <stdbool.h>
 #define LOG_CONDITION (problem->level == 0)

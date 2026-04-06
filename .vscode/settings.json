@@ -62,7 +62,7 @@
         "chrono": "c",
         "compare": "c",
         "ratio": "c",
-        "flips_private_v4.h": "c",
+        "greedy_flips_internal.h": "c",
         "flips_public_v4.h": "c",
         "flips_private_v5.h": "c",
         "flips_public_v5.h": "c",
