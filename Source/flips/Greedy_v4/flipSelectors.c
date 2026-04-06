@@ -81,7 +81,7 @@ void SelectRandomOptimalBeneficialFlip
         {
             maxFeasPosGain    = gain ;
             feasPosGains[YUP] = gain ;
-            IdxGroupsByC_Num_Idx_With_Top_C(y0Ax0_groups, &numIdx) ;
+            IdxGroupsByC_Num_Idx_With_Given_C(y0Ax0_groups, cval, &numIdx) ;
             numFeasPosGain[YUP] = numIdx ;
         }
     }
@@ -341,7 +341,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
         {
             maxFeasPosGain = gain ;
             feasPosGains[XUP]   = gain ;
-            IdxGroupsByC_Num_Idx_With_Top_C(x0Ay0_groups, &numIdx) ;
+            IdxGroupsByC_Num_Idx_With_Given_C(x0Ay0_groups, cval, &numIdx) ;
             numFeasPosGain[XUP] = numIdx ;
         }
     }
@@ -355,7 +355,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
         {
             maxFeasPosGain    = gain ;
             feasPosGains[YUP] = gain ;
-            IdxGroupsByC_Num_Idx_With_Top_C(y0Ax0_groups, &numIdx) ;
+            IdxGroupsByC_Num_Idx_With_Given_C(y0Ax0_groups, cval, &numIdx) ;
             numFeasPosGain[YUP] = numIdx ;
         }
     }
