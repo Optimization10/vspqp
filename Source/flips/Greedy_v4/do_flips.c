@@ -50,7 +50,7 @@ void FeasibleBeneficialFlips
         // Choose the best flip
         SelectRandomOptimalBeneficialFlip
         (
-            x, y, Ax, Ay, *wgtx, *wgty, false,
+            x, y, Ax, Ay, *wgtx, *wgty, false, false,
             x0Ay0_groups,
             x1Ay1_groups,
             x1Ay2_groups,
@@ -176,9 +176,9 @@ void StrictlyBeneficialFlips
     while( 1 )
     {
         // Choose the best flip
-        SelectRandomOptimalStrictlyBeneficialFlip
+        SelectRandomOptimalBeneficialFlip
         (
-            x, y, Ax, Ay, *wgtx, *wgty, false,
+            x, y, Ax, Ay, *wgtx, *wgty, false, true,
             x0Ay0_groups,
             x1Ay1_groups,
             x1Ay2_groups,

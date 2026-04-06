@@ -51,7 +51,7 @@ void FeasibleBeneficialFlips_v5
         // Choose the best flip
         SelectRandomOptimalBeneficialFlip
         (
-            x, y, Ax, Ay, *wgtx, *wgty, true,
+            x, y, Ax, Ay, *wgtx, *wgty, true, false,
             x0Ay0_groups,
             x1Ay1_groups,
             x1Ay2_groups,

@@ -40,30 +40,6 @@ void Initialize_All_Structs
     Problem               *problem
 ) ;
 
-void SelectRandomOptimalStrictlyBeneficialFlip
-(
-    VSPINT *x,
-    VSPINT *y,
-    VSPINT *Ax,
-    VSPINT *Ay,
-    VSPINT wgtx,
-    VSPINT wgty,
-    bool deep_search,
-
-    IdxGroupsByC *x0Ay0_groups,
-    IdxGroupsByC *x1Ay1_groups,
-    IdxGroupsByC *x1Ay2_groups,
-    Direct_Access_List *x0Ay1_list, // only used in debugging
-
-    IdxGroupsByC *y0Ax0_groups,
-    IdxGroupsByC *y1Ax1_groups,
-    IdxGroupsByC *y1Ax2_groups,
-    Direct_Access_List *y0Ax1_list, // only used in debugging
-
-    Problem       *problem,
-    char           *retFlipVar, // '\0' if no flip
-    VSPINT         *retIndFlip  // EMPTY if no flip
-) ;
 
 void Do_Flip
 (
@@ -238,6 +214,7 @@ void SelectRandomOptimalBeneficialFlip
     VSPINT wgtx,
     VSPINT wgty,
     bool deep_search,
+    bool strict,
 
     IdxGroupsByC *x0Ay0_groups,
     IdxGroupsByC *x1Ay1_groups,
