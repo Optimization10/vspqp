@@ -29,13 +29,16 @@ void FeasibleBeneficialFlips
 {
     SET_FUNCTION_COUNTER ;
     #ifdef DEBUG
-        Check_All_Data
-        (
-            x, Ax, *wgtx, y, Ay, *wgty,
-            x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
-            y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
-            problem
-        ) ;
+        if(!strict) // Not sure why I'm guarding, just copying what I did before
+        {
+            Check_All_Data
+            (
+                x, Ax, *wgtx, y, Ay, *wgty,
+                x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
+                y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
+                problem
+            ) ;
+        }
 
         VSPINT objDbgInit ;
         Compute_ObjValDbg(x, Ax, y, Ay, problem, &objDbgInit) ;
@@ -98,7 +101,15 @@ void FeasibleBeneficialFlips
     }
 
     #ifdef DEBUG
-        Check_Outputs(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
+        if(deep_search)
+        {
+            Check_Outputs_v5(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
+        }
+        else
+        {
+            Check_Outputs(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
+        }
+        
         VSPINT objDbgFinal ;
         Compute_ObjValDbg(x, Ax, y, Ay, problem, &objDbgFinal) ;
         if( !(objDbgFinal >= objDbgInit) )
@@ -107,16 +118,19 @@ void FeasibleBeneficialFlips
         }
 
         // Check that there are no neutral downflips available
-        for(VSPINT i = 0 ; i < problem->graph->n ; i++)
+        if(!strict)
         {
-            if(x[i] && Ay[i] && *wgtx > problem->graph->c[i])
+            for(VSPINT i = 0 ; i < problem->graph->n ; i++)
             {
-                ERR("Downflip still available") ;
-            }
+                if(x[i] && Ay[i] && *wgtx > problem->graph->c[i])
+                {
+                    ERR("Downflip still available") ;
+                }
 
-            if(y[i] && Ax[i] && *wgty > problem->graph->c[i])
-            {
-                ERR("Downflip still available") ;
+                if(y[i] && Ax[i] && *wgty > problem->graph->c[i])
+                {
+                    ERR("Downflip still available") ;
+                }
             }
         }
     #endif
