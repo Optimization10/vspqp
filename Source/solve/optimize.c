@@ -5,11 +5,25 @@
 #include "mc_api.h"
 #include "FM_api.h"
 #include "flips_public_v4.h"
-#include "flips_public_v5.h"
 #include "shared_functions.h"
 #include "logger.h"
 #include <stdio.h>
 #include "solve_internal.h"
+
+
+void TryFlipsManyStartingPoints
+(
+    VSPINT                 **xBestHome,
+    VSPINT                **AxBestHome,
+    VSPINT               *wgtxBestHome,
+    VSPINT                 **yBestHome,
+    VSPINT                **AyBestHome,
+    VSPINT               *wgtyBestHome,
+    Problem               *problem,
+    Options               *options,
+    VSPINT                 numFlipRuns,
+    VSPINT            numPassesInFlips
+) ;
 
 static void Best_Of_MC_And_Greedy_Flips
 (
