@@ -302,135 +302,6 @@ VSPFLOAT Gradi(VSPINT i, VSPINT *c, VSPFLOAT gamma, Az *Az)
 
 
 
-/*----------------------------------------------------------------------------*/
-/* Experimental                                                               */
-/*----------------------------------------------------------------------------*/
-/* Go through z and see if there is anything we could swap in fully */
-// void resolve_frac_entry_v2
-// (
-//     State                 *Z, /* Resolve entry in Z */
-//     State                 *W,
-//     Problem         *problem
-// ) 
-// {
-    // #ifdef DEBUG
-    //     check_states(Z, W, problem) ;
-    // #endif
-
-    // if(Z->point->ind_frac == EMPTY)
-    // {
-    //     return ;
-    // }
-
-    // /* Get the gap between the weight of the integer part of z and u */
-    // VSPINT gapOrg, gap, zIndFrac, i, n, *c, *z ;
-    // VSPFLOAT Awi ;
-
-    // zIndFrac = Z->point->ind_frac ;
-    // gapOrg   = lround( problem->graph->c[zIndFrac] * Z->point->val_frac ) ;
-    // n        = problem->graph->n ;
-
-    // if(gapOrg < problem>Graph->min_vtx_cost)
-    // {
-    //     resolve_frac_entry(Z, problem) ;
-    // }
-
-    // c  = problem->graph->c ;
-    // z  = Z->point->int_part ;
-
-    // gap = gapOrg ;
-    // for(i = 0 ; i < n ; i++)
-    // {
-    //     if(gap < problem>Graph->min_vtx_cost)
-    //     {
-    //         break ;
-    //     }
-
-    //     Awi = Azi(i, W->Az) ;
-
-    //     if(z[i] == 0 && c[i] <= gap && Awi == 0)
-    //     {
-    //         z[i] = 1 ;
-    //         Z->weight += c[i] ;
-    //         Az_pm_col_of_A(Z->Az->int_part, i, PLUS, problem) ;
-    //         gap -= c[i] ;
-    //     }
-    // }
-
-    // if(gap == gapOrg) /* Nothing could be done */
-    // {
-    //     resolve_frac_entry(Z, problem) ;
-    // }
-    // else
-    // {
-    //     /* Set the fractional part to 0 */
-    //     // printf("Wroked\n") ;
-    //     Z->point->ind_frac = EMPTY ;
-    //     Z->point->val_frac = 0 ;
-    //     Z->Az->ind_frac_z  = EMPTY ;
-    //     Z->Az->val_frac_z  = 0 ;
-    //     Z->weight -= gapOrg  ;
-    // }
-
-    // #ifdef DEBUG
-    //     check_states(Z, W, problem) ;
-    // #endif
-
-    // return ;
-// }
-/*----------------------------------------------------------------------------*/
-
-// void resolve_frac_entry(State *Z, Problem *problem)
-// {
-
-//     #ifdef DEBUG
-//         check_state(Z, problem) ;
-//     #endif
-
-//     VSPINT k = Z->point->ind_frac ;
-//     if(k == EMPTY) return ;
-
-//     VSPFLOAT val_frac = Z->point->val_frac ;
-//     VSPINT *c = problem->graph->c ;
-
-//     /* Check if setting frac entry to 0 would violate lower bound */
-//     if(Z->weight - val_frac * c[k] < 1 - ZERO)
-//     {
-//         /* Round up */
-//         if(Z->weight + (1 - val_frac) * c[k] <= problem->u)
-//         {
-//             Z->point->int_part[k] = 1 ;
-//             Z->weight += lround((1 - val_frac) * c[k]) ;
-//             Z->point->ind_frac = EMPTY ;
-
-//             Z->Az->ind_frac_z = EMPTY ;
-//             Az_pm_col_of_A(Z->Az->int_part, k, PLUS, problem) ;
-//             return ;
-//         }
-//         else
-//         {
-//             printf("\n\nERROR: Could not deal with fractional component\n\n") ;
-//         }
-//     }
-
-//     /* If we made it past the if statement, we default to rounding down */
-//     /* Update the weight */
-//     Z->weight -= lround( Z->point->val_frac * c[k] ) ;
-
-//     /* Update the point struct */
-//     Z->point->ind_frac = EMPTY ;
-
-//     /* Update the Az struct */
-//     Z->Az->ind_frac_z = EMPTY ;
-
-//     #ifdef DEBUG
-//         check_state(Z, problem) ;
-//     #endif
-
-
-//     return ;
-// }
-
 void resolve_frac_entry
 (
     State *Z,
@@ -944,34 +815,6 @@ VSPFLOAT ComputeFracEntry
 }
 
 
-// If you want to lift the limit, just change max_count to -1
-// To disable this printing, set max_count = -2
-void limited_printf(const char *fmt, ...)
-{
-    static long long unsigned count = 0 ;
-    count++ ;
-
-    long long unsigned max_count = 50000 ;
-    // long long unsigned max_count = -1 ;
-    // long long unsigned max_count = -2 ;
-
-    if(max_count == -2) return ;
-
-    if ( (count < max_count) || max_count == -1 )
-    {
-        va_list args;
-        va_start(args, fmt);
-        vprintf(fmt, args);
-        va_end(args);
-    }
-    else if (count == max_count)
-    {
-        printf("\n\nEXCEEDED LIMITED_PRINTF CAPACITY. STOPPED PRINTING!\n\n") ;
-    }
-    fflush(stdout) ;
-    return ;
-}
-
 VSPINT Count_Ones
 (
     VSPINT *x, // assumed binary
@@ -1047,92 +890,6 @@ void Check_Array_Is_Binary
 }
 
 
-
-
-
-// This is for the case when (typically in a dense graph) Z is at the lower
-// balance constriant by having only one non-zero entry k, in which case
-// it may be that Aw_k is larger than 2, meaning it's an unsuitable point for
-// flips.
-
-// This function goes through j in {k} cup N(k) and if w[j] = 1, it sets it to
-// 0, as long as this doesn't violate the lower balance constraint in W.
-// If w[j] is fractional, then it is ignored. So in the end, Aw_k should
-// be < 1
-void Fix_Lower_Bound_Issue
-(
-    State         *Z,
-    State         *W,
-    Problem *problem
-)
-{
-    SET_FUNCTION_COUNTER ;
-    if(Z->weight > 1) return ;
-
-
-    #ifdef DEBUG
-        if(Z->weight != 1)
-        {
-            ERR("Entering when weight isn't 1") ;
-        }
-    #endif
-
-    /*------------------------------------------------------------------------*/
-    // k - the only index where zk is non-zero
-    // j - a member of {i} \cup N(i)
-    /*------------------------------------------------------------------------*/
-    VSPLONG end, p ;
-    VSPINT i, j,
-    k   = 0,
-    n   = problem->graph->n,
-    *z  = Z->point->int_part,
-    *Az = Z->Az->int_part,
-    *w  = W->point->int_part,
-    *Aw = W->Az->int_part,
-    *Ai = problem->graph->Ai,
-    *c  = problem->graph->c  ;
-    VSPLONG *Ap = problem->graph->Ap ;
-
-    if(Z->point->ind_frac != EMPTY) k = Z->point->ind_frac ;
-    else
-    {
-        for(i = 0 ; i < n ; i++)
-        {
-            if(z[i])
-            {
-                k = i ;
-                break ;
-            }
-        }
-    }
-
-    // For any j in {k} \cup, set w_j to 0 (if it isn't already), unless doing
-    // so would violate the lower balance constraint on w
-    end = Ap[k+1] ;
-    p = Ap[k] - 1 ;
-
-    // Neighbors of k
-    for(p = Ap[k] ; p < Ap[k+1] ; p++)
-    {
-        j = Ai[p] ;
-        if(w[j] && W->weight > c[j])
-        {
-            Do_Flip_Basic(w, Aw, j, &(W->weight), c, Ai, Ap) ;
-        }
-    }
-
-    // k itself
-    j = k ;
-    if(w[j] && W->weight > c[j])
-    {
-        Do_Flip_Basic(w, Aw, j, &(W->weight), c, Ai, Ap) ;
-    }
-
-    // Integer part of Aw[k] should be 0
-    VSP_ASSERT(Aw[k] == 0) ;
-    return ;
-}
-
 // base ^ expopnent where both base and exponent are
 // 0^0 is 1
 VSPINT pow_ints(VSPINT base, VSPINT exponent)
@@ -1145,13 +902,6 @@ VSPINT pow_ints(VSPINT base, VSPINT exponent)
     return ret ;
 }
 
-
-// Return the truth value of the proposition A ==> B
-bool Implies(bool A, bool B)
-{
-    if(A ==  true && B == false) return false ;
-    else return true ;
-}
 
 // (nz/2) / n(n-1)/2 = nz/n(n-1)
 double Graph_Density(VSPINT n, VSPLONG nz)
@@ -1181,27 +931,6 @@ bool Is_Singleton
     return (Ap[i+1] - Ap[i] == 0) ;
 }
 
-VSPINT Problem_Get_N_Finest(const Problem *P)
-{
-    if(P == NULL) return 0 ;
-
-    while(P->parent_problem != NULL)
-    {
-        P = P->parent_problem ;
-    }
-    return P->graph->n ;
-}
-
-VSPLONG Problem_Get_NZ_Finest(const Problem *P)
-{
-    if(P == NULL) return 0 ;
-
-    while(P->parent_problem != NULL)
-    {
-        P = P->parent_problem ;
-    }
-    return P->graph->nz ;
-}
 
 // Write 4n EMPTYs, covering x, y, Ax, Ay
 static void Write_EMPTYs_When_NULL

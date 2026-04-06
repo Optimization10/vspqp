@@ -3,7 +3,6 @@
 #include "coarsen_api.h"
 #include "shared_api.h"
 #include "shared_functions.h"
-
 #include <bits/time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +11,7 @@
 #include <limits.h>
 #include "solve_internal.h"
 #include "mc_api.h"
-#include "coarsen_api.h"
+
 
 extern struct timespec  G_START_TIME, G_END_TIME ;
 extern long double G_COMPRESS_TIME ;
@@ -341,24 +340,6 @@ solve_result *Solve
     Set_Global_Problem(NULL) ;
     return result ;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-void Destroy_Coarse_Problems(Problem *problemFinest) ;
-
-
-
-
-
 
 /* Determine if we should resolve, and if so, do it */
 void ResolveLevelDecideAndDo

@@ -56,10 +56,6 @@ typedef struct Options_struct
     VSPINT max_num_vert_small_graph ; /* Max number of vertices in  what is
                                          to be considered a "small" graph     */
 
-    /* Number of times to do MCA + GR */
-    VSPINT num_its_for_small_graphs ;
-    VSPINT num_its_for_large_graphs ;
-
     /* Miscellaneous */
     bool     sep_at_each_level ; /* If true, get a separator (i.e. change x, y
                                     to make the penalty term zero) after solving

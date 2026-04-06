@@ -84,23 +84,6 @@ IdxGroupsByC *IdxGroupsByC_Init
     }
     Groups->c         = c ;
     Groups->gamma     = gamma ;
-
-    // fprintf(fp, "name,n_curr,nz_curr,n_finest,nz_finest,level,ints_alloc,ints_over_n_finest,gb_allocated\n") ;
-    // fprintf
-    // (
-    //     fp, "%s,%lld,%lld,%lld,%lld,%lld,%lld,%f,%f\n",
-    //     G_P->name,
-    //     (long long) G_P->graph->n,
-    //     (long long) G_P->graph->nz,
-    //     (long long) Problem_Get_N_Finest(G_P),
-    //     (long long) Problem_Get_NZ_Finest(G_P),
-    //     (long long) G_P->level,
-    //     (long long) ints_alloc,
-    //     (double) ints_alloc / Problem_Get_N_Finest(G_P),
-    //     (double) ints_alloc * sizeof(VSPINT) / 1e9
-    // ) ;
-    // fflush(stdout) ;
-    // fclose(fp) ;
     return Groups ;
 }
 

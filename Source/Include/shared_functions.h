@@ -247,13 +247,7 @@ void copy_point(
 ) ;
 
 
-int comparison_increasing(const void *a, const void *b) ;
-
-
-
 int compare_value_index_floats(const void *a, const void *b) ;
-
-VSPINT compare_val_ind_structs_inc(const void *a, const void *b) ;
 
 
 void extract_matrix_col(
@@ -432,26 +426,6 @@ VSPFLOAT LP_solver_0
     Options *options /* Choose randomness or not                         */
 ) ;
 
-
-bool Is_N1_Optimal_Dbg
-(
-    State         *X,
-    State         *Y,
-    Problem *problem,
-    bool          strict  // If true, check for strict N1 Optimality
-) ;
-
-void limited_printf(const char *fmt, ...) ;
-
-
-bool Is_N1_Optimal_Dbg
-(
-    State                   *X,
-    State                   *Y,
-    Problem           *problem,
-    bool          strictly_optimal  // If true, check for strict N1 Optimality
-) ;
-
  
 VSPFLOAT minreduce
 (
@@ -524,35 +498,17 @@ bool Is_Coarsest_Problem(Problem *problem) ;
 bool Is_Finest_Problem(Problem *problem) ;
 void Swap_Mem(void *a, void *b, size_t size) ;
 
-
 // Return a pointer to a state containing a deep copy of z, Az, and wgtz
 void Save_State_Copy
 (
     VSPINT *z, VSPINT *Az, VSPINT wgtz, VSPINT n, State **stateHome
 ) ;
 
-// Return a pointer to a state containing a deep copy of z, Az, and wgtz
-void Save_State_Copy
-(
-    VSPINT *z, VSPINT *Az, VSPINT wgtz, VSPINT n, State **stateHome
-) ;
-
-void Call_Stack_Print() ;
-
-
-void Fix_Lower_Bound_Issue
-(
-    State         *Z,
-    State         *W,
-    Problem *problem
-) ;
 
 
 // base ^ expopnent where both base and exponent are
 // 0^0 is 1
 VSPINT pow_ints(VSPINT base, VSPINT exponent) ;
-
-bool Implies(bool A, bool B) ;
 
 void IO_Dump_Partition_int32
 (
@@ -579,9 +535,6 @@ void State_Round_Down
 ) ;
 
 VSPINT Get_Max_Degree(VSPLONG *Ap, VSPINT n) ;
-
-VSPINT Problem_Get_N_Finest(const Problem *P) ;
-VSPLONG Problem_Get_NZ_Finest(const Problem *P) ;
 
 // problem.hager6 n nz Ai Ap c x y (integer parts) Ax Ay (integer parts)
 // problem.txt Contains u, and any fractional entries of X and Y

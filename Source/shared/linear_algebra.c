@@ -33,50 +33,6 @@ void GetSepCost
     return ;
 }
 
-/* Given a binary point, return xAy */
-void num_pen
-(
-    State *X,
-    State *Y,
-    Problem *problem,
-    VSPFLOAT *numPen
-)
-{
-    #ifdef DEBUG
-        static long long unsigned count = 0 ;
-        count++ ;
-    #endif
-
-    VSPINT i ;
-    VSPINT n = problem->graph->n ;
-    VSPINT *x = X->point->int_part ;
-    VSPINT *Ay = Y->Az->int_part ;
-    VSPINT xAy = 0 ;
-
-    
-
-
-    for(i = 0 ; i < n ; i++)
-    {
-        xAy += x[i] * Ay[i] ;
-    }
-
-    #ifdef DEBUG
-        VSPINT yAx = 0 ;
-        for(i = 0 ; i < n ; i++)
-        {
-            yAx += Y->point->int_part[i] * X->Az->int_part[i] ;
-        }
-        if(xAy != yAx)
-        {
-            Error("Error in mixed term", DBG_INFO) ;
-        }
-    #endif
-
-    *numPen = xAy ;
-    return ;
-}
-
 
 /* Given a binary point, return xAy */
 void xAy

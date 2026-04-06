@@ -60,20 +60,6 @@ static void getColTitle
     return ;
 }
 
-// void Print_Performance()
-// {
-//         FILE *file = fopen("output/performance.csv", "w") ;
-//         fprintf(file, ",Time,Count") ;
-//         fprintf(file,"\nMC,%Lf,%llu", G_Performance_Struct.MC_Seconds, G_Performance_Struct.MC_Count) ;
-//         fprintf(file,"\nFM,%Lf,%llu", G_Performance_Struct.FM_Seconds, G_Performance_Struct.FM_Count) ;
-//         fprintf(file,"\nFlips,%Lf,%llu",G_Performance_Struct.Flips_Seconds, G_Performance_Struct.Flips_Count) ;
-//         fprintf(file,"\nAll Coarsening,%Lf,%llu", G_Performance_Struct.All_Coarsening_Seconds, G_Performance_Struct.All_Coarsening_Count) ;
-//         fprintf(file,"\nFM_Flips,%Lf, %llu", G_Performance_Struct.FM_Flips_Seconds, G_Performance_Struct.FM_Flips_Count) ;
-//         fprintf(file,"\nRelaxed_To_VSP,%Lf,%llu", G_Performance_Struct.Relaxed_To_Seconds, G_Performance_Struct.Relaxed_To_Count) ;
-
-//         fclose(file) ;
-//     return ;
-// }
 
 int Directory_Exists(const char *path)
 {
@@ -492,20 +478,6 @@ static void SetCustomOptions(Options *options)
     options->max_num_vert_small_graph = 8000 ;
     options->num_gr_for_small_graphs  = 4 ;
     options->num_gr_for_large_graphs  = 1 ;
-
-
-    // trial
-    // options->max_num_vert_small_graph = 16000 ;
-    // options->num_gr_for_small_graphs  = 2 ;
-
-    // options->max_num_vert_small_graph = 20000 ;
-    // options->num_gr_for_small_graphs  = 2 ;
-
-
-
-    options->num_its_for_small_graphs = 1 ;
-    options->num_its_for_large_graphs = 1 ;
-
 
     /*------------------------------------------------------------------------*/
     /* Relax Upper Bound Options                                              */
