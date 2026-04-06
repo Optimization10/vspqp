@@ -230,7 +230,7 @@ void Optimize
 
     // 2. Flips
     LoggerStart(X, Y, problem, "Flips") ;
-    Flips_v999(X, Y, problem, 9, (problem->level <= 2)) ;
+    Greedy_Flips(X, Y, problem, 9, (problem->level <= 2)) ;
     LoggerStop(X, Y, problem) ;
 
     // 3. Get vertex separator in preparation for FM_METIS
@@ -288,7 +288,7 @@ void Optimize
         /* (x*, y*) <- Solution starting from (x*, y*), using original gamma  */
         /*--------------------------------------------------------------------*/
         mountain_climbing(Xstar, Ystar, problem, options, gamma_org, true) ;
-        Flips_v999(Xstar, Ystar, problem, 9, (problem->level <= 2)) ;
+        Greedy_Flips(Xstar, Ystar, problem, 9, (problem->level <= 2)) ;
 
         relaxed_to_vertex_separator(Xstar, Ystar, problem) ;
 
@@ -328,7 +328,7 @@ void Optimize
     // can produce penalties. This is the last thing done do the x, y point
     /*------------------------------------------------------------------------*/
     LoggerStart(X, Y, problem, "Final Flips") ;
-    Flips_v999(X, Y, problem, 5, (problem->level <= 2) ) ;
+    Greedy_Flips(X, Y, problem, 5, (problem->level <= 2) ) ;
     LoggerStop(X, Y, problem) ;
 
     /*------------------------------------------------------------------------*/

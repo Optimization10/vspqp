@@ -13,7 +13,7 @@ void Flips
 
 
 
-void Flips_v999
+void Greedy_Flips
 (
     State *X,
     State *Y,

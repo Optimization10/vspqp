@@ -10,7 +10,7 @@
 
 
 
-void Flips_v999
+void Greedy_Flips
 (
     State *X,
     State *Y,
@@ -147,7 +147,7 @@ void Flips_Dep
     VSPINT *wgty = &(Y->weight) ;
 
     bool deep_search = (problem->level <= 2) ;
-    Flips_v999(X, Y, problem, maxNumPasses, deep_search) ;
+    Greedy_Flips(X, Y, problem, maxNumPasses, deep_search) ;
 
 
     // clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;

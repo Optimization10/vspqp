@@ -111,7 +111,7 @@ void TryFlipsManyStartingPoints
         Ystar.Az->n = problem->graph->n ;
         Ystar.weight = wgtystar ;
 
-        Flips_v999(&Xstar, &Ystar, problem, numPassesInFlips, true) ;
+        Greedy_Flips(&Xstar, &Ystar, problem, numPassesInFlips, true) ;
 
         wgtxstar = Xstar.weight ;
         wgtystar = Ystar.weight ;
