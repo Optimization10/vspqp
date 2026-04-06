@@ -140,7 +140,8 @@ void FeasibleBeneficialFlips
     VSPINT                           *Ay,
     VSPINT                         *wgtx,
     VSPINT                         *wgty,
-    bool                deep_search,
+    bool                     deep_search,
+    bool                          strict,
 
     IdxGroupsByC           *x0Ay0_groups,
     IdxGroupsByC           *x1Ay1_groups,
