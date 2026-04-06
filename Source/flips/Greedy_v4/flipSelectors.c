@@ -2,6 +2,12 @@
 #include "flips_private_v4.h"
 #include "ds_api.h"
 
+typedef enum
+{
+    IMPROVE_OBJ_ONLY_v5,
+    IMPROVE_OBJ_OR_NEUTRAL_Downflip_v5,
+    GAIN_GEQ_0_v5
+} Expected_Flip_Effect_v5 ;
 
 // ASSUMED: p_(x, 1) and p_(y, 1) are each <= 2
 void SelectRandomOptimalBeneficialFlip
@@ -60,7 +66,7 @@ void SelectRandomOptimalBeneficialFlip
     VSPINT numFeasPosGain[4] = {0} ;
 
     // x upflip
-    IdxGroupsByC_See_Best_Feasible_Cval(x0Ay0_groups, wgtx, u, false, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(x0Ay0_groups, wgtx, u, deep_search, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain = cval ;
@@ -74,7 +80,7 @@ void SelectRandomOptimalBeneficialFlip
     }
 
     // y upflip
-    IdxGroupsByC_See_Best_Feasible_Cval(y0Ax0_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(y0Ax0_groups, wgty, u, deep_search, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain = cval ;
@@ -278,13 +284,27 @@ void SelectRandomOptimalBeneficialFlip
     }
 
     #ifdef DEBUG
-        FeasibleStrictlyBeneficialFlipSelector_Check
-        (
-            x, Ax, wgtx,
-            y, Ay, wgty,
-            *retFlipVar, *retIndFlip,
-            problem, IMPROVE_OBJ_OR_NEUTRAL_DOWNFLIP
-        ) ;
+
+        if(deep_search)
+        {
+            FlipSelector_Check_v5
+            (
+                x, Ax, wgtx,
+                y, Ay, wgty,
+                *retFlipVar, *retIndFlip,
+                problem, IMPROVE_OBJ_OR_NEUTRAL_Downflip_v5
+            ) ;
+        }
+        else
+        {
+            FeasibleStrictlyBeneficialFlipSelector_Check
+            (
+                x, Ax, wgtx,
+                y, Ay, wgty,
+                *retFlipVar, *retIndFlip,
+                problem, IMPROVE_OBJ_OR_NEUTRAL_DOWNFLIP
+            ) ;
+        }
     #endif
 
     return ;
@@ -299,6 +319,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     VSPINT *Ay,
     VSPINT wgtx,
     VSPINT wgty,
+    bool deep_search,
 
     IdxGroupsByC *x0Ay0_groups,
     IdxGroupsByC *x1Ay1_groups,
@@ -346,7 +367,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     VSPINT numFeasPosGain[4] = {0} ;
 
     // x upflip
-    IdxGroupsByC_See_Best_Feasible_Cval(x0Ay0_groups, wgtx, u, false, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(x0Ay0_groups, wgtx, u, deep_search, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain = cval ;
@@ -360,7 +381,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     }
 
     // y upflip
-    IdxGroupsByC_See_Best_Feasible_Cval(y0Ax0_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
+    IdxGroupsByC_See_Best_Feasible_Cval(y0Ax0_groups, wgty, u, deep_search, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
     if(cval != EMPTY)
     {
         gain = cval ;
@@ -436,10 +457,32 @@ void SelectRandomOptimalStrictlyBeneficialFlip
         *retFlipVar = '\0' ;
         *retIndFlip = EMPTY ;
         #ifdef DEBUG
-            FeasibleBeneficialFlipSelector_Check
-            (
-                x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
-            ) ;
+            if(deep_search)
+            {
+                FlipSelector_Check_v5
+                (
+                    x, Ax, wgtx,
+                    y, Ay, wgty,
+                    *retFlipVar, *retIndFlip,
+                    problem, IMPROVE_OBJ_ONLY
+                ) ;
+            }
+            else
+            {
+                FeasibleBeneficialFlipSelector_Check
+                (
+                    x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
+                ) ;
+
+                FeasibleStrictlyBeneficialFlipSelector_Check
+                (
+                    x, Ax, wgtx,
+                    y, Ay, wgty,
+                    *retFlipVar, *retIndFlip,
+                    problem, IMPROVE_OBJ_ONLY
+                ) ;
+            }
+
         #endif
         return ;
     }
@@ -558,18 +601,21 @@ void SelectRandomOptimalStrictlyBeneficialFlip
 
 
     #ifdef DEBUG
-        FeasibleBeneficialFlipSelector_Check
-        (
-            x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
-        ) ;
+        if(!deep_search)
+        {
+            FeasibleBeneficialFlipSelector_Check
+            (
+                x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
+            ) ;
 
-        FeasibleStrictlyBeneficialFlipSelector_Check
-        (
-            x, Ax, wgtx,
-            y, Ay, wgty,
-            *retFlipVar, *retIndFlip,
-            problem, IMPROVE_OBJ_ONLY
-        ) ;
+            FeasibleStrictlyBeneficialFlipSelector_Check
+            (
+                x, Ax, wgtx,
+                y, Ay, wgty,
+                *retFlipVar, *retIndFlip,
+                problem, IMPROVE_OBJ_ONLY
+            ) ;
+        }
     #endif
 
     return ;
@@ -1210,6 +1256,301 @@ void FeasibleStrictlyBeneficialFlipSelector_Check
         {
             ERR("Damaging flip selected, and code above is wrong") ;
         }
+    }
+
+    break ;
+    default:
+        ERR("Unknown expFlipEffect value") ;
+        break;
+    }
+}
+
+
+
+// Flip Selector Check
+void FlipSelector_Check_v5
+(
+    VSPINT                          *x,
+    VSPINT                         *Ax,
+    VSPINT                        wgtx,
+    VSPINT                          *y,
+    VSPINT                         *Ay,
+    VSPINT                        wgty,
+    char                  givenVarFlip,
+    VSPINT                givenIndFlip,
+    Problem               *problem,
+    Expected_Flip_Effect_v5 expFlipEffect
+)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+    WARN_IF_NOT_DEBUG_MODE ;
+
+    // Validate input
+    if(givenIndFlip != EMPTY)
+    {
+        if(givenVarFlip != 'x' && givenVarFlip != 'y')
+        {
+            ERR("Mismatch between given ind flip and given var flip") ;
+        }
+    }
+    else
+    {
+        if(givenVarFlip != '\0')
+        {
+            ERR("Mismatch between given ind flip and given var flip") ;
+        }
+    }
+
+    VSPINT i, k, xi, yi, Axi, Ayi, ci, bestGain = 0 ;
+    VSPINT n = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c = problem->graph->c ;
+    VSPINT  u = problem->u ;
+
+    /*------------------------------------------------------------------------*/
+    // Load the given flip into a Flip data structure of easier debugging
+    /*------------------------------------------------------------------------*/
+    VSPINT givenGain = 0 ;
+    if( givenVarFlip == 'x' )
+    {
+        givenGain = GAIN_FLIP( DIR_FLIP(x[givenIndFlip]), c[givenIndFlip], gamma, Ay[givenIndFlip] ) ;
+    }
+    else if( givenVarFlip == 'y' )
+    {
+        givenGain = GAIN_FLIP( DIR_FLIP(y[givenIndFlip]), c[givenIndFlip], gamma, Ax[givenIndFlip] ) ;
+    }
+
+    Flip givenFlip = {0} ;
+    givenFlip.gamma = gamma ;
+    givenFlip.i    = givenIndFlip ;
+    givenFlip.var  = givenVarFlip ;
+    givenFlip.gain = givenGain ;
+    givenFlip.u = u ;
+    if(givenVarFlip == 'x')
+    {
+        VSP_ASSERT(givenIndFlip != EMPTY) ;
+        givenFlip.wgt = wgtx ;
+        givenFlip.zi   = x[givenIndFlip] ;
+        givenFlip.Awi  = Ay[givenIndFlip] ;
+        givenFlip.dir  = 1 - 2 * x[givenIndFlip] ;
+        givenFlip.ci   = c[givenIndFlip] ;
+        if(x[givenIndFlip] == 0)
+        {
+            givenFlip.dir = 1 ;
+        }
+        else
+        {
+            givenFlip.dir = -1 ;
+        }
+    }
+    else if(givenVarFlip == 'y')
+    {
+        VSP_ASSERT(givenIndFlip != EMPTY) ;
+        givenFlip.wgt = wgty ;
+        givenFlip.zi   = y[givenIndFlip] ;
+        givenFlip.Awi  = Ax[givenIndFlip] ;
+        givenFlip.dir  = 1 - 2 * y[givenIndFlip] ;
+        givenFlip.ci   = c[givenIndFlip] ;
+    }
+    else
+    {
+        givenVarFlip = '\0' ;
+        givenFlip.i  = EMPTY ;
+    }
+
+
+    // Check for feasibility
+    if(givenFlip.i != EMPTY)
+    {
+        if(givenFlip.dir == 1 && !FEASIBLE_UPFLIP(givenFlip.wgt, givenFlip.ci, givenFlip.u) )
+        {
+            ERR("Infeasible flip") ;
+        }
+
+        if(givenFlip.dir == -1 && !FEASIBLE_DNFLIP(givenFlip.wgt, givenFlip.ci) )
+        {
+            ERR("Infeasible flip") ;
+        }
+    } 
+
+
+    /*------------------------------------------------------------------------*/
+    // Determine the best feasible flip. It is recorded and stored in trueFlip
+    // regardless of the gain
+    // existsAFeasNeutralDnflip - if the best gain is 0, trueFlip may be recorded
+    //                            as a neutral upflip. But we may want to know if
+    //                            there exists a neutral downflip. This var is true
+    //                            or false regardless if the gain is positive or w/e
+    /*------------------------------------------------------------------------*/
+
+
+    Flip trueFlip = {0} ;
+    trueFlip.var  = '\0' ;
+    trueFlip.i    = EMPTY ;
+    trueFlip.gamma = gamma ;
+    trueFlip.u = u ;
+
+    VSPINT gain, maxFeasGain = - n * gamma ;
+
+    VSPINT feasNeutralDnFlipWitness = EMPTY ;
+    for(i = 0 ; i < n ; i++)
+    {
+        xi  = x[i] ;
+        yi  = y[i] ;
+        Axi = Ax[i] ;
+        Ayi = Ay[i] ;
+        ci  = c[i] ;
+        if(xi)
+        {
+            gain = GAIN_FLIP(DOWN, ci, gamma, Ayi) ;
+            if(gain > maxFeasGain && FEASIBLE_DNFLIP(wgtx, ci))
+            {
+                maxFeasGain = gain ;
+                trueFlip.Awi = Ayi ;
+                trueFlip.ci = ci ;
+                trueFlip.dir = DOWN ;
+                trueFlip.gain = gain ;
+                trueFlip.i = i ;
+                trueFlip.var = 'x' ;
+                trueFlip.wgt = wgtx ;
+                trueFlip.zi = 1 ;
+            }
+            if(gain == 0 && wgtx > ci) feasNeutralDnFlipWitness = i ;
+        }
+        else // xi = 0
+        {
+            gain = GAIN_FLIP(UP, ci, gamma, Ayi) ;
+            if(gain > maxFeasGain && FEASIBLE_UPFLIP(wgtx, ci, u))
+            {
+                maxFeasGain = gain ;
+                trueFlip.Awi = Ayi ;
+                trueFlip.ci = ci ;
+                trueFlip.dir = UP ;
+                trueFlip.gain = gain ;
+                trueFlip.i = i ;
+                trueFlip.var = 'x' ;
+                trueFlip.wgt = wgtx ;
+                trueFlip.zi = 0 ;
+            }
+        }
+
+        if(yi)
+        {
+            gain = GAIN_FLIP(DOWN, ci, gamma, Axi) ;
+            if(gain > maxFeasGain && FEASIBLE_DNFLIP(wgty, ci))
+            {
+                maxFeasGain = gain ;
+                trueFlip.Awi = Axi ;
+                trueFlip.ci = ci ;
+                trueFlip.dir = DOWN ;
+                trueFlip.gain = gain ;
+                trueFlip.i = i ;
+                trueFlip.var = 'y' ;
+                trueFlip.wgt = wgty ;
+                trueFlip.zi = 1 ;
+            }
+            if(gain == 0 && wgty > ci) feasNeutralDnFlipWitness = i ;
+        }
+        else // yi = 0
+        {
+            gain = GAIN_FLIP(UP, ci, gamma, Axi) ;
+            if(gain > maxFeasGain && FEASIBLE_UPFLIP(wgty, ci, u))
+            {
+                maxFeasGain = gain ;
+                trueFlip.Awi = Axi ;
+                trueFlip.ci = ci ;
+                trueFlip.dir = UP ;
+                trueFlip.gain = gain ;
+                trueFlip.i = i ;
+                trueFlip.var = 'y' ;
+                trueFlip.wgt = wgty ;
+                trueFlip.zi = 0 ;
+            }
+        }
+    }
+
+    if(trueFlip.i == EMPTY)
+    {
+        printf("\n\n\nWARNING: VERY WEIRD CASE, NO FEASIBLE FLIP\n\n\n") ;
+        ERR("\n\n\nWARNING: VERY WEIRD CASE, NO FEASIBLE FLIP\n\n\n") ;
+        if(givenFlip.i != EMPTY)
+        {
+            ERR("") ;
+        }
+    }
+
+    switch (expFlipEffect)
+    {
+    case IMPROVE_OBJ_ONLY_v5 :
+        /*--------------------------------------------------------------------*/
+        // If the true flip has a positive gain, check that the given flip has
+        // the same gain. Otherwise, check that the given flip is empty
+        /*--------------------------------------------------------------------*/
+        if(trueFlip.gain > 0)
+        {
+            if((givenFlip.gain != trueFlip.gain) || givenFlip.i == EMPTY)
+            {
+                ERR("Gains mismatch") ;
+            }
+        }
+        else
+        {
+            if(givenFlip.i != EMPTY)
+            {
+                ERR("Feasible flip that improves the obj doesn't actually exist") ;
+            }
+        }
+
+
+        // Sanity check
+        if(givenFlip.i != EMPTY && givenFlip.gain <= 0)
+        {
+            ERR("Bad flip selected, and code above is wrong") ;
+        }
+
+        break ;
+    case IMPROVE_OBJ_OR_NEUTRAL_Downflip_v5 :
+        /*--------------------------------------------------------------------*/
+        // Check the following:
+        // If the true flip has positive gain, the given flip should too
+        // If the true flip has gain 0 and there exists a feasible neutral
+        // downflip, then given flip should be a neutral downflip
+        // Otherwise, the given flip should be empty
+        /*--------------------------------------------------------------------*/    
+        if(trueFlip.gain > 0)
+        {
+            if( (trueFlip.gain != givenFlip.gain) || givenFlip.i == EMPTY)
+            {
+                ERR("Gains mismatch") ;
+            }
+        }
+        else if(trueFlip.gain == 0 && feasNeutralDnFlipWitness != EMPTY)
+        {
+            if(givenFlip.i == EMPTY || givenFlip.gain != 0 || givenFlip.dir != -1)
+            {
+                ERR("Problem with given flip") ;
+            }
+        }
+        else
+        {
+            if(givenFlip.i != EMPTY)
+            {
+                ERR("Problem with given flip") ;
+            }
+        }
+
+        // Sanity check
+        if(givenFlip.gain < 0)
+        {
+            ERR("Damaging flip selected, and code above is wrong") ;
+        }
+        break ;
+    
+    case GAIN_GEQ_0_v5 :
+    {
+       printf("\n\nUnsupported case\n") ;
+       ERR("Unsupported case") ;
     }
 
     break ;

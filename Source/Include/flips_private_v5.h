@@ -319,35 +319,6 @@ void Neutral_Flips_Strategy_1_v5
 
 
 
-
-/*----------------------------------------------------------------------------*/
-/* Flip selectors                                                             */
-/*----------------------------------------------------------------------------*/
-void SelectRandomOptimalBeneficialFlip_v5
-(
-    VSPINT *x,
-    VSPINT *y,
-    VSPINT *Ax,
-    VSPINT *Ay,
-    VSPINT wgtx,
-    VSPINT wgty,
-
-    IdxGroupsByC *x0Ay0_groups,
-    IdxGroupsByC *x1Ay1_groups,
-    IdxGroupsByC *x1Ay2_groups,
-    Direct_Access_List *x0Ay1_list, // only used in debugging
-
-    IdxGroupsByC *y0Ax0_groups,
-    IdxGroupsByC *y1Ax1_groups,
-    IdxGroupsByC *y1Ax2_groups,
-    Direct_Access_List *y0Ax1_list, // only used in debugging
-
-    Problem       *problem,
-    char           *retFlipVar, // '\0' if no flip
-    VSPINT         *retIndFlip  // EMPTY if no flip
-) ;
-
-
 /*----------------------------------------------------------------------------*/
 /* Debugging                                                                  */
 /*----------------------------------------------------------------------------*/

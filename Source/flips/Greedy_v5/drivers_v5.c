@@ -146,9 +146,9 @@ void StrictlyBeneficialFlips_v5
     while( 1 )
     {
         // Choose the best flip
-        SelectRandomOptimalStrictlyBeneficialFlip_v5
+        SelectRandomOptimalStrictlyBeneficialFlip
         (
-            x, y, Ax, Ay, *wgtx, *wgty,
+            x, y, Ax, Ay, *wgtx, *wgty, true,
             x0Ay0_groups,
             x1Ay1_groups,
             x1Ay2_groups,

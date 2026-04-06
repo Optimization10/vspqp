@@ -178,7 +178,7 @@ void StrictlyBeneficialFlips
         // Choose the best flip
         SelectRandomOptimalStrictlyBeneficialFlip
         (
-            x, y, Ax, Ay, *wgtx, *wgty,
+            x, y, Ax, Ay, *wgtx, *wgty, false,
             x0Ay0_groups,
             x1Ay1_groups,
             x1Ay2_groups,

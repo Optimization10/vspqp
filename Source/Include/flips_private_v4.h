@@ -48,6 +48,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     VSPINT *Ay,
     VSPINT wgtx,
     VSPINT wgty,
+    bool deep_search,
 
     IdxGroupsByC *x0Ay0_groups,
     IdxGroupsByC *x1Ay1_groups,
