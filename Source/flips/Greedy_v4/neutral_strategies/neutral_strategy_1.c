@@ -62,6 +62,7 @@ void Neutral_Flips_Strategy_1
     VSPINT *Ay,
     VSPINT *wgtx,
     VSPINT *wgty,
+    bool    deep_search,
 
     IdxGroupsByC *x0Ay0_groups,
     IdxGroupsByC *x1Ay1_groups,
@@ -132,7 +133,7 @@ void Neutral_Flips_Strategy_1
             // Strictly beneficial flips, no deep search
             FeasibleBeneficialFlips
             (
-                x, y, Ax, Ay, wgtx, wgty, false, true,
+                x, y, Ax, Ay, wgtx, wgty, deep_search, true,
                 x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
                 y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
                 problem, &numFeasibleStrictlyBenFlips
@@ -161,7 +162,7 @@ void Neutral_Flips_Strategy_1
             // Strictly beneficial flips
             FeasibleBeneficialFlips
             (
-                x, y, Ax, Ay, wgtx, wgty, false, true,
+                x, y, Ax, Ay, wgtx, wgty, deep_search, true,
                 x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
                 y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
                 problem, &numFeasibleStrictlyBenFlips

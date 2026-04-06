@@ -98,10 +98,10 @@ void Flips_v4
         problem, &numFeasibleBenFlips
     ) ;
 
-    
+
     Neutral_Flips_Strategy_1
     (
-        x, y, Ax, Ay, wgtx, wgty,
+        x, y, Ax, Ay, wgtx, wgty, false,
         x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
         y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
         maxNumPasses, problem

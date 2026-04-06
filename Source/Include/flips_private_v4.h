@@ -163,6 +163,7 @@ void Neutral_Flips_Strategy_1
     VSPINT *Ay,
     VSPINT *wgtx,
     VSPINT *wgty,
+    bool    deep_search,
 
     IdxGroupsByC *x0Ay0_groups,
     IdxGroupsByC *x1Ay1_groups,
