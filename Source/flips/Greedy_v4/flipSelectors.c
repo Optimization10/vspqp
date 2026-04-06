@@ -208,7 +208,8 @@ void SelectRandomOptimalBeneficialFlip
     /*------------------------------------------------------------------------*/
     VSPINT baseRandNum = rand() ;
     VSPINT randChoice  = baseRandNum % acumm[m] ;
-    VSPINT flipChoice = NO_FLIP ;
+    VSPINT flipChoice ;
+    bool was_initialized = false ;
 
 
     for(VSPINT p = 1 ; p <= m ; p++)
@@ -216,9 +217,20 @@ void SelectRandomOptimalBeneficialFlip
         if(randChoice < acumm[p])
         {
             flipChoice = maxGainFlips[p-1] ;
+            #ifdef DEBUG
+                was_initialized = true ;
+            #endif
             break ;
         }
     }
+
+    #ifdef DEBUG
+    if(!was_initialized)
+    {
+        ERR("Flip choice was not initialized!") ;
+        fflush(stdout) ;
+    }
+    #endif
 
     #ifdef DEBUG
         if( !IN_RANGE(flipChoice, 0, 4) )
@@ -482,7 +494,8 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     /*------------------------------------------------------------------------*/
     VSPINT baseRandNum = rand() ;
     VSPINT randChoice  = baseRandNum % acumm[m] ;
-    VSPINT flipChoice = EMPTY ; ;
+    VSPINT flipChoice ;
+    bool was_initialized = false ;
 
 
     for(VSPINT p = 1 ; p <= m ; p++)
@@ -490,12 +503,19 @@ void SelectRandomOptimalStrictlyBeneficialFlip
         if(randChoice < acumm[p])
         {
             flipChoice = maxGainFlips[p-1] ;
+            #ifdef DEBUG
+            was_initialized = true ;
+            #endif
             break ;
         }
     }
 
     #ifdef DEBUG
-        VSP_ASSERT(flipChoice != EMPTY) ;
+    if(!was_initialized)
+    {
+        ERR("Flip choice was not initialized!") ;
+        fflush(stdout) ;
+    }
     #endif
 
     if(flipChoice == XUP)
