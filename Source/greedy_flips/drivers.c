@@ -19,6 +19,8 @@ void Flips_v999
     bool              deep_search
 )
 {
+    Force_To_Binary_Point(X, Y, problem) ;
+
     static long long unsigned count = 0 ;
     count++ ;
 
