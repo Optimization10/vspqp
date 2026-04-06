@@ -4,6 +4,7 @@
 #include "ds_api.h"
 #include "flips_public_v4.h"
 #include "flips_common_api.h"
+#include <stdbool.h>
 #define LOG_CONDITION (problem->level == 0)
 
 
@@ -139,6 +140,7 @@ void FeasibleBeneficialFlips
     VSPINT                           *Ay,
     VSPINT                         *wgtx,
     VSPINT                         *wgty,
+    bool                deep_search,
 
     IdxGroupsByC           *x0Ay0_groups,
     IdxGroupsByC           *x1Ay1_groups,

@@ -9,6 +9,7 @@ void FeasibleBeneficialFlips
     VSPINT                           *Ay,
     VSPINT                         *wgtx,
     VSPINT                         *wgty,
+    bool                     deep_search,
 
     IdxGroupsByC           *x0Ay0_groups,
     IdxGroupsByC           *x1Ay1_groups,
@@ -50,7 +51,7 @@ void FeasibleBeneficialFlips
         // Choose the best flip
         SelectRandomOptimalBeneficialFlip
         (
-            x, y, Ax, Ay, *wgtx, *wgty, false, false,
+            x, y, Ax, Ay, *wgtx, *wgty, deep_search, false,
             x0Ay0_groups,
             x1Ay1_groups,
             x1Ay2_groups,
