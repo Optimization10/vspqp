@@ -288,22 +288,6 @@ void Check_Given_Flip_Is_Optimal_v5
     Problem       *problem
 ) ;
 
-
-// Designed to be called at the very end of flips
-// In addition to checking the data,check that there are no strictly beneficial
-// flips 
-void Check_Outputs_v5
-(
-    VSPINT                  *x,
-    VSPINT                 *Ax,
-    VSPINT                wgtx,
-    VSPINT                  *y,
-    VSPINT                 *Ay,
-    VSPINT                wgty,
-    Problem       *problem
-) ;
-
-
 /*------------------------------------------------------------------------------
 Encoding: 
 0 --> x0
