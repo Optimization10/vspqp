@@ -744,7 +744,7 @@ void FlipSelector_Check_v5
                 maxFeasGain = gain ;
                 trueFlip.Awi = Ayi ;
                 trueFlip.ci = ci ;
-                trueFlip.dir = DOWN ;
+                trueFlip.dir = UP ;
                 trueFlip.gain = gain ;
                 trueFlip.i = i ;
                 trueFlip.var = 'x' ;
@@ -778,7 +778,7 @@ void FlipSelector_Check_v5
                 maxFeasGain = gain ;
                 trueFlip.Awi = Axi ;
                 trueFlip.ci = ci ;
-                trueFlip.dir = DOWN ;
+                trueFlip.dir = UP ;
                 trueFlip.gain = gain ;
                 trueFlip.i = i ;
                 trueFlip.var = 'y' ;
@@ -876,68 +876,4 @@ void FlipSelector_Check_v5
         ERR("Unknown expFlipEffect value") ;
         break;
     }
-}
-
-
-void IdxGroupsByC_See_Top_Feasible_Cval_v5
-(
-    IdxGroupsByC      *z0Aw0_groups,
-    Problem                *problem,
-    VSPINT                     wgtz,
-    VSPINT          *retMaxFeasCval,
-    VSPINT                       *z, // Used for debugging only
-    VSPINT                      *Aw // Used for debugging only
-)
-{
-    #ifdef DEBUG
-        static long long unsigned count = 0 ;
-        count++ ;
-
-        VSPINT n = problem->graph->n ;
-        VSPINT maxFeasCval_dbg = EMPTY ;
-        VSPINT witness = EMPTY ;
-    #endif
-
-    VSPINT  i, p, cval ;
-    VSPINT  u = problem->u ;
-    VSPINT *c = problem->graph->c ;
-
-    VSPINT *heap = z0Aw0_groups->maxHeap->heap ;
-    VSPINT sizeHeap = z0Aw0_groups->maxHeap->sizeHeap ;
-
-    if(sizeHeap && FEASIBLE_UPFLIP(wgtz, heap[1], u) )
-    {
-        *retMaxFeasCval = heap[1] ;
-        goto RET ;
-    }
-
-    VSPINT maxFeasCval = EMPTY ;
-    for(p = 2 ; p <= sizeHeap ; p++)
-    {
-        if( FEASIBLE_UPFLIP(wgtz, heap[p], u) && heap[p] > maxFeasCval)
-        {
-            maxFeasCval = heap[p] ;
-        }
-    }
-    *retMaxFeasCval = maxFeasCval ;
-    
-    RET:
-    #ifdef DEBUG
-
-        for(i = 0 ; i < n ; i++)
-        {
-            if( z[i] == 0 && Aw[i] == 0 && FEASIBLE_UPFLIP(wgtz, c[i], u) && c[i] > maxFeasCval_dbg)
-            {
-                maxFeasCval_dbg = c[i] ;
-                witness = i ;
-            }
-        }
-
-        if(*retMaxFeasCval != maxFeasCval_dbg)
-        {
-            ERR("Mismatch when searching for upflip") ;
-        }
-    #endif
-
-    return ;
 }

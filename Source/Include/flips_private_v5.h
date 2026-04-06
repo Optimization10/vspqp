@@ -146,16 +146,6 @@ void IdxGroupsByC_Num_Idx_With_Top_C
     VSPINT       *retNumIdx
 ) ;
 
-void IdxGroupsByC_See_Top_Feasible_Cval_v5
-(
-    IdxGroupsByC      *z0Aw0_groups,
-    Problem            *problem,
-    VSPINT                     wgtz,
-    VSPINT          *retMaxFeasCval,
-    VSPINT                       *z, // Used for debugging only
-    VSPINT                      *Aw // Used for debugging only
-) ;
-
 /*----------------------------------------------------------------------------*/
 /* Miscellaneous                                                              */
 /*----------------------------------------------------------------------------*/
