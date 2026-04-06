@@ -156,21 +156,6 @@ void IdxGroupsByC_See_Top_Feasible_Cval_v5
     VSPINT                      *Aw // Used for debugging only
 ) ;
 
-void IdxGroupsByC_Num_Idx_With_Given_C
-(
-    IdxGroupsByC    *Groups,
-    VSPINT        givenCval,
-    VSPINT       *retNumIdx
-) ;
-
-
-void IdxGroupsByC_See_Random_Idx_Given_C
-(
-    IdxGroupsByC    *Groups,
-    VSPINT          randInt, // Used for randInt % sizeGroup
-    VSPINT        givenCval,
-    VSPINT       *idxReturn  // Return
-) ;
 /*----------------------------------------------------------------------------*/
 /* Miscellaneous                                                              */
 /*----------------------------------------------------------------------------*/

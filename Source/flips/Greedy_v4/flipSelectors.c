@@ -1,6 +1,6 @@
 #include "core.h"
 #include "flips_private_v4.h"
-
+#include "ds_api.h"
 
 
 // ASSUMED: p_(x, 1) and p_(y, 1) are each <= 2
@@ -67,7 +67,7 @@ void SelectRandomOptimalBeneficialFlip
         {
             maxFeasPosGain = gain ;
             feasPosGains[XUP]   = gain ;
-            IdxGroupsByC_Num_Idx_With_Top_C(x0Ay0_groups, &numIdx) ;
+            IdxGroupsByC_Num_Idx_With_Given_C(x0Ay0_groups, cval, &numIdx) ;
             numFeasPosGain[XUP] = numIdx ;
         }
     }

@@ -596,6 +596,13 @@ void IdxGroupsByC_Get_Random_Idx_Top_C
     VSPINT       *idxReturn
 ) ;
 
+void IdxGroupsByC_Num_Idx_With_Given_C
+(
+    IdxGroupsByC    *Groups,
+    VSPINT        givenCval,
+    VSPINT       *retNumIdx
+) ;
+
 void IdxGroupsByC_See_Random_Idx_Top_C
 (
     IdxGroupsByC *Groups,
