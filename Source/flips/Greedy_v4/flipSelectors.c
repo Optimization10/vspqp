@@ -77,7 +77,7 @@ void SelectRandomOptimalBeneficialFlip
     if(cval != EMPTY)
     {
         gain = cval ;
-        if(gain > maxFeasPosGain && FEASIBLE_UPFLIP(wgty, cval, u))
+        if(gain > maxFeasPosGain)
         {
             maxFeasPosGain    = gain ;
             feasPosGains[YUP] = gain ;
@@ -351,7 +351,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
     if(cval != EMPTY)
     {
         gain = cval ;
-        if(gain > maxFeasPosGain && FEASIBLE_UPFLIP(wgty, cval, u))
+        if(gain > maxFeasPosGain)
         {
             maxFeasPosGain    = gain ;
             feasPosGains[YUP] = gain ;
@@ -550,6 +550,324 @@ void SelectRandomOptimalStrictlyBeneficialFlip
             problem, IMPROVE_OBJ_ONLY
         ) ;
     #endif
+
+    return ;
+}
+
+
+
+
+
+
+
+// WARNING: This function is only for the strictly beneficial flips phase
+// ASSUMED: The flip has NOT happened yet
+// The "best feasible flip according to structs" is a flip which achieves the
+// gain (accounting for feasibility)
+// max{ c_(x0), c_(y0), gamma * p_(x1) - c_(x1), gamma * p_(y1) - c_(y1) }
+// This function checks that the given flup achieves this gain
+// If there is no flip with feasible gain according to the structs, then
+// the function expects givenVarFlip = '\0' and givenIndFlip = EMPTY 
+void FeasibleBeneficialFlipSelector_Check
+(
+    VSPINT                  *x,
+    VSPINT                 *Ax,
+    VSPINT                wgtx,
+    VSPINT                  *y,
+    VSPINT                 *Ay,
+    VSPINT                wgty,
+    char          givenVarFlip,
+    VSPINT        givenIndFlip,
+    Problem       *problem
+)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+    WARN_IF_NOT_DEBUG_MODE ;
+
+    VSPINT i, xi, yi, Axi, Ayi, ci ;
+    VSPINT n = problem->graph->n ; 
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c = problem->graph->c ;
+    VSPINT  u = problem->u ;
+
+
+    /*------------------------------------------------------------------------*/
+    // Get the p values
+    /*------------------------------------------------------------------------*/
+    VSPINT px0 = n + 1, py0 = n + 1, px1 = -1, py1 = -1 ;
+
+    for(i = 0 ; i < n ; i++)
+    {
+        xi = x[i] ;
+        yi = y[i] ;
+        Axi = Ax[i] ;
+        Ayi = Ay[i] ;
+
+        // Record px's
+        if(xi)
+        {
+            if(Ayi > px1)
+            {
+                px1 = Ayi ;
+            }
+        }
+        else
+        {
+            if(Ayi < px0)
+            {
+                px0 = Ayi ;
+            }
+        }
+
+        // Record py's
+        if(yi)
+        {
+            if(Axi > py1)
+            {
+                py1 = Axi ;
+            }
+        }
+        else
+        {
+            if(Axi < py0)
+            {
+                py0 = Axi ;
+            }
+        }
+    }
+
+    /*------------------------------------------------------------------------*/
+    // Record the c's and an index for each c
+    // Also record:
+    // x0witness, y0witness, x1witness, y1witness - indices achieving the
+    // optimal p and c values
+    /*------------------------------------------------------------------------*/
+    VSPINT cx0 = -1, cy0 = -1, cx1 = gamma + 1, cy1 = gamma + 1 ;
+    VSPINT x0witness = EMPTY, y0witness = EMPTY ;
+    VSPINT x1witness = EMPTY, y1witness = EMPTY ;
+
+    for(i = 0 ; i < n ; i++)
+    {
+        xi = x[i] ;
+        yi = y[i] ;
+        Axi = Ax[i] ;
+        Ayi = Ay[i] ;
+        ci = c[i] ;
+
+        // Deal with x
+        if(xi == 0 && Ayi == px0)
+        {
+            if(ci > cx0 )
+            {
+                cx0 = ci ;
+                x0witness = i ;
+            }
+        }
+
+        if(xi == 1 && Ayi == px1)
+        {
+            if(ci < cx1 )
+            {
+                cx1 = ci ;
+                x1witness = i ;
+            }
+        }
+
+        // Deal with y
+        if(yi == 0 && Axi == py0)
+        {
+            if(ci > cy0 )
+            {
+                cy0 = ci ;
+                y0witness = i ;
+            }
+        }
+
+        if(yi == 1 && Axi == py1)
+        {
+            if(ci < cy1 )
+            {
+                cy1 = ci ;
+                y1witness = i ;
+            }
+        }
+    }
+
+    /*------------------------------------------------------------------------*/
+    // Go through the 4 possible flips and record the maximum feasible gain
+    /*------------------------------------------------------------------------*/
+    VSPINT trueBestGain    = 0 ;
+    VSPINT trueBestGainInd = EMPTY ;
+    char   trueBestGainVar = '\0' ;
+    VSPINT trueBestGainDir = 0 ; // 1 for upflip, -1 for downflip
+
+    VSPINT x0gain = cx0 - gamma * px0 ;
+    VSPINT y0gain = cy0 - gamma * py0 ;
+    VSPINT x1gain = gamma * px1 - cx1 ;
+    VSPINT y1gain = gamma * py1 - cy1 ;
+
+    if( FEASIBLE_UPFLIP(wgtx, cx0, u) )
+    {
+        if(x0gain > trueBestGain)
+        {
+            trueBestGain    = x0gain ;
+            trueBestGainInd = x0witness ;
+            trueBestGainVar = 'x' ;
+            trueBestGainDir = 1 ;
+        }
+    }
+
+    if( FEASIBLE_UPFLIP(wgty, cy0, u) )
+    {
+        if(y0gain > trueBestGain)
+        {
+            trueBestGain    = y0gain ;
+            trueBestGainInd = y0witness ;
+            trueBestGainVar = 'y' ;
+            trueBestGainDir = 1 ;
+        }
+    }
+
+    if( FEASIBLE_DNFLIP(wgtx, cx1) )
+    {
+        if(x1gain > trueBestGain)
+        {
+            trueBestGain    = x1gain ;
+            trueBestGainInd = x1witness ;
+            trueBestGainVar = 'x' ;
+            trueBestGainDir = -1 ;
+        }
+    }
+
+    if( FEASIBLE_DNFLIP(wgty, cy1) )
+    {
+        if(y1gain > trueBestGain)
+        {
+            trueBestGain    = y1gain ;
+            trueBestGainInd = y1witness ;
+            trueBestGainVar = 'y' ;
+            trueBestGainDir = -1 ;
+        }
+    }
+
+    /*------------------------------------------------------------------------*/
+    // Compute the gain of the given flip. Load the given and best flips into
+    // flip structs for easier debugging
+    /*------------------------------------------------------------------------*/
+
+    // Compute the gain of the given var
+    VSPINT givenGain = EMPTY ;
+    VSPINT dir ;
+
+    if(givenIndFlip != EMPTY)
+    {
+        if(givenVarFlip == 'x')
+        {
+            dir = (1 - 2 * x[givenIndFlip]) ;
+            givenGain = dir * (c[givenIndFlip] - gamma *(Ay[givenIndFlip] )) ;
+        }
+        else if(givenVarFlip == 'y')
+        {
+            dir = (1 - 2 * y[givenIndFlip]) ;
+            givenGain = dir * (c[givenIndFlip] - gamma *(Ax[givenIndFlip] )) ;
+        }
+    }
+
+    // Load the given flip into a Flip struct for easier debugging
+    Flip givenFlip = {0} ;
+    givenFlip.gamma = gamma ;
+    givenFlip.i    = givenIndFlip ;
+    givenFlip.var  = givenVarFlip ;
+    givenFlip.gain = givenGain ;
+    givenFlip.u = u ;
+    if(givenVarFlip == 'x')
+    {
+        VSP_ASSERT(givenIndFlip != EMPTY) ;
+        givenFlip.wgt = wgtx ;
+        givenFlip.zi   = x[givenIndFlip] ;
+        givenFlip.Awi  = Ay[givenIndFlip] ;
+        givenFlip.ci   = c[givenIndFlip] ;
+        if(x[givenIndFlip] == 0)
+        {
+            givenFlip.dir  = 1 ;
+        }
+        else
+        {
+            givenFlip.dir  = -1 ;
+        }
+    }
+    else if(givenVarFlip == 'y')
+    {
+        VSP_ASSERT(givenIndFlip != EMPTY) ;
+        givenFlip.wgt = wgty ;
+        givenFlip.zi   = y[givenIndFlip] ;
+        givenFlip.Awi  = Ax[givenIndFlip] ;
+        givenFlip.dir  = 1 - 2 * y[givenIndFlip] ;
+        givenFlip.ci   = c[givenIndFlip] ;
+        if(y[givenIndFlip] == 0)
+        {
+            givenFlip.dir  = 1 ;
+        }
+        else
+        {
+            givenFlip.dir  = -1 ;
+        }
+    }
+
+    // Load the true optimal flip into its own flip struct for easier debugging
+    Flip trueFlip = {0} ;
+
+    trueFlip.gamma = gamma ;
+    trueFlip.i = trueBestGainInd ;
+    trueFlip.gain = trueBestGain ;
+    trueFlip.var = trueBestGainVar ;
+    if(trueBestGainVar == 'x') trueFlip.wgt = wgtx ;
+    else if(trueBestGainVar == 'y') trueFlip.wgt = wgty ;
+    trueFlip.u = u ;
+
+    if(trueBestGainInd != EMPTY)
+    {
+        trueFlip.ci = c[trueBestGainInd] ;
+        
+        if(trueBestGainVar == 'x')
+        {
+            trueFlip.zi  = x[trueBestGainInd] ;
+            trueFlip.Awi = Ay[trueBestGainInd] ;
+            trueFlip.dir = ( (1 - 2 * x[trueBestGainInd]) == 1 ) ? 1 : -1 ;
+        }
+        else
+        {
+            trueFlip.zi  = y[trueBestGainInd] ;
+            trueFlip.Awi = Ax[trueBestGainInd] ;
+            trueFlip.dir = ( (1 - 2 * y[trueBestGainInd]) == 1 ) ? 1 : -1 ;
+        }
+    }
+
+
+    /*------------------------------------------------------------------------*/
+    // Check the given flip against the true best flip
+    /*------------------------------------------------------------------------*/
+    // For debugging:
+    // trueFlip struct
+    // givenFlip struct
+
+    VSPINT givenFlipExists  = (givenIndFlip != EMPTY) ;
+    VSPINT trueBestExists   = (trueBestGainInd != EMPTY) ;
+
+    // Either both must be true or both must be false simultaneously
+    if( (givenFlipExists + trueBestExists != 0) && (givenFlipExists + trueBestExists != 2) ) 
+    {
+        ERR("Mismatch between given flip and true best flip") ;
+    }
+
+    if(trueBestExists)
+    {
+        if(givenFlip.gain != trueFlip.gain)
+        {
+            ERR("Mismatch between gain of given flip and true best flip") ;
+        }
+    }
 
     return ;
 }
@@ -878,318 +1196,4 @@ void FeasibleStrictlyBeneficialFlipSelector_Check
         ERR("Unknown expFlipEffect value") ;
         break;
     }
-}
-
-
-
-// WARNING: This function is only for the strictly beneficial flips phase
-// ASSUMED: The flip has NOT happened yet
-// The "best feasible flip according to structs" is a flip which achieves the
-// gain (accounting for feasibility)
-// max{ c_(x0), c_(y0), gamma * p_(x1) - c_(x1), gamma * p_(y1) - c_(y1) }
-// This function checks that the given flup achieves this gain
-// If there is no flip with feasible gain according to the structs, then
-// the function expects givenVarFlip = '\0' and givenIndFlip = EMPTY 
-void FeasibleBeneficialFlipSelector_Check
-(
-    VSPINT                  *x,
-    VSPINT                 *Ax,
-    VSPINT                wgtx,
-    VSPINT                  *y,
-    VSPINT                 *Ay,
-    VSPINT                wgty,
-    char          givenVarFlip,
-    VSPINT        givenIndFlip,
-    Problem       *problem
-)
-{
-    static long long unsigned count = 0 ;
-    count++ ;
-    WARN_IF_NOT_DEBUG_MODE ;
-
-    VSPINT i, xi, yi, Axi, Ayi, ci ;
-    VSPINT n = problem->graph->n ; 
-    VSPINT gamma = problem->graph->max_vtx_cost ;
-    VSPINT *c = problem->graph->c ;
-    VSPINT  u = problem->u ;
-
-
-    /*------------------------------------------------------------------------*/
-    // Get the p values
-    /*------------------------------------------------------------------------*/
-    VSPINT px0 = n + 1, py0 = n + 1, px1 = -1, py1 = -1 ;
-
-    for(i = 0 ; i < n ; i++)
-    {
-        xi = x[i] ;
-        yi = y[i] ;
-        Axi = Ax[i] ;
-        Ayi = Ay[i] ;
-
-        // Record px's
-        if(xi)
-        {
-            if(Ayi > px1)
-            {
-                px1 = Ayi ;
-            }
-        }
-        else
-        {
-            if(Ayi < px0)
-            {
-                px0 = Ayi ;
-            }
-        }
-
-        // Record py's
-        if(yi)
-        {
-            if(Axi > py1)
-            {
-                py1 = Axi ;
-            }
-        }
-        else
-        {
-            if(Axi < py0)
-            {
-                py0 = Axi ;
-            }
-        }
-    }
-
-    /*------------------------------------------------------------------------*/
-    // Record the c's and an index for each c
-    // Also record:
-    // x0witness, y0witness, x1witness, y1witness - indices achieving the
-    // optimal p and c values
-    /*------------------------------------------------------------------------*/
-    VSPINT cx0 = -1, cy0 = -1, cx1 = gamma + 1, cy1 = gamma + 1 ;
-    VSPINT x0witness = EMPTY, y0witness = EMPTY ;
-    VSPINT x1witness = EMPTY, y1witness = EMPTY ;
-
-    for(i = 0 ; i < n ; i++)
-    {
-        xi = x[i] ;
-        yi = y[i] ;
-        Axi = Ax[i] ;
-        Ayi = Ay[i] ;
-        ci = c[i] ;
-
-        // Deal with x
-        if(xi == 0 && Ayi == px0)
-        {
-            if(ci > cx0 )
-            {
-                cx0 = ci ;
-                x0witness = i ;
-            }
-        }
-
-        if(xi == 1 && Ayi == px1)
-        {
-            if(ci < cx1 )
-            {
-                cx1 = ci ;
-                x1witness = i ;
-            }
-        }
-
-        // Deal with y
-        if(yi == 0 && Axi == py0)
-        {
-            if(ci > cy0 )
-            {
-                cy0 = ci ;
-                y0witness = i ;
-            }
-        }
-
-        if(yi == 1 && Axi == py1)
-        {
-            if(ci < cy1 )
-            {
-                cy1 = ci ;
-                y1witness = i ;
-            }
-        }
-    }
-
-    /*------------------------------------------------------------------------*/
-    // Go through the 4 possible flips and record the maximum feasible gain
-    /*------------------------------------------------------------------------*/
-    VSPINT trueBestGain    = 0 ;
-    VSPINT trueBestGainInd = EMPTY ;
-    char   trueBestGainVar = '\0' ;
-    VSPINT trueBestGainDir = 0 ; // 1 for upflip, -1 for downflip
-
-    VSPINT x0gain = cx0 - gamma * px0 ;
-    VSPINT y0gain = cy0 - gamma * py0 ;
-    VSPINT x1gain = gamma * px1 - cx1 ;
-    VSPINT y1gain = gamma * py1 - cy1 ;
-
-    if( FEASIBLE_UPFLIP(wgtx, cx0, u) )
-    {
-        if(x0gain > trueBestGain)
-        {
-            trueBestGain    = x0gain ;
-            trueBestGainInd = x0witness ;
-            trueBestGainVar = 'x' ;
-            trueBestGainDir = 1 ;
-        }
-    }
-
-    if( FEASIBLE_UPFLIP(wgty, cy0, u) )
-    {
-        if(y0gain > trueBestGain)
-        {
-            trueBestGain    = y0gain ;
-            trueBestGainInd = y0witness ;
-            trueBestGainVar = 'y' ;
-            trueBestGainDir = 1 ;
-        }
-    }
-
-    if( FEASIBLE_DNFLIP(wgtx, cx1) )
-    {
-        if(x1gain > trueBestGain)
-        {
-            trueBestGain    = x1gain ;
-            trueBestGainInd = x1witness ;
-            trueBestGainVar = 'x' ;
-            trueBestGainDir = -1 ;
-        }
-    }
-
-    if( FEASIBLE_DNFLIP(wgty, cy1) )
-    {
-        if(y1gain > trueBestGain)
-        {
-            trueBestGain    = y1gain ;
-            trueBestGainInd = y1witness ;
-            trueBestGainVar = 'y' ;
-            trueBestGainDir = -1 ;
-        }
-    }
-
-    /*------------------------------------------------------------------------*/
-    // Compute the gain of the given flip. Load the given and best flips into
-    // flip structs for easier debugging
-    /*------------------------------------------------------------------------*/
-
-    // Compute the gain of the given var
-    VSPINT givenGain = EMPTY ;
-    VSPINT dir ;
-
-    if(givenIndFlip != EMPTY)
-    {
-        if(givenVarFlip == 'x')
-        {
-            dir = (1 - 2 * x[givenIndFlip]) ;
-            givenGain = dir * (c[givenIndFlip] - gamma *(Ay[givenIndFlip] )) ;
-        }
-        else if(givenVarFlip == 'y')
-        {
-            dir = (1 - 2 * y[givenIndFlip]) ;
-            givenGain = dir * (c[givenIndFlip] - gamma *(Ax[givenIndFlip] )) ;
-        }
-    }
-
-    // Load the given flip into a Flip struct for easier debugging
-    Flip givenFlip = {0} ;
-    givenFlip.gamma = gamma ;
-    givenFlip.i    = givenIndFlip ;
-    givenFlip.var  = givenVarFlip ;
-    givenFlip.gain = givenGain ;
-    givenFlip.u = u ;
-    if(givenVarFlip == 'x')
-    {
-        VSP_ASSERT(givenIndFlip != EMPTY) ;
-        givenFlip.wgt = wgtx ;
-        givenFlip.zi   = x[givenIndFlip] ;
-        givenFlip.Awi  = Ay[givenIndFlip] ;
-        givenFlip.ci   = c[givenIndFlip] ;
-        if(x[givenIndFlip] == 0)
-        {
-            givenFlip.dir  = 1 ;
-        }
-        else
-        {
-            givenFlip.dir  = -1 ;
-        }
-    }
-    else if(givenVarFlip == 'y')
-    {
-        VSP_ASSERT(givenIndFlip != EMPTY) ;
-        givenFlip.wgt = wgty ;
-        givenFlip.zi   = y[givenIndFlip] ;
-        givenFlip.Awi  = Ax[givenIndFlip] ;
-        givenFlip.dir  = 1 - 2 * y[givenIndFlip] ;
-        givenFlip.ci   = c[givenIndFlip] ;
-        if(y[givenIndFlip] == 0)
-        {
-            givenFlip.dir  = 1 ;
-        }
-        else
-        {
-            givenFlip.dir  = -1 ;
-        }
-    }
-
-    // Load the true optimal flip into its own flip struct for easier debugging
-    Flip trueFlip = {0} ;
-
-    trueFlip.gamma = gamma ;
-    trueFlip.i = trueBestGainInd ;
-    trueFlip.gain = trueBestGain ;
-    trueFlip.var = trueBestGainVar ;
-    if(trueBestGainVar == 'x') trueFlip.wgt = wgtx ;
-    else if(trueBestGainVar == 'y') trueFlip.wgt = wgty ;
-    trueFlip.u = u ;
-
-    if(trueBestGainInd != EMPTY)
-    {
-        trueFlip.ci = c[trueBestGainInd] ;
-        
-        if(trueBestGainVar == 'x')
-        {
-            trueFlip.zi  = x[trueBestGainInd] ;
-            trueFlip.Awi = Ay[trueBestGainInd] ;
-            trueFlip.dir = ( (1 - 2 * x[trueBestGainInd]) == 1 ) ? 1 : -1 ;
-        }
-        else
-        {
-            trueFlip.zi  = y[trueBestGainInd] ;
-            trueFlip.Awi = Ax[trueBestGainInd] ;
-            trueFlip.dir = ( (1 - 2 * y[trueBestGainInd]) == 1 ) ? 1 : -1 ;
-        }
-    }
-
-
-    /*------------------------------------------------------------------------*/
-    // Check the given flip against the true best flip
-    /*------------------------------------------------------------------------*/
-    // For debugging:
-    // trueFlip struct
-    // givenFlip struct
-
-    VSPINT givenFlipExists  = (givenIndFlip != EMPTY) ;
-    VSPINT trueBestExists   = (trueBestGainInd != EMPTY) ;
-
-    // Either both must be true or both must be false simultaneously
-    if( (givenFlipExists + trueBestExists != 0) && (givenFlipExists + trueBestExists != 2) ) 
-    {
-        ERR("Mismatch between given flip and true best flip") ;
-    }
-
-    if(trueBestExists)
-    {
-        if(givenFlip.gain != trueFlip.gain)
-        {
-            ERR("Mismatch between gain of given flip and true best flip") ;
-        }
-    }
-
-    return ;
 }

@@ -2,6 +2,281 @@
 #include "flips_private_v5.h"
 #include "flips_common_api.h"
 
+
+// ASSUMED: p_(x, 1) and p_(y, 1) are each <= 2
+void SelectRandomOptimalBeneficialFlip_v5
+(
+    VSPINT *x,
+    VSPINT *y,
+    VSPINT *Ax,
+    VSPINT *Ay,
+    VSPINT wgtx,
+    VSPINT wgty,
+
+    IdxGroupsByC *x0Ay0_groups,
+    IdxGroupsByC *x1Ay1_groups,
+    IdxGroupsByC *x1Ay2_groups,
+    Direct_Access_List *x0Ay1_list, // only used in debugging
+
+    IdxGroupsByC *y0Ax0_groups,
+    IdxGroupsByC *y1Ax1_groups,
+    IdxGroupsByC *y1Ax2_groups,
+    Direct_Access_List *y0Ax1_list, // only used in debugging
+
+    Problem       *problem,
+    char           *retFlipVar, // '\0' if no flip
+    VSPINT         *retIndFlip  // EMPTY if no flip
+)
+{
+    SET_FUNCTION_COUNTER ;
+    #ifdef DEBUG
+        Check_All_Data
+        (
+            x, Ax, wgtx, y, Ay, wgty,
+            x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
+            y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
+            problem
+        ) ;
+    #endif
+
+    VSPINT u      = problem->u ;
+    VSPINT gamma  = problem->graph->max_vtx_cost ;
+    // Get a random number
+    // VSPINT ranNum = rand() ;
+
+    /*------------------------------------------------------------------------*/
+    // Collect the following data
+    // feasPosGains[4] - in entry k, record the feasible positive gain (if any)
+    //                  of the flip encoded as k
+    // 
+    // maxFeasPosGain - maximal feasible positive gain (weakly positive, >= 0)
+    // numFeasPosGain - number of indices corresponding to that feasible
+    //                  positive gain
+    /*------------------------------------------------------------------------*/
+    VSPINT cval, gain, numIdx ;
+    VSPINT maxFeasPosGain = -1 ;
+    VSPINT feasPosGains  [4] = {0} ;
+    VSPINT numFeasPosGain[4] = {0} ;
+
+    // x Upflip_v5
+    IdxGroupsByC_See_Best_Feasible_Cval(x0Ay0_groups, wgtx, u, true, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
+    if(cval != EMPTY)
+    {
+        gain = cval ;
+        if(gain > maxFeasPosGain)
+        {
+            maxFeasPosGain = gain ;
+            feasPosGains[XUP]   = gain ;
+            IdxGroupsByC_Num_Idx_With_Given_C(x0Ay0_groups, cval, &numIdx) ;
+            numFeasPosGain[XUP] = numIdx ;
+        }
+    }
+
+    // y Upflip_v5
+    IdxGroupsByC_See_Best_Feasible_Cval(y0Ax0_groups, wgty, u, true, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
+    if(cval != EMPTY)
+    {
+        gain = cval ;
+        if(gain > maxFeasPosGain)
+        {
+            maxFeasPosGain    = gain ;
+            feasPosGains[YUP] = gain ;
+            IdxGroupsByC_Num_Idx_With_Given_C(y0Ax0_groups, cval, &numIdx) ;
+            numFeasPosGain[YUP] = numIdx ;
+        }
+    }
+
+    // x Downflip_v5
+    IdxGroupsByC_See_Best_Feasible_Cval(x1Ay2_groups, wgtx, u, false, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
+    if(cval != EMPTY)
+    {
+        gain =  -(cval - gamma * 2) ;
+        if(gain > maxFeasPosGain && FEASIBLE_DNFLIP(wgtx, cval))
+        {
+            maxFeasPosGain = gain ;
+            feasPosGains[XDN] = gain ;
+            IdxGroupsByC_Num_Idx_With_Top_C(x1Ay2_groups, &numIdx) ;
+            numFeasPosGain[XDN] = numIdx ;
+        }
+    }
+    else // if cval == EMPTY
+    {
+        IdxGroupsByC_See_Best_Feasible_Cval(x1Ay1_groups, wgtx, u, false, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
+        if(cval != EMPTY)
+        {
+            gain =  -(cval - gamma * 1) ;
+            if(gain > maxFeasPosGain && FEASIBLE_DNFLIP(wgtx, cval))
+            {
+                maxFeasPosGain = gain ;
+                feasPosGains[XDN] = gain ;
+                IdxGroupsByC_Num_Idx_With_Top_C(x1Ay1_groups, &numIdx) ;
+                numFeasPosGain[XDN] = numIdx ;
+            }
+        }
+    }
+
+    // y dnflip
+    IdxGroupsByC_See_Best_Feasible_Cval(y1Ax2_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
+    if(cval != EMPTY)
+    {
+        gain =  -(cval - gamma * 2) ;
+        if(gain > maxFeasPosGain && FEASIBLE_DNFLIP(wgty, cval))
+        {
+            maxFeasPosGain = gain ;
+            feasPosGains[YDN] = gain ;
+            IdxGroupsByC_Num_Idx_With_Top_C(y1Ax2_groups, &numIdx) ;
+            numFeasPosGain[YDN] = numIdx ;
+        }
+    }
+    else // if cval == EMPTY
+    {
+        IdxGroupsByC_See_Best_Feasible_Cval(y1Ax1_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
+        if(cval != EMPTY)
+        {
+            gain =  -(cval - gamma * 1) ;
+            if(gain > maxFeasPosGain && FEASIBLE_DNFLIP(wgty, cval))
+            {
+                maxFeasPosGain = gain ;
+                feasPosGains[YDN] = gain ;
+                IdxGroupsByC_Num_Idx_With_Top_C(y1Ax1_groups, &numIdx) ;
+                numFeasPosGain[YDN] = numIdx ;
+            }
+        }
+    }
+
+    if(maxFeasPosGain == -1) // It's initialized as 0
+    {
+        *retFlipVar = '\0' ;
+        *retIndFlip = EMPTY ;
+        #ifdef DEBUG
+            // Check_Given_Flip_Is_Optimal_v5
+            // (
+            //     x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
+            // ) ;
+            FlipSelector_Check_v5
+            (
+                x, Ax, wgtx,
+                y, Ay, wgty,
+                *retFlipVar, *retIndFlip,
+                problem, IMPROVE_OBJ_OR_NEUTRAL_Downflip_v5
+            ) ;
+        #endif
+        return ;
+    }
+
+    /*------------------------------------------------------------------------*/
+    // Record all flips with maximal gain in 
+    // maxGainFlips[4]     - a stack containing 0-3 which encode flips
+    // m                   - size of maxGainFlips stack
+    // numsMaxGainFlips[4] - a stack of the number of indices corr. to each flip
+    // accum[5]            - running total of numsMaxGainFlips
+    /*------------------------------------------------------------------------*/
+    VSPINT maxGainFlips[4]     = {0} ;
+    VSPINT m                   =  0  ;
+    VSPINT numsMaxGainFlips[4] = {0} ;
+    VSPINT acumm[5]            = {0} ;
+
+    if( feasPosGains[XUP] == maxFeasPosGain )
+    {
+        maxGainFlips[m] = XUP ;
+        numsMaxGainFlips[m] = numFeasPosGain[XUP] ;
+        m++ ; 
+        acumm[m] = acumm[m-1] + numFeasPosGain[XUP]  ;
+    }
+
+
+    if( feasPosGains[YUP] == maxFeasPosGain )
+    {
+        maxGainFlips[m] = YUP ;
+        numsMaxGainFlips[m] = numFeasPosGain[YUP] ;
+        m++ ; 
+        acumm[m] = acumm[m-1] + numFeasPosGain[YUP]  ;
+    }    
+
+    if( feasPosGains[XDN] == maxFeasPosGain )
+    {
+        maxGainFlips[m] = XDN ;
+        numsMaxGainFlips[m] = numFeasPosGain[XDN] ;
+        m++ ; 
+        acumm[m] = acumm[m-1] + numFeasPosGain[XDN]  ;
+    }    
+
+    if( feasPosGains[YDN] == maxFeasPosGain )
+    {
+        maxGainFlips[m] = YDN ;
+        numsMaxGainFlips[m] = numFeasPosGain[YDN] ;
+        m++ ; 
+        acumm[m] = acumm[m-1] + numFeasPosGain[YDN] ;
+    }    
+
+    /*------------------------------------------------------------------------*/
+    // Choose a random flip with maximal gain
+    // flipChoice - integer in [0, 3] representing the flip
+    /*------------------------------------------------------------------------*/
+    VSPINT baseRandNum = rand() ;
+    VSPINT randChoice  = baseRandNum % acumm[m] ;
+    VSPINT flipChoice ;
+
+
+    for(VSPINT p = 1 ; p <= m ; p++)
+    {
+        if(randChoice < acumm[p])
+        {
+            flipChoice = maxGainFlips[p-1] ;
+            break ;
+        }
+    }
+
+    if(flipChoice == XUP)
+    {
+        IdxGroupsByC_See_Random_Idx_Given_C(x0Ay0_groups, baseRandNum, feasPosGains[X0], retIndFlip) ;
+        *retFlipVar = 'x' ;
+    }
+    else if(flipChoice == YUP)
+    {
+        IdxGroupsByC_See_Random_Idx_Given_C(y0Ax0_groups, baseRandNum, feasPosGains[Y0], retIndFlip) ;
+        *retFlipVar = 'y' ;
+    }
+    else if(flipChoice == XDN)
+    {
+        *retFlipVar = 'x' ;
+        if(maxFeasPosGain >= gamma)
+        {
+            IdxGroupsByC_See_Random_Idx_Top_C(x1Ay2_groups, baseRandNum, retIndFlip) ;
+        }
+        else
+        {
+            IdxGroupsByC_See_Random_Idx_Top_C(x1Ay1_groups, baseRandNum, retIndFlip) ;
+        }
+    }
+    else
+    {
+        VSP_ASSERT(flipChoice == YDN) ;
+        *retFlipVar = 'y' ;
+        if(maxFeasPosGain >= gamma)
+        {
+            IdxGroupsByC_See_Random_Idx_Top_C(y1Ax2_groups, baseRandNum, retIndFlip) ;
+        }
+        else
+        {
+            IdxGroupsByC_See_Random_Idx_Top_C(y1Ax1_groups, baseRandNum, retIndFlip) ;
+        }
+    }
+
+    #ifdef DEBUG
+        FlipSelector_Check_v5
+        (
+            x, Ax, wgtx,
+            y, Ay, wgty,
+            *retFlipVar, *retIndFlip,
+            problem, IMPROVE_OBJ_OR_NEUTRAL_Downflip_v5
+        ) ;
+    #endif
+
+    return ;
+}
+
+
 // ASSUMED: p_(x, 1) and p_(y, 1) are each <= 2
 void SelectRandomOptimalStrictlyBeneficialFlip_v5
 (
@@ -297,278 +572,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip_v5
 }
 
 
-// ASSUMED: p_(x, 1) and p_(y, 1) are each <= 2
-void SelectRandomOptimalBeneficialFlip_v5
-(
-    VSPINT *x,
-    VSPINT *y,
-    VSPINT *Ax,
-    VSPINT *Ay,
-    VSPINT wgtx,
-    VSPINT wgty,
 
-    IdxGroupsByC *x0Ay0_groups,
-    IdxGroupsByC *x1Ay1_groups,
-    IdxGroupsByC *x1Ay2_groups,
-    Direct_Access_List *x0Ay1_list, // only used in debugging
-
-    IdxGroupsByC *y0Ax0_groups,
-    IdxGroupsByC *y1Ax1_groups,
-    IdxGroupsByC *y1Ax2_groups,
-    Direct_Access_List *y0Ax1_list, // only used in debugging
-
-    Problem       *problem,
-    char           *retFlipVar, // '\0' if no flip
-    VSPINT         *retIndFlip  // EMPTY if no flip
-)
-{
-    SET_FUNCTION_COUNTER ;
-    #ifdef DEBUG
-        Check_All_Data
-        (
-            x, Ax, wgtx, y, Ay, wgty,
-            x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
-            y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
-            problem
-        ) ;
-    #endif
-
-    VSPINT u      = problem->u ;
-    VSPINT gamma  = problem->graph->max_vtx_cost ;
-    // Get a random number
-    // VSPINT ranNum = rand() ;
-
-    /*------------------------------------------------------------------------*/
-    // Collect the following data
-    // feasPosGains[4] - in entry k, record the feasible positive gain (if any)
-    //                  of the flip encoded as k
-    // 
-    // maxFeasPosGain - maximal feasible positive gain (weakly positive, >= 0)
-    // numFeasPosGain - number of indices corresponding to that feasible
-    //                  positive gain
-    /*------------------------------------------------------------------------*/
-    VSPINT cval, gain, numIdx ;
-    VSPINT maxFeasPosGain = -1 ;
-    VSPINT feasPosGains  [4] = {0} ;
-    VSPINT numFeasPosGain[4] = {0} ;
-
-    // x Upflip_v5
-    IdxGroupsByC_See_Best_Feasible_Cval(x0Ay0_groups, wgtx, u, true, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
-    if(cval != EMPTY)
-    {
-        gain = cval ;
-        if(gain > maxFeasPosGain && FEASIBLE_UPFLIP(wgtx, cval, u))
-        {
-            maxFeasPosGain = gain ;
-            feasPosGains[XUP]   = gain ;
-            IdxGroupsByC_Num_Idx_With_Given_C(x0Ay0_groups, cval, &numIdx) ;
-            numFeasPosGain[XUP] = numIdx ;
-        }
-    }
-
-    // y Upflip_v5
-    IdxGroupsByC_See_Best_Feasible_Cval(y0Ax0_groups, wgty, u, true, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
-    if(cval != EMPTY)
-    {
-        gain = cval ;
-        if(gain > maxFeasPosGain && FEASIBLE_UPFLIP(wgty, cval, u))
-        {
-            maxFeasPosGain    = gain ;
-            feasPosGains[YUP] = gain ;
-            IdxGroupsByC_Num_Idx_With_Given_C(y0Ax0_groups, cval, &numIdx) ;
-            numFeasPosGain[YUP] = numIdx ;
-        }
-    }
-
-    // x Downflip_v5
-    IdxGroupsByC_See_Best_Feasible_Cval(x1Ay2_groups, wgtx, u, false, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
-    if(cval != EMPTY)
-    {
-        gain =  -(cval - gamma * 2) ;
-        if(gain > maxFeasPosGain && FEASIBLE_DNFLIP(wgtx, cval))
-        {
-            maxFeasPosGain = gain ;
-            feasPosGains[XDN] = gain ;
-            IdxGroupsByC_Num_Idx_With_Top_C(x1Ay2_groups, &numIdx) ;
-            numFeasPosGain[XDN] = numIdx ;
-        }
-    }
-    else // if cval == EMPTY
-    {
-        IdxGroupsByC_See_Best_Feasible_Cval(x1Ay1_groups, wgtx, u, false, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
-        if(cval != EMPTY)
-        {
-            gain =  -(cval - gamma * 1) ;
-            if(gain > maxFeasPosGain && FEASIBLE_DNFLIP(wgtx, cval))
-            {
-                maxFeasPosGain = gain ;
-                feasPosGains[XDN] = gain ;
-                IdxGroupsByC_Num_Idx_With_Top_C(x1Ay1_groups, &numIdx) ;
-                numFeasPosGain[XDN] = numIdx ;
-            }
-        }
-    }
-
-    // y dnflip
-    IdxGroupsByC_See_Best_Feasible_Cval(y1Ax2_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
-    if(cval != EMPTY)
-    {
-        gain =  -(cval - gamma * 2) ;
-        if(gain > maxFeasPosGain && FEASIBLE_DNFLIP(wgty, cval))
-        {
-            maxFeasPosGain = gain ;
-            feasPosGains[YDN] = gain ;
-            IdxGroupsByC_Num_Idx_With_Top_C(y1Ax2_groups, &numIdx) ;
-            numFeasPosGain[YDN] = numIdx ;
-        }
-    }
-    else // if cval == EMPTY
-    {
-        IdxGroupsByC_See_Best_Feasible_Cval(y1Ax1_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
-        if(cval != EMPTY)
-        {
-            gain =  -(cval - gamma * 1) ;
-            if(gain > maxFeasPosGain && FEASIBLE_DNFLIP(wgty, cval))
-            {
-                maxFeasPosGain = gain ;
-                feasPosGains[YDN] = gain ;
-                IdxGroupsByC_Num_Idx_With_Top_C(y1Ax1_groups, &numIdx) ;
-                numFeasPosGain[YDN] = numIdx ;
-            }
-        }
-    }
-
-    if(maxFeasPosGain == -1) // It's initialized as 0
-    {
-        *retFlipVar = '\0' ;
-        *retIndFlip = EMPTY ;
-        #ifdef DEBUG
-            // Check_Given_Flip_Is_Optimal_v5
-            // (
-            //     x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
-            // ) ;
-            FlipSelector_Check_v5
-            (
-                x, Ax, wgtx,
-                y, Ay, wgty,
-                *retFlipVar, *retIndFlip,
-                problem, IMPROVE_OBJ_OR_NEUTRAL_Downflip_v5
-            ) ;
-        #endif
-        return ;
-    }
-
-    /*------------------------------------------------------------------------*/
-    // Record all flips with maximal gain in 
-    // maxGainFlips[4]     - a stack containing 0-3 which encode flips
-    // m                   - size of maxGainFlips stack
-    // numsMaxGainFlips[4] - a stack of the number of indices corr. to each flip
-    // accum[5]            - running total of numsMaxGainFlips
-    /*------------------------------------------------------------------------*/
-    VSPINT maxGainFlips[4]     = {0} ;
-    VSPINT m                   =  0  ;
-    VSPINT numsMaxGainFlips[4] = {0} ;
-    VSPINT acumm[5]            = {0} ;
-
-    if( feasPosGains[XUP] == maxFeasPosGain )
-    {
-        maxGainFlips[m] = XUP ;
-        numsMaxGainFlips[m] = numFeasPosGain[XUP] ;
-        m++ ; 
-        acumm[m] = acumm[m-1] + numFeasPosGain[XUP]  ;
-    }
-
-
-    if( feasPosGains[YUP] == maxFeasPosGain )
-    {
-        maxGainFlips[m] = YUP ;
-        numsMaxGainFlips[m] = numFeasPosGain[YUP] ;
-        m++ ; 
-        acumm[m] = acumm[m-1] + numFeasPosGain[YUP]  ;
-    }    
-
-    if( feasPosGains[XDN] == maxFeasPosGain )
-    {
-        maxGainFlips[m] = XDN ;
-        numsMaxGainFlips[m] = numFeasPosGain[XDN] ;
-        m++ ; 
-        acumm[m] = acumm[m-1] + numFeasPosGain[XDN]  ;
-    }    
-
-    if( feasPosGains[YDN] == maxFeasPosGain )
-    {
-        maxGainFlips[m] = YDN ;
-        numsMaxGainFlips[m] = numFeasPosGain[YDN] ;
-        m++ ; 
-        acumm[m] = acumm[m-1] + numFeasPosGain[YDN] ;
-    }    
-
-    /*------------------------------------------------------------------------*/
-    // Choose a random flip with maximal gain
-    // flipChoice - integer in [0, 3] representing the flip
-    /*------------------------------------------------------------------------*/
-    VSPINT baseRandNum = rand() ;
-    VSPINT randChoice  = baseRandNum % acumm[m] ;
-    VSPINT flipChoice ;
-
-
-    for(VSPINT p = 1 ; p <= m ; p++)
-    {
-        if(randChoice < acumm[p])
-        {
-            flipChoice = maxGainFlips[p-1] ;
-            break ;
-        }
-    }
-
-    if(flipChoice == XUP)
-    {
-        IdxGroupsByC_See_Random_Idx_Given_C(x0Ay0_groups, baseRandNum, feasPosGains[X0], retIndFlip) ;
-        *retFlipVar = 'x' ;
-    }
-    else if(flipChoice == YUP)
-    {
-        IdxGroupsByC_See_Random_Idx_Given_C(y0Ax0_groups, baseRandNum, feasPosGains[Y0], retIndFlip) ;
-        *retFlipVar = 'y' ;
-    }
-    else if(flipChoice == XDN)
-    {
-        *retFlipVar = 'x' ;
-        if(maxFeasPosGain >= gamma)
-        {
-            IdxGroupsByC_See_Random_Idx_Top_C(x1Ay2_groups, baseRandNum, retIndFlip) ;
-        }
-        else
-        {
-            IdxGroupsByC_See_Random_Idx_Top_C(x1Ay1_groups, baseRandNum, retIndFlip) ;
-        }
-    }
-    else
-    {
-        VSP_ASSERT(flipChoice == YDN) ;
-        *retFlipVar = 'y' ;
-        if(maxFeasPosGain >= gamma)
-        {
-            IdxGroupsByC_See_Random_Idx_Top_C(y1Ax2_groups, baseRandNum, retIndFlip) ;
-        }
-        else
-        {
-            IdxGroupsByC_See_Random_Idx_Top_C(y1Ax1_groups, baseRandNum, retIndFlip) ;
-        }
-    }
-
-    #ifdef DEBUG
-        FlipSelector_Check_v5
-        (
-            x, Ax, wgtx,
-            y, Ay, wgty,
-            *retFlipVar, *retIndFlip,
-            problem, IMPROVE_OBJ_OR_NEUTRAL_Downflip_v5
-        ) ;
-    #endif
-
-    return ;
-}
 
 // Flip Selector Check
 void FlipSelector_Check_v5
