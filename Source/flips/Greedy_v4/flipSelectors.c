@@ -464,7 +464,7 @@ void SelectRandomOptimalStrictlyBeneficialFlip
                     x, Ax, wgtx,
                     y, Ay, wgty,
                     *retFlipVar, *retIndFlip,
-                    problem, IMPROVE_OBJ_ONLY
+                    problem, IMPROVE_OBJ_ONLY_v5
                 ) ;
             }
             else
@@ -601,13 +601,18 @@ void SelectRandomOptimalStrictlyBeneficialFlip
 
 
     #ifdef DEBUG
-        if(!deep_search)
+        if(deep_search)
         {
-            FeasibleBeneficialFlipSelector_Check
+            FlipSelector_Check_v5
             (
-                x, Ax, wgtx, y, Ay, wgty, *retFlipVar, *retIndFlip, problem
+                x, Ax, wgtx,
+                y, Ay, wgty,
+                *retFlipVar, *retIndFlip,
+                problem, IMPROVE_OBJ_ONLY_v5
             ) ;
-
+        }
+        else
+        {
             FeasibleStrictlyBeneficialFlipSelector_Check
             (
                 x, Ax, wgtx,

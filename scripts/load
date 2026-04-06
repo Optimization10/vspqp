@@ -1,0 +1,25 @@
+#!/bin/bash
+
+DEST_DIR="/home/ovi/Desktop/VSP/VSPQP/doc/mats"
+DEST="$DEST_DIR/ManualMatsList.txt"
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <filename>"
+    echo "  Copies /home/ovi/data/<filename> to $DEST"
+    exit 1
+fi
+
+SRC="/home/ovi/data/$1"
+
+if [ ! -f "$SRC" ]; then
+    echo "Source file not found: $SRC"
+    exit 1
+fi
+
+if [ ! -d "$DEST_DIR" ]; then
+    echo "Destination folder not found: $DEST_DIR"
+    exit 1
+fi
+
+cp "$SRC" "$DEST"
+echo "Copied $SRC to $DEST"
