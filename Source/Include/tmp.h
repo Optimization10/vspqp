@@ -296,3 +296,28 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
 
     Problem               *problem
 ) ;
+
+
+void Neutral_Flips_Strategy_1
+(
+    VSPINT *x,
+    VSPINT *y,
+    VSPINT *Ax,
+    VSPINT *Ay,
+    VSPINT *wgtx,
+    VSPINT *wgty,
+    bool    deep_search,
+
+    IdxGroupsByC *x0Ay0_groups,
+    IdxGroupsByC *x1Ay1_groups,
+    IdxGroupsByC *x1Ay2_groups,
+    Direct_Access_List *x0Ay1_list, // only used in debugging
+
+    IdxGroupsByC *y0Ax0_groups,
+    IdxGroupsByC *y1Ax1_groups,
+    IdxGroupsByC *y1Ax2_groups,
+    Direct_Access_List *y0Ax1_list, // only used in debugging
+
+    VSPINT          maxNumPasses,
+    Problem       *problem
+) ;

@@ -202,30 +202,6 @@ void Neutral_Upflip_v5s_In_z_And_Downflip_v5s_In_w1Az2_v5
     Problem               *problem
 ) ;
 
-void Neutral_Flips_Strategy_1_v5
-(
-    VSPINT *x,
-    VSPINT *y,
-    VSPINT *Ax,
-    VSPINT *Ay,
-    VSPINT *wgtx,
-    VSPINT *wgty,
-
-    IdxGroupsByC *x0Ay0_groups,
-    IdxGroupsByC *x1Ay1_groups,
-    IdxGroupsByC *x1Ay2_groups,
-    Direct_Access_List *x0Ay1_list, // only used in debugging
-
-    IdxGroupsByC *y0Ax0_groups,
-    IdxGroupsByC *y1Ax1_groups,
-    IdxGroupsByC *y1Ax2_groups,
-    Direct_Access_List *y0Ax1_list, // only used in debugging
-
-    VSPINT          maxNumPasses,
-    Problem       *problem
-) ;
-
-
 
 
 /*----------------------------------------------------------------------------*/
