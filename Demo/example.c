@@ -632,7 +632,7 @@ int main(int argc, char** argv)
         
         for(VSPLONG i = 0 ; i < Ap[n] ; i++) Ae[i] = 1 ;
         clock_gettime(CLOCK_REALTIME, &start) ;
-        result = Solve(n, Ap, Ai, Ae, options) ;
+        result = VSP_Solve(n, Ap, Ai, Ae, options) ;
         clock_gettime(CLOCK_REALTIME, &end);
 
 

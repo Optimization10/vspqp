@@ -244,7 +244,7 @@ void check_for_complete_graph(Problem *problem)
 }
 
 
-solve_result *Solve
+solve_result *VSP_Solve
 (
     VSPINT             n,
     VSPLONG          *Ap,
@@ -368,7 +368,7 @@ void ResolveLevelDecideAndDo
 
     set_initial_guess(Xcent, Ycent, problem, options) ;
     Optimize(Xcent, Ycent, problem, options, true, 0) ;
-    Force_To_Binary_Point(Xcent, Ycent, problem) ;
+    Round_Down_Fractions_Point(Xcent, Ycent, problem) ;
 
     /* If the centroid is better, switch */
     obj_best = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;

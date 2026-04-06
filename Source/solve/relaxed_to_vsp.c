@@ -58,7 +58,7 @@ void relaxed_to_vertex_separator
     c = problem->graph->c ;
 
     /* Set the fractional part to 0 or 1 */
-    Force_To_Binary_Point(X, Y, problem) ;
+    Round_Down_Fractions_Point(X, Y, problem) ;
 
     #ifdef DEBUG
         static unsigned long long count = 0 ;

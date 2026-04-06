@@ -138,7 +138,7 @@ void Levels_unselect
 ) ;
 
 
-solve_result *Solve
+solve_result *VSP_Solve
 (
     VSPINT             n,
     VSPLONG          *Ap,

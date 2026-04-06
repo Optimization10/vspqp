@@ -3,7 +3,6 @@
 #include "ds_api.h"
 #include <stdint.h>
 #include <string.h>
-#include <stdarg.h>
 #include "flips_common_api.h"
 
 
@@ -377,7 +376,7 @@ void resolve_frac_entry
     return ;
 }
 
-void Force_To_Binary_Point
+void Round_Down_Fractions_Point
 (
     State           *Z,
     State           *W,

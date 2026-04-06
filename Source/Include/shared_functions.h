@@ -24,7 +24,7 @@ VSPFLOAT zAw
     State *Y
 ) ;
 
-void Force_To_Binary_Point
+void Round_Down_Fractions_Point
 (
     State           *Z,
     State           *W,

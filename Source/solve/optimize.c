@@ -91,7 +91,7 @@ static void Best_Of_MC_And_Greedy_Flips
     
     mountain_climbing(X, Y, problem, options,  gamma, true) ;
 
-    Force_To_Binary_Point(X, Y, problem) ;
+    Round_Down_Fractions_Point(X, Y, problem) ;
 
     /*------------------------------------------------------------------------*/
     // Compare MC point with Flips point and choose the best
