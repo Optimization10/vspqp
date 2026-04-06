@@ -59,9 +59,9 @@ void Flips_v5
 
     VSPINT numFeasibleStrictlyBenFlips, numFeasibleBenFlips ;
 
-    FeasibleBeneficialFlips_v5
+    FeasibleBeneficialFlips
     (
-        x, y, Ax, Ay, wgtx, wgty,
+        x, y, Ax, Ay, wgtx, wgty, true, false,
         x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
         y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
         problem, &numFeasibleBenFlips
@@ -84,9 +84,9 @@ void Flips_v5
         problem
     ) ;
     
-    FeasibleBeneficialFlips_v5
+    FeasibleBeneficialFlips
     (
-        x, y, Ax, Ay, wgtx, wgty,
+        x, y, Ax, Ay, wgtx, wgty, true, false,
         x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
         y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
         problem, &numFeasibleBenFlips
@@ -105,116 +105,4 @@ void Flips_v5
 
     Destruct_Direct_Access_List(x0Ay1_list) ;
     Destruct_Direct_Access_List(y0Ax1_list) ;
-}
-
-void StrictlyBeneficialFlips_v5
-(
-    VSPINT                            *x,
-    VSPINT                            *y,
-    VSPINT                           *Ax,
-    VSPINT                           *Ay,
-    VSPINT                         *wgtx,
-    VSPINT                         *wgty,
-
-    IdxGroupsByC           *x0Ay0_groups,
-    IdxGroupsByC           *x1Ay1_groups,
-    IdxGroupsByC           *x1Ay2_groups,
-    Direct_Access_List       *x0Ay1_list,
-
-    IdxGroupsByC           *y0Ax0_groups,
-    IdxGroupsByC           *y1Ax1_groups,
-    IdxGroupsByC           *y1Ax2_groups,
-    Direct_Access_List       *y0Ax1_list,
-
-    Problem                 *problem,
-    VSPINT              *retNumFlipsDone
-)
-{
-    SET_FUNCTION_COUNTER ;
-    #ifdef DEBUG
-        VSPINT objDbgInit ;
-        Compute_ObjValDbg(x, Ax, y, Ay, problem, &objDbgInit) ;
-    #endif
-
-
-    /*------------------------------------------------------------------------*/
-    // Do flips
-    /*------------------------------------------------------------------------*/
-    char flipVar ;
-    VSPINT indFlip ;
-    VSPINT numFlips = 0 ;
-    while( 1 )
-    {
-        // Choose the best flip
-        SelectRandomOptimalBeneficialFlip
-        (
-            x, y, Ax, Ay, *wgtx, *wgty, true, true,
-            x0Ay0_groups,
-            x1Ay1_groups,
-            x1Ay2_groups,
-            x0Ay1_list,
-        
-            y0Ax0_groups,
-            y1Ax1_groups,
-            y1Ax2_groups,
-            y0Ax1_list,
-        
-            problem,
-            &flipVar, // '\0' if no flip
-            &indFlip  // EMPTY if no flip
-        ) ;
-
-        #ifdef LOG_FLIPS_V5
-            if( LOG_CONDITION )
-            {
-                if(indFlip != EMPTY)
-                {
-                    char filename[150] ;
-                    snprintf(filename, sizeof(filename), "Flips_v5/problem_%s_Level_%lld.csv", problem->name, (long long) problem->level) ;
-                    Log(filename, "%c, %lld", flipVar, (long long) indFlip) ;
-                }
-            }
-        #endif
-
-        // Do the best flip
-        if(flipVar == 'x')
-        {
-            Do_Flip
-            (
-                x, Ax, wgtx, y, Ay, wgty,
-                x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
-                y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
-                indFlip, problem
-            ) ;
-        }
-        else if(flipVar == 'y')
-        {
-            Do_Flip
-            (
-                y, Ay, wgty, x, Ax, wgtx,
-                y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
-                x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
-                indFlip, problem
-            ) ;
-        }
-        else
-        {
-            break ;
-        }
-        numFlips++ ;
-    }
-
-    #ifdef DEBUG
-        Check_Outputs_v5(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
-        VSPINT objDbgFinal ;
-        Compute_ObjValDbg(x, Ax, y, Ay, problem, &objDbgFinal) ;
-        if( !(objDbgFinal >= objDbgInit) )
-        {
-            ERR("Objective was damaged in strictly beneficial feasible flips") ;
-        }
-    #endif
-
-    // Prepare return
-    *retNumFlipsDone = numFlips ;
-    return ;
 }

@@ -252,7 +252,7 @@ void FeasibleStrictlyBeneficialFlipSelector_Check
     VSPINT                        wgty,
     char                  givenVarFlip,
     VSPINT                givenIndFlip,
-    Problem               *problem,
+    Problem                   *problem,
     Expected_Flip_Effect expFlipEffect
 ) ;
 

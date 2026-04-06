@@ -132,9 +132,9 @@ void Neutral_Flips_Strategy_1_v5
             
             
             // Strictly beneficial flips
-            StrictlyBeneficialFlips_v5
+            FeasibleBeneficialFlips
             (
-                x, y, Ax, Ay, wgtx, wgty,
+                x, y, Ax, Ay, wgtx, wgty, true, true,
                 x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
                 y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
                 problem, &numFeasibleStrictlyBenFlips
@@ -160,9 +160,9 @@ void Neutral_Flips_Strategy_1_v5
             ) ;
             
             // Strictly beneficial flips
-            StrictlyBeneficialFlips_v5
+            FeasibleBeneficialFlips
             (
-                x, y, Ax, Ay, wgtx, wgty,
+                x, y, Ax, Ay, wgtx, wgty, true, true,
                 x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
                 y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
                 problem, &numFeasibleStrictlyBenFlips
