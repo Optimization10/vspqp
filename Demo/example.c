@@ -669,7 +669,6 @@ int main(int argc, char** argv)
     printf("HEM time: %Lf\n", G_HEM_TIME) ;
     printf("BM time: %Lf\n", G_BM_TIME) ;
     printf("Coarsen time: %Lf\n", G_COARSEN_TIME) ;
-
     // printf("Matching time: %Lf\n", G_Performance_Struct.Matching_Seconds) ;
 
 

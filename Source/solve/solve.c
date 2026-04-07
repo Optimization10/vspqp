@@ -8,7 +8,6 @@
 extern struct timespec  G_START_TIME, G_END_TIME ;
 extern long double G_COMPRESS_TIME ;
 
-const Problem *G_P = NULL ;
 
 bool restart_decide
 (
@@ -17,14 +16,6 @@ bool restart_decide
     VSPFLOAT                 objOut, /* If not using rule, this is ignored */
     Problem                *problem  /* If using levels, this is ignored   */
 ) ;
-
-static void Set_Global_Problem(Problem *P)
-{
-    G_P = P ;
-    return ;
-}
-
-
 
 
 
@@ -288,14 +279,8 @@ solve_result *VSP_Solve
     // Coarsen
     /*--------------------------------------------------------------------*/
     probCoarsest = Problem_Recursive_Coarsen(probFinest, options) ;
-    if(probCoarsest == NULL)
-    {
-        printf("\nExiting for unknown reason. Graph: %s", probFinest->name) ;
-        exit(1) ;
-    }
-
     State *X_l = NULL, *Y_l = NULL, *X_lp1 = NULL , *Y_lp1 = NULL,
-              *X_0 = NULL, *Y_0 = NULL ;
+    *X_0 = NULL, *Y_0 = NULL ;
 
     /*------------------------------------------------------------------------*/
     // Solve the coarsest level
@@ -304,28 +289,14 @@ solve_result *VSP_Solve
     X_lp1 = Construct_State(P->graph->n) ;
     Y_lp1 = Construct_State(P->graph->n) ;
     set_initial_guess(X_lp1, Y_lp1, P, options) ;
-
-    Set_Global_Problem(P) ;
-
     Solve_Level(X_lp1, Y_lp1, P, options) ;
-
 
     // Invariant: X_l, Y_l holds the solution at level l
     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
     {
-        // printf("u: %f\n", (double) P->u / P->graph->total_vtx_cost) ;
-        // fflush(stdout) ;
-
-        Set_Global_Problem(P) ;
-
-
-
-        // Uncoarsen point from level l+1
-
         X_l = Construct_State(P->graph->n) ;
         Y_l = Construct_State(P->graph->n) ;
         Uncoarsen_Point(P, X_l, Y_l, X_lp1, Y_lp1) ;
-
 
         // Solve level l
         Solve_Level(X_l, Y_l, P, options) ;
@@ -338,20 +309,11 @@ solve_result *VSP_Solve
     // X_0, Y_0 is the solution at the finest, uncompressed level
     X_0 = X_lp1 ;
     Y_0 = Y_lp1 ;
-    
-
-    // Cleanup
     relaxed_to_vertex_separator(X_0, Y_0, probFinest) ;
-
-
     solve_result *result = Package_Result(X_0, Y_0, probFinest) ;
     Destroy_State(X_0) ;
     Destroy_State(Y_0) ;
     Destroy_Coarse_Problems(probFinest) ;
-    return result ;
-
-
-    Set_Global_Problem(NULL) ;
     return result ;
 }
 
