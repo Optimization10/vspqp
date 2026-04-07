@@ -1,0 +1,4 @@
+#!/bin/bash
+./scripts/load int32
+./hager6-ssh/update.sh
+./scripts/load 2

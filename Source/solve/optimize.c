@@ -174,157 +174,108 @@ static bool Early_Exit(State *X, State *Y, Problem *P)
 }
 
 
-void Optimize
+static void Gamma_Reduction_Loop
 (
-    State                     *X,
-    State                     *Y,
-    Problem             *problem,
-    Options             *options
+    State       *X,
+    State       *Y,
+    Problem     *problem,
+    Options     *options,
+    VSPINT       gamma_org
 )
 {
-    static long long unsigned count = 0 ;
-    count++ ;
-    #ifdef DEBUG
-        check_states(X, Y, problem) ;
-    #endif
+    VSPINT i, k = 0, num_gr;
+    VSPFLOAT gamma, f_x_y, f_xstar_ystar;
 
-    /* 0.1 Local vars */
-    VSPINT i, k, num_gamma_reductions, n = problem->graph->n,
-    gamma_org = problem->graph->max_vtx_cost ;
+    Determine_Num_GR(problem->graph->n, options, &num_gr);
 
-    VSPFLOAT f_x_y, f_xstar_ystar ;
-
-    State *Xstar = Construct_State( n ) ;
-    State *Ystar = Construct_State( n ) ;
-
-    /* 2. Solve the problem using the original gamma */
-    VSPFLOAT gamma = problem->graph->max_vtx_cost ;
-
-    /*--- Solve VSP ----------------------------------------------------------*/
-    // 1. mountain climbing vs Flips
-    Best_Of_MC_And_Greedy_Flips(X, Y, problem, options, 5) ;
-
-    if(Early_Exit(X, Y, problem))
+    for (i = 0; i < num_gr; i++)
     {
-        goto EARLY_EXIT ;
-    }
-
-    // 2. Flips
-    Greedy_Flips(X, Y, problem, 9, (problem->level <= 2)) ;
-
-    // 3. Get vertex separator in preparation for FM_METIS
-    relaxed_to_vertex_separator(X, Y, problem) ;
-    if(Early_Exit(X, Y, problem))
-    {
-        goto EARLY_EXIT ;
-    }
-
-    // FM METIS
-    VSPINT n_passes ;
-    if(problem->level >= problem->coarsest_level_num / 2) n_passes = 3 ;
-    else n_passes = 2 ;
-    FM_Metis(X, Y, problem, options, n_passes) ;
-
-    if(Early_Exit(X, Y, problem))
-    {
-        goto EARLY_EXIT ;
-    }
-    /*------------------------------------------------------------------------*/
-
-
-    #ifdef DEBUG
-        VSPFLOAT obj_dbg ;
-        obj_dbg = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
-        (void) obj_dbg ;
-    #endif
-
-    /* Gamma reductions */
-    k = 0 ;
-    Determine_Num_GR(n, options, &num_gamma_reductions) ;
-    for(i = 0 ; i < num_gamma_reductions ; i++)
-    {
-        /*--------------------------------------------------------------------*/
-        /* Reduce gamma                                                       */
-        /*--------------------------------------------------------------------*/
-        if(k == 0)
+        if (k == 0)
         {
-            gamma = minreduce(X, Y, options, problem) - 1E-3 ;
-            if(gamma < 0) break ;
+            gamma = minreduce(X, Y, options, problem) - 1E-3;
+            if (gamma < 0) break;
         }
-        else gamma = gamma / 1.3 ;
+        else gamma = gamma / 1.3;
 
-        /*--------------------------------------------------------------------*/
-        /* (x*, y*) <- Solution starting from (x, y), using the reduced gamma */
-        /*--------------------------------------------------------------------*/
-        copy_state(X, Xstar) ;
-        copy_state(Y, Ystar) ;
+        State *Xc = Clone_State(X);
+        State *Yc = Clone_State(Y);
 
-        mountain_climbing(Xstar, Ystar, problem, options, gamma, false) ;
+        mountain_climbing(Xc, Yc, problem, options, gamma, false);
+        mountain_climbing(Xc, Yc, problem, options, gamma_org, true);
+        Greedy_Flips(Xc, Yc, problem, 9, (problem->level <= 2));
+        relaxed_to_vertex_separator(Xc, Yc, problem);
 
-        /*--------------------------------------------------------------------*/
-        /* (x*, y*) <- Solution starting from (x*, y*), using original gamma  */
-        /*--------------------------------------------------------------------*/
-        mountain_climbing(Xstar, Ystar, problem, options, gamma_org, true) ;
-        Greedy_Flips(Xstar, Ystar, problem, 9, (problem->level <= 2)) ;
+        VSPINT np;
+        if (problem->level >= problem->coarsest_level_num / 2) np = 3;
+        else np = 2;
+        FM_Metis(Xc, Yc, problem, options, np);
 
-        relaxed_to_vertex_separator(Xstar, Ystar, problem) ;
+        f_x_y         = compute_obj(X,  Y,  problem, gamma_org);
+        f_xstar_ystar = compute_obj(Xc, Yc, problem, gamma_org);
 
-        VSPINT n_passes ;
-        if(problem->level >= problem->coarsest_level_num / 2) n_passes = 3 ;
-        else n_passes = 2 ;
-
-        FM_Metis(Xstar, Ystar, problem, options, n_passes) ;
-
-
-
-        /*--------------------------------------------------------------------*/
-        /* Swap (x*, y*) with (x, y) if it is beneficial to do so             */
-        /*--------------------------------------------------------------------*/
-        f_x_y         = compute_obj(X, Y, problem, gamma_org) ;
-        f_xstar_ystar = compute_obj(Xstar, Ystar, problem, gamma_org  );
-
-        if(f_xstar_ystar > f_x_y + fabs(f_x_y) * 1E-13 )
+        if (f_xstar_ystar > f_x_y + fabs(f_x_y) * 1E-13)
         {
-            Swap_Mem(X, Xstar, sizeof(State) ) ;
-            Swap_Mem(Y, Ystar, sizeof(State) ) ;
-            k = 0 ; // Set k so that we call minreduce again
+            Swap_Mem(X, Xc, sizeof(State));
+            Swap_Mem(Y, Yc, sizeof(State));
+            k = 0;
 
-            if(Early_Exit(X, Y, problem))
+            if (Early_Exit(X, Y, problem))
             {
-                goto EARLY_EXIT ;
+                Destroy_State(Xc);
+                Destroy_State(Yc);
+                return;
             }
         }
-        else k++ ;
+        else k++;
+
+        Destroy_State(Xc);
+        Destroy_State(Yc);
     }
-    #ifdef DEBUG
-        check_states(X, Y, problem) ;
-    #endif
-    /*------------------------------------------------------------------------*/
-    // Do a last round of flips to ensure that we have a bona fide separator.
-    // The way a separator might not happen: in minreduce, we do a MC which
-    // can produce penalties. This is the last thing done do the x, y point
-    /*------------------------------------------------------------------------*/
-    Greedy_Flips(X, Y, problem, 5, (problem->level <= 2) ) ;
-
-    /*------------------------------------------------------------------------*/
-    /* Cleanup                                                                */
-    /*------------------------------------------------------------------------*/
-    EARLY_EXIT:
-
-    Destroy_State(Xstar) ;
-    Destroy_State(Ystar) ;
-
-    #ifdef DEBUG
-        check_states(X, Y, problem) ;
-    #endif
-
-    return ;
 }
 
-extern struct timespec G_START_TIME, G_END_TIME ;
-extern long double G_FLIPS_TIME ;
 
+void Optimize
+(
+    State       *X,
+    State       *Y,
+    Problem     *problem,
+    Options     *options
+)
+{
+    #ifdef DEBUG
+        check_states(X, Y, problem);
+    #endif
 
+    VSPINT gamma_org = problem->graph->max_vtx_cost;
 
+    // Phase 1: MC vs Flips — run both on same input, keep better
+    Best_Of_MC_And_Greedy_Flips(X, Y, problem, options, 5);
 
+    if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
+    // Phase 2: Greedy flips
+    Greedy_Flips(X, Y, problem, 9, (problem->level <= 2));
+
+    // Phase 3: FM
+    relaxed_to_vertex_separator(X, Y, problem);
+    VSPINT n_passes;
+    if (problem->level >= problem->coarsest_level_num / 2) n_passes = 3;
+    else n_passes = 2;
+    FM_Metis(X, Y, problem, options, n_passes);
+
+    if (Early_Exit(X, Y, problem)) goto CLEANUP;
+
+    // Phase 4: Gamma reductions
+    Gamma_Reduction_Loop(X, Y, problem, options, gamma_org);
+
+    // Phase 5: Final cleanup flips
+    Greedy_Flips(X, Y, problem, 5, (problem->level <= 2));
+
+    CLEANUP:
+
+    #ifdef DEBUG
+        check_states(X, Y, problem);
+    #endif
+
+    return;
+}
