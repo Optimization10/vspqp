@@ -1,6 +1,7 @@
 #include "core.h"
 #include "greedy_flips_internal.h"
 #include <stdbool.h>
+#include "utils.h"
 
 void FeasibleBeneficialFlips
 (

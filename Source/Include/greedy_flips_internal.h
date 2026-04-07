@@ -96,6 +96,16 @@ void Initialize_All_Structs
     Problem               *problem
 ) ;
 
+void Check_Outputs_v5
+(
+    VSPINT                  *x,
+    VSPINT                 *Ax,
+    VSPINT                wgtx,
+    VSPINT                  *y,
+    VSPINT                 *Ay,
+    VSPINT                wgty,
+    Problem           *problem
+) ;
 
 void Do_Flip
 (
