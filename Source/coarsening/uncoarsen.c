@@ -73,7 +73,8 @@ static void RefineOneVar
             }
             else /* fv partially fits into z */
             {
-                fWgtz    = fu ;
+                fz[fv]  = 0 ;
+                fWgtz   = fu ;
                 break ;
             }
         }

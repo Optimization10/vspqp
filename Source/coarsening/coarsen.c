@@ -422,7 +422,12 @@ static Problem *Problem_Coarsen
     Options *options
 )
 {
-    Graph *Graph_Coarse = Graph_Coarsen
+    Problem *Q ;
+    Problem *P_coarse ;
+    Graph   *Graph_Coarse ;
+    VSPINT   L ;
+
+    Graph_Coarse = Graph_Coarsen
     (
         P->graph,
         P->matching->cn,
@@ -431,7 +436,7 @@ static Problem *Problem_Coarsen
         P->matching->match, options
     ) ;
 
-    Problem *P_coarse = Construct_Problem
+    P_coarse = Construct_Problem
     (
         Graph_Coarse->n,
         Graph_Coarse->nz,
@@ -455,8 +460,8 @@ static Problem *Problem_Coarsen
     P_coarse->parent_problem = P ;
 
     // Set coarsest level num for each problem in the chain
-    VSPINT L = P_coarse->level ;
-    Problem *Q = P ;
+    L = P_coarse->level ;
+    Q = P_coarse ;
     while(Q != NULL)
     {
         Q->coarsest_level_num = L ;

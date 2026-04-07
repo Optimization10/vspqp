@@ -1,5 +1,4 @@
 #include "core.h"
-
 #include "data_structures.h"
 #include <stdint.h>
 #include <string.h>

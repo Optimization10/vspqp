@@ -85,7 +85,7 @@ typedef struct {
 
 
 
-static void PrintSumOfResults
+static void Print_Aggregate_Results
 (
     VSPINT           num_sep,
     VSPINT           sum_imb,
@@ -193,6 +193,8 @@ void reset_output_files()
     reset_file("output/results.txt") ;
     reset_file("output/Error_log.txt") ;
     reset_file("output/stats.txt") ;
+    reset_file("./output/SolveLog.txt") ;
+    reset_file("./output/FileReadingTime.csv") ;
     return ;
 }
 
@@ -396,7 +398,7 @@ VSPINT Prepend
 /******************************************************************************/
 
 
-void write_to_csv_2
+void write_to_csv
 (
     char                *graph_name,
     char                *col_title_given, /* If empty string, a title is
@@ -446,7 +448,7 @@ void write_to_csv_2
 }
 
 
-static void SetCustomOptions(Options *options)
+static void Set_Custom_Options(Options *options)
 {
     /*------------------------------------------------------------------------*/
     /* Coarsening Options                                                     */
@@ -559,12 +561,10 @@ int main(int argc, char** argv)
         strcpy(matricesDir, "/media/hager/datafile/symmetric/") ;
     }
 
-    // The maximum path length of a problem
+    char *name ;
     
     /*------------------------------------------------------------------------*/
 
-
-    // SuiteSparse_start() ;
     reset_output_files() ; 
     unsigned int seed ;
 
@@ -587,17 +587,13 @@ int main(int argc, char** argv)
     /*** Options **************************************************************/
     options = construct_options() ;
     set_default_options(options) ;
-    SetCustomOptions(options) ;
+    Set_Custom_Options(options) ;
 
     /*** I/O ******************************************************************/
     /* 1. Set column title for Numerical_Results.csv */
     char col_title[] = "Sep" ;
     char filePath[MAX_MATRIX_PATH_LENGTH] = "" ;
   
-
-    reset_file("./output/SolveLog.txt") ;
-
-    reset_file("./output/FileReadingTime.csv") ;
     FILE *fp = fopen("./output/FileReadingTime.csv", "a") ; 
     fprintf(fp, "File,Size(GB),Time(s),Speed(GB/s)") ;
     fclose(fp) ;
@@ -621,65 +617,62 @@ int main(int argc, char** argv)
         num_graphs++ ;
         srand(seed) ;
 
-        // Append the directory path
+        // Read the problem
         Prepend(matricesDir, filePath, MAX_MATRIX_PATH_LENGTH) ;
-
-        restart_decide_reset(options->restart_decision) ;
-
-        // /* 2. Read the problem and set default data */
         Read_hager6_File(filePath, options, &n, &Ai, &Ap) ;
 
-        /* 3. Solve the problem */ 
-        // FILE *f = fopen("./output/SolveLog.txt", "a") ;
-        // fprintf(f, "Starting problem: %s\n", problem->name) ;
-        // fclose(f) ;
+        // Log the current problem name
+        name = strrchr(filePath, '/') + 1 ;
+        FILE *f = fopen("./output/SolveLog.txt", "a") ;
+        fprintf(f, "Starting problem: %s\n", name) ;
+        fclose(f) ;
 
-
+        // Create edge weights
         VSPINT *Ae = malloc(Ap[n] * sizeof(*Ae)) ;
-        
         for(VSPLONG i = 0 ; i < Ap[n] ; i++) Ae[i] = 1 ;
+
+        // Solve the problem
+        restart_decide_reset(options->restart_decision) ;
         clock_gettime(CLOCK_REALTIME, &start) ;
-        // result = VSP_Solve(n, Ap, Ai, Ae, options, strrchr(filePath, '/')+1 ) ;
-        result = VSP_Solve(n, Ap, Ai, Ae, options, NULL ) ;
+        result = VSP_Solve(n, Ap, Ai, Ae, options, name ) ;
         clock_gettime(CLOCK_REALTIME, &end);
 
 
-        /* Compute total time for the VSP solver */
+        // Compute elapsed and aggregate time
         elapsed_time = compute_elapsed_time(start, end) ;
         total_time += elapsed_time ;
 
 
-        // /* 4. Compute solution stats */
+        // Compute solution stats
         solution_stats *sltn_stats =
         compute_solution_stats(result->x, result->y, n, Ap[n], elapsed_time);
         sum_sep += sltn_stats->num_nodes_sep ;
         sum_imb += ABS_DIFF(sltn_stats->num_nodes_x, sltn_stats->num_nodes_y) ; 
         sum_time += elapsed_time ;
 
-        // /* 5. Write results to a csv file */
-        write_to_csv_2(filePath, col_title, sltn_stats, options) ;
+        // Write results to disk
+        write_to_csv(filePath, col_title, sltn_stats, options) ;
 
 
-        // /* 6. Free memory */
+        // Free memory
         free(Ai) ;
         free(Ap) ;
         free(Ae) ;
         destruct_solve_result(result) ;
         free(sltn_stats) ;
     }
-    PrintSumOfResults(sum_sep, sum_imb, sum_time, seed, num_graphs) ;
+    Print_Aggregate_Results(sum_sep, sum_imb, sum_time, seed, num_graphs) ;
 
 
     /* Free memory */
     destruct_options(options) ;
 
+    // Print times
     printf("Flips time: %Lf\n", G_FLIPS_TIME) ;
     printf("HEM time: %Lf\n", G_HEM_TIME) ;
     printf("BM time: %Lf\n", G_BM_TIME) ;
     printf("Coarsen time: %Lf\n", G_COARSEN_TIME) ;
     // printf("Matching time: %Lf\n", G_Performance_Struct.Matching_Seconds) ;
-
-
 
     return 0 ;
 }
