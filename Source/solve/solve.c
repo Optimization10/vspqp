@@ -101,25 +101,6 @@ solve_result *Solve_Null_Graph
     return result ;
 }
 
-// Store x, y into result and free remaining memory
-void Final_Cleanup
-(
-    State *X, State *Y, Problem *problemFinest, solve_result *result
-)
-{
-    result->x = X->point->int_part ;
-    result->y = Y->point->int_part ;
-
-    Destroy_Az(X->Az) ;
-    free(X->point) ;
-    free(X) ;
-
-    Destroy_Az(Y->Az) ;
-    free(Y->point) ;
-    free(Y) ;
- 
-    Destroy_Coarse_Problems(problemFinest) ;
-}
 
 solve_result *Package_Result(State *X, State *Y, Problem *P)
 {

@@ -33,42 +33,22 @@ void Optimize
 
 void Multi_Start_Flips
 (
-    VSPINT                 **xBestHome,
-    VSPINT                **AxBestHome,
-    VSPINT               *wgtxBestHome,
-    VSPINT                 **yBestHome,
-    VSPINT                **AyBestHome,
-    VSPINT               *wgtyBestHome,
-    Problem               *problem,
-    Options               *options,
-    VSPINT                 numFlipRuns,
-    VSPINT            numPassesInFlips
+    State       *X,
+    State       *Y,
+    Problem     *problem,
+    Options     *options,
+    VSPINT       numFlipRuns,
+    VSPINT       numPassesInFlips
 ) ;
 
-void Copy_Data
-(
-    VSPINT *xfrom,
-    VSPINT *Axfrom,
-    VSPINT *wgtxfrom,
-    VSPINT *yfrom,
-    VSPINT *Ayfrom,
-    VSPINT *wgtyfrom,
-    VSPINT *xto,
-    VSPINT *Axto,
-    VSPINT *wgtxto,
-    VSPINT *yto,
-    VSPINT *Ayto,
-    VSPINT *wgtyto,
-    VSPINT n
-) ;
 
 void Best_Of_MC_And_Greedy_Flips
 (
-    State             *X,
-    State             *Y,
+    State       *X,
+    State       *Y,
     Problem     *problem,
     Options     *options,
-    VSPINT  numFlipsRuns
+    VSPINT       numFlipsRuns
 ) ;
 
 

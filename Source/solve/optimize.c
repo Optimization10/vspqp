@@ -9,129 +9,60 @@
 
 void Best_Of_MC_And_Greedy_Flips
 (
-    State             *X,
-    State             *Y,
+    State       *X,
+    State       *Y,
     Problem     *problem,
     Options     *options,
-    VSPINT  numFlipsRuns
+    VSPINT       numFlipsRuns
 )
 {
-    static long long unsigned count = 0 ;
-    count++ ;
-    
-    VSPINT n     = problem->graph->n ;
-    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT gamma = problem->graph->max_vtx_cost;
+    VSPINT *c = problem->graph->c;
 
+    // Clone for flips path
+    State *Xf = Clone_State(X);
+    State *Yf = Clone_State(Y);
 
-    /*------------------------------------------------------------------------*/
-    // Make a copy of the input data
-    /*------------------------------------------------------------------------*/
-    VSPINT *xcpy, *Axcpy, *ycpy, *Aycpy, wgtxcpy, wgtycpy ;
-    xcpy  = malloc(n * sizeof(VSPINT)) ;
-    Axcpy = malloc(n * sizeof(VSPINT)) ;
-    ycpy  = malloc(n * sizeof(VSPINT)) ;
-    Aycpy = malloc(n * sizeof(VSPINT)) ;
-    Copy_Data
-    (
-        X->point->int_part, X->Az->int_part, &(X->weight),
-        Y->point->int_part, Y->Az->int_part, &(Y->weight),
-        xcpy, Axcpy, &wgtxcpy,
-        ycpy, Aycpy, &wgtycpy,
-        problem->graph->n
-    ) ;
+    VSPINT wgtx = State_Get_Wgt_Int_Part(Xf, c);
+    VSPINT wgty = State_Get_Wgt_Int_Part(Yf, c);
 
-    // Compute c*x and c*y locally
-    VSPINT *c = problem->graph->c ;
-
-
-    bool abortManyFlipsPasses = false ;
-    wgtxcpy = State_Get_Wgt_Int_Part(X, c) ;
-    wgtycpy = State_Get_Wgt_Int_Part(Y, c) ;
-    if(wgtxcpy == 0 || wgtycpy == 0)
+    // Flips path
+    if (wgtx != 0 && wgty != 0)
     {
-        abortManyFlipsPasses = true ;
+        Multi_Start_Flips(Xf, Yf, problem, options, numFlipsRuns, 9);
     }
 
+    // MC path (in-place on X, Y)
+    mountain_climbing(X, Y, problem, options, gamma, true);
+    Round_Down_Fractions(X, Y, problem);
 
-    /*------------------------------------------------------------------------*/
-    // Do greedy flips, all from the same starting point
-    /*------------------------------------------------------------------------*/
-
-    if(!abortManyFlipsPasses)
-    {
-        Multi_Start_Flips
-        (
-            &xcpy, &Axcpy, &wgtxcpy,
-            &ycpy, &Aycpy, &wgtycpy,
-            problem, options,
-            numFlipsRuns, 9
-        ) ;
-    }
-
-    /*------------------------------------------------------------------------*/
-    // Do Mountain CLimbing in-place in (x, y)
-    /*------------------------------------------------------------------------*/
-    
-    mountain_climbing(X, Y, problem, options,  gamma, true) ;
-
-    Round_Down_Fractions(X, Y, problem) ;
-
-    /*------------------------------------------------------------------------*/
-    // Compare MC point with Flips point and choose the best
-    /*------------------------------------------------------------------------*/
-    VSPINT objAfterMc ;
+    // Compare
+    VSPINT objMC, objFlips ;
     Compute_ObjValSimple
     (
         X->point->int_part, X->Az->int_part, X->weight,
         Y->point->int_part, Y->Az->int_part, Y->weight,
-        problem, &objAfterMc
-    ) ;
-
-    VSPINT objAfterManyFlips ;
+        problem, &objMC
+    );
     Compute_ObjValSimple
     (
-        xcpy, Axcpy, wgtxcpy,
-        ycpy, Aycpy, wgtycpy,
-        problem, &objAfterManyFlips
-    ) ;
+        Xf->point->int_part, Xf->Az->int_part, Xf->weight,
+        Yf->point->int_part, Yf->Az->int_part, Yf->weight,
+        problem, &objFlips
+    );
 
-    bool objFlipsBetter = (objAfterManyFlips > objAfterMc) ;
-    bool objFlipsSame   = (objAfterManyFlips == objAfterMc) ;
-    bool balFlipsBeter  = (IMBALANCE(wgtxcpy, wgtycpy) < IMBALANCE( X->weight, Y->weight) );
-    if( !abortManyFlipsPasses &&(objFlipsBetter || (objFlipsSame && balFlipsBeter) ) )
+    bool flipsBetter    = (objFlips > objMC);
+    bool flipsSame      = (objFlips == objMC);
+    bool flipsBetterBal = (IMBALANCE(Xf->weight, Yf->weight) < IMBALANCE(X->weight, Y->weight));
+
+    if (wgtx != 0 && wgty != 0 && (flipsBetter || (flipsSame && flipsBetterBal)))
     {
-        // Overwrite (x, y) with the point from flips
-        Copy_Data
-        (
-            xcpy, Axcpy, &wgtxcpy,
-            ycpy, Aycpy, &wgtycpy,
-            X->point->int_part, X->Az->int_part, &(X->weight),
-            Y->point->int_part, Y->Az->int_part, &(Y->weight),
-            n
-        ) ;
-        X->point->ind_frac = EMPTY ;
-        X->Az->ind_frac_z  = EMPTY ;
-        Y->point->ind_frac = EMPTY ;
-        Y->Az->ind_frac_z  = EMPTY ;
-
-        #ifdef DEBUG
-            check_states(X, Y, problem) ;
-            VSPINT obj = (VSPINT) compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
-            if(obj != objAfterManyFlips )
-            {
-                ERR("PROBLEM") ;
-            }
-        #endif
+        Swap_Mem(X, Xf, sizeof(State));
+        Swap_Mem(Y, Yf, sizeof(State));
     }
 
-    /*------------------------------------------------------------------------*/
-    // Cleanup and return
-    /*------------------------------------------------------------------------*/
-
-    free(xcpy)  ;
-    free(Axcpy) ;
-    free(ycpy)  ;
-    free(Aycpy) ;
+    Destroy_State(Xf);
+    Destroy_State(Yf);
 }
 
 static void Determine_Num_GR
