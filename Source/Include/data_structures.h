@@ -1,6 +1,6 @@
 #ifndef DS_API_H
 #define DS_API_H
-
+#include "core.h"
 #include "VSPQP.h"
 
 
