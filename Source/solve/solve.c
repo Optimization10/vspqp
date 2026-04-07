@@ -1,16 +1,8 @@
+#include "solve_internal.h"
 #include "VSPQP.h"
 #include "core.h"
 #include "coarsen_api.h"
-#include "shared_api.h"
-#include "shared_functions.h"
-#include <bits/time.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include <limits.h>
-#include "solve_internal.h"
-#include "mc_api.h"
 #include "utils.h"
 #include "FM_api.h"
 #include "greedy_flips_api.h"
@@ -22,27 +14,10 @@ const Problem *G_P = NULL ;
 
 bool restart_decide
 (
-    restart_decision       *dec,
+    restart_decision           *dec,
     VSPFLOAT                  objIn, /* If not using rule, this is ignored */
     VSPFLOAT                 objOut, /* If not using rule, this is ignored */
     Problem                *problem  /* If using levels, this is ignored   */
-) ;
-
-void Best_Of_MC_And_Greedy_Flips
-(
-    State             *X,
-    State             *Y,
-    Problem     *problem,
-    Options     *options,
-    VSPINT  numFlipsRuns
-) ;
-
-void set_initial_guess
-(
-    State         *X,
-    State         *Y,
-    Problem *problem,
-    Options *options
 ) ;
 
 static void Set_Global_Problem(Problem *P)
@@ -448,6 +423,8 @@ solve_result *VSP_Solve
     Set_Global_Problem(NULL) ;
     return result ;
 }
+
+
 
 /* Determine if we should resolve, and if so, do it */
 void ResolveLevelDecideAndDo

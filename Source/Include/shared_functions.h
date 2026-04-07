@@ -5,13 +5,6 @@
 #include "VSPQP.h"
 #include "time.h"
 
-void set_centroid
-(
-    State         *X,
-    State         *Y,
-    Problem *problem,
-    Options *options
-) ;
 
 bool Is_Complete_Graph
 (
@@ -24,12 +17,6 @@ VSPFLOAT zAw
     State *Y
 ) ;
 
-void Round_Down_Fractions
-(
-    State           *Z,
-    State           *W,
-    Problem   *problem
-) ;
 
 VSPINT penalty_term
 (
@@ -434,15 +421,6 @@ VSPFLOAT minreduce
     Options *options,
     Problem *problem
 ) ;
-
-void set_random_initial_guess
-(
-    State         *X,
-    State         *Y,
-    Problem *problem,
-    Options *options
-) ;
-
 
 VSPINT Count_Ones
 (

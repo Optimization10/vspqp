@@ -357,7 +357,7 @@ void destruct_restart_decision(restart_decision *dec)
    dec->restarts_done. */
 bool restart_decide
 (
-    restart_decision       *dec,
+    restart_decision           *dec,
     VSPFLOAT                  objIn, /* If not using rule, this is ignored */
     VSPFLOAT                 objOut, /* If not using rule, this is ignored */
     Problem                *problem  /* If using levels, this is ignored   */

@@ -1,28 +1,11 @@
-#include "shared_api.h"
-#include "ds_api.h"
-#include "gr_api.h"
+#include "solve_internal.h"
 #include "mc_api.h"
 #include "FM_api.h"
 #include "greedy_flips_api.h"
-#include "shared_functions.h"
-#include "logger.h"
-#include <stdio.h>
-#include "solve_internal.h"
+#include "utils.h"
 
 
-void TryFlipsManyStartingPoints
-(
-    VSPINT                 **xBestHome,
-    VSPINT                **AxBestHome,
-    VSPINT               *wgtxBestHome,
-    VSPINT                 **yBestHome,
-    VSPINT                **AyBestHome,
-    VSPINT               *wgtyBestHome,
-    Problem               *problem,
-    Options               *options,
-    VSPINT                 numFlipRuns,
-    VSPINT            numPassesInFlips
-) ;
+
 
 void Best_Of_MC_And_Greedy_Flips
 (
@@ -179,7 +162,7 @@ static void Determine_Num_GR
 // partition, and the separator only contains a node of minimal weight, then
 // X, Y is globally optimal, or nearly globally optimal
 // Note that we are not taking into account the penalty term
-bool Early_Exit(State *X, State *Y, Problem *P)
+static bool Early_Exit(State *X, State *Y, Problem *P)
 {
     VSPFLOAT obj = compute_obj(X, Y, P, P->graph->max_vtx_cost) ;
     bool ret = false ;
@@ -229,9 +212,7 @@ void Optimize
     }
 
     // 2. Flips
-    LoggerStart(X, Y, problem, "Flips") ;
     Greedy_Flips(X, Y, problem, 9, (problem->level <= 2)) ;
-    LoggerStop(X, Y, problem) ;
 
     // 3. Get vertex separator in preparation for FM_METIS
     relaxed_to_vertex_separator(X, Y, problem) ;
@@ -241,12 +222,10 @@ void Optimize
     }
 
     // FM METIS
-    LoggerStart(X, Y, problem, "Metis") ;
     VSPINT n_passes ;
     if(problem->level >= problem->coarsest_level_num / 2) n_passes = 3 ;
     else n_passes = 2 ;
     FM_Metis(X, Y, problem, options, n_passes) ;
-    LoggerStop(X, Y, problem) ;
 
     if(Early_Exit(X, Y, problem))
     {
@@ -327,9 +306,7 @@ void Optimize
     // The way a separator might not happen: in minreduce, we do a MC which
     // can produce penalties. This is the last thing done do the x, y point
     /*------------------------------------------------------------------------*/
-    LoggerStart(X, Y, problem, "Final Flips") ;
     Greedy_Flips(X, Y, problem, 5, (problem->level <= 2) ) ;
-    LoggerStop(X, Y, problem) ;
 
     /*------------------------------------------------------------------------*/
     /* Cleanup                                                                */

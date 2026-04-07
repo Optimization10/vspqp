@@ -425,6 +425,54 @@ void State_Round_Down
 
 }
 
+
+void Az_pm_col_of_A
+(
+    VSPINT             *Az, // vector to which we add/subtract
+    VSPINT               i, // column to add/subtract
+    VSPINT          operation, // 1 if add, -1 if subtract
+    Problem   *problem
+)
+{
+    VSPINT *Ai = problem->graph->Ai ;
+    VSPLONG *Ap = problem->graph->Ap ;
+    VSPLONG const end = Ap [i+1] ;
+    for(VSPLONG p = Ap[i] ; p < end ; p++)
+    {
+        VSPINT const j = Ai [p] ;
+        Az[j] += operation;
+    }
+    // don't forget the identity matrix
+    Az[i] += operation;
+}
+
+/* Update Az struct, given z as a point struct */
+void Compute_Az
+(
+    Point              *z,
+    Az                *Az,
+    VSPINT                *Ai,
+    VSPLONG               *Ap,
+    VSPINT                  n
+)
+{
+    SET_FUNCTION_COUNTER ;
+
+    // Compute integer part
+    mat_vec_mult(z->int_part, Az->int_part, Ai, Ap, n) ;
+    Az->ind_frac_z = z->ind_frac ;
+
+    // Compute fractional part
+    Az->ind_frac_z = z->ind_frac ;
+    Az->val_frac_z = z->val_frac ;
+
+    if (z->ind_frac != EMPTY)
+    {
+        Az->one++ ;
+        extract_matrix_col(Az->col_frac_z, z->ind_frac, Az->one, Ai, Ap) ;
+    }
+}
+
 void Error
 ( 
     char* msg,

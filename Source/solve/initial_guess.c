@@ -1,32 +1,8 @@
-#include "shared_api.h"
-#include "mc_internal.h"
-
-static void set_manual_initial_guess(
-    State         *X,
-    State         *Y,
-    Problem *problem,
-    Options *options
-) ;
-
-void set_random_initial_guess
-(
-    State         *X,
-    State         *Y,
-    Problem *problem,
-    Options *options
-) ;
+#include "solve_internal.h"
+#include "mc_api.h"
 
 
-void set_centroid
-(
-    State             *X,
-    State             *Y,
-    Problem     *problem,
-    Options     *options
-) ;
-
-
-void set_initial_guess
+static void set_manual_initial_guess
 (
     State         *X,
     State         *Y,
@@ -34,34 +10,6 @@ void set_initial_guess
     Options *options
 )
 {
-    switch(options->initial_guess)
-    {
-        case centroid_initial_guess :
-            set_centroid(X, Y, problem, options) ;
-            break ;
-        case manual_initial_guess :
-            set_manual_initial_guess(X, Y, problem, options) ;
-            break ;
-        case random_initial_guess :
-            set_random_initial_guess(X, Y, problem, options) ;
-            break ;
-    }
-    #ifdef DEBUG
-        VSPFLOAT obj = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
-        (void) obj ;
-    #endif
-
-    return ;
-}
-
-
-
-static void set_manual_initial_guess(
-    State         *X,
-    State         *Y,
-    Problem *problem,
-    Options *options
-) {
     VSPINT n = problem->graph->n ;
     VSPINT i ;
 
@@ -95,7 +43,7 @@ static void set_manual_initial_guess(
 
 
 
-void set_random_initial_guess
+static void set_random_initial_guess
 (
     State         *X,
     State         *Y,
@@ -221,7 +169,7 @@ void set_random_initial_guess
     c - gamma A * y0 = c - gamma * f * A * 1
     The ith entry of A * 1 can be computed efficiently as Ap[i+1] - Ap[i]
      */
-void set_centroid
+static void set_centroid
 (
     State             *X,
     State             *Y,
@@ -296,6 +244,35 @@ void set_centroid
     free(y_f) ;
     free(d) ;
 
+
+    return ;
+}
+
+
+void set_initial_guess
+(
+    State         *X,
+    State         *Y,
+    Problem *problem,
+    Options *options
+)
+{
+    switch(options->initial_guess)
+    {
+        case centroid_initial_guess :
+            set_centroid(X, Y, problem, options) ;
+            break ;
+        case manual_initial_guess :
+            set_manual_initial_guess(X, Y, problem, options) ;
+            break ;
+        case random_initial_guess :
+            set_random_initial_guess(X, Y, problem, options) ;
+            break ;
+    }
+    #ifdef DEBUG
+        VSPFLOAT obj = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
+        (void) obj ;
+    #endif
 
     return ;
 }
