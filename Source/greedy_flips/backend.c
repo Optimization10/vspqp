@@ -1,5 +1,6 @@
 #include "core.h"
 #include "greedy_flips_internal.h"
+#include "utils.h"
 
 void z0Aw1_List_Check
 (

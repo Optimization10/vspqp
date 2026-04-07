@@ -1,6 +1,7 @@
 #include "core.h"
 #include "data_structures.h"
 #include "shared_functions.h"
+#include "utils.h"
 
 IdxGroupsByC *IdxGroupsByC_Init
 (

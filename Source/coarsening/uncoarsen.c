@@ -2,8 +2,7 @@
 #include "shared_api.h"
 #include "coarsen_internal.h" // IWYU pragma: keep
 #include "shared_functions.h"
-
-#include <stdio.h>
+#include "utils.h"
 
 
 

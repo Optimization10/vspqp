@@ -1,6 +1,7 @@
 #include "core.h"
 #include "data_structures.h"
 #include "shared_functions.h"
+#include "utils.h"
 
 Direct_Access_List *Construct_Direct_Access_List(VSPINT max_size)
 {

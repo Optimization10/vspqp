@@ -1,6 +1,7 @@
 #include "core.h"
 #include "greedy_flips_internal.h"
 #include "data_structures.h"
+#include "utils.h"
 
 typedef enum
 {

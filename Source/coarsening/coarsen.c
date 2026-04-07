@@ -5,7 +5,7 @@
 #include "shared_functions.h"
 #include <string.h>
 #include <time.h>
-
+#include <utils.h>
 
 static void RecordCoarsestLvlNum
 (

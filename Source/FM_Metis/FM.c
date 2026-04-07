@@ -2,6 +2,7 @@
 #include "FM_internal.h"
 #include "data_structures.h"
 #include "shared_api.h"
+#include "utils.h"
 
 /*----------------------------------------------------------------------------*/
 /*      Static Functions Prototypes                                           */

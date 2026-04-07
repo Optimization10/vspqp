@@ -1,5 +1,6 @@
 #include "core.h"
 #include "data_structures.h"
+#include "utils.h"
 
 #define INSERT_IN_LIST(newListMem, insertLoc, list, pointers) \
                         (list)[ (insertLoc) ] = (newListMem) ; \

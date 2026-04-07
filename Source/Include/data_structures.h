@@ -65,6 +65,206 @@ void Direct_Access_List_Check
     Direct_Access_List *List
 ) ;
 
+
+/*----------------------------------------------------------------------------*/
+/* Max Heap V0                                                                */
+/*----------------------------------------------------------------------------*/
+void MaxHeap_Heapify_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT    numNodes,
+    VSPINT   *c
+) ;
+
+void MaxHeap_Bubble_Down_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT    numNodes,
+    VSPINT   *c,
+    VSPINT    p
+) ;
+
+void MaxHeap_Insert_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT   *numNodes,
+    VSPINT   *c,
+    VSPINT    toInsert
+) ;
+
+void MaxHeap_Delete_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT   *numNodes,
+    VSPINT   *c,
+    VSPINT    toDel
+) ;
+
+void MaxHeap_See_Top_Val_v0
+(
+    VSPINT   *heap,
+    VSPINT   *c,
+    VSPINT    numNodes,
+    VSPINT   *topVal
+) ;
+
+void MaxHeap_Get_Top_Val_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT   *numNodes,
+    VSPINT   *c,
+    VSPINT   *topVal
+) ;
+
+void MaxHeap_See_Top_Key_v0
+(
+    VSPINT   *heap,
+    VSPINT   *c,
+    VSPINT    numNodes,
+    VSPINT   *topKey
+) ;
+
+void MaxHeap_Get_Top_Key_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT   *numNodes,
+    VSPINT   *c,
+    VSPINT   *topKey
+) ;
+
+void MaxHeap_Check_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT    numNodes,
+    VSPINT   *c
+) ;
+
+
+/*----------------------------------------------------------------------------*/
+/* Min Heap V0                                                                */
+/*----------------------------------------------------------------------------*/
+void MinHeap_Bubble_Down_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT    numNodes,
+    VSPINT   *c,
+    VSPINT    p
+) ;
+
+void MinHeap_Heapify_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT    numNodes,
+    VSPINT   *c
+) ;
+
+void MinHeap_Insert_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT   *numNodes,
+    VSPINT   *c,
+    VSPINT    toInsert
+) ;
+
+void MinHeap_Delete_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT   *numNodes,
+    VSPINT   *c,
+    VSPINT    toDel
+) ;
+
+void MinHeap_See_Top_Val_v0
+(
+    VSPINT   *heap,
+    VSPINT   *c,
+    VSPINT    numNodes,
+    VSPINT   *topVal
+) ;
+
+void MinHeap_Get_Top_Val_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT   *numNodes,
+    VSPINT   *c,
+    VSPINT   *topVal
+) ;
+
+void MinHeap_See_Top_Key_v0
+(
+    VSPINT   *heap,
+    VSPINT   *c,
+    VSPINT    numNodes,
+    VSPINT   *topKey
+) ;
+
+void MinHeap_Get_Top_Key_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT   *numNodes,
+    VSPINT   *c,
+    VSPINT   *topKey
+) ;
+
+void MinHeap_Check_v0
+(
+    VSPINT   *heap,
+    VSPINT   *lookup,
+    VSPINT    numNodes,
+    VSPINT   *c
+) ;
+
+
+/*----------------------------------------------------------------------------*/
+/* Heaps V3 (min heap, ratio-keyed Az_i / c_i)                               */
+/*----------------------------------------------------------------------------*/
+void min_heapify_v3
+(
+    VSPINT   *heap,
+    Az       *Az,
+    VSPINT   *c,
+    VSPINT    p,
+    VSPINT    nheap
+) ;
+
+void min_heap_build_v3
+(
+    VSPINT   *heap,
+    Az       *Az,
+    VSPINT   *c,
+    VSPINT    n
+) ;
+
+void min_heap_add_v3
+(
+    VSPINT   *heap,
+    Az       *Az,
+    VSPINT   *c,
+    VSPINT    new,
+    VSPINT   *nheap
+) ;
+
+void min_heap_delete_v3
+(
+    VSPINT   *heap,
+    Az       *Az,
+    VSPINT   *c,
+    VSPINT   *nheap
+) ;
+
 /*----------------------------------------------------------------------------*/
 /* Heaps V4 (unique c-values, min and max)                                    */
 /*----------------------------------------------------------------------------*/

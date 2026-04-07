@@ -2,6 +2,7 @@
 #include "mc_internal.h"
 #include "data_structures.h"
 #include <float.h>
+#include <utils.h>
 
 /*
 * Solve knapsack problem

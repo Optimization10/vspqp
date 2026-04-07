@@ -1,4 +1,3 @@
-#include "core.h"
 /*------------------------------------------------------------------------------
 This file is for the following strategy of neutral flips:
 
@@ -49,8 +48,9 @@ Rmk 2: When we say "do all feasible, strictly beneficial flips", it is only
 ********************************************************************************
 
 ------------------------------------------------------------------------------*/
+#include "core.h"
 #include "greedy_flips_internal.h"
-
+#include "utils.h"
 
 void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2
 (

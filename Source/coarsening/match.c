@@ -3,7 +3,7 @@
 #include "coarsen_internal.h"
 #include "shared_functions.h"
 #include "data_structures.h"
-
+#include "utils.h"
 
 
 static void Match_Check

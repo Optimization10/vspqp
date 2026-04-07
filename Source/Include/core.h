@@ -1,8 +1,7 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include <time.h>
-#include <stdbool.h>
+#include <stdio.h>
 #include "VSPQP.h"
 
 
