@@ -1,7 +1,6 @@
 #ifndef MC_INTERNAL_H
 #define MC_INTERNAL_H
-
-
+#include "core.h"
 #include "mc.h"
 
 

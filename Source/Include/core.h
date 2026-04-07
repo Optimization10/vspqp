@@ -241,8 +241,18 @@ State* Construct_State(VSPINT n);
 void Destroy_State(State* state);
 
 
+void Error
+( 
+    char*              msg,
+    char*              file_name,
+    VSPINT             line_num,
+    unsigned long long count
+) ;
+
 /* ========================================================================== */
 // Global Variables
 /* ========================================================================== */
+extern const char *G_Current_Problem_Name ;
+
 
 #endif

@@ -5,6 +5,7 @@
 #include "utils.h"
 #include <string.h>
 
+const char *G_Current_Problem_Name ;
 extern struct timespec  G_START_TIME, G_END_TIME ;
 extern long double G_COMPRESS_TIME ;
 
@@ -17,6 +18,20 @@ bool restart_decide
     Problem                *problem  /* If using levels, this is ignored   */
 ) ;
 
+/* Determine if we should resolve, and if so, do it */
+static void ResolveLevelDecideAndDo
+(
+    State             *X,
+    State             *Y,
+    Problem     *problem,
+    Options     *options
+)
+{
+    bool dec = restart_decide(options->restart_decision, 0, 0, problem);
+    if (!dec || problem->child_problem == NULL) return;
+
+    Try_And_Keep_If_Better(X, Y, problem, strategy_centroid_restart, options) ;
+}
 
 
 // Input: an almost binary point. Initial point at this level
@@ -215,8 +230,6 @@ void check_for_complete_graph(Problem *problem)
 }
 
 
-
-
 solve_result *VSP_Solve
 (
     VSPINT    n,
@@ -227,8 +240,8 @@ solve_result *VSP_Solve
     char     *name     // Optional. Problem name
 )
 {
-    static long long unsigned count = 0 ;
-    count++ ;
+    SET_FUNCTION_COUNTER ;
+    G_Current_Problem_Name = name ;
 
     Problem *probFinest, *probCoarsest, *P ;
 
@@ -290,21 +303,4 @@ solve_result *VSP_Solve
     Destroy_State(Y_0) ;
     Destroy_Coarse_Problems(probFinest) ;
     return result ;
-}
-
-
-
-/* Determine if we should resolve, and if so, do it */
-void ResolveLevelDecideAndDo
-(
-    State             *X,
-    State             *Y,
-    Problem     *problem,
-    Options     *options
-)
-{
-    bool dec = restart_decide(options->restart_decision, 0, 0, problem);
-    if (!dec || problem->child_problem == NULL) return;
-
-    Try_And_Keep_If_Better(X, Y, problem, strategy_centroid_restart, options) ;
 }

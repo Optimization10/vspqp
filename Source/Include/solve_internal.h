@@ -6,15 +6,6 @@
 /*----------------------------------------------------------------------------*/
 /*  Declarations                                                              */
 /*----------------------------------------------------------------------------*/
-
-void ResolveLevelDecideAndDo
-(
-    State             *X,
-    State             *Y,
-    Problem     *problem,
-    Options     *options
-) ;
-
 void set_initial_guess
 (
     State         *X,

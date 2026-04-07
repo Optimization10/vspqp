@@ -183,3 +183,49 @@ void Destroy_Problem(Problem* problem)
     free(problem->name) ;
     free(problem);
 }
+
+
+void Error
+( 
+    char* msg,
+    char* file_name,
+    VSPINT line_num,
+    unsigned long long count
+)
+{
+    #ifndef DEBUG
+        printf("\n\nWARNING! DOING DEBUGGING CHECKS WHILE NOT IN DEBUG MODE") ;
+    #endif
+
+    #ifdef DEBUG
+        static long long unsigned error_count = 0 ;
+        error_count++ ;
+
+
+        FILE* file = fopen ( "output/Error_log.txt", "a" ) ;
+        if(error_count <= 10000)
+        {
+            fprintf(file, "\n\n ERROR: %s", msg) ;
+            if(G_Current_Problem_Name != NULL)
+            {
+                fprintf(file, "\n Prob name   : %s", G_Current_Problem_Name) ;
+            }
+            else
+            {
+                fprintf(file, "\n Prob name   : Not Provided") ;
+            }
+            fprintf(file, "\n File name   : %s", file_name) ;
+            fprintf(file, "\n Line number : %lld", (long long) line_num) ;
+            fprintf(file, "\n Count : %llu", count) ;
+            fclose(file) ;
+        }
+        else
+        {
+            fprintf(file, "\n\n: Error log too large, terminating program.\n") ;
+            fclose(file) ;
+            printf("\n\nERROR: Error log too large, terminating program.\n\n") ;
+            exit(1) ;
+        }
+    #endif
+    return ;
+}

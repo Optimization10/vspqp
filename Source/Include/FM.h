@@ -1,6 +1,6 @@
 #ifndef FM_API_H
 #define FM_API_H
-
+#include "core.h"
 
 void FM_Metis
 (
