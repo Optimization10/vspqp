@@ -8,8 +8,8 @@
 # Choose debug or release version
 #------------------------------------------------------------------------------
 # VERSION = release
-# VERSION = dev
-VERSION = debug
+VERSION = dev
+# VERSION = debug
 
 
 #------------------------------------------------------------------------------

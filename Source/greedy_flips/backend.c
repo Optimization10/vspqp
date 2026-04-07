@@ -867,21 +867,10 @@ void Do_Flip
     IdxGroupsByC         *w1Az2_groups,
 
     VSPINT                     indFlip,
-    Problem               *problem
+    Problem                   *problem
 )
 {
     SET_FUNCTION_COUNTER ;
-
-    #ifdef DEBUG
-        Check_All_Data
-        (
-            z, Az, *wgtz, w, Aw, *wgtw,
-            z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
-            w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
-            problem
-        ) ;
-    #endif
-
     if(z[indFlip])
     {
         Downflip
@@ -904,17 +893,6 @@ void Do_Flip
             indFlip, problem
         ) ;
     }
-
-    #ifdef DEBUG
-        Check_All_Data
-        (
-            z, Az, *wgtz, w, Aw, *wgtw,
-            z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
-            w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
-            problem
-        ) ;
-    #endif
-
     return ;
 }
 

@@ -2310,19 +2310,15 @@ VSPLONG partial_sums_of_array(
    known. Every other term is computed separately, and all terms are summed
    at the end.
 */
-VSPFLOAT compute_obj(
-    State         *X,
-    State         *Y,
-    Problem *problem,
-    VSPFLOAT       gamma
-) {
-    #ifdef DEBUG
-        static long long unsigned count = 0 ;
-        count++ ;
-
-        /* Check input */
-        check_states(X, Y, problem) ;
-    #endif
+VSPFLOAT compute_obj
+(
+    State     *X,
+    State     *Y,
+    Problem   *problem,
+    VSPFLOAT   gamma
+)
+{
+    SET_FUNCTION_COUNTER ;
 
     /* Local vars */
     VSPINT i ;

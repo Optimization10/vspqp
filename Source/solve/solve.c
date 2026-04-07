@@ -46,16 +46,15 @@ void Solve_Level
     ResolveLevelDecideAndDo(X, Y, problem, options) ;
 }
 
-void Destroy_Coarse_Problems(Problem *problemFinest)
+void Destroy_All_Problems(Problem *problemFinest)
 {
-    Problem *cp, *p = problemFinest->child_problem ;
+    Problem *cp, *p = problemFinest ;
     while(p != NULL)
     {
         cp = p->child_problem ;
         Destroy_Problem(p) ;
         p = cp ;
     }
-    return ;
 }
 
 
@@ -105,7 +104,7 @@ solve_result *Solve_Null_Graph
         }
     }
     result->obj_val  = result->weight_x + result->weight_y ;
-    Destroy_Coarse_Problems(probFinest) ;
+    Destroy_All_Problems(probFinest) ;
     return result ;
 }
 
@@ -259,7 +258,7 @@ solve_result *VSP_Solve
     if(probFinest->graph->nz == 0)
     {
         solve_result *ret = Solve_Null_Graph(probFinest) ;
-        Destroy_Coarse_Problems(probFinest) ;
+        Destroy_All_Problems(probFinest) ;
         return ret ;
     }
 
@@ -301,6 +300,6 @@ solve_result *VSP_Solve
     solve_result *result = Package_Result(X_0, Y_0, probFinest) ;
     Destroy_State(X_0) ;
     Destroy_State(Y_0) ;
-    Destroy_Coarse_Problems(probFinest) ;
+    Destroy_All_Problems(probFinest) ;
     return result ;
 }

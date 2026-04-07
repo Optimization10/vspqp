@@ -44,7 +44,7 @@ valgrind: example
   --show-leak-kinds=all \
   --track-origins=yes \
   --suppressions=$(VSPATH)/Config/mkl.supp \
-  ./Demo/example
+	./Demo/example > output/valgrind.txt 2>&1
 
 clean:
 	rm -rf $(BUILD_DIR)

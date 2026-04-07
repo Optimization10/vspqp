@@ -52,6 +52,153 @@ Rmk 2: When we say "do all feasible, strictly beneficial flips", it is only
 #include "greedy_flips_internal.h"
 #include "utils.h"
 
+
+/*----------------------------------------------------------------------------*/
+// Check:
+// If there is a downflip with wi = 1 and Azi >= 2, then the given flip is such
+// a downflip
+// If there is no such downflip, and there is a feasible, neutral upflip in z,
+// then the given flip is such a flip
+// Else, if there is no such upflip or downflip, the given EMPTY
+/*----------------------------------------------------------------------------*/
+void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2_Check
+(
+    VSPINT                          *z,
+    VSPINT                         *Az,
+    VSPINT                          *w,
+    VSPINT                         *Aw,
+    VSPINT                       *wgtz,
+    VSPINT                       *wgtw,
+    IdxGroupsByC         *z0Aw0_groups,
+    Direct_Access_List     *z0Aw1_list,
+    IdxGroupsByC         *z1Aw1_groups,
+    IdxGroupsByC         *z1Aw2_groups,
+
+    IdxGroupsByC         *w0Az0_groups,
+    Direct_Access_List     *w0Az1_list,
+    IdxGroupsByC         *w1Az1_groups,
+    IdxGroupsByC         *w1Az2_groups,
+
+    VSPINT                     randNum,
+    Problem               *problem,
+    VSPINT                givenIndFlip,
+    char                  givenVarFlip
+)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+
+    WARN_IF_NOT_DEBUG_MODE ;
+
+    VSPINT i ;
+    VSPINT n     = problem->graph->n ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT *c    = problem->graph->c ;
+    VSPINT u     = problem->u ;
+
+    /*------------------------------------------------------------------------*/
+    // Basic input validation
+    /*------------------------------------------------------------------------*/
+    if(!IN_RANGE(givenIndFlip, 0, n) && givenIndFlip != EMPTY)
+    {
+        ERR("Given flip out of bounds") ;
+    }
+
+    // Check feasibility
+    if(givenVarFlip == 'z')
+    {
+        if(*wgtz + gamma > u)
+        {
+            ERR("Infeasible neutral upflip selected") ;
+        }
+    }
+
+    /*------------------------------------------------------------------------*/
+    // Actual checks
+    /*------------------------------------------------------------------------*/
+
+    bool is_w1Az2 = false ;
+    UNUSED VSPINT dnflipWitness = EMPTY ;
+
+
+    bool is_z0Aw1cgamma = false ;
+    UNUSED VSPINT upflipWitness = EMPTY ;
+
+
+    // If there is a w1Az2 flip but it's infeasible, we quit neutral
+    // upflips early. Thus in this case, it's not an issue if there are still
+    // neutral upflips left
+    bool is_lb_infeasible_is_w1Az2 = false ;
+    VSPINT lb_infeasible_witness = EMPTY ;
+
+    // Search for any flips.
+    for(i = 0 ; i < n ; i++)
+    {
+        if(w[i] == 1 && Az[i] == 2 && *wgtw > c[i])
+        {
+            is_w1Az2      = true ;
+            dnflipWitness = i ;
+        }
+        else if(w[i] == 1 && Az[i] == 2 && *wgtw == c[i])
+        {
+            is_lb_infeasible_is_w1Az2 = true ;
+            lb_infeasible_witness = i ;
+        }
+
+        if(*wgtz + gamma <= u)
+        {
+            if(z[i] == 0 && Aw[i] == 1 && c[i] == gamma)
+            {
+                is_z0Aw1cgamma = true ;
+                upflipWitness  = i ;
+            }
+        }
+    }
+
+    if(is_w1Az2)
+    {
+        if(givenVarFlip != 'w')
+        {
+            ERR("Downflip with wi = 1 and Azi = 2 not detected") ;
+        }
+
+        if(givenIndFlip != EMPTY)
+        {
+            if(w[givenIndFlip] != 1 || Az[givenIndFlip] != 2)
+            {
+                ERR("Malformed flip") ;
+            }
+        }
+        else ERR("Given empty flip when there is one") ;
+    }
+    else if(is_z0Aw1cgamma)
+    {
+        // If there's a neutral upflips and there is no worry about making Az 3
+        if(givenVarFlip != 'z' && is_lb_infeasible_is_w1Az2 == false)
+        {
+            ERR("Neutral flip not detected") ;
+        }
+
+        if(givenIndFlip != EMPTY)
+        {
+            if(z[givenIndFlip] != 0 || Aw[givenIndFlip] != 1 || c[givenIndFlip] != gamma)
+            {
+                ERR("Malformed flip") ;
+            }
+        }
+        // else ERR("Given empty flip when there is one") ;
+    }
+    else
+    {
+        if(givenIndFlip != EMPTY || givenVarFlip != '\0')
+        {
+            ERR("No flip exists, but one is claimed") ;
+        }
+    }
+    return ;
+}
+
+
 void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2
 (
     VSPINT                          *z,
@@ -364,7 +511,16 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
 {
     SET_FUNCTION_COUNTER ;
 
-    // SET_FUNCTION_COUNTER ;
+#ifdef DEBUG
+        Check_All_Data
+        (
+            z, Az, *wgtz, w, Aw, *wgtw,
+            z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
+            w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
+            problem
+        ) ;
+#endif 
+
     VSPINT indFlip ;
     char   varFlip ;
 
@@ -373,15 +529,7 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
     VSPINT numFlips = 0 ;
     while( 1 )
     {
-        #ifdef DEBUG
-            Check_All_Data
-            (
-                z, Az, *wgtz, w, Aw, *wgtw,
-                z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
-                w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
-                problem
-            ) ;
-        #endif 
+
 
         if(numFlips >= max_num_upflips) break ;       
 
@@ -429,16 +577,7 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
         else
         {
             break ;
-        }
-        #ifdef DEBUG
-            Check_All_Data
-            (
-                z, Az, *wgtz, w, Aw, *wgtw,
-                z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
-                w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
-                problem
-            ) ;
-        #endif       
+        }     
     }
 
     return ;
@@ -449,150 +588,7 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
 
 
 
-/*----------------------------------------------------------------------------*/
-// Check:
-// If there is a downflip with wi = 1 and Azi >= 2, then the given flip is such
-// a downflip
-// If there is no such downflip, and there is a feasible, neutral upflip in z,
-// then the given flip is such a flip
-// Else, if there is no such upflip or downflip, the given EMPTY
-/*----------------------------------------------------------------------------*/
-void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2_Check
-(
-    VSPINT                          *z,
-    VSPINT                         *Az,
-    VSPINT                          *w,
-    VSPINT                         *Aw,
-    VSPINT                       *wgtz,
-    VSPINT                       *wgtw,
-    IdxGroupsByC         *z0Aw0_groups,
-    Direct_Access_List     *z0Aw1_list,
-    IdxGroupsByC         *z1Aw1_groups,
-    IdxGroupsByC         *z1Aw2_groups,
 
-    IdxGroupsByC         *w0Az0_groups,
-    Direct_Access_List     *w0Az1_list,
-    IdxGroupsByC         *w1Az1_groups,
-    IdxGroupsByC         *w1Az2_groups,
-
-    VSPINT                     randNum,
-    Problem               *problem,
-    VSPINT                givenIndFlip,
-    char                  givenVarFlip
-)
-{
-    static long long unsigned count = 0 ;
-    count++ ;
-
-    WARN_IF_NOT_DEBUG_MODE ;
-
-    VSPINT i ;
-    VSPINT n     = problem->graph->n ;
-    VSPINT gamma = problem->graph->max_vtx_cost ;
-    VSPINT *c    = problem->graph->c ;
-    VSPINT u     = problem->u ;
-
-    /*------------------------------------------------------------------------*/
-    // Basic input validation
-    /*------------------------------------------------------------------------*/
-    if(!IN_RANGE(givenIndFlip, 0, n) && givenIndFlip != EMPTY)
-    {
-        ERR("Given flip out of bounds") ;
-    }
-
-    // Check feasibility
-    if(givenVarFlip == 'z')
-    {
-        if(*wgtz + gamma > u)
-        {
-            ERR("Infeasible neutral upflip selected") ;
-        }
-    }
-
-    /*------------------------------------------------------------------------*/
-    // Actual checks
-    /*------------------------------------------------------------------------*/
-
-    bool is_w1Az2 = false ;
-    UNUSED VSPINT dnflipWitness = EMPTY ;
-
-
-    bool is_z0Aw1cgamma = false ;
-    UNUSED VSPINT upflipWitness = EMPTY ;
-
-
-    // If there is a w1Az2 flip but it's infeasible, we quit neutral
-    // upflips early. Thus in this case, it's not an issue if there are still
-    // neutral upflips left
-    bool is_lb_infeasible_is_w1Az2 = false ;
-    VSPINT lb_infeasible_witness = EMPTY ;
-
-    // Search for any flips.
-    for(i = 0 ; i < n ; i++)
-    {
-        if(w[i] == 1 && Az[i] == 2 && *wgtw > c[i])
-        {
-            is_w1Az2      = true ;
-            dnflipWitness = i ;
-        }
-        else if(w[i] == 1 && Az[i] == 2 && *wgtw == c[i])
-        {
-            is_lb_infeasible_is_w1Az2 = true ;
-            lb_infeasible_witness = i ;
-        }
-
-        if(*wgtz + gamma <= u)
-        {
-            if(z[i] == 0 && Aw[i] == 1 && c[i] == gamma)
-            {
-                is_z0Aw1cgamma = true ;
-                upflipWitness  = i ;
-            }
-        }
-    }
-
-    if(is_w1Az2)
-    {
-        if(givenVarFlip != 'w')
-        {
-            ERR("Downflip with wi = 1 and Azi = 2 not detected") ;
-        }
-
-        if(givenIndFlip != EMPTY)
-        {
-            if(w[givenIndFlip] != 1 || Az[givenIndFlip] != 2)
-            {
-                ERR("Malformed flip") ;
-            }
-        }
-        else ERR("Given empty flip when there is one") ;
-    }
-    else if(is_z0Aw1cgamma)
-    {
-        // If there's a neutral upflips and there is no worry about making Az 3
-        if(givenVarFlip != 'z' && is_lb_infeasible_is_w1Az2 == false)
-        {
-            ERR("Neutral flip not detected") ;
-        }
-
-        if(givenIndFlip != EMPTY)
-        {
-            if(z[givenIndFlip] != 0 || Aw[givenIndFlip] != 1 || c[givenIndFlip] != gamma)
-            {
-                ERR("Malformed flip") ;
-            }
-        }
-        // else ERR("Given empty flip when there is one") ;
-    }
-    else
-    {
-        if(givenIndFlip != EMPTY || givenVarFlip != '\0')
-        {
-            ERR("No flip exists, but one is claimed") ;
-        }
-    }
-    return ;
-}
 
 
 

@@ -85,20 +85,35 @@ Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae)
     if(Ae == NULL)
     {
         Graph->Ae = malloc(  nz     * sizeof(VSPINT) ) ;
+        Graph->owns_Ae = true ;
     }
-    else Graph->Ae = Ae ;
+    else
+    {
+        Graph->Ae = Ae ;
+        Graph->owns_Ae = false ;
+    }
 
     if(Ai == NULL)
     {
         Graph->Ai = malloc(  nz     * sizeof(VSPINT) ) ;
+        Graph->owns_Ai = true ;
     }
-    else Graph->Ai = Ai ;
+    else
+    {
+        Graph->Ai = Ai ;
+        Graph->owns_Ai = false ;
+    }
 
     if(Ap == NULL)
     {
+        Graph->owns_Ap = true ;
         Graph->Ap = malloc( (n + 1) * sizeof(VSPLONG)  ) ;
     }
-    else Graph->Ap = Ap ;
+    else
+    {
+        Graph->owns_Ap = false ;
+        Graph->Ap = Ap ;
+    }
 
     Graph->c = malloc(  n      * sizeof(VSPINT)  ) ;
     return Graph ;
@@ -106,9 +121,9 @@ Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae)
 
 void Destroy_Graph(Graph *Graph)
 {
-    free(Graph->Ae) ;
-    free(Graph->Ai) ;
-    free(Graph->Ap) ;
+    if(Graph->owns_Ae) free(Graph->Ae) ;
+    if(Graph->owns_Ai) free(Graph->Ai) ;
+    if(Graph->owns_Ap) free(Graph->Ap) ;
     free(Graph->c ) ;
     free(Graph) ;
 }

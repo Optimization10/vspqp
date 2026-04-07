@@ -129,6 +129,12 @@ typedef struct
     VSPINT min_vtx_cost ;
     VSPINT max_vtx_cost ;
     VSPINT total_vtx_cost ;
+
+    // If true, then memory was allocated by the graph constructor
+    // which needs to be freed by the destroyer
+    bool owns_Ai ;
+    bool owns_Ap ;
+    bool owns_Ae ;
 } Graph ;
 
 typedef enum match_type_enum
