@@ -235,7 +235,8 @@ void Read_hager6_File
     {
         *Ai = NULL ;
         *Ap = NULL ;
-    } return  ;
+        return ;
+    } ;
 
     fread(tempAi, sizeof(int32_t), nztemp, fp);
 
@@ -245,7 +246,8 @@ void Read_hager6_File
         free(tempAi) ;
         *Ai = NULL ;
         *Ap = NULL ;
-    } return  ;
+        return ;
+    }  ;
 
     fread(tempAp, sizeof(int64_t), ntemp + 1, fp);
 
