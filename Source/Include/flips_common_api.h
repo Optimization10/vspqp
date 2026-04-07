@@ -31,13 +31,7 @@
 // Y1 ---> 1
 #define GET_ZI(x) ( x >= 2 )
 
-// X0 = 0 --> 1 = Y_VAR
-// Y0 = 1 --> 0 = X_VAR
-// X1 = 2 --> 1 = Y_VAR
-// Y1 = 3 --> 0 = X_VAR
-#define GET_OTHER_VAR(flip)   ( ( (flip) + 1) % 2 )
-#define IS_UPFLIP(flip) ( (flip) <= 1 )
-#define IS_DNFLIP(flip) ( (flip) >= 2 )
+
 
 // 0 --> 1
 // 1 --> 0

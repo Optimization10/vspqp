@@ -99,7 +99,7 @@ void SelectRandomOptimalBeneficialFlip
     if(cval != EMPTY)
     {
         gain =  -(cval - gamma * 2) ;
-        if(gain > maxFeasPosGain && FEASIBLE_DNFLIP(wgtx, cval))
+        if(gain > maxFeasPosGain)
         {
             maxFeasPosGain = gain ;
             feasPosGains[XDN] = gain ;
@@ -113,7 +113,7 @@ void SelectRandomOptimalBeneficialFlip
         if(cval != EMPTY)
         {
             gain =  -(cval - gamma * 1) ;
-            if(gain > maxFeasPosGain && FEASIBLE_DNFLIP(wgtx, cval))
+            if(gain > maxFeasPosGain)
             {
                 maxFeasPosGain = gain ;
                 feasPosGains[XDN] = gain ;
@@ -128,7 +128,7 @@ void SelectRandomOptimalBeneficialFlip
     if(cval != EMPTY)
     {
         gain =  -(cval - gamma * 2) ;
-        if(gain > maxFeasPosGain && FEASIBLE_DNFLIP(wgty, cval))
+        if(gain > maxFeasPosGain)
         {
             maxFeasPosGain = gain ;
             feasPosGains[YDN] = gain ;
@@ -142,7 +142,7 @@ void SelectRandomOptimalBeneficialFlip
         if(cval != EMPTY)
         {
             gain =  -(cval - gamma * 1) ;
-            if(gain > maxFeasPosGain && FEASIBLE_DNFLIP(wgty, cval))
+            if(gain > maxFeasPosGain)
             {
                 maxFeasPosGain = gain ;
                 feasPosGains[YDN] = gain ;
@@ -521,27 +521,23 @@ void FeasibleBeneficialFlipSelector_Check
         }
     }
 
-    if( FEASIBLE_DNFLIP(wgtx, cx1) )
+
+    if(x1gain > trueBestGain)
     {
-        if(x1gain > trueBestGain)
-        {
-            trueBestGain    = x1gain ;
-            trueBestGainInd = x1witness ;
-            trueBestGainVar = 'x' ;
-            trueBestGainDir = -1 ;
-        }
+        trueBestGain    = x1gain ;
+        trueBestGainInd = x1witness ;
+        trueBestGainVar = 'x' ;
+        trueBestGainDir = -1 ;
     }
 
-    if( FEASIBLE_DNFLIP(wgty, cy1) )
+    if(y1gain > trueBestGain)
     {
-        if(y1gain > trueBestGain)
-        {
-            trueBestGain    = y1gain ;
-            trueBestGainInd = y1witness ;
-            trueBestGainVar = 'y' ;
-            trueBestGainDir = -1 ;
-        }
+        trueBestGain    = y1gain ;
+        trueBestGainInd = y1witness ;
+        trueBestGainVar = 'y' ;
+        trueBestGainDir = -1 ;
     }
+
 
     /*------------------------------------------------------------------------*/
     // Compute the gain of the given flip. Load the given and best flips into
@@ -780,11 +776,6 @@ void FeasibleStrictlyBeneficialFlipSelector_Check
     if(givenFlip.i != EMPTY)
     {
         if(givenFlip.dir == 1 && !FEASIBLE_UPFLIP(givenFlip.wgt, givenFlip.ci, givenFlip.u) )
-        {
-            ERR("Infeasible flip") ;
-        }
-
-        if(givenFlip.dir == -1 && !FEASIBLE_DNFLIP(givenFlip.wgt, givenFlip.ci) )
         {
             ERR("Infeasible flip") ;
         }
@@ -1092,11 +1083,6 @@ void FlipSelector_Check_v5
         {
             ERR("Infeasible flip") ;
         }
-
-        if(givenFlip.dir == -1 && !FEASIBLE_DNFLIP(givenFlip.wgt, givenFlip.ci) )
-        {
-            ERR("Infeasible flip") ;
-        }
     } 
 
 
@@ -1129,7 +1115,7 @@ void FlipSelector_Check_v5
         if(xi)
         {
             gain = GAIN_FLIP(DOWN, ci, gamma, Ayi) ;
-            if(gain > maxFeasGain && FEASIBLE_DNFLIP(wgtx, ci))
+            if(gain > maxFeasGain)
             {
                 maxFeasGain = gain ;
                 trueFlip.Awi = Ayi ;
@@ -1163,7 +1149,7 @@ void FlipSelector_Check_v5
         if(yi)
         {
             gain = GAIN_FLIP(DOWN, ci, gamma, Axi) ;
-            if(gain > maxFeasGain && FEASIBLE_DNFLIP(wgty, ci))
+            if(gain > maxFeasGain)
             {
                 maxFeasGain = gain ;
                 trueFlip.Awi = Axi ;

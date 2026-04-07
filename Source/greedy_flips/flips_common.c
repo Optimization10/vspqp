@@ -220,13 +220,13 @@ void Compute_Feasibility_And_Gains
         retGains [Y0] = GAIN_FLIP(1,  c[inds[Y0]], gamma, Ax[inds[Y0]]) ;
     }
 
-    if(inds[X1] != EMPTY && FEASIBLE_DNFLIP(wgtx, c[inds[X1]]) )
+    if(inds[X1] != EMPTY)
     {
         retIsFeas[X1] = 1 ;
         retGains [X1] = GAIN_FLIP(-1,  c[inds[X1]], gamma, Ay[inds[X1]]) ;
     }
 
-    if(inds[Y1] != EMPTY && FEASIBLE_DNFLIP(wgty, c[inds[Y1]]) )
+    if(inds[Y1] != EMPTY)
     {
         retIsFeas[Y1] = 1 ;
         retGains [Y1] = GAIN_FLIP(-1,  c[inds[Y1]], gamma, Ax[inds[Y1]]) ;
