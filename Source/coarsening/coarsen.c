@@ -212,9 +212,8 @@ static Graph* Graph_Coarsen
     }
 
     /* Update coarse graph */
-    Graph_Coarse->n     = n_coarse ;
-    Graph_Coarse->nz    = munch ;
-
+    Graph_Coarse->n              = n_coarse ;
+    Graph_Coarse->nz             = munch ;
     Graph_Coarse->min_vtx_cost   = alpha_coarse ;
     Graph_Coarse->max_vtx_cost   = gamma_coarse ;
     Graph_Coarse->total_vtx_cost = GraphFine->total_vtx_cost ;
@@ -507,15 +506,13 @@ Problem *Problem_Recursive_Coarsen
 {
     SET_FUNCTION_COUNTER ;
 
-    VSPINT n_finest = probFinest->graph->n ;
-    Problem *P, *coarse_P, *coarsest_P ;
+    VSPINT    n_finest  = probFinest->graph->n ;
+    VSPINT    l ;
+    Problem  *P         = probFinest ;
+    Problem  *coarse_P ;
+    Problem  *coarsest_P ;
 
-    P = probFinest ;
-    bool stop = false ;
-
-    // After the loop, P will be the coarsest problem
-    VSPINT l = 0 ; // Invariant: l = # of coarsenings
-
+    l = 0 ; // Invariant: l = # of coarsenings
     while( 1 )
     {
         // Match P
@@ -529,16 +526,7 @@ Problem *Problem_Recursive_Coarsen
 
         // Coarsen P
         coarse_P = Problem_Coarsen(P, options) ;
-
-        // Set the level
-        coarse_P->level = P->level + 1 ;
-
-        // Set the total graph weight
-        coarse_P->graph->total_vtx_cost = P->graph->total_vtx_cost ;
-
-        // Link the child and parent problems
-        coarse_P->parent_problem = P ;
-        P       ->child_problem  = coarse_P ;    
+ 
         if(Graph_Density(coarse_P->graph->n, coarse_P->graph->nz) > 0.4
            || coarse_P->graph->n < 10)
         {
@@ -555,18 +543,14 @@ Problem *Problem_Recursive_Coarsen
         P = coarse_P ;
         l++ ;
     }
- 
     coarsest_P->child_problem = NULL ;
 
     /* Set upper bounds */
-    Problem *pA = coarsest_P ;
-    while(pA != NULL)
+    P = coarsest_P ;
+    while(P != NULL)
     {
-       SetUpperBound(pA, options) ;
-       pA = pA->parent_problem ;
+       SetUpperBound(P, options) ;
+       P = P->parent_problem ;
     }
-    
-    // P is coarse problem now and is being returned
-    // ince we hit second stopping criterion
     return coarsest_P ;
 }
