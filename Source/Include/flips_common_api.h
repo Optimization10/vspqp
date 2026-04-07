@@ -43,14 +43,7 @@
 #define GET_VAR(x) ( (x) % 2)
 
 #define UNLOCKED(locked, i) (  ((locked) == NULL) || ( !(locked)[(i)] )  )
-
 #define FEASIBLE_UPFLIP(wgt, ci, u) ( (wgt) + (ci) <= (u) )
-
-// Lower bound of 1 is disabled
-#define FEASIBLE_DNFLIP(wgt, ci) ( 1 )
-
-#define IS_FEASIBLE_FLIP(zi, wgt, ci, u) ( zi ? FEASIBLE_DNFLIP(wgt, ci) : FEASIBLE_UPFLIP(wgt, ci, u) )
-
 
 // zi = 0 -->  1
 // zi = 1 --> -1

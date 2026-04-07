@@ -178,7 +178,7 @@ static void Get_Upflip
     {
         // If not feasible return. No need to check for neutral upflip as
         // that wouldn't be feasible anyway
-        if(!IS_FEASIBLE_FLIP(0, wgt_z, c_top, u))
+        if(!FEASIBLE_UPFLIP(wgt_z, c_top, u))
         {
             *ind_flip = EMPTY ;
             return ;
@@ -194,7 +194,7 @@ static void Get_Upflip
     }
 
     // No strictly beneficial upflip. Try to return a feasible neutral upflip
-    if(!IS_FEASIBLE_FLIP(0, wgt_z, P->graph->max_vtx_cost, u))
+    if(!FEASIBLE_UPFLIP(wgt_z, P->graph->max_vtx_cost, u))
     {
         *ind_flip = EMPTY ;
         return ;
