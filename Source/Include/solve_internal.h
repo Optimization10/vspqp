@@ -52,7 +52,7 @@ void Best_Of_MC_And_Greedy_Flips
 ) ;
 
 
-typedef void (*Strategy)(State*, State*, Problem*, Options*);
+typedef void (*Strategy)(State*, State*, Problem*, Options*) ;
 
 bool Try_And_Keep_If_Better
 (

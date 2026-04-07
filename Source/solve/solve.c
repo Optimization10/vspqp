@@ -26,13 +26,6 @@ void Solve_Level
     State *X, State *Y, Problem *problem, Options *options
 )
 {
-    VSPFLOAT u_ratio = 0.6 ;
-    VSPFLOAT s_ratio = 0.47 ;
-    VSPFLOAT curr_ratio ;
-    VSPINT   L = problem->coarsest_level_num ;
-
-    curr_ratio = (s_ratio - u_ratio) / L + u_ratio ;
-
     Optimize(X, Y, problem, options) ;
     relaxed_to_vertex_separator(X, Y, problem) ;
     ResolveLevelDecideAndDo(X, Y, problem, options) ;

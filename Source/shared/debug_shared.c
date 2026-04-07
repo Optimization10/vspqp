@@ -1,5 +1,6 @@
 #include "shared_api.h"
 #include "limits.h"
+#include "utils.h"
 
 void DumpNeighs(VSPINT i, VSPINT *Ai, VSPLONG *Ap)
 {

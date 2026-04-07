@@ -35,34 +35,6 @@ bool Try_And_Keep_If_Better
     return better;
 }
 
-void strategy_mc_and_flips
-(
-    State *X, State *Y, Problem *problem, Options *options
-)
-{
-    Best_Of_MC_And_Greedy_Flips(X, Y, problem, options, 5);
-}
-
-void strategy_flips
-(
-    State *X, State *Y, Problem *problem, Options *options
-)
-{
-    Greedy_Flips(X, Y, problem, 9, (problem->level <= 2));
-}
-
-void strategy_fm
-(
-    State *X, State *Y, Problem *problem, Options *options
-)
-{
-    relaxed_to_vertex_separator(X, Y, problem);
-    VSPINT n_passes;
-    if (problem->level >= problem->coarsest_level_num / 2) n_passes = 3;
-    else n_passes = 2;
-    FM_Metis(X, Y, problem, options, n_passes);
-}
-
 void strategy_centroid_restart
 (
     State *X, State *Y, Problem *problem, Options *options
