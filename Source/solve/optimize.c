@@ -24,7 +24,7 @@ void TryFlipsManyStartingPoints
     VSPINT            numPassesInFlips
 ) ;
 
-static void Best_Of_MC_And_Greedy_Flips
+void Best_Of_MC_And_Greedy_Flips
 (
     State             *X,
     State             *Y,

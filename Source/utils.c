@@ -633,6 +633,14 @@ void copy_state(State *from, State *to)
     return ;
 }
 
+// Allocate + copy
+State *Clone_State(State *src)
+{
+    State *dst = Construct_State(src->point->n);
+    copy_state(src, dst);
+    return dst;
+}
+
 
 
 /* Use when you want to sort an array in increasing order using qsort from
