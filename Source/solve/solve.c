@@ -143,6 +143,25 @@ void Final_Cleanup
     Destroy_Coarse_Problems(problemFinest) ;
 }
 
+solve_result *Package_Result(State *X, State *Y, Problem *P)
+{
+    VSPINT n = P->graph->n;
+    solve_result *result = malloc(sizeof(*result));
+
+    result->x = malloc(n * sizeof(VSPINT));
+    result->y = malloc(n * sizeof(VSPINT));
+    memcpy(result->x, X->point->int_part, n * sizeof(VSPINT));
+    memcpy(result->y, Y->point->int_part, n * sizeof(VSPINT));
+
+    result->weight_x = X->weight;
+    result->weight_y = Y->weight;
+    result->obj_val  = result->weight_x + result->weight_y;
+
+    return result;
+}
+
+
+
 /* Set the cost of each vector to 1, each edge weight to 1, and
    the balance constraints as 60% of the total number of vertices             */
 void set_default_problem_data(Problem* problem) {
@@ -334,8 +353,14 @@ solve_result *VSP_Solve
 
     // Cleanup
     relaxed_to_vertex_separator(X_0, Y_0, probFinest) ;
-    solve_result *result = malloc( sizeof(*result) ) ;
-    Final_Cleanup(X_0, Y_0, probFinest, result) ;
+
+
+    solve_result *result = Package_Result(X_0, Y_0, probFinest) ;
+    Destroy_State(X_0) ;
+    Destroy_State(Y_0) ;
+    Destroy_Coarse_Problems(probFinest) ;
+    return result ;
+
 
     Set_Global_Problem(NULL) ;
     return result ;
