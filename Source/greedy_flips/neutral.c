@@ -49,10 +49,86 @@ Rmk 2: When we say "do all feasible, strictly beneficial flips", it is only
 ********************************************************************************
 
 ------------------------------------------------------------------------------*/
+#include "greedy_flips_internal.h"
 
-#include "neutral_strategies_v4.h"
-#include "tmp.h"
 
+void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2
+(
+    VSPINT                          *z,
+    VSPINT                         *Az,
+    VSPINT                          *w,
+    VSPINT                         *Aw,
+    VSPINT                       *wgtz,
+    VSPINT                       *wgtw,
+    IdxGroupsByC         *z0Aw0_groups,
+    Direct_Access_List     *z0Aw1_list,
+    IdxGroupsByC         *z1Aw1_groups,
+    IdxGroupsByC         *z1Aw2_groups,
+
+    IdxGroupsByC         *w0Az0_groups,
+    Direct_Access_List     *w0Az1_list,
+    IdxGroupsByC         *w1Az1_groups,
+    IdxGroupsByC         *w1Az2_groups,
+
+    VSPINT                     randNum,
+    Problem               *problem,
+    VSPINT                 *retIndFlip,
+    char                   *retVarFlip
+)
+{
+    SET_FUNCTION_COUNTER ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT u = problem->u ;
+    #ifdef DEBUG
+        Check_All_Data
+        (
+            z, Az, *wgtz, w, Aw, *wgtw,
+            z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
+            w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
+            problem
+        ) ;
+    #endif
+
+    *retIndFlip = EMPTY ;
+    *retVarFlip = '\0' ;
+
+
+    // If wi = 1, Azi = 2 exists
+    if(w1Az2_groups->minHeap->sizeHeap )
+    {
+        // Choose a random downflip corresponding to the root. Most likely,
+        // we will end up doing all of them, so randomness does not change
+        // anything. But it's here for good measure
+        VSPINT cval      = w1Az2_groups->minHeap->heap[1] ;
+        VSPINT *group    = w1Az2_groups->groups[cval] ;
+        VSPINT sizeGroup = w1Az2_groups->sizes[cval] ;
+
+        *retIndFlip      = group[ randNum % sizeGroup ] ;
+        *retVarFlip      = 'w' ;
+
+        goto RET ;
+    }
+
+    // Select a feasible neutral upflip
+    VSPINT sizeList = z0Aw1_list->size ;
+    if(sizeList && *wgtz + gamma <= u)
+    {
+        *retIndFlip = z0Aw1_list->list[randNum % sizeList] ;
+        *retVarFlip = 'z' ;
+    }
+
+RET :
+    #ifdef DEBUG
+        Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2_Check
+        (
+            z, Az, w, Aw, wgtz, wgtw, 
+            z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups, 
+            w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups, 
+            randNum, problem, *retIndFlip, *retVarFlip
+        );    
+    #endif
+    return ;
+}
 
 void Neutral_Flips_Strategy_1
 (
@@ -368,83 +444,7 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
     return ;
 }
 
-void Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2
-(
-    VSPINT                          *z,
-    VSPINT                         *Az,
-    VSPINT                          *w,
-    VSPINT                         *Aw,
-    VSPINT                       *wgtz,
-    VSPINT                       *wgtw,
-    IdxGroupsByC         *z0Aw0_groups,
-    Direct_Access_List     *z0Aw1_list,
-    IdxGroupsByC         *z1Aw1_groups,
-    IdxGroupsByC         *z1Aw2_groups,
 
-    IdxGroupsByC         *w0Az0_groups,
-    Direct_Access_List     *w0Az1_list,
-    IdxGroupsByC         *w1Az1_groups,
-    IdxGroupsByC         *w1Az2_groups,
-
-    VSPINT                     randNum,
-    Problem               *problem,
-    VSPINT                 *retIndFlip,
-    char                   *retVarFlip
-)
-{
-    SET_FUNCTION_COUNTER ;
-    VSPINT gamma = problem->graph->max_vtx_cost ;
-    VSPINT u = problem->u ;
-    #ifdef DEBUG
-        Check_All_Data
-        (
-            z, Az, *wgtz, w, Aw, *wgtw,
-            z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
-            w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
-            problem
-        ) ;
-    #endif
-
-    *retIndFlip = EMPTY ;
-    *retVarFlip = '\0' ;
-
-
-    // If wi = 1, Azi = 2 exists
-    if(w1Az2_groups->minHeap->sizeHeap )
-    {
-        // Choose a random downflip corresponding to the root. Most likely,
-        // we will end up doing all of them, so randomness does not change
-        // anything. But it's here for good measure
-        VSPINT cval      = w1Az2_groups->minHeap->heap[1] ;
-        VSPINT *group    = w1Az2_groups->groups[cval] ;
-        VSPINT sizeGroup = w1Az2_groups->sizes[cval] ;
-
-        *retIndFlip      = group[ randNum % sizeGroup ] ;
-        *retVarFlip      = 'w' ;
-
-        goto RET ;
-    }
-
-    // Select a feasible neutral upflip
-    VSPINT sizeList = z0Aw1_list->size ;
-    if(sizeList && *wgtz + gamma <= u)
-    {
-        *retIndFlip = z0Aw1_list->list[randNum % sizeList] ;
-        *retVarFlip = 'z' ;
-    }
-
-RET :
-    #ifdef DEBUG
-        Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2_Check
-        (
-            z, Az, w, Aw, wgtz, wgtw, 
-            z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups, 
-            w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups, 
-            randNum, problem, *retIndFlip, *retVarFlip
-        );    
-    #endif
-    return ;
-}
 
 
 
