@@ -458,37 +458,8 @@ void ResolveLevelDecideAndDo
     Options     *options
 )
 {
-    #ifdef DEBUG
-        static long long unsigned count = 0 ;
-        count++ ;
-    #endif
+    bool dec = restart_decide(options->restart_decision, 0, 0, problem);
+    if (!dec || problem->child_problem == NULL) return;
 
-    bool dec ;
-    dec = restart_decide(options->restart_decision, 0, 0, problem);
-
-    if(dec == false || problem->child_problem == NULL) return ;
-
-    /* Local vars */
-    VSPFLOAT obj_best, obj_cent ;
-
-    State *Xcent = Construct_State(problem->graph->n) ;
-    State *Ycent = Construct_State(problem->graph->n) ;
-
-    set_initial_guess(Xcent, Ycent, problem, options) ;
-    Optimize(Xcent, Ycent, problem, options, true, 0) ;
-    Round_Down_Fractions(Xcent, Ycent, problem) ;
-
-    /* If the centroid is better, switch */
-    obj_best = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
-    obj_cent = compute_obj(Xcent, Ycent, problem, problem->graph->max_vtx_cost) ;
-
-    if(obj_cent > obj_best)
-    {
-        Swap_Mem(X, Xcent, sizeof( State )  ) ;
-        Swap_Mem(Y, Ycent, sizeof( State )  ) ;
-    }
-
-    Destroy_State(Xcent) ;
-    Destroy_State(Ycent) ;
-    return ;
+    Try_And_Keep_If_Better(X, Y, problem, strategy_centroid_restart, options);
 }
