@@ -42,7 +42,7 @@ void Solve_Level
 
     curr_ratio = (s_ratio - u_ratio) / L + u_ratio ;
 
-    Optimize(X, Y, problem, options, true, 0) ;
+    Optimize(X, Y, problem, options) ;
     relaxed_to_vertex_separator(X, Y, problem) ;
     ResolveLevelDecideAndDo(X, Y, problem, options) ;
 }

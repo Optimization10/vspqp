@@ -28,9 +28,7 @@ void Optimize
     State                     *X,
     State                     *Y,
     Problem             *problem,
-    Options             *options,
-    bool          useManyFlipsPoints,
-    VSPINT         whereToUseFMFlips
+    Options             *options
 ) ;
 
 void Multi_Start_Flips

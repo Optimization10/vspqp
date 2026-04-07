@@ -179,9 +179,7 @@ void Optimize
     State                     *X,
     State                     *Y,
     Problem             *problem,
-    Options             *options,
-    bool          useManyFlipsPoints,
-    VSPINT         whereToUseFMFlips
+    Options             *options
 )
 {
     static long long unsigned count = 0 ;

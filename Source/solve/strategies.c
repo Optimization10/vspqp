@@ -69,6 +69,6 @@ void strategy_centroid_restart
 )
 {
     set_initial_guess(X, Y, problem, options);
-    Optimize(X, Y, problem, options, true, 0);
+    Optimize(X, Y, problem, options);
     Round_Down_Fractions(X, Y, problem);
 }
