@@ -1,6 +1,6 @@
 #include "core.h"
 #include "FM_internal.h"
-#include "ds_api.h"
+#include "data_structures.h"
 #include "shared_api.h"
 
 /*----------------------------------------------------------------------------*/

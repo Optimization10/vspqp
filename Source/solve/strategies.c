@@ -1,7 +1,7 @@
 #include "solve_internal.h"
 #include "utils.h"
-#include "greedy_flips_api.h"
-#include "FM_api.h"
+#include "greedy_flips.h"
+#include "FM.h"
 
 // Run a strategy on a cloned point. If it beats the original, swap.
 // Returns true if the clone was better.

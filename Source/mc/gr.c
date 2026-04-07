@@ -1,6 +1,5 @@
 #include "shared_api.h"
-#include "gr_api.h"
-#include "mc_api.h"
+#include "mc_internal.h"
 
 
 

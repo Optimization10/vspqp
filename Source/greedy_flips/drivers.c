@@ -1,6 +1,6 @@
 #include "core.h"
 #include "VSPQP.h"
-#include "ds_api.h"
+#include "data_structures.h"
 // #include "flips_context.h"
 #include "greedy_flips_internal.h"
 // #include "flips_private_v5.h"

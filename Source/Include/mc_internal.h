@@ -2,7 +2,7 @@
 #define MC_INTERNAL_H
 
 #include "shared_api.h"
-#include "mc_api.h" // IWYU pragma: keep
+#include "mc.h"
 
 
 /******************************************************************************

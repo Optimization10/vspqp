@@ -1,7 +1,7 @@
 #include "solve_internal.h"
 #include "VSPQP.h"
 #include "core.h"
-#include "coarsen_api.h"
+#include "coarsen.h"
 #include "utils.h"
 #include <string.h>
 

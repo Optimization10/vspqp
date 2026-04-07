@@ -2,7 +2,7 @@
 #define COARSEN_INTERNAL_H
 
 #include "shared_api.h"
-#include "coarsen_api.h"
+#include "coarsen.h"
 #include "core.h"
 
 VSPINT* get_all_matches

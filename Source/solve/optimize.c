@@ -1,7 +1,7 @@
 #include "solve_internal.h"
-#include "mc_api.h"
-#include "FM_api.h"
-#include "greedy_flips_api.h"
+#include "mc.h"
+#include "FM.h"
+#include "greedy_flips.h"
 #include "utils.h"
 
 

@@ -2,7 +2,7 @@
 #define FM_INTERNAL_H
 
 #include "shared_api.h"
-#include "FM_api.h" // IWYU pragma: keep
+#include "FM.h" // IWYU pragma: keep
 
 
 #define INC_DEC(a, b, val) do {(a) += (val); (b) -= (val);} while(0)

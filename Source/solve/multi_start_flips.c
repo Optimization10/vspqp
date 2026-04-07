@@ -1,6 +1,6 @@
 #include "shared_api.h"
 #include "solve_internal.h"
-#include "greedy_flips_api.h"
+#include "greedy_flips.h"
 #include "utils.h"
 
 

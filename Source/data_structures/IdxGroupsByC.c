@@ -1,5 +1,5 @@
 #include "core.h"
-#include "ds_api.h"
+#include "data_structures.h"
 #include "shared_functions.h"
 
 IdxGroupsByC *IdxGroupsByC_Init
