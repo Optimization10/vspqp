@@ -24,7 +24,7 @@ VSPFLOAT zAw
     State *Y
 ) ;
 
-void Round_Down_Fractions_Point
+void Round_Down_Fractions
 (
     State           *Z,
     State           *W,

@@ -19,7 +19,7 @@ void Greedy_Flips
     bool              deep_search
 )
 {
-    Round_Down_Fractions_Point(X, Y, problem) ;
+    Round_Down_Fractions(X, Y, problem) ;
 
     static long long unsigned count = 0 ;
     count++ ;
@@ -137,7 +137,7 @@ void Flips_Dep
     // clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
 
     SET_FUNCTION_COUNTER ;
-    Round_Down_Fractions_Point(X, Y, problem) ;
+    Round_Down_Fractions(X, Y, problem) ;
 
     VSPINT *x  = X->point->int_part ;
     VSPINT *Ax = X->Az->int_part ;

@@ -376,7 +376,7 @@ void resolve_frac_entry
     return ;
 }
 
-void Round_Down_Fractions_Point
+void Round_Down_Fractions
 (
     State           *Z,
     State           *W,
@@ -735,39 +735,6 @@ void DumpIntArray(VSPINT *array, VSPINT len, char *outName)
     return ;
 }
 
-// void DumpGrad(VSPINT *c, VSPFLOAT gamma, Az *Az, char *outName)
-// {
-//     /* Open a file in output */
-//     char fileName[300] = {'\0'} ;
-//     strcpy(fileName, "output/") ;
-//     strcat(fileName, outName) ;
-//     FILE *file = fopen(fileName, "w") ;
-
-//     for(VSPINT i = 0 ; i < Az->n ; i++)
-//     {
-//         VSPFLOAT Azi = Azi(i, Az) ;
-//         fprintf(file, "%f\n", c[i] - gamma * Azi) ;
-//     }
-//     fclose(file) ;
-//     return ;
-// }
-
-// void DumpAz(Az *Az, char *outName)
-// {
-//     /* Open a file in output */
-//     char fileName[300] = {'\0'} ;
-//     strcpy(fileName, "output/") ;
-//     strcat(fileName, outName) ;
-//     FILE *file = fopen(fileName, "w") ;
-
-//     for(VSPINT i = 0 ; i < Az->n ; i++)
-//     {
-//         VSPFLOAT Azi = Azi(i, Az) ;
-//         fprintf(file, "%f\n", Azi) ;
-//     }
-//     fclose(file) ;
-//     return ;
-// }
 
 /* Set frac entry, but do NOT update the weight */
 void SetFracEntry

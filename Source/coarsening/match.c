@@ -2,7 +2,6 @@
 #include "shared_api.h"
 #include "coarsen_internal.h"
 #include "shared_functions.h"
-#include "coarsen_internal.h"
 #include "ds_api.h"
 
 

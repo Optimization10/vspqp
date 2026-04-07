@@ -1,5 +1,4 @@
-#ifndef FLIPS_PUBLIC_V4_H
-#define FLIPS_PUBLIC_V4_H
+#ifndef GREEDY_FLIPS_H
 #include "shared_api.h"
 #include <stdbool.h>
 
