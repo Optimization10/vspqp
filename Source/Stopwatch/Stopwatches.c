@@ -1,6 +1,6 @@
 #include "VSPQP.h"
 #include "Stopwatch.h"
-#include "shared_api.h"
+
 #include <stdlib.h>
 #include "Stopwatches.h"
 #include <string.h>

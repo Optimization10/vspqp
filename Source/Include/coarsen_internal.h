@@ -1,7 +1,7 @@
 #ifndef COARSEN_INTERNAL_H
 #define COARSEN_INTERNAL_H
 
-#include "shared_api.h"
+
 #include "coarsen.h"
 #include "core.h"
 

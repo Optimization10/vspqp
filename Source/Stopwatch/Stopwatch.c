@@ -1,4 +1,3 @@
-#include"shared_api.h"
 #include<string.h>
 #include"Stopwatch.h"
 

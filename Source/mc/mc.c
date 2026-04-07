@@ -1,7 +1,5 @@
 #include "core.h"
-#include "shared_api.h"
 #include "mc_internal.h"
-#include "shared_functions.h"
 #include "utils.h"
 #include <stdio.h>
 

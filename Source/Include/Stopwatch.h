@@ -1,5 +1,6 @@
 #ifndef STOPWATCH_H
 #define STOPWATCH_H
+#include "core.h"
 #include<stdbool.h>
 
 typedef struct Stopwatch Stopwatch ;

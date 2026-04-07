@@ -1,8 +1,6 @@
 #include "core.h"
-#include "shared_api.h"
 #include "coarsen_internal.h"
 #include "coarsen.h"
-#include "shared_functions.h"
 #include <string.h>
 #include <time.h>
 #include <utils.h>

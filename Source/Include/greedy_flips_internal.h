@@ -1,6 +1,6 @@
 #ifndef GREEDY_FLIPS_INTERNAL_H
 #define GREEDY_FLIPS_INTERNAL_H
-// #include "shared_api.h"
+// 
 #include "data_structures.h"
 
 #include <stdbool.h>

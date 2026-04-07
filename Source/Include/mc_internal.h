@@ -1,7 +1,7 @@
 #ifndef MC_INTERNAL_H
 #define MC_INTERNAL_H
 
-#include "shared_api.h"
+
 #include "mc.h"
 
 

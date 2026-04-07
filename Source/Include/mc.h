@@ -1,7 +1,7 @@
 #ifndef MC_API_H
 #define MC_API_H
 
-#include "shared_api.h"
+
 
 typedef enum
 {

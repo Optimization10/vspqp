@@ -1,7 +1,7 @@
 #ifndef COARSENING_API_H
 #define COARSENING_API_H
 #include "core.h"
-#include "shared_api.h"
+
 
 void Graph_Simple_Match
 (

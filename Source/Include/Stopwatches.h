@@ -1,8 +1,9 @@
 #ifndef STOPWATCHES_H
 #define STOPWATCHES_H
 
+#include "core.h"
 #include "Stopwatch.h"
-#include "shared_api.h"
+
 
 typedef struct Stopwatches
 {

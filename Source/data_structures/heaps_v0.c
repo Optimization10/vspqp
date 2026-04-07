@@ -11,7 +11,6 @@ However, if i is not in the heap, there is no guarantee on ptrs[i]
 *******************************************************************************/
 
 #include "core.h"
-#include "shared_api.h"
 #include "data_structures.h"
 #include "utils.h"
 

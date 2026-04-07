@@ -1,5 +1,5 @@
 #ifndef GREEDY_FLIPS_H
-#include "shared_api.h"
+
 #include <stdbool.h>
 
 void Greedy_Flips

@@ -1,6 +1,9 @@
 #ifndef CORE_H
 #define CORE_H
 
+#include <stdbool.h>
+#include <math.h>
+#include <stdlib.h>  
 #include <stdio.h>
 #include "VSPQP.h"
 
