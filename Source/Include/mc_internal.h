@@ -35,4 +35,18 @@ VSPFLOAT LP_solver_0
     Options *options  /* Choose randomness or not                         */
 ) ;
 
+bool Is_LP_Optimal
+(
+  VSPINT              *z,
+  VSPINT               k,
+  VSPFLOAT            zk,
+  VSPINT           wgt_z,
+  Az                 *Aw,
+  VSPINT              *c,
+  VSPINT               u,
+  VSPFLOAT         gamma,
+  VSPINT      sum_all_ci,
+  Options       *options
+) ;
+
 #endif

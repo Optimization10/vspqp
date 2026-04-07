@@ -234,8 +234,6 @@ void copy_point(
 ) ;
 
 
-int compare_value_index_floats(const void *a, const void *b) ;
-
 
 void extract_matrix_col(
     VSPINT           *Ak, /* Array to store the column */

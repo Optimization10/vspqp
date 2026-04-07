@@ -446,6 +446,16 @@ VSPFLOAT LP_solver_4
  by sorting all the value densities
 */
 
+static int compare_value_index_floats(const void *a, const void *b) 
+{
+    value_index* A = (value_index*) a;
+    value_index* B = (value_index*) b;
+
+    if (A->float_value > B->float_value)     return -1; /* a < b  */
+    else if (A->float_value < B->float_value) return 1; /* a > b  */
+    else return 0;                                      /* a == b */
+}
+
 VSPFLOAT LP_solver_0
 (
     VSPFLOAT  *x,         /* solution                                         */

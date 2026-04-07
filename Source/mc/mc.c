@@ -1,6 +1,8 @@
+#include "core.h"
 #include "shared_api.h"
 #include "mc_internal.h"
 #include "shared_functions.h"
+#include "utils.h"
 #include <stdio.h>
 
 #define EPS (1E-10)
@@ -15,26 +17,11 @@ void mountain_climbing
     bool          is_gamma_org
 )
 {
-    static long long unsigned count = 0 ;
-    count++ ;
-
-    // printf("\nStarting mc with gamma_org=%lld", (long long) is_gamma_org ) ;
-    // printf("Value of gamma   : %f", gamma) ;
-    // printf("Val of gamma_org : %lld", (long long) problem->graph->max_vtx_cost) ;
-    fflush(stdout) ;
-
+    SET_FUNCTION_COUNTER ;
     #ifdef DEBUG
-        if(is_gamma_org)
-        {
-            VSP_ASSERT(equal(gamma, problem->graph->max_vtx_cost)) ;
-        }
-        else
-        {
-            VSP_ASSERT(gamma < problem->graph->max_vtx_cost) ;
-        }
+        if(is_gamma_org) VSP_ASSERT(equal(gamma,problem->graph->max_vtx_cost)) ;
+        else             VSP_ASSERT(gamma < problem->graph->max_vtx_cost) ;
     #endif
-
-
     TIMER_START ;
 
     #ifdef DEBUG
@@ -52,13 +39,8 @@ void mountain_climbing
     VSPINT bal = problem->u;
     VSPINT n   = problem->graph->n;
 
-    /* Allocate memory */
-    State *Xstar = Construct_State(n);
-    State *Ystar = Construct_State(n);
-
-    /* Initialize Xstar and Ystar as X and Y */
-    copy_state(X, Xstar);
-    copy_state(Y, Ystar);
+    State *Xstar = Clone_State(X) ;
+    State *Ystar = Clone_State(Y);
 
     VSPFLOAT obj = compute_obj(X, Y, problem, gamma);
     VSPINT loop = 0;
@@ -136,9 +118,6 @@ void mountain_climbing
             new_obj = LP_solver_4(X, Y->Az, c, bal, gamma, problem, options, 'x') ;
             new_obj += Y->weight;
             optimal_var = 'x';
-
-            // TEMP
-            // VSPFLOAT obj_dbg = compute_obj(State *X, State *Y, Problem *problem, VSPFLOAT gamma)
         }
 
         mc_count++ ;
