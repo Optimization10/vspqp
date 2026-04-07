@@ -140,11 +140,12 @@ void Levels_unselect
 
 solve_result *VSP_Solve
 (
-    VSPINT             n,
-    VSPLONG          *Ap,
-    VSPINT           *Ai,
-    VSPINT *          Ae, // Temporary argument while I'm refactoring
-    Options *options
+    VSPINT    n,
+    VSPLONG  *Ap,
+    VSPINT   *Ai,
+    VSPINT   *Ae,      // Temporary argument while I'm refactoring
+    Options  *options,
+    char     *name     // Optional. Problem name
 ) ;
 
 void destruct_options(Options* options) ;

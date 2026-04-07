@@ -11,12 +11,6 @@ void Graph_Simple_Match
     Options   *options
 ) ;
 
-Problem* Problem_Coarsen
-(
-    Problem *P,
-    Options *options
-) ;
-
 void Uncoarsen_Point
 (
     Problem    *fine_graph,

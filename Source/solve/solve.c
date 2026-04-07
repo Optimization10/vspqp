@@ -219,11 +219,12 @@ void check_for_complete_graph(Problem *problem)
 
 solve_result *VSP_Solve
 (
-    VSPINT             n,
-    VSPLONG          *Ap,
-    VSPINT           *Ai,
-    VSPINT           *Ae, // Temporary argument while I'm refactoring
-    Options     *options
+    VSPINT    n,
+    VSPLONG  *Ap,
+    VSPINT   *Ai,
+    VSPINT   *Ae,      // Temporary argument while I'm refactoring
+    Options  *options,
+    char     *name     // Optional. Problem name
 )
 {
     static long long unsigned count = 0 ;

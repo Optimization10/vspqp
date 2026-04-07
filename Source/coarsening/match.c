@@ -421,6 +421,158 @@ static void Match_Singletons
     }
 }
 
+// Can handle states where not all vertices are matched yet
+static void Check_cn
+(
+    VSPINT         n,
+    VSPINT        cn, 
+    VSPINT *matching
+)
+{
+    SET_FUNCTION_COUNTER ;
+
+    VSPINT i, j, k ;
+    VSPINT *seen = calloc(n, sizeof(VSPINT)) ;
+    VSPINT cn_local = 0 ;
+
+    for(i = 0 ; i < n ; i++)
+    {
+        if(seen[i] || !Is_Matched(i, matching)) continue ;
+
+        cn_local++ ;
+        j = get_match(i, matching) ;
+        k = get_match(j, matching) ;
+        seen[i] = 1 ;
+        seen[j] = 1 ;
+        seen[k] = 1 ;
+    }
+
+    #ifdef DEBUG
+        if(cn != cn_local)
+        {
+            ERR("Wrong number of coarse vertices") ;
+        }
+    #endif
+
+    free(seen) ;
+}
+
+
+// Check the following:
+// A vertex and its match(es) all have the same matchtype
+
+// If i has matchtype HEM, then it's matched to precisely one other vertex,
+// and this vertex is a neihbor
+
+// If i has matchtype brotherly, then it is matched to precisely one other
+// vertex and this vertex is NOT a neighbor
+
+// If i is in a 3-way match, then it is matched to precisely 2 other vertices,
+// and it neighbors at least one of them
+
+// cn is correct
+
+static void Additional_Match_Check
+(
+    Graph                 *Graph,
+    VSPINT                   lvl,
+    VSPINT             *matching,
+    VSPINT             *matchmap,
+    VSPINT          *invmatchmap,
+    match_type        *matchtype,
+    VSPINT                    cn
+)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+
+    VSPINT i, j, k ;
+    VSPLONG p, end ;
+
+    // Graph info
+    VSPINT   n   = Graph->n ;
+    VSPLONG  nz  = Graph->nz ;
+    VSPINT  *Ai  = Graph->Ai ;
+    VSPINT  *Ae  = Graph->Ae ;
+    VSPLONG *Ap  = Graph->Ap ;
+    VSPINT  *c   = Graph->c ;
+
+
+    // If i has matchtype HEM, then it's matched to precisely one other vertex,
+    // whose matchtype is also HEM, and these vertices are neighbors
+    for(i = 0 ; i < n ; i++)
+    {
+        j = get_match(i, matching) ;
+        k = get_match(j, matching) ;
+        VSP_ASSERT( IN_RANGE(j, 0, n) ) ;
+
+        if(matchtype[i] != matchtype[j])
+        {
+            ERR("Matched vertices don't have the same matchtype") ;
+        }
+
+        switch (matchtype[i])
+        {
+            case matchtype_HEM :
+                // Check that j is matched to i
+                if( get_match(j, matching) != i )
+                {
+                    ERR("Error in HEM pair") ;
+                }
+
+                // Check the matchtype of j is HEM
+                if(matchtype[j] != matchtype_HEM)
+                {
+                    ERR("Incorrect matchtype") ;
+                }
+
+                // Check that i, j are neighbors
+                if( !Are_Neighbors(i, j, Ai, Ap) )
+                {
+                    ERR("Nodes in HEM pair are not neighbors") ;
+                }
+                break ;
+            case matchtype_brotherly:
+                // Check that j is matched to i
+                if( get_match(j, matching) != i )
+                {
+                    ERR("Error in BM pair") ;
+                }
+
+                // Check the matchtype of j is BM
+                if(matchtype[j] != matchtype_brotherly)
+                {
+                    ERR("Incorrect matchtype") ;
+                }
+
+                // Check that i, j are NOT neighbors
+                if( Are_Neighbors(i, j, Ai, Ap) )
+                {
+                    ERR("Nodes in BM pair ARE neighbors") ;
+                }
+                break ;
+
+            case matchtype_3way:
+                // Check that i is in a 3-way match
+                k = get_match(j, matching) ;
+                VSP_ASSERT(k != i) ;
+                VSP_ASSERT(k != j) ;
+                if(get_match(k, matching) != i)
+                {
+                    ERR("Error in 3-way matching") ;
+                }
+
+                // Check that i neighbors at least one of j, k
+                if(!Are_Neighbors(i, j, Ai, Ap) && !Are_Neighbors(i, k, Ai, Ap)) 
+                {
+                    ERR("Invalid 3-way match") ;
+                }
+                break ;
+        }
+    }
+
+    Check_cn(n, cn, matching) ;
+}
 
 
 void Graph_Simple_Match
@@ -894,12 +1046,8 @@ void Graph_Simple_Match
     #ifdef DEBUG
         Match_Check
         (
-            n,
-            *cn,
-            matching,
-            matchmap,
-            invmatchmap,
-            matchtype
+            Graph->n,
+            M
         ) ;
 
         Additional_Match_Check
@@ -920,155 +1068,3 @@ void Graph_Simple_Match
     return ;
 }
 
-// Can handle states where not all vertices are matched yet
-static void Check_cn
-(
-    VSPINT         n,
-    VSPINT        cn, 
-    VSPINT *matching
-)
-{
-    SET_FUNCTION_COUNTER ;
-
-    VSPINT i, j, k ;
-    VSPINT *seen = calloc(n, sizeof(VSPINT)) ;
-    VSPINT cn_local = 0 ;
-
-    for(i = 0 ; i < n ; i++)
-    {
-        if(seen[i] || !Is_Matched(i, matching)) continue ;
-
-        cn_local++ ;
-        j = get_match(i, matching) ;
-        k = get_match(j, matching) ;
-        seen[i] = 1 ;
-        seen[j] = 1 ;
-        seen[k] = 1 ;
-    }
-
-    #ifdef DEBUG
-        if(cn != cn_local)
-        {
-            ERR("Wrong number of coarse vertices") ;
-        }
-    #endif
-
-    free(seen) ;
-}
-
-
-// Check the following:
-// A vertex and its match(es) all have the same matchtype
-
-// If i has matchtype HEM, then it's matched to precisely one other vertex,
-// and this vertex is a neihbor
-
-// If i has matchtype brotherly, then it is matched to precisely one other
-// vertex and this vertex is NOT a neighbor
-
-// If i is in a 3-way match, then it is matched to precisely 2 other vertices,
-// and it neighbors at least one of them
-
-// cn is correct
-
-static void Additional_Match_Check
-(
-    Graph                 *Graph,
-    VSPINT                   lvl,
-    VSPINT             *matching,
-    VSPINT             *matchmap,
-    VSPINT          *invmatchmap,
-    match_type        *matchtype,
-    VSPINT                    cn
-)
-{
-    static long long unsigned count = 0 ;
-    count++ ;
-
-    VSPINT i, j, k ;
-    VSPLONG p, end ;
-
-    // Graph info
-    VSPINT   n   = Graph->n ;
-    VSPLONG  nz  = Graph->nz ;
-    VSPINT  *Ai  = Graph->Ai ;
-    VSPINT  *Ae  = Graph->Ae ;
-    VSPLONG *Ap  = Graph->Ap ;
-    VSPINT  *c   = Graph->c ;
-
-
-    // If i has matchtype HEM, then it's matched to precisely one other vertex,
-    // whose matchtype is also HEM, and these vertices are neighbors
-    for(i = 0 ; i < n ; i++)
-    {
-        j = get_match(i, matching) ;
-        k = get_match(j, matching) ;
-        VSP_ASSERT( IN_RANGE(j, 0, n) ) ;
-
-        if(matchtype[i] != matchtype[j])
-        {
-            ERR("Matched vertices don't have the same matchtype") ;
-        }
-
-        switch (matchtype[i])
-        {
-            case matchtype_HEM :
-                // Check that j is matched to i
-                if( get_match(j, matching) != i )
-                {
-                    ERR("Error in HEM pair") ;
-                }
-
-                // Check the matchtype of j is HEM
-                if(matchtype[j] != matchtype_HEM)
-                {
-                    ERR("Incorrect matchtype") ;
-                }
-
-                // Check that i, j are neighbors
-                if( !Are_Neighbors(i, j, Ai, Ap) )
-                {
-                    ERR("Nodes in HEM pair are not neighbors") ;
-                }
-                break ;
-            case matchtype_brotherly:
-                // Check that j is matched to i
-                if( get_match(j, matching) != i )
-                {
-                    ERR("Error in BM pair") ;
-                }
-
-                // Check the matchtype of j is BM
-                if(matchtype[j] != matchtype_brotherly)
-                {
-                    ERR("Incorrect matchtype") ;
-                }
-
-                // Check that i, j are NOT neighbors
-                if( Are_Neighbors(i, j, Ai, Ap) )
-                {
-                    ERR("Nodes in BM pair ARE neighbors") ;
-                }
-                break ;
-
-            case matchtype_3way:
-                // Check that i is in a 3-way match
-                k = get_match(j, matching) ;
-                VSP_ASSERT(k != i) ;
-                VSP_ASSERT(k != j) ;
-                if(get_match(k, matching) != i)
-                {
-                    ERR("Error in 3-way matching") ;
-                }
-
-                // Check that i neighbors at least one of j, k
-                if(!Are_Neighbors(i, j, Ai, Ap) && !Are_Neighbors(i, k, Ai, Ap)) 
-                {
-                    ERR("Invalid 3-way match") ;
-                }
-                break ;
-        }
-    }
-
-    Check_cn(n, cn, matching) ;
-}

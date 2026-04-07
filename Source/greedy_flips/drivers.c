@@ -8,21 +8,17 @@
 
 void Greedy_Flips
 (
-    State *X,
-    State *Y,
-    Problem              *problem,
-    VSPINT           maxNumPasses,
-    bool              deep_search
+    State      *X,
+    State      *Y,
+    Problem    *problem,
+    VSPINT      maxNumPasses,
+    bool        deep_search
 )
 {
     Round_Down_Fractions(X, Y, problem) ;
 
     static long long unsigned count = 0 ;
     count++ ;
-
-    #ifdef DEBUG
-        Check_Inputs(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
-    #endif
 
     VSPINT *x = X->point->int_part ;
     VSPINT *Ax = X->Az->int_part ;
@@ -36,6 +32,10 @@ void Greedy_Flips
     VSPINT *c    = problem->graph->c ;
     VSPINT u     = problem->u ;
     VSPINT gamma = problem->graph->max_vtx_cost ;
+
+#ifdef DEBUG
+    Check_Inputs(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
+#endif
 
     /*------------------------------------------------------------------------*/
     // Initialize all structs

@@ -5,23 +5,6 @@
 #include <time.h>
 #include <utils.h>
 
-static void RecordCoarsestLvlNum
-(
-    Problem *coarsest_p
-) ;
-
-static void SetUpperBound
-(
-    Problem *problem,
-    Options *options
-) ;
-
-static void SetRatioOfNodesWithMaxWeight
-(
-    Problem *problem
-) ;
-
-
 /* Coarsening works as follows: iterate through each vertex k of the coarse*/
 /* Graph-> Let A and B be the vertices in the finer graph which*/
 /* map to k. Iterate through all the neighbors of A. These will be neighbors*/
@@ -232,8 +215,9 @@ static Graph* Graph_Coarsen
     Graph_Coarse->n     = n_coarse ;
     Graph_Coarse->nz    = munch ;
 
-    Graph_Coarse->min_vtx_cost = alpha_coarse ;
-    Graph_Coarse->max_vtx_cost = gamma_coarse ;
+    Graph_Coarse->min_vtx_cost   = alpha_coarse ;
+    Graph_Coarse->max_vtx_cost   = gamma_coarse ;
+    Graph_Coarse->total_vtx_cost = GraphFine->total_vtx_cost ;
 
     /* Free memory */
     free(htable) ;
@@ -433,7 +417,7 @@ static Graph* Graph_Coarsen
 
 
 // Generate a coarser version of the current problem
-Problem *Problem_Coarsen
+static Problem *Problem_Coarsen
 (
     Problem *P,
     Options *options
@@ -464,19 +448,12 @@ Problem *Problem_Coarsen
     // Set other problem data
     /* ====================================================================== */
     strcpy(P_coarse->name, P->name) ;
-    
-    // Set the upper balance constraint u
-    P_coarse->u = P->u ;
 
-    // Link parent and child
+    P->child_problem         = P_coarse ;
+    P_coarse->u              = P->u ;
+    P_coarse->ubFinest       = P->ubFinest ;
+    P_coarse->level          = P->level + 1 ;
     P_coarse->parent_problem = P ;
-    P->child_problem = P_coarse ;
-
-    // Set the level
-    P_coarse->level = P->level + 1 ;
-
-    // Set ubFinest
-    P_coarse->ubFinest = P->ubFinest ;
 
     // Set coarsest level num for each problem in the chain
     VSPINT L = P_coarse->level ;
@@ -487,35 +464,9 @@ Problem *Problem_Coarsen
         Q = Q->parent_problem ;
     }
 
-
-    // Set ratio of nodes with max weight
-    SetRatioOfNodesWithMaxWeight(P_coarse) ;
-
     return P_coarse ;
 }
 
-
-
-
-static void SetRatioOfNodesWithMaxWeight
-(
-    Problem *problem
-)
-{
-    VSPINT n = problem->graph->n ;
-    VSPINT num = 0 ;
-    VSPINT maxWgt = problem->graph->max_vtx_cost ;
-    VSPINT *c = problem->graph->c ;
-
-    for(VSPINT i = 0 ; i < n ; i++)
-    {
-        if(c[i] == maxWgt)
-        {
-            num++ ;
-        }
-    }
-    return ;
-}
 
 static void SetUpperBound
 (
@@ -548,58 +499,13 @@ static void SetUpperBound
     return ;
 }
 
-
-
-static void RecordCoarsestLvlNum
-(
-    Problem *coarsest_p
-)
-{
-    VSPINT coarsest_level_num = coarsest_p->level ;
-    Problem *p = coarsest_p ;
-    while(p != NULL)
-    {
-        p->coarsest_level_num = coarsest_level_num ;
-        p = p->parent_problem ;
-    }
-    return ;
-}
-
-// Returns true if the child of P is "bad", in which case the child should be
-// destroyed
-static bool Stop_Coarsening(Problem *P, Options *options)
-{    
-    // As a safeguard against weird edge cases, stop coarsening if the child
-    // problem is extremely small
-    if(P->child_problem->graph->n < 8 ) return true ;
-
-    bool stop = false ;
-    if(P->graph->n > options->limit_num_nodes)
-    {
-        VSPFLOAT cn  = (VSPFLOAT) P->child_problem->graph->n ;
-        VSPFLOAT cnz = (VSPFLOAT) P->child_problem->graph->nz ;
-
-        // Check if child problem is complete
-        if( equal(cnz / cn, cn - 1) ) stop = true ;
-    }
-    else
-    {
-        VSPINT  cn  = P->child_problem->graph->n ;
-        VSPLONG cnz = P->child_problem->graph->nz ;
-        if(Graph_Density(cn, cnz) > options->max_density) stop = true ;
-    }
-
-    return stop ;
-}
-
 Problem *Problem_Recursive_Coarsen
 (
     Problem *probFinest,
     Options    *options
 )
 {
-    static long long unsigned count = 0 ;
-    count++ ;
+    SET_FUNCTION_COUNTER ;
 
     VSPINT n_finest = probFinest->graph->n ;
     Problem *P, *coarse_P, *coarsest_P ;
@@ -609,7 +515,6 @@ Problem *Problem_Recursive_Coarsen
 
     // After the loop, P will be the coarsest problem
     VSPINT l = 0 ; // Invariant: l = # of coarsenings
-
 
     while( 1 )
     {
@@ -634,15 +539,6 @@ Problem *Problem_Recursive_Coarsen
         // Link the child and parent problems
         coarse_P->parent_problem = P ;
         P       ->child_problem  = coarse_P ;    
-
-        // // Check stopping criteria
-        // if(Stop_Coarsening(P, options))
-        // {
-        //     // Destroy the problem corresponding to a complete graph
-        //     Destroy_Problem(coarse_P) ;
-        //     coarsest_P = P ;
-        //     break ;
-        // }
         if(Graph_Density(coarse_P->graph->n, coarse_P->graph->nz) > 0.4
            || coarse_P->graph->n < 10)
         {
@@ -655,12 +551,6 @@ Problem *Problem_Recursive_Coarsen
             coarsest_P = P ;
             break ;
         }
-        // else if(coarse_P->graph->max_vtx_cost > 0.2 * coarse_P->graph->total_vtx_cost)
-        // {
-        //     Destroy_Problem(coarse_P) ;
-        //     coarsest_P = P ;
-        //     break ;
-        // }
 
         P = coarse_P ;
         l++ ;
