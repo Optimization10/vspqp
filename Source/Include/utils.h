@@ -12,6 +12,8 @@ void Round_Down_Fractions
     Problem   *problem
 ) ;
 
+void Swap_Mem(void *a, void *b, size_t size) ;
+
 void Az_pm_col_of_A
 (
     VSPINT             *Az, // vector to which we add/subtract

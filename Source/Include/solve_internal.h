@@ -73,4 +73,18 @@ void Best_Of_MC_And_Greedy_Flips
     VSPINT  numFlipsRuns
 ) ;
 
+
+typedef void (*Strategy)(State*, State*, Problem*, Options*);
+
+bool Try_And_Keep_If_Better
+(
+    State *X, State *Y, Problem *problem,
+    Strategy strategy, Options *options
+);
+
+void strategy_mc_and_flips(State*, State*, Problem*, Options*);
+void strategy_flips(State*, State*, Problem*, Options*);
+void strategy_fm(State*, State*, Problem*, Options*);
+void strategy_centroid_restart(State*, State*, Problem*, Options*);
+
 #endif

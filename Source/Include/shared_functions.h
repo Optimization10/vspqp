@@ -466,7 +466,7 @@ void Print_Neighs
 
 bool Is_Coarsest_Problem(Problem *problem) ;
 bool Is_Finest_Problem(Problem *problem) ;
-void Swap_Mem(void *a, void *b, size_t size) ;
+
 
 // Return a pointer to a state containing a deep copy of z, Az, and wgtz
 void Save_State_Copy
