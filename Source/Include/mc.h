@@ -1,7 +1,6 @@
 #ifndef MC_API_H
 #define MC_API_H
-
-
+#include "core.h"
 
 typedef enum
 {
@@ -10,16 +9,6 @@ typedef enum
     REDUCE_SIMPLY
 } GR_Reduce_Type ;
 
-
-VSPFLOAT Reduce_Gamma
-(
-    VSPFLOAT       gammaIn,
-    GR_Reduce_Type redType,
-    State           *Z,
-    State           *W,
-    Options   *options,
-    Problem   *problem
-) ;
 
 /* This file contains functions involving mc which are to be exposed to the
    outside */

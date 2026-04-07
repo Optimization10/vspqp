@@ -15,6 +15,21 @@ typedef enum initial_guess_enum
 
 typedef struct Levels_struct Levels ;
 
+typedef enum
+{
+    TOP_LEVELS,
+    BOT_LEVELS,
+    ALL_LEVELS,
+    NO_LEVELS,
+    SPECIFY_SELECTED_LEVELS,
+    SPECIFY_UNSELECTED_LEVELS
+} Levels_selection_type ;
+
+Levels* construct_levels
+(
+    Levels_selection_type selection_type
+) ;
+
 typedef struct restart_decision_struct
 {
     /* Only one of use_levels, use_rule should be true */
@@ -115,21 +130,10 @@ typedef struct {
 } solve_result ;
 
 
-typedef enum
-{
-    TOP_LEVELS,
-    BOT_LEVELS,
-    ALL_LEVELS,
-    NO_LEVELS,
-    SPECIFY_SELECTED_LEVELS,
-    SPECIFY_UNSELECTED_LEVELS
-} Levels_selection_type ;
+
 
 restart_decision *construct_restart_decision() ;
-Levels* construct_levels
-(
-    Levels_selection_type selection_type
-) ;
+
 
 void Levels_unselect
 (

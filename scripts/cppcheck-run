@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "Running cppcheck..."
+cppcheck --enable=all --suppress=missingIncludeSystem -I Include -I Source/Include Source Demo 2> /tmp/cppcheck_report.txt
+echo "Done. Report saved to /tmp/cppcheck_report.txt"

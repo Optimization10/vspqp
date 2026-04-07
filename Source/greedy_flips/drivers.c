@@ -117,41 +117,6 @@ void Greedy_Flips
 }
 
 
-
-// Takes in a feasible point for the continuous problem, forces it to a binary
-// point, and optimizes it
-// Returns a feasible point for the binary problem with objective at least
-// as large as it started with after projecting the fractional entry to 0 or 1
-void Flips_Dep
-(
-    State               *X,
-    State               *Y,
-    Problem       *problem,
-    VSPINT        maxNumPasses
-)
-{
-    // clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
-
-    SET_FUNCTION_COUNTER ;
-    Round_Down_Fractions(X, Y, problem) ;
-
-    VSPINT *x  = X->point->int_part ;
-    VSPINT *Ax = X->Az->int_part ;
-    VSPINT *y  = Y->point->int_part ;
-    VSPINT *Ay = Y->Az->int_part ;
-    VSPINT *wgtx = &(X->weight) ;
-    VSPINT *wgty = &(Y->weight) ;
-
-    bool deep_search = (problem->level <= 2) ;
-    Greedy_Flips(X, Y, problem, maxNumPasses, deep_search) ;
-
-
-    // clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;
-    // G_FLIPS_TIME += compute_elapsed_time(G_START_TIME, G_END_TIME) ;
-}
-
-
-
 // Return a random, feasible upflip in z with non-negative, highest gain
 // May not catch all upflips 
 static void Get_Upflip

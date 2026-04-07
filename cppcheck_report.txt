@@ -1,0 +1,390 @@
+Source/FM_Metis/FM.c:357:12: style: The if condition is the same as the previous if condition [duplicateCondition]
+    if(xAy != 0) printf("Cross term not zero FM METIS. Cross term value: %lld Count %llu\n", (long long) xAy, count) ;
+           ^
+Source/FM_Metis/FM.c:350:18: note: 'yAx' is assigned value '0' here.
+    VSPINT yAx = 0 ;
+                 ^
+Source/FM_Metis/FM.c:356:12: note: First condition
+    if(xAy != yAx) printf("Cross term not accurate in FM METIS. Count %llu\n", count) ;
+           ^
+Source/FM_Metis/FM.c:357:12: note: Second condition
+    if(xAy != 0) printf("Cross term not zero FM METIS. Cross term value: %lld Count %llu\n", (long long) xAy, count) ;
+           ^
+Source/FM_Metis/FM.c:223:15: style: Variable 'other' is reassigned a value before the old one has been used. [redundantAssignment]
+        other = (to + 1) % 2 ;
+              ^
+Source/FM_Metis/FM.c:157:19: note: other is assigned
+            other = 1 - to ;
+                  ^
+Source/FM_Metis/FM.c:223:15: note: other is overwritten
+        other = (to + 1) % 2 ;
+              ^
+Source/FM_Metis/FM.c:223:15: style: Variable 'other' is reassigned a value before the old one has been used. [redundantAssignment]
+        other = (to + 1) % 2 ;
+              ^
+Source/FM_Metis/FM.c:163:23: note: other is assigned
+                other = 1 - to ;
+                      ^
+Source/FM_Metis/FM.c:223:15: note: other is overwritten
+        other = (to + 1) % 2 ;
+              ^
+Source/FM_Metis/FM.c:223:15: style: Variable 'other' is reassigned a value before the old one has been used. [redundantAssignment]
+        other = (to + 1) % 2 ;
+              ^
+Source/FM_Metis/FM.c:192:19: note: other is assigned
+            other = 1 - to ;
+                  ^
+Source/FM_Metis/FM.c:223:15: note: other is overwritten
+        other = (to + 1) % 2 ;
+              ^
+Source/FM_Metis/FM.c:223:15: style: Variable 'other' is reassigned a value before the old one has been used. [redundantAssignment]
+        other = (to + 1) % 2 ;
+              ^
+Source/FM_Metis/FM.c:208:19: note: other is assigned
+            other = 1 - to ;
+                  ^
+Source/FM_Metis/FM.c:223:15: note: other is overwritten
+        other = (to + 1) % 2 ;
+              ^
+Source/FM_Metis/FM.c:554:19: style: Variable 'other' is reassigned a value before the old one has been used. [redundantAssignment]
+            other = (to + 1) % 2 ;
+                  ^
+Source/FM_Metis/FM.c:509:23: note: other is assigned
+                other = 1 - to ;
+                      ^
+Source/FM_Metis/FM.c:554:19: note: other is overwritten
+            other = (to + 1) % 2 ;
+                  ^
+Source/FM_Metis/FM.c:554:19: style: Variable 'other' is reassigned a value before the old one has been used. [redundantAssignment]
+            other = (to + 1) % 2 ;
+                  ^
+Source/FM_Metis/FM.c:517:27: note: other is assigned
+                    other = 1 - to ;
+                          ^
+Source/FM_Metis/FM.c:554:19: note: other is overwritten
+            other = (to + 1) % 2 ;
+                  ^
+Source/FM_Metis/FM.c:554:19: style: Variable 'other' is reassigned a value before the old one has been used. [redundantAssignment]
+            other = (to + 1) % 2 ;
+                  ^
+Source/FM_Metis/FM.c:528:27: note: other is assigned
+                    other = 1 - to ;
+                          ^
+Source/FM_Metis/FM.c:554:19: note: other is overwritten
+            other = (to + 1) % 2 ;
+                  ^
+Source/FM_Metis/FM.c:554:19: style: Variable 'other' is reassigned a value before the old one has been used. [redundantAssignment]
+            other = (to + 1) % 2 ;
+                  ^
+Source/FM_Metis/FM.c:542:23: note: other is assigned
+                other = 1 - to ;
+                      ^
+Source/FM_Metis/FM.c:554:19: note: other is overwritten
+            other = (to + 1) % 2 ;
+                  ^
+Source/FM_Metis/FM.c:554:19: style: Variable 'other' is reassigned a value before the old one has been used. [redundantAssignment]
+            other = (to + 1) % 2 ;
+                  ^
+Source/FM_Metis/FM.c:547:23: note: other is assigned
+                other = 1 - to ;
+                      ^
+Source/FM_Metis/FM.c:554:19: note: other is overwritten
+            other = (to + 1) % 2 ;
+                  ^
+Source/FM_Metis/FM.c:1150:12: style: The scope of the variable 'i' can be reduced. [variableScope]
+    VSPINT i, j, k, which_set ;
+           ^
+Source/FM_Metis/FM.c:1151:13: style: The scope of the variable 'end' can be reduced. [variableScope]
+    VSPLONG end, p ;
+            ^
+Source/FM_Metis/FM.c:344:12: style: Local variable 'xAy' shadows outer function [shadowFunction]
+    VSPINT xAy = 0 ;
+           ^
+Source/Include/utils.h:101:6: note: Shadowed declaration
+void xAy
+     ^
+Source/FM_Metis/FM.c:344:12: note: Shadow variable
+    VSPINT xAy = 0 ;
+           ^
+Source/FM_Metis/FM.c:1062:12: style: Local variable 'zAw' shadows outer function [shadowFunction]
+    VSPINT zAw = 0, wAz = 0 ;
+           ^
+Source/Include/utils.h:39:10: note: Shadowed declaration
+VSPFLOAT zAw
+         ^
+Source/FM_Metis/FM.c:1062:12: note: Shadow variable
+    VSPINT zAw = 0, wAz = 0 ;
+           ^
+Source/FM_Metis/FM.c:119:6: style: Variable 'c' can be declared as pointer to const [constVariablePointer]
+    *c = problem->graph->c,
+     ^
+Source/FM_Metis/FM.c:120:6: style: Variable 'Ai' can be declared as pointer to const [constVariablePointer]
+    *Ai = problem->graph->Ai,
+     ^
+Source/FM_Metis/FM.c:122:14: style: Variable 'Ap' can be declared as pointer to const [constVariablePointer]
+    VSPLONG *Ap = problem->graph->Ap ;
+             ^
+Source/FM_Metis/FM.c:333:25: style: Parameter 'options' can be declared as pointer to const [constParameterPointer]
+    UNUSED Options     *options,
+                        ^
+Source/FM_Metis/FM.c:845:17: style: Parameter 'bndind' can be declared as pointer to const [constParameterPointer]
+    VSPINT     *bndind,
+                ^
+Source/FM_Metis/FM.c:847:18: style: Parameter 'where' can be declared as pointer to const [constParameterPointer]
+    VSPINT      *where,
+                 ^
+Source/FM_Metis/FM.c:846:17: style: Parameter 'bndptr' can be declared as pointer to const [constParameterPointer]
+    VSPINT     *bndptr,
+                ^
+Source/FM_Metis/FM.c:1044:13: style: Variable 'z' can be declared as pointer to const [constVariablePointer]
+    VSPINT *z     = Z->point->int_part ;
+            ^
+Source/FM_Metis/FM.c:1045:13: style: Variable 'w' can be declared as pointer to const [constVariablePointer]
+    VSPINT *w     = W->point->int_part ;
+            ^
+Source/FM_Metis/FM.c:1047:13: style: Variable 'Az' can be declared as pointer to const [constVariablePointer]
+    VSPINT *Az    = Z->Az->int_part ;
+            ^
+Source/FM_Metis/FM.c:1048:13: style: Variable 'Aw' can be declared as pointer to const [constVariablePointer]
+    VSPINT *Aw    = W->Az->int_part ;
+            ^
+Source/FM_Metis/FM.c:1093:25: style: Parameter 'z' can be declared as pointer to const [constParameterPointer]
+    VSPINT             *z,
+                        ^
+Source/FM_Metis/FM.c:1094:25: style: Parameter 'w' can be declared as pointer to const [constParameterPointer]
+    VSPINT             *w,
+                        ^
+Source/FM_Metis/FM.c:1140:27: style: Parameter 'sep' can be declared as pointer to const [constParameterPointer]
+    VSPINT               *sep,
+                          ^
+Source/FM_Metis/FM.c:1138:14: style: Parameter 'Ap' can be declared as pointer to const [constParameterPointer]
+    VSPLONG *Ap,
+             ^
+Source/FM_Metis/FM.c:1137:28: style: Parameter 'Ai' can be declared as pointer to const [constParameterPointer]
+    VSPINT                *Ai,
+                           ^
+Source/FM_Metis/FM.c:1142:25: style: Parameter 'where' can be declared as pointer to const [constParameterPointer]
+    VSPINT             *where
+                        ^
+Source/FM_Metis/FM.c:1139:29: style: Parameter 'c' can be declared as pointer to const [constParameterPointer]
+    VSPINT                 *c,
+                            ^
+Source/FM_Metis/FM.c:1179:25: style: Parameter 'where' can be declared as pointer to const [constParameterPointer]
+    VSPINT             *where
+                        ^
+Source/FM_Metis/FM.c:1176:14: style: Parameter 'Ap' can be declared as pointer to const [constParameterPointer]
+    VSPLONG *Ap,
+             ^
+Source/FM_Metis/FM.c:1175:28: style: Parameter 'Ai' can be declared as pointer to const [constParameterPointer]
+    VSPINT                *Ai,
+                           ^
+Source/FM_Metis/FM.c:1177:29: style: Parameter 'c' can be declared as pointer to const [constParameterPointer]
+    VSPINT                 *c,
+                            ^
+Source/FM_Metis/FM.c:1174:23: style: Parameter 'extWgts' can be declared as pointer to const [constParameterPointer]
+    ExtNeighWgts     *extWgts,
+                      ^
+Source/FM_Metis/FM.c:1223:17: style: Parameter 'pwgts' can be declared as const array [constParameter]
+    VSPINT      pwgts[3],
+                ^
+Source/FM_Metis/FM.c:1220:20: style: Parameter 'where' can be declared as pointer to const [constParameterPointer]
+    VSPINT        *where,
+                   ^
+Source/FM_Metis/FM.c:1351:6: style: Variable 'c' can be declared as pointer to const [constVariablePointer]
+    *c = problem->graph->c,
+     ^
+Source/FM_Metis/FM.c:1352:6: style: Variable 'Ai' can be declared as pointer to const [constVariablePointer]
+    *Ai = problem->graph->Ai ;
+     ^
+Source/FM_Metis/FM.c:1353:14: style: Variable 'Ap' can be declared as pointer to const [constVariablePointer]
+    VSPLONG *Ap = problem->graph->Ap ;
+             ^
+Source/FM_Metis/FM.c:1332:23: style: Parameter 'pwgts' can be declared as const array [constParameter]
+    VSPINT            pwgts[3],
+                      ^
+Source/FM_Metis/FM.c:118:7: style: Variable 'n' is assigned a value that is never used. [unreadVariable]
+    n = problem->graph->n,
+      ^
+Source/FM_Metis/FM.c:116:56: style: Unused variable: j [unusedVariable]
+    VSPINT topVals[2], topGains[2], to, other, higain, j, k, oldgain,
+                                                       ^
+Source/FM_Metis/FM.c:402:21: style: Variable 'nmind' is assigned a value that is never used. [unreadVariable]
+    VSPINT  nmind   = 0 ;
+                    ^
+Source/FM_Metis/FM.c:439:23: style: Variable 'mindiff' is assigned a value that is never used. [unreadVariable]
+    VSPINT mindiff    = abs( pwgts[0] - pwgts[1] ) ;
+                      ^
+Source/FM_Metis/FM.c:1421:14: style: Unused variable: Node [unusedVariable]
+        Node Node ;
+             ^
+Source/FM_Metis/FM.c:1165:32: warning: Either the condition '0<=which_set' is redundant or the array 'extWgts[i].wgts[2]' is accessed at index -1, which is out of bounds. [negativeIndex]
+                extWgts[i].wgts[which_set] += c[j] ;
+                               ^
+Source/FM_Metis/FM.c:1162:13: note: Assuming that condition '0<=which_set' is not redundant
+            VSP_ASSERT(0 <= which_set && which_set <= 2) ;
+            ^
+Source/FM_Metis/FM.c:1165:32: note: Negative array index
+                extWgts[i].wgts[which_set] += c[j] ;
+                               ^
+Source/FM_Metis/FM.c:1310:16: style: Local variable 'zAw' shadows outer function [shadowFunction]
+        VSPINT zAw = penalty_term(Z->point->int_part, W->Az->int_part, n) ;
+               ^
+Source/Include/utils.h:39:10: note: Shadowed declaration
+VSPFLOAT zAw
+         ^
+Source/FM_Metis/FM.c:1310:16: note: Shadow variable
+        VSPINT zAw = penalty_term(Z->point->int_part, W->Az->int_part, n) ;
+               ^
+Source/FM_Metis/FM_queues.c:320:13: style: Variable 'heap' can be declared as pointer to const [constVariablePointer]
+    Node   *heap        = q->heap ;
+            ^
+Source/FM_Metis/FM_queues.c:321:13: style: Variable 'locator' can be declared as pointer to const [constVariablePointer]
+    VSPINT *locator     = q->locator ;
+            ^
+Source/IO.c:25:13: style: Variable 'Ai' can be declared as pointer to const [constVariablePointer]
+    VSPINT *Ai = problem->graph->Ai ;
+            ^
+Source/IO.c:26:14: style: Variable 'Ap' can be declared as pointer to const [constVariablePointer]
+    VSPLONG *Ap = problem->graph->Ap ;
+             ^
+Source/IO.c:27:14: style: Variable 'c' can be declared as pointer to const [constVariablePointer]
+    VSPINT  *c = problem->graph->c ;
+             ^
+Source/IO.c:84:13: style: Variable 'x' can be declared as pointer to const [constVariablePointer]
+    VSPINT *x = X->point->int_part ;
+            ^
+Source/IO.c:96:13: style: Variable 'y' can be declared as pointer to const [constVariablePointer]
+    VSPINT *y = Y->point->int_part ;
+            ^
+Source/IO.c:125:13: style: Parameter 'file_name' can be declared as pointer to const [constParameterPointer]
+    char   *file_name  // Null terminated string. If NULL, then use default name
+            ^
+Source/IO.c:122:21: style: Parameter 'x' can be declared as pointer to const [constParameterPointer]
+    VSPINT         *x,
+                    ^
+Source/IO.c:123:21: style: Parameter 'y' can be declared as pointer to const [constParameterPointer]
+    VSPINT         *y,
+                    ^
+Source/coarsening/coarsen.c:61:14: style: Variable 'Ap_fine' can be declared as pointer to const [constVariablePointer]
+    VSPLONG *Ap_fine = GraphFine->Ap;
+             ^
+Source/coarsening/coarsen.c:62:13: style: Variable 'Ai_fine' can be declared as pointer to const [constVariablePointer]
+    VSPINT *Ai_fine  = GraphFine->Ai;
+            ^
+Source/coarsening/coarsen.c:63:13: style: Variable 'Ae_fine' can be declared as pointer to const [constVariablePointer]
+    VSPINT *Ae_fine  = GraphFine->Ae;
+            ^
+Source/coarsening/coarsen.c:64:13: style: Variable 'c_fine' can be declared as pointer to const [constVariablePointer]
+    VSPINT *c_fine   = GraphFine->c;
+            ^
+Source/coarsening/coarsen.c:39:20: style: Parameter 'invmatchmap' can be declared as pointer to const [constParameterPointer]
+    VSPINT        *invmatchmap,
+                   ^
+Source/coarsening/coarsen.c:38:23: style: Parameter 'matchmap' can be declared as pointer to const [constParameterPointer]
+    VSPINT           *matchmap,
+                      ^
+Source/coarsening/coarsen.c:473:14: style: Parameter 'options' can be declared as pointer to const [constParameterPointer]
+    Options *options
+             ^
+Source/coarsening/coarsen.c:211:16: style: Variable 'maxDeg' is assigned a value that is never used. [unreadVariable]
+        maxDeg =  Ap_coarse[n_coarse] - Ap_coarse[n_coarse - 1] ;
+               ^
+Source/coarsening/coarsen.c:509:25: style: Variable 'n_finest' is assigned a value that is never used. [unreadVariable]
+    VSPINT    n_finest  = probFinest->graph->n ;
+                        ^
+Source/coarsening/coarsen.c:238:17: style: The scope of the variable 'end' can be reduced. [variableScope]
+        VSPLONG end ;
+                ^
+Source/coarsening/match.c:22:19: style: The scope of the variable 'k1' can be reduced. [variableScope]
+    VSPINT i, k0, k1, k2, k3 ;
+                  ^
+Source/coarsening/match.c:22:23: style: The scope of the variable 'k2' can be reduced. [variableScope]
+    VSPINT i, k0, k1, k2, k3 ;
+                      ^
+Source/coarsening/match.c:22:27: style: The scope of the variable 'k3' can be reduced. [variableScope]
+    VSPINT i, k0, k1, k2, k3 ;
+                          ^
+Source/coarsening/match.c:489:15: style: The scope of the variable 'j' can be reduced. [variableScope]
+    VSPINT i, j, k ;
+              ^
+Source/coarsening/match.c:489:18: style: The scope of the variable 'k' can be reduced. [variableScope]
+    VSPINT i, j, k ;
+                 ^
+Source/coarsening/match.c:813:43: style: Checking if unsigned expression '(unsigned long)n' is less than zero. [unsignedLessThanZero]
+        if((size_t) n > 2E9 || (size_t) n <= 0)
+                                          ^
+Source/coarsening/match.c:818:43: style: Checking if unsigned expression '(unsigned long)n' is less than zero. [unsignedLessThanZero]
+        if((size_t) n > 2E9 || (size_t) n <= 0)
+                                          ^
+Source/coarsening/match.c:17:13: style: Variable 'matching' can be declared as pointer to const [constVariablePointer]
+    VSPINT *matching = M->match ;
+            ^
+Source/coarsening/match.c:18:13: style: Variable 'matchmap' can be declared as pointer to const [constVariablePointer]
+    VSPINT *matchmap = M->matchmap ;
+            ^
+Source/coarsening/match.c:19:13: style: Variable 'invmatchmap' can be declared as pointer to const [constVariablePointer]
+    VSPINT *invmatchmap = M->invmatchmap ;
+            ^
+Source/coarsening/match.c:20:17: style: Variable 'matchtype' can be declared as pointer to const [constVariablePointer]
+    match_type *matchtype = M->matchtype ;
+                ^
+Source/coarsening/match.c:129:41: style: Parameter 'match' can be declared as pointer to const [constParameterPointer]
+VSPINT get_match(VSPINT vertex, VSPINT* match)
+                                        ^
+Source/coarsening/match.c:135:47: style: Parameter 'matching' can be declared as pointer to const [constParameterPointer]
+static bool Is_Matched(VSPINT vertex, VSPINT* matching)
+                                              ^
+Source/coarsening/match.c:144:17: style: Parameter 'matchtypeArray' can be declared as pointer to const [constParameterPointer]
+    match_type *matchtypeArray,
+                ^
+Source/coarsening/match.c:340:46: style: Parameter 'c' can be declared as pointer to const [constParameterPointer]
+static bool Is_Perfect_Vtx(VSPINT i, VSPINT *c, VSPINT pow2l)
+                                             ^
+Source/coarsening/match.c:496:14: style: Variable 'Ae' can be declared as pointer to const [constVariablePointer]
+    VSPINT  *Ae  = Graph->Ae ;
+             ^
+Source/coarsening/match.c:498:14: style: Variable 'c' can be declared as pointer to const [constVariablePointer]
+    VSPINT  *c   = Graph->c ;
+             ^
+Source/coarsening/match.c:482:24: style: Parameter 'matchtype' can be declared as pointer to const [constParameterPointer]
+    match_type        *matchtype,
+                       ^
+Source/coarsening/match.c:601:14: style: Variable 'Ai' can be declared as pointer to const [constVariablePointer]
+    VSPINT  *Ai  = Graph->Ai ;
+             ^
+Source/coarsening/match.c:602:14: style: Variable 'Ae' can be declared as pointer to const [constVariablePointer]
+    VSPINT  *Ae  = Graph->Ae ;
+             ^
+Source/coarsening/match.c:583:16: style: Parameter 'options' can be declared as pointer to const [constParameterPointer]
+    Options   *options
+               ^
+Source/coarsening/match.c:77:25: style: Variable 'wrong_matchtype' is assigned a value that is never used. [unreadVariable]
+        wrong_matchtype = FALSE ;
+                        ^
+Source/coarsening/match.c:490:13: style: Unused variable: p [unusedVariable]
+    VSPLONG p, end ;
+            ^
+Source/coarsening/match.c:490:16: style: Unused variable: end [unusedVariable]
+    VSPLONG p, end ;
+               ^
+Source/coarsening/match.c:494:14: style: Variable 'nz' is assigned a value that is never used. [unreadVariable]
+    VSPLONG  nz  = Graph->nz ;
+             ^
+Source/coarsening/match.c:496:14: style: Variable 'Ae' is assigned a value that is never used. [unreadVariable]
+    VSPINT  *Ae  = Graph->Ae ;
+             ^
+Source/coarsening/match.c:498:14: style: Variable 'c' is assigned a value that is never used. [unreadVariable]
+    VSPINT  *c   = Graph->c ;
+             ^
+Source/coarsening/match.c:595:21: style: Unused variable: v [unusedVariable]
+    VSPINT i, j, k, v, q, j_ew, k_ew, ck, cj, ci_coarse ;
+                    ^
+Source/coarsening/match.c:595:24: style: Unused variable: q [unusedVariable]
+    VSPINT i, j, k, v, q, j_ew, k_ew, ck, cj, ci_coarse ;
+                       ^
+Source/coarsening/match.c:600:14: style: Variable 'nz' is assigned a value that is never used. [unreadVariable]
+    VSPLONG  nz  = Graph->nz ;
+             ^
+Source/coarsening/match.c:202:24: style: Parameter 'invmatchmap' can be declared as pointer to const [constParameterPointer]
+    VSPINT*            invmatchmap,
+                       ^

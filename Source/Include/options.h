@@ -2,6 +2,7 @@
 #define OPTIONS_H
 
 #include <stdbool.h>
+#include "VSPQP.h"
 
 typedef struct dyn_stk_struct
 {
@@ -61,17 +62,6 @@ typedef struct Levels_struct
     dyn_stk *levels_not_selected ;
 
 } Levels ;
-
-/*----------------------------------------------------------------------------*/
-/* Restart Decision */
-/*----------------------------------------------------------------------------*/
-/* Choose when to restart solving a level from some new point, like the
-   centroid. When constructed, everything is off by default. The user
-   must make some selection */
-
-
-
-
 
 /*----------------------------------------------------------------------------*/
 /* Dynamic Stack */

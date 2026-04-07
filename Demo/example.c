@@ -231,7 +231,11 @@ void Read_hager6_File
     fread(&nztemp, sizeof(int64_t), 1, fp) ;
 
     int32_t *tempAi = malloc(nztemp * sizeof(int32_t)) ;
-    // if (!tempAi) return NULL ;
+    if (!tempAi)
+    {
+        *Ai = NULL ;
+        *Ap = NULL ;
+    } return  ;
 
     fread(tempAi, sizeof(int32_t), nztemp, fp);
 
@@ -239,8 +243,9 @@ void Read_hager6_File
     if (!tempAp)
     {
         free(tempAi) ;
-        // return NULL ;
-    }
+        *Ai = NULL ;
+        *Ap = NULL ;
+    } return  ;
 
     fread(tempAp, sizeof(int64_t), ntemp + 1, fp);
 

@@ -1,6 +1,6 @@
 #include "core.h"
 #include "mc_internal.h"
-
+#include "utils.h"
 
 
 VSPFLOAT minreduce_one_var
@@ -112,10 +112,4 @@ VSPFLOAT minreduce_one_var
 
     if(gamma_second != EMPTY) return gamma_second ;
     return gamma_t ;
-}
-
-
-static void i_am_dead_code(void)
-{
-    int x = 1;
 }
