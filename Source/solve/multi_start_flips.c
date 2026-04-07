@@ -7,7 +7,7 @@
 // Start from the given point and apply greedy flips numFlipsRuns number of
 // times. Return the best point.
 /*----------------------------------------------------------------------------*/
-void TryFlipsManyStartingPoints
+void Multi_Start_Flips
 (
     VSPINT                 **xBestHome,
     VSPINT                **AxBestHome,

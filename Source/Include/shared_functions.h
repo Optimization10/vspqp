@@ -311,14 +311,6 @@ void mat_vec_mult
     const VSPINT           n
 ) ;
 
-void Compute_Az
-(
-    Point              *z,
-    Az                *Az,
-    VSPINT                *Ai,
-    VSPLONG               *Ap,
-    VSPINT                  n
-) ;
 
 void Az_pm_col_of_A
 (

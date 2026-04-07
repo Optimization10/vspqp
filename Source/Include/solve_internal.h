@@ -33,7 +33,7 @@ void Optimize
     VSPINT         whereToUseFMFlips
 ) ;
 
-void TryFlipsManyStartingPoints
+void Multi_Start_Flips
 (
     VSPINT                 **xBestHome,
     VSPINT                **AxBestHome,

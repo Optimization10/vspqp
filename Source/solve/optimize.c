@@ -59,7 +59,7 @@ void Best_Of_MC_And_Greedy_Flips
 
     if(!abortManyFlipsPasses)
     {
-        TryFlipsManyStartingPoints
+        Multi_Start_Flips
         (
             &xcpy, &Axcpy, &wgtxcpy,
             &ycpy, &Aycpy, &wgtycpy,

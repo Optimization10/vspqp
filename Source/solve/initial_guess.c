@@ -1,5 +1,6 @@
 #include "solve_internal.h"
 #include "mc_api.h"
+#include "utils.h"
 
 
 static void set_manual_initial_guess
