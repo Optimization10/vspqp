@@ -29,7 +29,7 @@ void Best_Of_MC_And_Greedy_Flips
     // Flips path
     if (wgtx != 0 && wgty != 0)
     {
-        Multi_Start_Flips(Xf, Yf, problem, options, numFlipsRuns, 9);
+        Multi_Start_Flips(Xf, Yf, problem, options, numFlipsRuns, 9) ;
     }
 
     // MC path (in-place on X, Y)

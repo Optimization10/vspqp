@@ -467,14 +467,6 @@ static void Set_Custom_Options(Options *options)
     Levels_unselect(0, options->restart_decision->levels) ;
     Levels_unselect(1, options->restart_decision->levels) ;
 
-    /* Using Rule */
-    // WARNING!!!! RULE UNSUPPORTED RIGHT NOW
-    // options->restart_decision->use_rule = true ;
-    // options->restart_decision->restarts_allowed      = 1 ;
-    // options->restart_decision->rule_param            = 0.04 ;
-    // options->restart_decision->finest_level_allowed  = 2 ;
-
-
     // /* Disable restarts */
     // options->restart_decision->use_levels = true ;
     // options->restart_decision->levels = construct_levels(NO_LEVELS) ;
@@ -492,7 +484,8 @@ static void Set_Custom_Options(Options *options)
     /* Relax Upper Bound Options                                              */
     /*------------------------------------------------------------------------*/
     options->relaxUB      = true ;
-    options->ratioUBLimit = 0.47 ;
+    options->ratioUBLimit = 0.40 ;    // same sep as original, phenomenal imb
+    // options->ratioUBLimit = 0.39 ;    // same sep as original, phenomenal imb
 
 
     // options->relaxUB      = false ; 

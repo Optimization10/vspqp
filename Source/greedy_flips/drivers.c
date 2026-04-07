@@ -28,10 +28,10 @@ void Greedy_Flips
     VSPINT *Ay = Y->Az->int_part ;
     VSPINT *wgty = &(Y->weight) ;
 
-    VSPINT n     = problem->graph->n ;
-    VSPINT *c    = problem->graph->c ;
-    VSPINT u     = problem->u ;
-    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPINT  n     = problem->graph->n ;
+    VSPINT *c     = problem->graph->c ;
+    VSPINT  u     = problem->u ;
+    VSPINT  gamma = problem->graph->max_vtx_cost ;
 
 #ifdef DEBUG
     Check_Inputs(x, Ax, *wgtx, y, Ay, *wgty, problem) ;

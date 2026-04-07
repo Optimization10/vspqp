@@ -1,4 +1,14 @@
 #!/bin/bash
+DEST="/home/ovi/Desktop/VSP/VSPQP/doc/mats/ManualMatsList.txt"
+TMP="/tmp/ManualMatsList_backup.txt"
+
+# Backup current
+cp "$DEST" "$TMP"
+
 ./scripts/load int32
 ./hager6-ssh/update.sh
+
+# Restore original
+cp "$TMP" "$DEST"
+
 ./scripts/load 2
