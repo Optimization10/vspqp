@@ -333,10 +333,6 @@ static void Steal_Match
 // lightest = the lowest-cost entry in neighs[0...p-1] that was unmatched before
 //            starting the loop
 
-extern struct timespec  G_START_TIME, G_END_TIME ;
-extern long double G_HEM_TIME, G_BM_TIME ;
-
-
 static bool Is_Perfect_Vtx(VSPINT i, VSPINT *c, VSPINT pow2l)
 {
     return (c[i] == pow2l) ;
@@ -623,7 +619,6 @@ void Graph_Simple_Match
     VSPINT gamma_coarse     = 0 ; 
     // bool exists_perfect_coarse_vtx = false ;
 
-    clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
     for (i = 0; i < n; i++)
     {
         if(Is_Matched(i, matching)) continue ;
@@ -671,9 +666,6 @@ void Graph_Simple_Match
         }
     }
 
-    clock_gettime(CLOCK_REALTIME, &G_END_TIME) ; 
-    G_HEM_TIME += compute_elapsed_time(G_START_TIME, G_END_TIME) ;
-
     /*------------------------------------------------------------------------*/
     // Match singletons
     /*------------------------------------------------------------------------*/
@@ -696,9 +688,6 @@ void Graph_Simple_Match
     // Brotherly matching with pivots
     /*------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------*/
-
-    clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
-
     VSPINT node_pivot, ew_pivot, neigh, ew ;
     VSPINT perfect, light, lightest, c_lightest ;
     for(k = 0; k < n; k++)
@@ -1039,10 +1028,6 @@ void Graph_Simple_Match
     /* ====================================================================== */
     // Cleanup
     /* ====================================================================== */
-
-    clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;
-    G_BM_TIME += compute_elapsed_time(G_START_TIME, G_END_TIME) ;
-
     #ifdef DEBUG
         Match_Check
         (

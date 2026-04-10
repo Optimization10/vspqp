@@ -4,11 +4,9 @@
 #include "coarsen.h"
 #include "utils.h"
 #include <string.h>
+#include "profiler.h"
 
 const char *G_Current_Problem_Name ;
-extern struct timespec  G_START_TIME, G_END_TIME ;
-extern long double G_COMPRESS_TIME ;
-
 
 bool restart_decide
 (
@@ -301,5 +299,6 @@ solve_result *VSP_Solve
     Destroy_State(X_0) ;
     Destroy_State(Y_0) ;
     Destroy_All_Problems(probFinest) ;
+
     return result ;
 }

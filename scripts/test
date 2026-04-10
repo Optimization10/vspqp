@@ -1,5 +1,5 @@
 #!/bin/bash
-DEST="/home/ovi/Desktop/VSP/VSPQP/doc/mats/ManualMatsList.txt"
+DEST="/home/ovi/VSP/VSPQP/doc/mats/ManualMatsList.txt"
 TMP="/tmp/ManualMatsList_backup.txt"
 
 # Backup current

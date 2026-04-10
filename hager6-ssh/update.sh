@@ -5,5 +5,5 @@ rsync -rtv -e "ssh" --delete \
       --exclude 'data' --exclude 'output' --exclude 'outputs_archive' \
       --exclude 'random_seed.txt' --exclude 'build' --exclude '.*' \
       --exclude 'hager6-ssh/' --exclude '*.zst' \
-      /home/ovi/Desktop/VSP/VSPQP/ \
+      /home/ovi/VSP/VSPQP/ \
       onechita@ls-hager6.math.ufl.edu:/home/onechita/codes/VSPQP/

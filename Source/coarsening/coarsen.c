@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include <utils.h>
+#include "profiler.h"
 
 /* Coarsening works as follows: iterate through each vertex k of the coarse*/
 /* Graph-> Let A and B be the vertices in the finer graph which*/
@@ -25,12 +26,6 @@
 /* Conditions to be met at the end of each loop: */
 /* 1) munch = cAi[ cAp[k + 1] ]*/
 
-extern struct timespec  G_START_TIME, G_END_TIME ;
-extern long double G_COARSEN_TIME ;
-
-
-
-
 static Graph* Graph_Coarsen
 (
     Graph           *GraphFine,
@@ -41,7 +36,6 @@ static Graph* Graph_Coarsen
     Options           *options
 )
 {
-    clock_gettime(CLOCK_REALTIME, &G_START_TIME) ;
     #ifdef DEBUG
         static long long unsigned count = 0 ;
         count += 1 ;
@@ -408,9 +402,6 @@ static Graph* Graph_Coarsen
         }
     #endif
 
-    clock_gettime(CLOCK_REALTIME, &G_END_TIME) ;
-    G_COARSEN_TIME += compute_elapsed_time(G_START_TIME, G_END_TIME) ;
-
     return Graph_Coarse;
 }
 
@@ -520,6 +511,7 @@ Problem *Problem_Recursive_Coarsen
     l = 0 ; // Invariant: l = # of coarsenings
     while( 1 )
     {
+        TIMER_START(T_COARSEN) ;
         // Match P
         Graph_Simple_Match
         (
@@ -544,9 +536,11 @@ Problem *Problem_Recursive_Coarsen
             coarsest_P = P ;
             break ;
         }
+        VSP_timer_flush(G_Current_Problem_Name, l - 1) ;
 
         P = coarse_P ;
         l++ ;
+        TIMER_STOP(T_COARSEN) ;
     }
     coarsest_P->child_problem = NULL ;
 

@@ -13,10 +13,6 @@
 #define ABS_DIFF(a, b) ( ((a) > (b)) ? ( (a) - (b) ) : ( (b) - (a) ) )
 #define CAST(arg, type) ( ((type) (arg)) )
 
-struct timespec  G_START_TIME, G_END_TIME ;
-long double G_COMPRESS_TIME = 0, G_FLIPS_TIME = 0, G_COARSEN_TIME = 0,
-G_HEM_TIME = 0, G_BM_TIME = 0 ;
-
 
 /* The cleanup is done in-place */
 void cleanupGraphName(char *graph_name)
@@ -602,6 +598,7 @@ int main(int argc, char** argv)
     sum_imb  = 0 ;
     sum_sep  = 0 ;
     sum_time = 0 ;
+    VSP_timer_open("output/profile.csv") ;
 
     VSPINT n, *Ai ;
     VSPLONG *Ap ;
@@ -654,19 +651,12 @@ int main(int argc, char** argv)
         destruct_solve_result(result) ;
         free(sltn_stats) ;
     }
+    VSP_timer_close() ;
     Print_Aggregate_Results(sum_sep, sum_imb, sum_time, seed, num_graphs) ;
 
 
     /* Free memory */
     destruct_options(options) ;
-
-    // Print times
-    printf("Flips time: %Lf\n", G_FLIPS_TIME) ;
-    printf("HEM time: %Lf\n", G_HEM_TIME) ;
-    printf("BM time: %Lf\n", G_BM_TIME) ;
-    printf("Coarsen time: %Lf\n", G_COARSEN_TIME) ;
-    // printf("Matching time: %Lf\n", G_Performance_Struct.Matching_Seconds) ;
-
     return 0 ;
 }
 

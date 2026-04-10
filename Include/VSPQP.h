@@ -162,4 +162,7 @@ void set_default_options(Options* options) ;
 
 long double compute_elapsed_time(struct timespec start, struct timespec end) ;
 
+void VSP_timer_open(const char *filename) ;
+void VSP_timer_close(void) ;
+
 #endif
