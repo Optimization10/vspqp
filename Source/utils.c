@@ -2063,9 +2063,6 @@ void mat_vec_mult
     const VSPINT           n
 )
 {
-    TIMER_START ;
-
-
     VSPINT i, col = 0 ;
     VSPLONG p ;
     VSPLONG start, end ;
@@ -2084,7 +2081,6 @@ void mat_vec_mult
             Az[col] ++ ;
         }
     }
-    TIMER_END ;
 }
 
 
@@ -2599,4 +2595,34 @@ void ComputeGradFlt
         }
     }
     return ;
+}
+
+
+void Record_Graph_Stats
+(
+    Graph   *graph,
+    VSPINT   level,
+    char    *output_file
+)
+{
+    FILE *fp ;
+
+    // On first run, open the file in writing mode
+    static bool first_run = true ;
+    if(first_run)
+    {
+        first_run = false ;
+        fp = fopen(output_file, "w") ;
+        fprintf(fp, "id,level,n,edges,alpha,gamma,ratNodesGamma\n") ;
+    }
+    else fp = fopen(output_file, "a") ;
+
+    fprintf
+    (
+        fp, "%s,%lld,%lld,%lld,%lld,%lld,%f\n",
+        G_Current_Problem_Name, PRI(level), PRI(graph->n), PRI(graph->nz / 2),
+        PRI(graph->min_vtx_cost) , PRI(graph->max_vtx_cost),
+        graph->ratio_max_cost
+    ) ;
+    fclose(fp) ;
 }

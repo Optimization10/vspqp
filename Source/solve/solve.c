@@ -128,7 +128,8 @@ solve_result *Package_Result(State *X, State *Y, Problem *P)
 
 /* Set the cost of each vector to 1, each edge weight to 1, and
    the balance constraints as 60% of the total number of vertices             */
-void set_default_problem_data(Problem* problem) {
+void set_default_problem_data(Problem* problem)
+{
     VSPLONG i ;
     VSPINT n = problem->graph->n ;
     VSPLONG nz = problem->graph->nz ;
@@ -142,10 +143,8 @@ void set_default_problem_data(Problem* problem) {
     for(i = 0 ; i < nz ; i++) Ae[i] = 1 ;
 
     /* Set the upper balance constraint to 60%, and lower constraint to 1 */
-    problem->u = (VSPINT) (problem->graph->n * 0.6);
-
+    problem->u =        (VSPINT) (problem->graph->n * 0.6);
     problem->ubFinest = (VSPINT) (problem->graph->n * 0.6) ;
-
     return ;
 }
 
@@ -159,6 +158,7 @@ void    preprocess_finest_problem
 {
     VSPINT node, num_nodes, c_node, alpha, gamma, total_graph_weight ;
     VSPINT* c ;
+    VSPFLOAT ratio_cost_gamma ; // Ratio of notes with cost gamma
     num_nodes = problem->graph->n ;
 
     /* Finest problem has no parent. Lets us know when to stop refining */
@@ -175,6 +175,7 @@ void    preprocess_finest_problem
             maxDeg =  Ap[node + 1] - Ap[node] ;
         }
     }
+    problem->graph->max_deg = maxDeg ;
 
     /* Compute alpha, gamma, and the sum of all costs */
     if (options->c_is_all_ones == TRUE )
@@ -182,6 +183,7 @@ void    preprocess_finest_problem
         alpha = 1 ;
         gamma = 1 ;
         total_graph_weight = num_nodes ;
+        ratio_cost_gamma = 1 ;
     }
     else
     {
@@ -196,10 +198,18 @@ void    preprocess_finest_problem
             if ( c_node > gamma ) gamma = c_node ;
             if ( c_node < alpha ) alpha = c_node ;
         }
+
+        VSPINT num_nodes_gamma = 0 ;
+        for(node = 0 ; node < num_nodes ; node++)
+        {
+            if(c[node] == gamma) num_nodes_gamma++ ;
+        }
+        ratio_cost_gamma = ( (VSPFLOAT) (num_nodes_gamma) ) / num_nodes ;
     }
     problem->graph->min_vtx_cost = alpha ;
     problem->graph->max_vtx_cost = gamma ;
     problem->graph->total_vtx_cost = total_graph_weight ;
+    problem->graph->ratio_max_cost = ratio_cost_gamma ;
 
 
     return ;
@@ -215,7 +225,10 @@ void check_for_complete_graph(Problem *problem)
     long long upper_bnd_nz = n_long * n_long - n_long ;
     if( nz_long == upper_bnd_nz )
     {
-        fprintf(stderr, "ERROR: Graph %s is complete\n", problem->name) ;
+        fprintf
+        (
+            stderr, "ERROR: Graph %s is complete\n", G_Current_Problem_Name
+        ) ;
         exit(1) ;
     }
     else if(nz_long > upper_bnd_nz)

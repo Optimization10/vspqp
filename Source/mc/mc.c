@@ -20,7 +20,6 @@ void mountain_climbing
         if(is_gamma_org) VSP_ASSERT(equal(gamma,problem->graph->max_vtx_cost)) ;
         else             VSP_ASSERT(gamma < problem->graph->max_vtx_cost) ;
     #endif
-    TIMER_START ;
 
     #ifdef DEBUG
         /* Check input */
@@ -161,24 +160,6 @@ void mountain_climbing
 
         old_obj = new_obj;
     }
-    TIMER_END ;
-
-    // printf("level: %lld  n: %lld  nz: %lld gamma_org: %lld gamma_used: %f mc_count: %lld  mc_time: %Lf\n",
-    // PRI(problem->level), PRI(n), PRI(problem->graph->nz), PRI(problem->graph->max_vtx_cost),
-    // gamma, PRI(mc_count),
-    // TIMER_ELAPSED ) ;
-
-    // if(!is_gamma_org)
-    // {
-    //     printf("%s,%lld,%lld,%lld,%lld,%f,%lld,%Lf\n",
-    //     problem->name, PRI(problem->level), PRI(problem->graph->n),PRI(problem->graph->nz),
-    //     PRI(problem->graph->max_vtx_cost), gamma, 
-    //     PRI(mc_count),TIMER_ELAPSED) ;
-    // }
-    // fflush(stdout) ;
-
-    
-    PERFORMANCE_UPDATE_TIME(MC) ;
 
     return;
 }

@@ -3,6 +3,14 @@
 
 #include "core.h"
 
+void Record_Graph_Stats
+(
+    Graph   *graph,
+    VSPINT   level,
+    char    *output_file
+) ;
+
+
 State *Clone_State(State *src) ;
 
 void Round_Down_Fractions

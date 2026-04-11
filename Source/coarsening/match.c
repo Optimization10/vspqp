@@ -579,7 +579,6 @@ void Graph_Simple_Match
     Options   *options
 )
 {
-    TIMER_START ;
     SET_FUNCTION_COUNTER ;
 
     VSPINT *cn = &(M->cn) ;
@@ -1046,9 +1045,6 @@ void Graph_Simple_Match
             *cn
         ) ;
     #endif
-
-    TIMER_END ;
-    PERFORMANCE_UPDATE_TIME(Matching) ;
 
     return ;
 }

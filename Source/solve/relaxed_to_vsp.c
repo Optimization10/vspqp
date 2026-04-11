@@ -1,3 +1,4 @@
+#include "core.h"
 #include "solve_internal.h"
 #include "utils.h"
 #include <stdio.h>
@@ -203,9 +204,6 @@ void relaxed_to_vertex_separator
         check_states(X, Y, problem) ;
     #endif
 
-
-    TIMER_START ;
-
     /* Local vars */
     VSPINT *x, *y, *Ax, *Ay, *c, *ind_bad_x, *ind_bad_y ;
     VSPINT i, j, n, xi, yi, xAy, sum_x, sum_y, num_bad_x, num_bad_y;
@@ -356,7 +354,7 @@ void relaxed_to_vertex_separator
             if(complete_graph)
             {
                 printf("\n\nERROR: Graph is complete.") ;
-                printf("\nGraph name: %s\n\n", problem->name) ;
+                printf("\nGraph name: %s\n\n", G_Current_Problem_Name) ;
                 exit(1) ;
             }
             break ;
@@ -441,9 +439,6 @@ void relaxed_to_vertex_separator
             Error("Objective worsened after improve", DBG_INFO) ;
         }
     #endif
-
-    TIMER_END ;
-    PERFORMANCE_UPDATE_TIME(Relaxed_To_VSP) ;
 
     return ;
 }

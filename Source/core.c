@@ -163,15 +163,11 @@ Problem* Construct_Problem
     VSPINT                *Ai, // If NULL, then this is allocated
     VSPLONG               *Ap, // If NULL, then this is allocated
     VSPINT                *Ae, // If NULL, then this is allocated
-    Options      *options
+    Options          *options
 )
 {
     /* Create the problem */
     Problem* problem = calloc(1, sizeof(Problem));
-
-    /* Construct the name */
-    problem->name = malloc( 350 * sizeof(char) ) ;
-    problem->name[0] = '\0' ;
 
     /* Construct adjacency matrix */
     problem->graph = Construct_Graph(num_vertices, nz, Ap, Ai, Ae) ;
@@ -195,7 +191,6 @@ void Destroy_Problem(Problem* problem)
 {
     Destroy_Graph(problem->graph) ;
     Matching_Destroy(problem->matching) ;
-    free(problem->name) ;
     free(problem);
 }
 

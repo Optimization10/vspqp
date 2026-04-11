@@ -90,27 +90,6 @@
                "File: %s  Line: %lld\n\n", __FILE__, (long long)__LINE__)
 #endif
 
-/* -------------------------------------------------------------------------- */
-/*  Timer                                                                     */
-/* -------------------------------------------------------------------------- */
-
-#define TIMER_START                                          \
-    struct timespec _vsp_timer_start;                            \
-    clock_gettime(CLOCK_REALTIME, &_vsp_timer_start)
-
-#define TIMER_END                                            \
-    struct timespec _vsp_timer_end;                              \
-    clock_gettime(CLOCK_REALTIME, &_vsp_timer_end)
-
-#define TIMER_ELAPSED  compute_elapsed_time(_timer_start, _timer_end)
-
-#define PERFORMANCE_UPDATE_TIME(PREFIX) \
-// do { \
-//     G_Performance_Struct.PREFIX##_Count++; \
-//     G_Performance_Struct.PREFIX##_Seconds += \
-//     (   (_vsp_timer_end.tv_sec - _vsp_timer_start.tv_sec) \
-//     + (_vsp_timer_end.tv_nsec - _vsp_timer_start.tv_nsec) / 1e9L ); \
-// } while(0) */
 
 /* ========================================================================== */
 /*  Core Types                                                                */
@@ -166,7 +145,6 @@ typedef struct
 typedef struct Problem_struct
 {
     Graph *graph ;  /* the graph being solved */
-    char   *name ;  /* name of the graph */
     VSPINT     u ;  /* upper balance constraint */
 
     /* Matching info */

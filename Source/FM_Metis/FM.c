@@ -361,8 +361,6 @@ void FM_Metis
     // printf("\nStarting FM_METIS") ;
     fflush(stdout) ;
 
-    TIMER_START ;
-
     #ifdef DEBUG
 
         Check_FM_Inputs(Z, W, problem) ;
@@ -828,8 +826,6 @@ void FM_Metis
         }
     #endif
 
-    TIMER_END ;
-    PERFORMANCE_UPDATE_TIME(FM) ;
 
     return ;
 }

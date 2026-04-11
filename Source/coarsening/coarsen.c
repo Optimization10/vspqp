@@ -452,8 +452,6 @@ static Problem *Problem_Coarsen
     /* ====================================================================== */
     // Set other problem data
     /* ====================================================================== */
-    strcpy(P_coarse->name, P->name) ;
-
     P->child_problem         = P_coarse ;
     P_coarse->u              = P->u ;
     P_coarse->ubFinest       = P->ubFinest ;
@@ -561,5 +559,15 @@ Problem *Problem_Recursive_Coarsen
        SetUpperBound(P, options) ;
        P = P->parent_problem ;
     }
+
+    ///////////////////////////////////////////////////////
+    P = probFinest ;
+    while(P != NULL)
+    {
+        Record_Graph_Stats(P->graph, P->level, "output/graph_stats.csv") ;
+        P = P->child_problem ;
+    }
+    ///////////////////////////////////////////////////////
+
     return coarsest_P ;
 }
