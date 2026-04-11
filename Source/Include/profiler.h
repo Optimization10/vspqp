@@ -10,13 +10,13 @@ extern int counts[T_COUNT];
 
 #define TIMER_START(id) \
     struct timespec _ts_##id; \
-    clock_gettime(CLOCK_MONOTONIC, &_ts_##id); \
-    double _t_##id = _ts_##id.tv_sec + _ts_##id.tv_nsec * 1e-9
+    clock_gettime(CLOCK_MONOTONIC, &_ts_##id)
 
 #define TIMER_STOP(id) do { \
     struct timespec _te_##id; \
     clock_gettime(CLOCK_MONOTONIC, &_te_##id); \
-    timings[id] += (_te_##id.tv_sec + _te_##id.tv_nsec * 1e-9) - _t_##id; \
+    timings[id] += (_te_##id.tv_sec - _ts_##id.tv_sec) \
+                 + (_te_##id.tv_nsec - _ts_##id.tv_nsec) * 1e-9; \
     counts[id]++; \
 } while(0)
 
