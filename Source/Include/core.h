@@ -125,10 +125,12 @@ typedef struct
     VSPLONG *Ap ;
     VSPINT  *Ae ;
 
-    VSPINT *c ;
-    VSPINT min_vtx_cost ;
-    VSPINT max_vtx_cost ;
-    VSPINT total_vtx_cost ;
+    VSPINT   *c ;
+    VSPINT    max_deg ;
+    VSPINT    min_vtx_cost ;
+    VSPINT    max_vtx_cost ;
+    VSPINT    total_vtx_cost ;
+    VSPFLOAT  ratio_max_cost ; // ratio of vertices with max cost
 
     // If true, then memory was allocated by the graph constructor
     // which needs to be freed by the destroyer

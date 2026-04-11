@@ -58,7 +58,6 @@ static Graph* Graph_Coarsen
     VSPINT *c_fine   = GraphFine->c;
 
 
-
     /* Build the coarse graph */
 
     // Q: I am using the fine problem nz here, is this a problem?
@@ -68,10 +67,11 @@ static Graph* Graph_Coarsen
     Graph *Graph_Coarse = Construct_Graph(n_coarse, GraphFine->nz, NULL, NULL, NULL) ;
 
     VSPLONG *Ap_coarse = Graph_Coarse->Ap;
-    VSPINT *Ai_coarse = Graph_Coarse->Ai;
-    VSPINT *Ae_coarse = Graph_Coarse->Ae;
-    VSPINT *c_coarse  = Graph_Coarse->c;
-    VSPLONG munch = 0;
+    VSPINT  *Ai_coarse = Graph_Coarse->Ai;
+    VSPINT  *Ae_coarse = Graph_Coarse->Ae;
+    VSPINT  *c_coarse  = Graph_Coarse->c;
+    VSPINT   num_vtx_cost_gamma = 0 ;
+    VSPLONG  munch = 0;
 
     /* Hashtable stores column pointer values. */
     VSPLONG* htable = malloc(n_coarse * sizeof(*htable));
@@ -189,13 +189,16 @@ static Graph* Graph_Coarsen
                 }
             }
         }
-        /* Save the vertex weight and cost */
         c_coarse[k] = vertexCost;
 
-        /* Update gamma_coarse */
+        /* Update alpha, gamma, and num vertices with cost gamma */
         if (vertexCost > gamma_coarse)
-            {gamma_coarse = vertexCost;}
-        if (vertexCost < alpha_coarse) alpha_coarse = vertexCost ;
+        {
+            gamma_coarse = vertexCost ;
+            num_vtx_cost_gamma = 1 ;
+        }
+        else if (vertexCost == gamma_coarse) num_vtx_cost_gamma++ ;
+        else if (vertexCost < alpha_coarse)  alpha_coarse = vertexCost ;
     }
     Ap_coarse[n_coarse] = munch;
 
@@ -205,9 +208,16 @@ static Graph* Graph_Coarsen
         maxDeg =  Ap_coarse[n_coarse] - Ap_coarse[n_coarse - 1] ;
     }
 
+    // Compute proportion of vertices with maximum cost
+    // for(VSPINT i = 0 ; i < n_coarse ; i++)
+    // {
+
+    // }
+
     /* Update coarse graph */
     Graph_Coarse->n              = n_coarse ;
     Graph_Coarse->nz             = munch ;
+    Graph_Coarse->max_deg        = maxDeg ;
     Graph_Coarse->min_vtx_cost   = alpha_coarse ;
     Graph_Coarse->max_vtx_cost   = gamma_coarse ;
     Graph_Coarse->total_vtx_cost = GraphFine->total_vtx_cost ;
