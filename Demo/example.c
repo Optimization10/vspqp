@@ -598,7 +598,6 @@ int main(int argc, char** argv)
     sum_imb  = 0 ;
     sum_sep  = 0 ;
     sum_time = 0 ;
-    VSP_timer_open("output/profile.csv") ;
 
     VSPINT n, *Ai ;
     VSPLONG *Ap ;
@@ -651,7 +650,6 @@ int main(int argc, char** argv)
         destruct_solve_result(result) ;
         free(sltn_stats) ;
     }
-    VSP_timer_close() ;
     Print_Aggregate_Results(sum_sep, sum_imb, sum_time, seed, num_graphs) ;
 
 

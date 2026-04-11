@@ -32,17 +32,7 @@ static void ResolveLevelDecideAndDo
 }
 
 
-// Input: an almost binary point. Initial point at this level
-// Output: all our improvements algorithms have been applied
-void Solve_Level
-(
-    State *X, State *Y, Problem *problem, Options *options
-)
-{
-    Optimize(X, Y, problem, options) ;
-    relaxed_to_vertex_separator(X, Y, problem) ;
-    ResolveLevelDecideAndDo(X, Y, problem, options) ;
-}
+
 
 void Destroy_All_Problems(Problem *problemFinest)
 {
@@ -240,6 +230,22 @@ void check_for_complete_graph(Problem *problem)
 }
 
 
+// Input: an almost binary point. Initial point at this level
+// Output: all our improvements algorithms have been applied
+void Solve_Level
+(
+    State *X, State *Y, Problem *problem, Options *options
+)
+{
+    TIMER_START(T_TOTAL) ;
+    Optimize(X, Y, problem, options) ;
+    relaxed_to_vertex_separator(X, Y, problem) ;
+    ResolveLevelDecideAndDo(X, Y, problem, options) ;
+    relaxed_to_vertex_separator(X, Y, problem) ;
+    TIMER_STOP(T_TOTAL) ;
+    Timer_Flush(problem->level) ;
+}
+
 solve_result *VSP_Solve
 (
     VSPINT    n,
@@ -288,6 +294,7 @@ solve_result *VSP_Solve
     Y_lp1 = Construct_State(P->graph->n) ;
     set_initial_guess(X_lp1, Y_lp1, P, options) ;
     Solve_Level(X_lp1, Y_lp1, P, options) ;
+    
 
     // Invariant: X_l, Y_l holds the solution at level l
     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
@@ -298,7 +305,6 @@ solve_result *VSP_Solve
 
         // Solve level l
         Solve_Level(X_l, Y_l, P, options) ;
-        relaxed_to_vertex_separator(X_l, Y_l, P) ;
 
         X_lp1 = X_l ;
         Y_lp1 = Y_l ;

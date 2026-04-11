@@ -2,6 +2,7 @@
 #include "FM_internal.h"
 #include "data_structures.h"
 
+#include "profiler.h"
 #include "utils.h"
 
 /*----------------------------------------------------------------------------*/
@@ -316,517 +317,6 @@ void MovesImprovingCost
             bndptr, *nbnd, problem
         ) ;
     #endif
-    return ;
-}
-
-
-
-/*----------------------------------------------------------------------------*/
-/*      Driver Function                                                       */
-/*----------------------------------------------------------------------------*/
-/* Assume we start with a bona fide separator */
-void FM_Metis
-(
-    State             *Z,
-    State             *W,
-    Problem     *problem,
-    UNUSED Options     *options,
-    VSPINT          n_passes
-)
-{
-    static long long unsigned count = 0 ;
-    count++ ;
-
-    // Check that x, y are binary and compute xAy
-    if(Z->point->ind_frac != EMPTY) printf("x has frac component in FM METIS. Count %llu\n", count) ;
-    if(W->point->ind_frac != EMPTY) printf("y has frac component in FM METIS. Count %llu\n", count) ;
-
-    VSPINT xAy = 0 ;
-    for(VSPINT ii = 0 ; ii < problem->graph->n ; ii++)
-    {
-        xAy += Z->point->int_part[ii] * W->Az->int_part[ii] ;
-    }
-
-    VSPINT yAx = 0 ;
-    for(VSPINT ii = 0 ; ii < problem->graph->n ; ii++)
-    {
-        xAy += W->point->int_part[ii] * Z->Az->int_part[ii] ;
-    }
-
-    if(xAy != yAx) printf("Cross term not accurate in FM METIS. Count %llu\n", count) ;
-    if(xAy != 0) printf("Cross term not zero FM METIS. Cross term value: %lld Count %llu\n", (long long) xAy, count) ;
-
-
-
-    // printf("\nStarting FM_METIS") ;
-    fflush(stdout) ;
-
-    #ifdef DEBUG
-
-        Check_FM_Inputs(Z, W, problem) ;
-        
-        VSPFLOAT objin = compute_obj(Z, W, problem, problem->graph->max_vtx_cost) ;
-    #endif
-    /*--- Parameters (temporary, to be put in options struct -----------------*/
-    VSPINT *moved = malloc( problem->graph->n * sizeof(*moved) ) ;
-    /*------------------------------------------------------------------------*/
-
-    /* Declare local variables */
-    VSPLONG p ;
-    VSPINT i, j, to, other, topGains[2], topVals[2], nswaps ;
-    VSPINT k, oldgain ;
-
-
-    /* Unpack structs */
-    VSPINT *z  = Z->point->int_part ;
-    VSPINT *w  = W->point->int_part ;
-    VSPINT  n  = problem->graph->n ;
-    VSPINT *c  = problem->graph->c ;
-    VSPINT *Ai = problem->graph->Ai ;
-    VSPLONG *Ap = problem->graph->Ap ;
-
-    /* Initialize swaps array */
-    VSPINT *swaps = malloc( n * sizeof(*swaps) ) ;
-
-    /* Initialize partition weights */
-    VSPINT pwgts[3] ;
-    pwgts[0] = Z->weight ;
-    pwgts[1] = W->weight ;
-    pwgts[2] = problem->graph->total_vtx_cost - pwgts[0] - pwgts[1] ;
-
-    /* Initalize the mind structure */
-    VSPINT *mind    = malloc(2 * n * sizeof(*mind)) ;
-    VSPINT *mptr    = malloc( (n + 1) * sizeof(*mptr) ) ;
-    VSPINT  nmind   = 0 ;
-    mptr[0]         = 0 ;
-    
-
-    /* Initialize separator structure and where array */
-    VSPINT nbnd         = 0;
-    VSPINT *bndind      = malloc(n * sizeof(*bndind)) ;
-    VSPINT *bndptr      = malloc(n * sizeof(*bndptr)) ;
-    VSPINT *where       = malloc(n * sizeof(*where)) ;
-    Init_Where_And_Sep(bndind, bndptr, &nbnd, where, z, w, n) ;
-
-
-    /* Initialize the external neighbor weights */
-    ExtNeighWgts *extWgts = malloc(n * sizeof(*extWgts) ) ;
-    Set_Ext_Neigh_Wgts(extWgts, Ai, Ap, c, bndind, nbnd, where) ;
-
-    /* Initialize the queues */
-    QueueFM *queues[2] ;
-    queues[0] = QueueFM_Construct(n) ;
-    queues[1] = QueueFM_Construct(n) ;
-
-    #ifdef DEBUG
-        Check_Ext_Neigh_Wgts(extWgts, Ai, Ap, c, n, where) ;
-        BND_Check(nbnd, bndind, bndptr, where, n) ;
-        QueueFM_Check_Heap_Light(queues[0]) ;
-        QueueFM_Check_Heap_Light(queues[1]) ;
-    #endif
-
-    /*------------------------------------------------------------------------*/
-    /* FM Loop                                                                */
-    /*------------------------------------------------------------------------*/
-
-
-    /* higain is the vertex with the highest gain */
-    VSPINT higain ;
-
-    /* mindiff is the diff in c'x and x'y at the best x, y so far */
-    VSPINT mindiff    = abs( pwgts[0] - pwgts[1] ) ; 
-    to                = (pwgts[0] < pwgts[1] ? 0 : 1) ;
-
-    /* This is the current difference between c'x and c'y at the current
-       nswap iteration */
-    VSPINT newdiff ;
-
-    /* badmaxpwgt is the upper balance constraint */
-    VSPINT badmaxpwgt = problem->u ;
-
-    /* limit is used to quit FM early if it's taking too long */
-    VSPINT limit      = options->FM_Limit ; // In Metis, limit = (ctrl->compress ? gk_min(5*nbnd, 400) : gk_min(2*nbnd, 300));
-
-
-
-
-
-    /* TODO: pass is the number of FM passes. It is used in the code to throw
-       in some randomness */
-    VSPINT pass = 0 ;
-
-    // n_passes = 1 ;
-    // n_passes = problem->level + 4 ;
-    for(pass = 0 ; pass < n_passes ; pass++)
-    {
-
-        /* Initialize moved array */
-        Fill_Int_Array_With_Value(EMPTY, moved, n) ;
-
-        /* Initialize queues */
-        Fill_Int_Array_With_Value(EMPTY, queues[0]->locator, n) ;
-        Fill_Int_Array_With_Value(EMPTY, queues[1]->locator, n) ;
-        queues[0]->numNodes = 0 ;
-        queues[1]->numNodes = 0 ;
-        for(i = 0 ; i < nbnd ; i++)
-        {
-            j = bndind[i] ;
-            QueueFM_Insert(queues[0], j, c[j] - extWgts[j].wgts[1] ) ;
-            QueueFM_Insert(queues[1], j, c[j] - extWgts[j].wgts[0] ) ;
-        }
-
-
-        MovesImprovingCost(where, pwgts, queues, extWgts, badmaxpwgt, bndind, bndptr, &nbnd, pass, 0, problem) ;
-
-        mindiff = abs( pwgts[0] - pwgts[1] ) ;
-
-        /* mincut is the weight of the best separator so far */
-        VSPINT mincut = pwgts[2] ;
-
-
-        /* mincutorder is the nswap at which the best separator is achieved */
-        VSPINT mincutorder = EMPTY ;
-
-        // TODO: Careful with abs here if VSPINT is not VSPINT
-        mptr[0]           = 0 ;
-        nmind             = 0 ;
-
-        // Start an FM pass. Moves here may not improve cost
-        for (nswaps = 0; nswaps < n; nswaps++)
-        {
-            topVals[0] = QueueFM_See_Top_Value(queues[0]) ;
-            topVals[1] = QueueFM_See_Top_Value(queues[1]) ;
-
-            /* This if structure is all about figuring out the best "to" */
-            if (topVals[0] != EMPTY && topVals[1] != EMPTY)
-            {
-                topGains[0] = c[topVals[0]] - extWgts[topVals[0]].wgts[1];
-                topGains[1] = c[topVals[1]] - extWgts[topVals[1]].wgts[0];
-
-                to = (topGains[0] > topGains[1] ? 0 : (topGains[0] < topGains[1] ? 1 : pass % 2));
-                other = 1 - to ;
-
-                VSP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
-
-                // Check if the chosen move "to" is feasible. If not, chose the other move
-                if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
-                {
-                    to = (to + 1) % 2 ;
-                    other = 1 - to ;
-                    if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
-                    {
-                        break ;
-                    }
-                }
-
-                VSP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
-                if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
-                {
-                    to = (to + 1) % 2 ;
-                    other = 1 - to ;
-                    if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
-                    {
-                        break ;
-                    }
-                } 
-            }
-            else if (topVals[0] == EMPTY && topVals[1] == EMPTY)
-            {
-                break;
-            }
-            else if (topVals[0] != EMPTY && pwgts[0] + c[topVals[0]] <= badmaxpwgt)
-            {
-                to = 0 ;
-                other = 1 - to ;
-            }
-            else if (topVals[1] != EMPTY && pwgts[1] + c[topVals[1]] <= badmaxpwgt)
-            {
-                to = 1 ;
-                other = 1 - to ;
-            }
-            else break;
-
-            VSP_ASSERT(to + other == 1) ;
-
-            /* Ovi: Other is the opposite of to. If to is 0, other is 1, and v.v. */
-            other = (to + 1) % 2 ;
-
-            /* Retrieve top value and delete it from the queue */
-            // higain is node we want to move
-            higain = QueueFM_Get_Top_Value(queues[to]) ;
-            VSP_ASSERT( IN_RANGE(higain, 0, n) ) ;
-            VSP_ASSERT(bndptr[higain] != -1);
-
-            /* Delete if it was in the separator originally */ // Ovi: why delte this conditionally, and not always?
-            if (moved[higain] == EMPTY) 
-            {
-                QueueFM_Delete(queues[other], higain) ;
-            }
-
-            /* The following check is to ensure we break out if there is a possibility
-            of over-running the mind array. Ovi: Recall mind has size 2n */
-            if (nmind + Ap[higain + 1] - Ap[higain] >= 2 * n - 1)
-            {
-                break;
-            }
-
-            pwgts[2] -= (c[higain] - extWgts[higain].wgts[other]);
-
-            /* Calculate new weight difference between z and w */
-            newdiff = abs(pwgts[to] + c[higain] - (pwgts[other] - extWgts[higain].wgts[other])) ;
-
-            /* Determine if the current paritition is best so far */
-            if (pwgts[2] < mincut || (pwgts[2] == mincut && newdiff < mindiff))
-            {
-                mincut      = pwgts[2];
-                mincutorder = nswaps;
-                mindiff     = newdiff;
-            }
-            else
-            {
-                /* Determine if we should quit early */
-                bool ran_too_long = (nswaps - mincutorder > 2 * limit) ;
-                bool too_long_since_last_improvement = (nswaps - mincutorder > limit && pwgts[2] > 1.10 * mincut) ;
-
-                if (ran_too_long || too_long_since_last_improvement)
-                {
-                    pwgts[2] += (c[higain] - extWgts[higain].wgts[other]);
-                    break; /* No further improvement, break out */
-                }
-            }
-
-            /* Move node higain from the separator into to */
-            BND_Delete(&nbnd, bndind, bndptr, higain);
-            pwgts[to]     += c[higain];
-            where[higain]  = to;
-            moved[higain]  = nswaps;
-            swaps[nswaps]  = higain;
-
-            #ifdef DEBUG
-                BND_Check(nbnd, bndind, bndptr, where, n) ;
-            #endif
-
-            /**********************************************************
-             * Update the degrees of the affected nodes
-             ***********************************************************/
-            for (p = Ap[higain]; p < Ap[higain + 1]; p++)
-            {
-                #ifdef DEBUG
-                    BND_Check(nbnd, bndind, bndptr, where, n) ;
-                #endif
-                k = Ai[p];
-
-                if (where[k] == 2) /* If k is in the separator */
-                { 
-                    /* For the in-separator vertices modify their edegree[to] */
-                    oldgain = c[k] - extWgts[k].wgts[to];
-                    extWgts[k].wgts[to] += c[higain];
-
-                    /* TODO: What is this? I think I know the answer. k SHOULD only
-                    be in the queue if it started in the sep and never moved,
-                    or if it moved at some point in the past from other into sep.
-
-                    if moved[k] == EMPTY, we should update the other queue (there is no update to make to the to queue)
-                    if moved[k] signifies that k was dragged in from to, it can no longer go back to to but it can go to other, and the queue[other] should be updated
-                    if moved[k] signifies k was dragged in from other, it cannot go back to other, it can only go to to. But the to queue was no affected, so there is
-                                no need to make any updated
-                    if moved[k] signifies that k moved as a vertex from the sep of its own volition,
-                                then it's cannot move independently anymore so shouldn't be in any queue
-
-
-                    If neither condition is met, then k should not be in the to
-                    queue to begin with. */
-                    if (moved[k] == EMPTY || moved[k] == -(2 + other))
-                    {
-                        QueueFM_Update(queues[other], k, oldgain - c[higain]);
-                    }
-                }
-                else if (where[k] == other) /* If k is in other */
-                { 
-                    /* Pull k into the separator */
-                    where[k] = 2 ;
-                    BND_Insert(&nbnd, bndind, bndptr, k) ;
-                    pwgts[other] -= c[k] ;
-
-                    /* Update mind array with this move */
-                    mind[nmind++] = k ;
-
-                    /* Now that k is in the separator, compute its external wgts */
-                    /* TODO: I think we only need to move this if k is not locked */
-                    (extWgts[k].wgts)[0] = 0 ;
-                    (extWgts[k].wgts)[1] = 0 ;
-                    for (VSPLONG jj = Ap[k]; jj < Ap[k + 1]; jj++)
-                    {
-                        VSPINT kk = Ai[jj];
-                        if (where[kk] != 2)
-                        {
-                            (extWgts[k].wgts)[where[kk]] += c[kk];
-                        }
-                        else // kk is in the separator
-                        {
-                            /* kk is in the separator and is a neighbor of k. Since
-                            k just moved from other into the sep, there is a
-                            change in the external weight of kk */
-                            oldgain = c[kk] - (extWgts[kk].wgts)[other] ;
-                            (extWgts[kk].wgts)[other] -= c[k] ;
-
-                            /* kk is in the queue only if it hasn't moved, or if
-                            if it was dragged into the separator */
-                            if (moved[kk] == -1 || moved[kk] == -(2 + to))
-                            {
-                                /* If kk were to move to to, it no longer has to
-                                drag its neighbor k from other, because its
-                                neighbor k is in the separator now. So the gain
-                                for pushing kk into to has improved by c[k] */
-                                QueueFM_Update(queues[to], kk, oldgain + c[k]);
-                            }
-                        }
-                    }
-
-                    /* Insert the new vertex into the priority queue. Only one side! */
-                    if (moved[k] == -1)
-                    {
-                        QueueFM_Insert(queues[to], k, c[k] - (extWgts[k].wgts)[other]);
-                        moved[k] = -(2 + to);
-                    }
-                }
-            }
-            mptr[nswaps + 1] = nmind;
-
-            #ifdef DEBUG
-                Check_Ext_Neigh_Wgts(extWgts, Ai, Ap, c, n, where) ;
-                BND_Check(nbnd, bndind, bndptr, where, n) ;
-                QueueFM_Check_Heap_Light(queues[0]) ;
-                QueueFM_Check_Heap_Light(queues[1]) ;
-                if(pwgts[0] > problem->u)
-                {
-                    Error("Part 0 violated upper bound", DBG_INFO) ;
-                }
-                if(pwgts[1] > problem->u)
-                {
-                    Error("Part 1 violated upper bound", DBG_INFO) ;
-                }
-
-            #endif
-        }
-
-        // printf("\n\n Fraction of swaps: %f\n\n", (nswaps / (double) n) ) ;
-
-        /****************************************************************
-         * Roll back computation
-         *****************************************************************/
-        for (nswaps--; nswaps > mincutorder; nswaps--)
-        {
-            higain = swaps[nswaps] ;
-
-            to = where[higain];
-            other = (to + 1) % 2;
-
-            /* Revert the weights of the partitions */
-            // TODO: If we just remember the weights, it should be unneccesary to
-            // revert them step by step like this
-            INC_DEC(pwgts[2], pwgts[to], c[higain]);
-
-            /* Move higain back into the separator */
-            // TODO: on the last FM pass, we don't have to keep the bnd structure
-            // updated anymore
-            where[higain] = 2;
-            BND_Insert(&nbnd, bndind, bndptr, higain);
-
-            /* Compute edegrees of higain */
-            extWgts[higain].wgts[0] = 0 ;
-            extWgts[higain].wgts[1] = 0 ;
-            for (p = Ap[higain] ; p < Ap[higain + 1] ; p++)
-            {
-                k = Ai[p];
-                if (where[k] == 2) // Update ext wgt of neighbors of higain in sep
-                {
-                    extWgts[k].wgts[to] -= c[higain] ;
-                }
-                else // Update ext wgt of higain with the cost of k
-                {
-                    extWgts[higain].wgts[where[k]] += c[k] ;
-                }
-            }
-
-            /* Push nodes out of the separator */
-            for (j = mptr[nswaps]; j < mptr[nswaps + 1]; j++)
-            {
-                k = mind[j];
-                VSP_ASSERT(where[k] == 2) ;
-                #ifdef DEBUG
-                    if(where[k] != 2)
-                    {
-                        Error("Node not in sep", DBG_INFO) ;
-                    }
-                #endif
-
-                /* Move k back to other */
-                where[k] = other;
-                INC_DEC(pwgts[other], pwgts[2], c[k]);
-                BND_Delete(&nbnd, bndind, bndptr, k);
-                for(VSPLONG jj = Ap[k]; jj < Ap[k + 1]; jj++)
-                {
-                    VSPINT kk = Ai[jj];
-                    if (where[kk] == 2)
-                    {
-                        extWgts[kk].wgts[other] += c[k] ;
-                    }
-                }
-            }
-        }
-
-        #ifdef DEBUG
-            if(mincut != pwgts[2])
-            {
-                Error("Mincut doesn't match size of separator", DBG_INFO) ;
-            }
-        #endif
-
-
-        // Flips between FM passes
-        // Where_To_States(where, Z, W, pwgts, problem) ;
-        // Flips(Z, W, problem, 5) ;
-
-        // // Prepare data structures for next pass of FM
-        // pwgts[0] = Z->weight ;
-        // pwgts[1] = W->weight ;
-        // pwgts[2] = problem->graph->total_vtx_cost - pwgts[0] - pwgts[1] ;
-        
-        // nbnd = 0;
-        // Init_Where_And_Sep(bndind, bndptr, &nbnd, where, z, w, n) ;
-        
-        // Set_Ext_Neigh_Wgts(extWgts, Ai, Ap, c, bndind, nbnd, where) ;
-    }
-
-    
-
-    /* Convert FM info back to states */
-    Where_To_States(where, Z, W, pwgts, problem) ;
-
-
-    /* Free memory */
-    free(swaps) ;
-    free(bndind) ;
-    free(bndptr) ;
-    free(where) ;
-    free(mind) ;
-    free(mptr) ;
-    free(moved) ;
-    free(extWgts) ;
-    QueueFM_Destruct(queues[0]) ;
-    QueueFM_Destruct(queues[1]) ;
-
-    #ifdef DEBUG
-        check_states(Z, W, problem) ;
-        VSPFLOAT objout = compute_obj(Z, W, problem, problem->graph->max_vtx_cost) ;
-        if(objout < objin)
-        {
-            Error("Objective decreased during FM", DBG_INFO) ;
-        }
-    #endif
-
-
     return ;
 }
 
@@ -1450,4 +940,516 @@ static void CheckAllFMDataNoLock
 
     QueueFM_Check_Heap_Light(queues[0] ) ;
     QueueFM_Check_Heap_Light(queues[1] ) ;
+}
+
+
+
+/*----------------------------------------------------------------------------*/
+/*      Driver Function                                                       */
+/*----------------------------------------------------------------------------*/
+/* Assume we start with a bona fide separator */
+void FM_Metis
+(
+    State             *Z,
+    State             *W,
+    Problem     *problem,
+    UNUSED Options     *options,
+    VSPINT          n_passes
+)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+    TIMER_START(T_FM) ;
+
+    // Check that x, y are binary and compute xAy
+    if(Z->point->ind_frac != EMPTY) printf("x has frac component in FM METIS. Count %llu\n", count) ;
+    if(W->point->ind_frac != EMPTY) printf("y has frac component in FM METIS. Count %llu\n", count) ;
+
+    VSPINT xAy = 0 ;
+    for(VSPINT ii = 0 ; ii < problem->graph->n ; ii++)
+    {
+        xAy += Z->point->int_part[ii] * W->Az->int_part[ii] ;
+    }
+
+    VSPINT yAx = 0 ;
+    for(VSPINT ii = 0 ; ii < problem->graph->n ; ii++)
+    {
+        xAy += W->point->int_part[ii] * Z->Az->int_part[ii] ;
+    }
+
+    if(xAy != yAx) printf("Cross term not accurate in FM METIS. Count %llu\n", count) ;
+    if(xAy != 0) printf("Cross term not zero FM METIS. Cross term value: %lld Count %llu\n", (long long) xAy, count) ;
+
+
+
+    // printf("\nStarting FM_METIS") ;
+    fflush(stdout) ;
+
+    #ifdef DEBUG
+
+        Check_FM_Inputs(Z, W, problem) ;
+        
+        VSPFLOAT objin = compute_obj(Z, W, problem, problem->graph->max_vtx_cost) ;
+    #endif
+    /*--- Parameters (temporary, to be put in options struct -----------------*/
+    VSPINT *moved = malloc( problem->graph->n * sizeof(*moved) ) ;
+    /*------------------------------------------------------------------------*/
+
+    /* Declare local variables */
+    VSPLONG p ;
+    VSPINT i, j, to, other, topGains[2], topVals[2], nswaps ;
+    VSPINT k, oldgain ;
+
+
+    /* Unpack structs */
+    VSPINT *z  = Z->point->int_part ;
+    VSPINT *w  = W->point->int_part ;
+    VSPINT  n  = problem->graph->n ;
+    VSPINT *c  = problem->graph->c ;
+    VSPINT *Ai = problem->graph->Ai ;
+    VSPLONG *Ap = problem->graph->Ap ;
+
+    /* Initialize swaps array */
+    VSPINT *swaps = malloc( n * sizeof(*swaps) ) ;
+
+    /* Initialize partition weights */
+    VSPINT pwgts[3] ;
+    pwgts[0] = Z->weight ;
+    pwgts[1] = W->weight ;
+    pwgts[2] = problem->graph->total_vtx_cost - pwgts[0] - pwgts[1] ;
+
+    /* Initalize the mind structure */
+    VSPINT *mind    = malloc(2 * n * sizeof(*mind)) ;
+    VSPINT *mptr    = malloc( (n + 1) * sizeof(*mptr) ) ;
+    VSPINT  nmind   = 0 ;
+    mptr[0]         = 0 ;
+    
+
+    /* Initialize separator structure and where array */
+    VSPINT nbnd         = 0;
+    VSPINT *bndind      = malloc(n * sizeof(*bndind)) ;
+    VSPINT *bndptr      = malloc(n * sizeof(*bndptr)) ;
+    VSPINT *where       = malloc(n * sizeof(*where)) ;
+    Init_Where_And_Sep(bndind, bndptr, &nbnd, where, z, w, n) ;
+
+
+    /* Initialize the external neighbor weights */
+    ExtNeighWgts *extWgts = malloc(n * sizeof(*extWgts) ) ;
+    Set_Ext_Neigh_Wgts(extWgts, Ai, Ap, c, bndind, nbnd, where) ;
+
+    /* Initialize the queues */
+    QueueFM *queues[2] ;
+    queues[0] = QueueFM_Construct(n) ;
+    queues[1] = QueueFM_Construct(n) ;
+
+    #ifdef DEBUG
+        Check_Ext_Neigh_Wgts(extWgts, Ai, Ap, c, n, where) ;
+        BND_Check(nbnd, bndind, bndptr, where, n) ;
+        QueueFM_Check_Heap_Light(queues[0]) ;
+        QueueFM_Check_Heap_Light(queues[1]) ;
+    #endif
+
+    /*------------------------------------------------------------------------*/
+    /* FM Loop                                                                */
+    /*------------------------------------------------------------------------*/
+
+
+    /* higain is the vertex with the highest gain */
+    VSPINT higain ;
+
+    /* mindiff is the diff in c'x and x'y at the best x, y so far */
+    VSPINT mindiff    = abs( pwgts[0] - pwgts[1] ) ; 
+    to                = (pwgts[0] < pwgts[1] ? 0 : 1) ;
+
+    /* This is the current difference between c'x and c'y at the current
+       nswap iteration */
+    VSPINT newdiff ;
+
+    /* badmaxpwgt is the upper balance constraint */
+    VSPINT badmaxpwgt = problem->u ;
+
+    /* limit is used to quit FM early if it's taking too long */
+    VSPINT limit      = options->FM_Limit ; // In Metis, limit = (ctrl->compress ? gk_min(5*nbnd, 400) : gk_min(2*nbnd, 300));
+
+
+
+
+
+    /* TODO: pass is the number of FM passes. It is used in the code to throw
+       in some randomness */
+    VSPINT pass = 0 ;
+
+    // n_passes = 1 ;
+    // n_passes = problem->level + 4 ;
+    for(pass = 0 ; pass < n_passes ; pass++)
+    {
+
+        /* Initialize moved array */
+        Fill_Int_Array_With_Value(EMPTY, moved, n) ;
+
+        /* Initialize queues */
+        Fill_Int_Array_With_Value(EMPTY, queues[0]->locator, n) ;
+        Fill_Int_Array_With_Value(EMPTY, queues[1]->locator, n) ;
+        queues[0]->numNodes = 0 ;
+        queues[1]->numNodes = 0 ;
+        for(i = 0 ; i < nbnd ; i++)
+        {
+            j = bndind[i] ;
+            QueueFM_Insert(queues[0], j, c[j] - extWgts[j].wgts[1] ) ;
+            QueueFM_Insert(queues[1], j, c[j] - extWgts[j].wgts[0] ) ;
+        }
+
+
+        MovesImprovingCost(where, pwgts, queues, extWgts, badmaxpwgt, bndind, bndptr, &nbnd, pass, 0, problem) ;
+
+        mindiff = abs( pwgts[0] - pwgts[1] ) ;
+
+        /* mincut is the weight of the best separator so far */
+        VSPINT mincut = pwgts[2] ;
+
+
+        /* mincutorder is the nswap at which the best separator is achieved */
+        VSPINT mincutorder = EMPTY ;
+
+        // TODO: Careful with abs here if VSPINT is not VSPINT
+        mptr[0]           = 0 ;
+        nmind             = 0 ;
+
+        // Start an FM pass. Moves here may not improve cost
+        for (nswaps = 0; nswaps < n; nswaps++)
+        {
+            topVals[0] = QueueFM_See_Top_Value(queues[0]) ;
+            topVals[1] = QueueFM_See_Top_Value(queues[1]) ;
+
+            /* This if structure is all about figuring out the best "to" */
+            if (topVals[0] != EMPTY && topVals[1] != EMPTY)
+            {
+                topGains[0] = c[topVals[0]] - extWgts[topVals[0]].wgts[1];
+                topGains[1] = c[topVals[1]] - extWgts[topVals[1]].wgts[0];
+
+                to = (topGains[0] > topGains[1] ? 0 : (topGains[0] < topGains[1] ? 1 : pass % 2));
+                other = 1 - to ;
+
+                VSP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
+
+                // Check if the chosen move "to" is feasible. If not, chose the other move
+                if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
+                {
+                    to = (to + 1) % 2 ;
+                    other = 1 - to ;
+                    if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
+                    {
+                        break ;
+                    }
+                }
+
+                VSP_ASSERT( IN_RANGE(topVals[to], 0, n ) ) ;
+                if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
+                {
+                    to = (to + 1) % 2 ;
+                    other = 1 - to ;
+                    if (pwgts[to] + c[topVals[to]] > badmaxpwgt)
+                    {
+                        break ;
+                    }
+                } 
+            }
+            else if (topVals[0] == EMPTY && topVals[1] == EMPTY)
+            {
+                break;
+            }
+            else if (topVals[0] != EMPTY && pwgts[0] + c[topVals[0]] <= badmaxpwgt)
+            {
+                to = 0 ;
+                other = 1 - to ;
+            }
+            else if (topVals[1] != EMPTY && pwgts[1] + c[topVals[1]] <= badmaxpwgt)
+            {
+                to = 1 ;
+                other = 1 - to ;
+            }
+            else break;
+
+            VSP_ASSERT(to + other == 1) ;
+
+            /* Ovi: Other is the opposite of to. If to is 0, other is 1, and v.v. */
+            other = (to + 1) % 2 ;
+
+            /* Retrieve top value and delete it from the queue */
+            // higain is node we want to move
+            higain = QueueFM_Get_Top_Value(queues[to]) ;
+            VSP_ASSERT( IN_RANGE(higain, 0, n) ) ;
+            VSP_ASSERT(bndptr[higain] != -1);
+
+            /* Delete if it was in the separator originally */ // Ovi: why delte this conditionally, and not always?
+            if (moved[higain] == EMPTY) 
+            {
+                QueueFM_Delete(queues[other], higain) ;
+            }
+
+            /* The following check is to ensure we break out if there is a possibility
+            of over-running the mind array. Ovi: Recall mind has size 2n */
+            if (nmind + Ap[higain + 1] - Ap[higain] >= 2 * n - 1)
+            {
+                break;
+            }
+
+            pwgts[2] -= (c[higain] - extWgts[higain].wgts[other]);
+
+            /* Calculate new weight difference between z and w */
+            newdiff = abs(pwgts[to] + c[higain] - (pwgts[other] - extWgts[higain].wgts[other])) ;
+
+            /* Determine if the current paritition is best so far */
+            if (pwgts[2] < mincut || (pwgts[2] == mincut && newdiff < mindiff))
+            {
+                mincut      = pwgts[2];
+                mincutorder = nswaps;
+                mindiff     = newdiff;
+            }
+            else
+            {
+                /* Determine if we should quit early */
+                bool ran_too_long = (nswaps - mincutorder > 2 * limit) ;
+                bool too_long_since_last_improvement = (nswaps - mincutorder > limit && pwgts[2] > 1.10 * mincut) ;
+
+                if (ran_too_long || too_long_since_last_improvement)
+                {
+                    pwgts[2] += (c[higain] - extWgts[higain].wgts[other]);
+                    break; /* No further improvement, break out */
+                }
+            }
+
+            /* Move node higain from the separator into to */
+            BND_Delete(&nbnd, bndind, bndptr, higain);
+            pwgts[to]     += c[higain];
+            where[higain]  = to;
+            moved[higain]  = nswaps;
+            swaps[nswaps]  = higain;
+
+            #ifdef DEBUG
+                BND_Check(nbnd, bndind, bndptr, where, n) ;
+            #endif
+
+            /**********************************************************
+             * Update the degrees of the affected nodes
+             ***********************************************************/
+            for (p = Ap[higain]; p < Ap[higain + 1]; p++)
+            {
+                #ifdef DEBUG
+                    BND_Check(nbnd, bndind, bndptr, where, n) ;
+                #endif
+                k = Ai[p];
+
+                if (where[k] == 2) /* If k is in the separator */
+                { 
+                    /* For the in-separator vertices modify their edegree[to] */
+                    oldgain = c[k] - extWgts[k].wgts[to];
+                    extWgts[k].wgts[to] += c[higain];
+
+                    /* TODO: What is this? I think I know the answer. k SHOULD only
+                    be in the queue if it started in the sep and never moved,
+                    or if it moved at some point in the past from other into sep.
+
+                    if moved[k] == EMPTY, we should update the other queue (there is no update to make to the to queue)
+                    if moved[k] signifies that k was dragged in from to, it can no longer go back to to but it can go to other, and the queue[other] should be updated
+                    if moved[k] signifies k was dragged in from other, it cannot go back to other, it can only go to to. But the to queue was no affected, so there is
+                                no need to make any updated
+                    if moved[k] signifies that k moved as a vertex from the sep of its own volition,
+                                then it's cannot move independently anymore so shouldn't be in any queue
+
+
+                    If neither condition is met, then k should not be in the to
+                    queue to begin with. */
+                    if (moved[k] == EMPTY || moved[k] == -(2 + other))
+                    {
+                        QueueFM_Update(queues[other], k, oldgain - c[higain]);
+                    }
+                }
+                else if (where[k] == other) /* If k is in other */
+                { 
+                    /* Pull k into the separator */
+                    where[k] = 2 ;
+                    BND_Insert(&nbnd, bndind, bndptr, k) ;
+                    pwgts[other] -= c[k] ;
+
+                    /* Update mind array with this move */
+                    mind[nmind++] = k ;
+
+                    /* Now that k is in the separator, compute its external wgts */
+                    /* TODO: I think we only need to move this if k is not locked */
+                    (extWgts[k].wgts)[0] = 0 ;
+                    (extWgts[k].wgts)[1] = 0 ;
+                    for (VSPLONG jj = Ap[k]; jj < Ap[k + 1]; jj++)
+                    {
+                        VSPINT kk = Ai[jj];
+                        if (where[kk] != 2)
+                        {
+                            (extWgts[k].wgts)[where[kk]] += c[kk];
+                        }
+                        else // kk is in the separator
+                        {
+                            /* kk is in the separator and is a neighbor of k. Since
+                            k just moved from other into the sep, there is a
+                            change in the external weight of kk */
+                            oldgain = c[kk] - (extWgts[kk].wgts)[other] ;
+                            (extWgts[kk].wgts)[other] -= c[k] ;
+
+                            /* kk is in the queue only if it hasn't moved, or if
+                            if it was dragged into the separator */
+                            if (moved[kk] == -1 || moved[kk] == -(2 + to))
+                            {
+                                /* If kk were to move to to, it no longer has to
+                                drag its neighbor k from other, because its
+                                neighbor k is in the separator now. So the gain
+                                for pushing kk into to has improved by c[k] */
+                                QueueFM_Update(queues[to], kk, oldgain + c[k]);
+                            }
+                        }
+                    }
+
+                    /* Insert the new vertex into the priority queue. Only one side! */
+                    if (moved[k] == -1)
+                    {
+                        QueueFM_Insert(queues[to], k, c[k] - (extWgts[k].wgts)[other]);
+                        moved[k] = -(2 + to);
+                    }
+                }
+            }
+            mptr[nswaps + 1] = nmind;
+
+            #ifdef DEBUG
+                Check_Ext_Neigh_Wgts(extWgts, Ai, Ap, c, n, where) ;
+                BND_Check(nbnd, bndind, bndptr, where, n) ;
+                QueueFM_Check_Heap_Light(queues[0]) ;
+                QueueFM_Check_Heap_Light(queues[1]) ;
+                if(pwgts[0] > problem->u)
+                {
+                    Error("Part 0 violated upper bound", DBG_INFO) ;
+                }
+                if(pwgts[1] > problem->u)
+                {
+                    Error("Part 1 violated upper bound", DBG_INFO) ;
+                }
+
+            #endif
+        }
+
+        // printf("\n\n Fraction of swaps: %f\n\n", (nswaps / (double) n) ) ;
+
+        /****************************************************************
+         * Roll back computation
+         *****************************************************************/
+        for (nswaps--; nswaps > mincutorder; nswaps--)
+        {
+            higain = swaps[nswaps] ;
+
+            to = where[higain];
+            other = (to + 1) % 2;
+
+            /* Revert the weights of the partitions */
+            // TODO: If we just remember the weights, it should be unneccesary to
+            // revert them step by step like this
+            INC_DEC(pwgts[2], pwgts[to], c[higain]);
+
+            /* Move higain back into the separator */
+            // TODO: on the last FM pass, we don't have to keep the bnd structure
+            // updated anymore
+            where[higain] = 2;
+            BND_Insert(&nbnd, bndind, bndptr, higain);
+
+            /* Compute edegrees of higain */
+            extWgts[higain].wgts[0] = 0 ;
+            extWgts[higain].wgts[1] = 0 ;
+            for (p = Ap[higain] ; p < Ap[higain + 1] ; p++)
+            {
+                k = Ai[p];
+                if (where[k] == 2) // Update ext wgt of neighbors of higain in sep
+                {
+                    extWgts[k].wgts[to] -= c[higain] ;
+                }
+                else // Update ext wgt of higain with the cost of k
+                {
+                    extWgts[higain].wgts[where[k]] += c[k] ;
+                }
+            }
+
+            /* Push nodes out of the separator */
+            for (j = mptr[nswaps]; j < mptr[nswaps + 1]; j++)
+            {
+                k = mind[j];
+                VSP_ASSERT(where[k] == 2) ;
+                #ifdef DEBUG
+                    if(where[k] != 2)
+                    {
+                        Error("Node not in sep", DBG_INFO) ;
+                    }
+                #endif
+
+                /* Move k back to other */
+                where[k] = other;
+                INC_DEC(pwgts[other], pwgts[2], c[k]);
+                BND_Delete(&nbnd, bndind, bndptr, k);
+                for(VSPLONG jj = Ap[k]; jj < Ap[k + 1]; jj++)
+                {
+                    VSPINT kk = Ai[jj];
+                    if (where[kk] == 2)
+                    {
+                        extWgts[kk].wgts[other] += c[k] ;
+                    }
+                }
+            }
+        }
+
+        #ifdef DEBUG
+            if(mincut != pwgts[2])
+            {
+                Error("Mincut doesn't match size of separator", DBG_INFO) ;
+            }
+        #endif
+
+
+        // Flips between FM passes
+        // Where_To_States(where, Z, W, pwgts, problem) ;
+        // Flips(Z, W, problem, 5) ;
+
+        // // Prepare data structures for next pass of FM
+        // pwgts[0] = Z->weight ;
+        // pwgts[1] = W->weight ;
+        // pwgts[2] = problem->graph->total_vtx_cost - pwgts[0] - pwgts[1] ;
+        
+        // nbnd = 0;
+        // Init_Where_And_Sep(bndind, bndptr, &nbnd, where, z, w, n) ;
+        
+        // Set_Ext_Neigh_Wgts(extWgts, Ai, Ap, c, bndind, nbnd, where) ;
+    }
+
+    
+
+    /* Convert FM info back to states */
+    Where_To_States(where, Z, W, pwgts, problem) ;
+
+
+    /* Free memory */
+    free(swaps) ;
+    free(bndind) ;
+    free(bndptr) ;
+    free(where) ;
+    free(mind) ;
+    free(mptr) ;
+    free(moved) ;
+    free(extWgts) ;
+    QueueFM_Destruct(queues[0]) ;
+    QueueFM_Destruct(queues[1]) ;
+
+    #ifdef DEBUG
+        check_states(Z, W, problem) ;
+        VSPFLOAT objout = compute_obj(Z, W, problem, problem->graph->max_vtx_cost) ;
+        if(objout < objin)
+        {
+            Error("Objective decreased during FM", DBG_INFO) ;
+        }
+    #endif
+    TIMER_STOP(T_FM) ;
+
+    return ;
 }

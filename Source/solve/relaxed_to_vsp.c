@@ -2,6 +2,7 @@
 #include "solve_internal.h"
 #include "utils.h"
 #include <stdio.h>
+#include "profiler.h"
 
 /* Assumes (x, y) is fully binary */
 void improve
@@ -11,10 +12,10 @@ void improve
     Problem *problem
 )
 {
-    #ifdef DEBUG
+#ifdef DEBUG
         static long long unsigned count = 0 ;
         count++ ;
-    #endif
+#endif
 
 
     VSPINT i ;
@@ -198,8 +199,8 @@ void relaxed_to_vertex_separator
     Problem    *problem
 )
 {
-    // printf("\nStarting Relaxed To VSP") ;
-    // fflush(stdout) ;
+    TIMER_START(T_EQUIV) ;
+
     #ifdef DEBUG
         check_states(X, Y, problem) ;
     #endif
@@ -440,6 +441,7 @@ void relaxed_to_vertex_separator
         }
     #endif
 
+    TIMER_STOP(T_EQUIV) ;
     return ;
 }
 

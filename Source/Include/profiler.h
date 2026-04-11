@@ -3,7 +3,7 @@
 
 #include <time.h>
 
-enum timer_id { T_PARTITION, T_COARSEN, T_REFINE, T_TOTAL, T_COUNT };
+enum timer_id { T_FLIPS, T_MC, T_FM, T_COARSEN, T_TOTAL, T_EQUIV, T_COUNT };
 
 extern double timings[T_COUNT];
 extern int counts[T_COUNT];
@@ -20,9 +20,6 @@ extern int counts[T_COUNT];
     counts[id]++; \
 } while(0)
 
-void VSP_timer_open(const char *filename);
-void VSP_timer_flush(const char *problem, int level);
-void VSP_timer_close(void);
-void VSP_timer_reset(void);
+void Timer_Flush(int level) ;
 
 #endif

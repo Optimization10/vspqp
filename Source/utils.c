@@ -2598,6 +2598,15 @@ void ComputeGradFlt
 }
 
 
+
+/* Example call
+        P = probFinest ;
+        while(P != NULL)
+        {
+            Record_Graph_Stats(P->graph, P->level, "output/graph_stats.csv") ;
+            P = P->child_problem ;
+        }
+*/
 void Record_Graph_Stats
 (
     Graph   *graph,

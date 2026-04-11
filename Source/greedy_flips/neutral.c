@@ -584,14 +584,6 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
 }
 
 
-
-
-
-
-
-
-
-
 // Assign the lighter variable to z and the heavier one to w
 void Assign_By_Weight
 (

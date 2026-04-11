@@ -1,5 +1,6 @@
 #include "core.h"
 #include "mc_internal.h"
+#include "profiler.h"
 #include "utils.h"
 #include <stdio.h>
 
@@ -15,11 +16,13 @@ void mountain_climbing
     bool          is_gamma_org
 )
 {
+    TIMER_START(T_MC) ;
+
     SET_FUNCTION_COUNTER ;
-    #ifdef DEBUG
+#ifdef DEBUG
         if(is_gamma_org) VSP_ASSERT(equal(gamma,problem->graph->max_vtx_cost)) ;
         else             VSP_ASSERT(gamma < problem->graph->max_vtx_cost) ;
-    #endif
+#endif
 
     #ifdef DEBUG
         /* Check input */
@@ -161,5 +164,6 @@ void mountain_climbing
         old_obj = new_obj;
     }
 
+    TIMER_STOP(T_MC) ;
     return;
 }

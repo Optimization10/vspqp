@@ -2,6 +2,7 @@
 #include "data_structures.h"
 #include "greedy_flips_internal.h"
 #include <stdbool.h>
+#include "profiler.h"
 #include "utils.h"
 
 
@@ -15,10 +16,13 @@ void Greedy_Flips
     bool        deep_search
 )
 {
-    Round_Down_Fractions(X, Y, problem) ;
-
+#ifdef DEBUG
     static long long unsigned count = 0 ;
     count++ ;
+#endif
+    TIMER_START(T_FLIPS) ;
+
+    Round_Down_Fractions(X, Y, problem) ;
 
     VSPINT *x = X->point->int_part ;
     VSPINT *Ax = X->Az->int_part ;
@@ -114,6 +118,9 @@ void Greedy_Flips
 
     Destruct_Direct_Access_List(x0Ay1_list) ;
     Destruct_Direct_Access_List(y0Ax1_list) ;
+
+    TIMER_STOP(T_FLIPS) ;
+
 }
 
 

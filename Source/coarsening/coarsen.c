@@ -539,11 +539,12 @@ Problem *Problem_Recursive_Coarsen
             coarsest_P = P ;
             break ;
         }
-        VSP_timer_flush(G_Current_Problem_Name, l - 1) ;
+        // Timer_Flush(G_Current_Problem_Name, l - 1) ;
 
         P = coarse_P ;
         l++ ;
         TIMER_STOP(T_COARSEN) ;
+        Timer_Flush(l-1) ;
     }
     coarsest_P->child_problem = NULL ;
 
@@ -554,15 +555,6 @@ Problem *Problem_Recursive_Coarsen
        SetUpperBound(P, options) ;
        P = P->parent_problem ;
     }
-
-    ///////////////////////////////////////////////////////
-    P = probFinest ;
-    while(P != NULL)
-    {
-        Record_Graph_Stats(P->graph, P->level, "output/graph_stats.csv") ;
-        P = P->child_problem ;
-    }
-    ///////////////////////////////////////////////////////
 
     return coarsest_P ;
 }
