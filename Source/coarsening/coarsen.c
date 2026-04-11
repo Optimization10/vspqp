@@ -198,7 +198,8 @@ static Graph* Graph_Coarsen
             num_vtx_cost_gamma = 1 ;
         }
         else if (vertexCost == gamma_coarse) num_vtx_cost_gamma++ ;
-        else if (vertexCost < alpha_coarse)  alpha_coarse = vertexCost ;
+        
+        if (vertexCost < alpha_coarse)  alpha_coarse = vertexCost ;
     }
     Ap_coarse[n_coarse] = munch;
 

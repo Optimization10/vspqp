@@ -2599,7 +2599,8 @@ void ComputeGradFlt
 
 
 
-/* Example call
+/* Example call, in Recursive_Coarsen after all problems have been
+   coarsened
         P = probFinest ;
         while(P != NULL)
         {
@@ -2618,13 +2619,15 @@ void Record_Graph_Stats
     VSPINT i ;
     VSPINT *Ap = graph->Ap ;
     VSPINT cost_sing = 0 ;
+    VSPINT count_sing = 0 ;
 
-    // Compute cost of singletons
+    // Compute count and cost of singletons
     for( i = 0 ; i < graph->n ; i++)
     {
         if(Ap[i+1] - Ap[i] == 0)
         {
             cost_sing += graph->c[i] ;
+            count_sing++ ;
         }
     }
 
@@ -2634,16 +2637,16 @@ void Record_Graph_Stats
     {
         first_run = false ;
         fp = fopen(output_file, "w") ;
-        fprintf(fp, "id,level,n,edges,alpha,gamma,ratNodesGamma,ratCostSing\n") ;
+        fprintf(fp, "id,level,n,edges,avgDeg,alpha,gamma,ratNodesGamma,numSing,ratCostSing\n") ;
     }
     else fp = fopen(output_file, "a") ;
 
     fprintf
     (
-        fp, "%s,%lld,%lld,%lld,%lld,%lld,%f,%f\n",
+        fp, "%s,%lld,%lld,%lld,%f,%lld,%lld,%f,%llu,%f\n",
         G_Current_Problem_Name, PRI(level), PRI(graph->n), PRI(graph->nz / 2),
-        PRI(graph->min_vtx_cost) , PRI(graph->max_vtx_cost),
-        graph->ratio_max_cost, (VSPFLOAT) cost_sing / graph->total_vtx_cost
+        (VSPFLOAT) graph->nz / graph->n  , PRI(graph->min_vtx_cost) , PRI(graph->max_vtx_cost),
+        graph->ratio_max_cost, PRI(count_sing),(VSPFLOAT) cost_sing / graph->total_vtx_cost
     ) ;
     fclose(fp) ;
 }

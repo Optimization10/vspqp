@@ -525,14 +525,13 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
     char   varFlip ;
 
     VSPINT max_num_upflips = 0.01 * problem->graph->n ;
+    // VSPINT max_num_upflips = MAX(100, 0.005 * problem->graph->n) ;
+    // VSPINT max_num_upflips =  problem->graph->n ;
 
     VSPINT numFlips = 0 ;
+    VSPINT numNeutFlips = 0 ;
     while( 1 )
-    {
-
-
-        if(numFlips >= max_num_upflips) break ;       
-
+    {  
         // Choose a flip
         VSPINT randNum = (VSPINT) rand() ;
         Select_Random_Feasible_Neutral_Upflip_In_z_Or_w1Az2
@@ -543,7 +542,10 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
             randNum, problem, &indFlip, &varFlip
         ) ;
 
-
+        if(numFlips >= max_num_upflips && varFlip == 'z')
+        {
+            break ;     
+        }
 
         // Do the selected flip
         if(varFlip == 'z')
