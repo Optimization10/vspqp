@@ -196,10 +196,16 @@ void Optimize
 
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
-    // Phase 4: Gamma reductions
+    // Phase 4: MC
+    mountain_climbing
+    (
+        X, Y, problem, options, problem->graph->max_vtx_cost, true
+    ) ;
+
+    // Phase 5: Gamma reductions
     Gamma_Reduction_Loop(X, Y, problem, options, gamma_org);
 
-    // Phase 5: Final cleanup flips
+    // Phase 6: Final cleanup flips
     Greedy_Flips(X, Y, problem, 5, (problem->level <= 2));
 
     CLEANUP:

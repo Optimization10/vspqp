@@ -396,18 +396,13 @@ VSPINT Prepend
 
 void write_to_csv
 (
-    char                *graph_name,
-    char                *col_title_given, /* If empty string, a title is
-                                             generated from the options       */
-    solution_stats  *solStats,
-    Options          *options
+    char           *graph_name,
+    solution_stats   *solStats,
+    Options           *options
 )
 {
     static long long unsigned count = 0 ;
     count++ ;
-
-    char col_title_actual[500] = {'\0'} ;
-    getColTitle(col_title_given, col_title_actual) ;
 
     char cpy_graph_name[MAX_LEN_GRAPH_NAME] ;
     strcpy(cpy_graph_name, graph_name) ;
@@ -416,15 +411,9 @@ void write_to_csv
     FILE *file ;
     if(count == 1)
     {
+        // Reset file and write column titles
         file = fopen("output/Numerical_Results.csv", "w") ;
-
-        /* Write column titles */
-        fprintf(file, "Graph," ) ;
-        fprintf(file, "Vert,") ;
-        fprintf(file, "Edges,") ;
-        fprintf(file, "%s,", col_title_actual) ;
-        fprintf(file, "Imbal,") ;
-        fprintf(file, "Time\n") ;
+        fprintf(file, "id,n,edges,sep,imb,time\n" ) ;
     }
     else
     {
@@ -481,6 +470,7 @@ static void Set_Custom_Options(Options *options)
     /*------------------------------------------------------------------------*/
     options->relaxUB      = true ;
     options->ratioUBLimit = 0.40 ;    // same sep as original, phenomenal imb
+    options->ratioUBLimit = 0.47 ;    // same sep as original, phenomenal imb
     // options->ratioUBLimit = 0.39 ;    // same sep as original, phenomenal imb
 
 
@@ -580,7 +570,6 @@ int main(int argc, char** argv)
 
     /*** I/O ******************************************************************/
     /* 1. Set column title for Numerical_Results.csv */
-    char col_title[] = "Sep" ;
     char filePath[MAX_MATRIX_PATH_LENGTH] = "" ;
   
     FILE *fp = fopen("./output/FileReadingTime.csv", "a") ; 
@@ -640,7 +629,7 @@ int main(int argc, char** argv)
         sum_time += elapsed_time ;
 
         // Write results to disk
-        write_to_csv(filePath, col_title, sltn_stats, options) ;
+        write_to_csv(filePath, sltn_stats, options) ;
 
 
         // Free memory

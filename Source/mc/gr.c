@@ -1,6 +1,7 @@
 #include "core.h"
 #include "mc_internal.h"
 #include "utils.h"
+#include <stdio.h>
 
 
 VSPFLOAT minreduce_one_var
@@ -21,10 +22,10 @@ VSPFLOAT minreduce
     Problem *problem
 )
 {
-    #ifdef DEBUG
-        static long long unsigned count = 0 ;
-        count++ ;
-    #endif
+
+    static long long unsigned count = 0 ;
+    count++ ;
+
 
     VSPFLOAT gamma_tx = minreduce_one_var(X, Y->Az, problem) ;
     VSPFLOAT gamma_ty = minreduce_one_var(Y, X->Az, problem) ;
@@ -32,11 +33,10 @@ VSPFLOAT minreduce
     VSPFLOAT gamma_max = (gamma_tx > gamma_ty) ? gamma_tx : gamma_ty ;
 
 
-    if( gamma_max >= problem->graph->max_vtx_cost )
-    {
-        // printf("Doing MC in minreduce. Problem: %s\n", G_Current_Problem_Name) ;
-        mountain_climbing(X, Y, problem, options, problem->graph->max_vtx_cost, true) ;
-    }
+    // if( gamma_max >= problem->graph->max_vtx_cost )
+    // {
+    //     mountain_climbing(X, Y, problem, options, problem->graph->max_vtx_cost, true) ;
+    // }
     gamma_tx = minreduce_one_var(X, Y->Az, problem) ;
     gamma_ty = minreduce_one_var(Y, X->Az, problem) ;
 
@@ -89,20 +89,28 @@ VSPFLOAT minreduce_one_var
     for(i = 0 ; i < n ; i++)
     {
         Awi = Aw_int[i] + w_has_frac_ind * (col_A[i] == one) * val_frac_w ;
-        if (z_int[i] == 0 && Awi > 0) {
+        if (z_int[i] == 0 && Awi > 0)
+        {
             if(c[i] / Awi > gamma_t)
             {
                 gamma_second = gamma_t ;
                 gamma_t = c[i] / Awi ;
-                // if(gamma_t == 4 && problem->graph->max_vtx_cost == 2) printf("\ni: %lld", (long long) i) ;
             }
         }
-        #ifdef DEBUG
-            if(z_int[i] == 0 && Awi == 0)
-            {
-                // Error("Entered gamma reduction when not neccesary", DBG_INFO) ;
-            }
-        #endif
+
+        // if(z_int[i] == 0 && Awi == 0)
+        // {
+        //     if(c[i] > problem->u - Z->weight)
+        //     {
+        //         printf("Expected\n") ;
+        //     }
+        //     else
+        //     {
+        //         printf("NOT expected\n") ;
+        //     }
+        //     fflush(stdout) ;
+        // }
+
     }
 
     #ifdef DEBUG
