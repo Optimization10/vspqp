@@ -28,6 +28,8 @@ static void ResolveLevelDecideAndDo
     bool dec = restart_decide(options->restart_decision, 0, 0, problem);
     if (!dec || problem->child_problem == NULL) return;
 
+    // if(problem->level <= 4) return ;
+
     // Try_And_Keep_If_Better(X, Y, problem, strategy_centroid_restart, options) ;
     Try_And_Keep_If_Better(X, Y, problem, strategy_bisection_restart, options) ;
 }

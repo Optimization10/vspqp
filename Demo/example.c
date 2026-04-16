@@ -473,7 +473,7 @@ static void Set_Custom_Options(Options *options)
     // options->ratioUBLimit = 0.47 ;    // same sep as original, phenomenal imb
     // options->ratioUBLimit = 0.5 ;
     // options->ratioUBLimit = 0.39 ;    // same sep as original, phenomenal imb
-    options->ratioUBLimit = 0.43 ;
+    options->ratioUBLimit = 0.41 ;
 
     // options->relaxUB      = false ; 
     // options->ratioUBLimit = 0.6 ;

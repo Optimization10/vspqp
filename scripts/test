@@ -9,6 +9,6 @@ cp "$DEST" "$TMP"
 ./hager6-ssh/update.sh
 
 # Restore original
-cp "$TMP" "$DEST"
+# cp "$TMP" "$DEST"
 
-./scripts/load 2
+# ./scripts/load "$TMP"
