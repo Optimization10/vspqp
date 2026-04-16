@@ -55,5 +55,8 @@ void strategy_mc_and_flips(State*, State*, Problem*, Options*);
 void strategy_flips(State*, State*, Problem*, Options*);
 void strategy_fm(State*, State*, Problem*, Options*);
 void strategy_centroid_restart(State*, State*, Problem*, Options*);
-
+void strategy_bisection_restart
+(
+    State *X, State *Y, Problem *problem, Options *options
+) ;
 #endif

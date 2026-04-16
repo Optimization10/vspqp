@@ -5,7 +5,7 @@ TMP="/tmp/ManualMatsList_backup.txt"
 # Backup current
 cp "$DEST" "$TMP"
 
-./scripts/load int32
+./scripts/load probe.txt
 ./hager6-ssh/update.sh
 
 # Restore original

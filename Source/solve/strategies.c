@@ -1,3 +1,4 @@
+#include "VSPQP.h"
 #include "solve_internal.h"
 #include "utils.h"
 #include "greedy_flips.h"
@@ -40,7 +41,23 @@ void strategy_centroid_restart
     State *X, State *Y, Problem *problem, Options *options
 )
 {
+    initial_guess tmp = options->initial_guess ;
+    options->initial_guess = centroid_initial_guess ;
     set_initial_guess(X, Y, problem, options);
     Optimize(X, Y, problem, options);
     Round_Down_Fractions(X, Y, problem);
+    options->initial_guess = tmp ;
+}
+
+void strategy_bisection_restart
+(
+    State *X, State *Y, Problem *problem, Options *options
+)
+{
+    initial_guess tmp = options->initial_guess ;
+    options->initial_guess = bisection_initial_guess ;
+    set_initial_guess(X, Y, problem, options);
+    Optimize(X, Y, problem, options);
+    Round_Down_Fractions(X, Y, problem);
+    options->initial_guess = tmp ;
 }

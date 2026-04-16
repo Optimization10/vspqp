@@ -262,6 +262,7 @@ static void set_bisection_initial_guess
     SET_FUNCTION_COUNTER ;
 
     VSPINT   i ;
+    VSPINT   u    = problem->u ;
     VSPINT   n    = problem->graph->n ;
     VSPINT  *c    = problem->graph->c ;
     VSPINT  *Ai   = problem->graph->Ai ;
@@ -289,15 +290,23 @@ static void set_bisection_initial_guess
     {
         if(part[i] == 0)
         {
-            x[i] = 1 ;
             y[i] = 0 ;
-            X->weight += c[i] ;
+            if(X->weight + c[i] <= u)
+            {
+                x[i] = 1 ;
+                X->weight += c[i] ;
+            }
+            else x[i] = 0 ;
         }
         else if(part[i] == 1)
         {
             x[i] = 0 ;
-            y[i] = 1 ;
-            Y->weight += c[i] ;
+            if(Y->weight + c[i] <= u)
+            {
+                y[i] = 1 ;
+                Y->weight += c[i] ;
+            }
+            else y[i] = 0 ;
         }
         else
         {
