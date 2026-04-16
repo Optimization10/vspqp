@@ -1,3 +1,4 @@
+#include "VSPQP.h"
 #include "solve_internal.h"
 #include "mc.h"
 #include "utils.h"
@@ -249,6 +250,17 @@ static void set_centroid
     return ;
 }
 
+static void set_bisection_initial_guess
+(
+    State         *X,
+    State         *Y,
+    Problem *problem,
+    Options *options
+)
+{
+    
+}
+
 
 void set_initial_guess
 (
@@ -268,6 +280,9 @@ void set_initial_guess
             break ;
         case random_initial_guess :
             set_random_initial_guess(X, Y, problem, options) ;
+            break ;
+        case bisection_initial_guess :
+            set_bisection_initial_guess(X, Y, problem, options) ;
             break ;
     }
     #ifdef DEBUG

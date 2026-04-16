@@ -10,7 +10,8 @@ typedef enum initial_guess_enum
 {
     centroid_initial_guess,
     random_initial_guess,
-    manual_initial_guess
+    manual_initial_guess,
+    bisection_initial_guess
 } initial_guess ;
 
 typedef struct Levels_struct Levels ;
