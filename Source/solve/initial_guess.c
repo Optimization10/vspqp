@@ -1,8 +1,9 @@
 #include "VSPQP.h"
+#include "core.h"
 #include "solve_internal.h"
 #include "mc.h"
 #include "utils.h"
-
+#include "VS.h"
 
 static void set_manual_initial_guess
 (
@@ -258,7 +259,66 @@ static void set_bisection_initial_guess
     Options *options
 )
 {
-    
+    SET_FUNCTION_COUNTER ;
+
+    VSPINT   i ;
+    VSPINT   n    = problem->graph->n ;
+    VSPINT  *c    = problem->graph->c ;
+    VSPINT  *Ai   = problem->graph->Ai ;
+    VSPINT  *Ae   = problem->graph->Ae ;
+    VSPINT  *part = malloc(n * sizeof(*part)) ;
+    VSPINT  *x    = X->point->int_part ;
+    VSPINT  *y    = Y->point->int_part ;
+    VSPLONG *Ap   = problem->graph->Ap ;
+
+    // Set parameters for the bisection
+    VSparm ParmStruc, *Parm ;
+    Parm = &ParmStruc ;
+    vs_default (Parm) ;
+
+    // Get partition
+    vs(part, Ai, Ap, Ae, c, n, Parm) ;
+
+    // ====================================================================== //
+    // Populate states according to partition
+    // ====================================================================== //
+    // Set the points and weights
+    X->weight = 0 ;
+    Y->weight = 0 ;
+    for(i = 0 ; i < n ; i++)
+    {
+        if(part[i] == 0)
+        {
+            x[i] = 1 ;
+            y[i] = 0 ;
+            X->weight += c[i] ;
+        }
+        else if(part[i] == 1)
+        {
+            x[i] = 0 ;
+            y[i] = 1 ;
+            Y->weight += c[i] ;
+        }
+        else
+        {
+            VSP_ASSERT(part[i] == 2) ; 
+            x[i] = 0 ;
+            y[i] = 0 ;
+        }
+    }
+
+    // Set fractional entries of the points to 0
+    X->point->ind_frac = EMPTY ;
+    Y->point->ind_frac = EMPTY ;
+    X->point->val_frac = 0 ;
+    Y->point->val_frac = 0 ;
+
+    // Set Ax and Ay
+    Compute_Az(X->point, X->Az, Ai, Ap, n) ;
+    Compute_Az(Y->point, Y->Az, Ai, Ap, n) ;
+
+    // Cleanup
+    free(part) ;
 }
 
 

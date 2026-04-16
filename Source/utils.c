@@ -376,9 +376,9 @@ void Compute_Az
 (
     Point              *z,
     Az                *Az,
-    VSPINT                *Ai,
-    VSPLONG               *Ap,
-    VSPINT                  n
+    VSPINT            *Ai,
+    VSPLONG           *Ap,
+    VSPINT              n
 )
 {
     SET_FUNCTION_COUNTER ;
