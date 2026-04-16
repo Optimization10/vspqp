@@ -624,7 +624,9 @@ printf ("norm (A2 - T, inf)\n") ;
         }
     }
     cutedge /= 2 ;
-    printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
+
+    // Ovi: print partition statistics
+    // printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
     
     vs_separator (x, Ei, Ep, n, vw, 0, NULL, NULL, NULL, NULL, NULL) ;
 
@@ -635,14 +637,8 @@ printf ("norm (A2 - T, inf)\n") ;
         else if ( x [j] == 1 ) n1++ ;
         else                   ns++ ;
     }
-    printf ("n0: %i n1: %i ns: %i\n", n0, n1, ns) ;
-    
-    /* Convert a feasible point for (GB) into a boundary feasible point
-       where z [i] = 0 or 1 for n-1 choices of i in [0, n). The objective
-       value for the boundary point <= objective value at the initial
-       feasible point. */
+    // printf ("n0: %i n1: %i ns: %i\n", n0, n1, ns) ;
 
-    /* project z onto constraints of the graph partitioning problem (GB) */
 
     if ( a != NULL ) vs_free (a) ;
     if ( Ax != NULL ) vs_free (Ax) ;

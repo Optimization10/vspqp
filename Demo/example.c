@@ -567,6 +567,7 @@ int main(int argc, char** argv)
     options = construct_options() ;
     set_default_options(options) ;
     Set_Custom_Options(options) ;
+    options->initial_guess = bisection_initial_guess ;
 
     /*** I/O ******************************************************************/
     /* 1. Set column title for Numerical_Results.csv */
