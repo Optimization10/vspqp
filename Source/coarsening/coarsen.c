@@ -498,6 +498,8 @@ static void SetUpperBound
     return ;
 }
 
+
+// ORIGINAL VERSION
 Problem *Problem_Recursive_Coarsen
 (
     Problem *probFinest,
@@ -559,3 +561,74 @@ Problem *Problem_Recursive_Coarsen
 
     return coarsest_P ;
 }
+
+
+// Problem *Problem_Recursive_Coarsen
+// (
+//     Problem *probFinest,
+//     Options    *options
+// )
+// {
+//     SET_FUNCTION_COUNTER ;
+
+//     VSPINT    n_finest  = probFinest->graph->n ;
+//     VSPINT    l, num_levels ;
+//     Problem  *P         = probFinest ;
+//     Problem  *coarse_P ;
+//     Problem  *coarsest_P ;
+
+//     l = 0 ; // Invariant: l = # of coarsenings
+//     num_levels = 1 ;
+//     while( 1 )
+//     {
+//         TIMER_START(T_COARSEN) ;
+//         // Match P
+//         Graph_Simple_Match
+//         (
+//             P->graph,
+//             P->matching,
+//             P->level,
+//             options
+//         ) ;
+
+//         // Coarsen P
+//         coarse_P = Problem_Coarsen(P, options) ;
+//         num_levels++ ;
+
+//         if(Graph_Density(coarse_P->graph->n, coarse_P->graph->nz) > 0.4
+//            || coarse_P->graph->n < 10)
+//         {
+//             coarsest_P = coarse_P ;
+//             break ;
+//         }
+//         else if(Is_Complete_Graph(coarse_P->graph->n, coarse_P->graph->nz))
+//         {
+//             Destroy_Problem(coarse_P) ;
+//             num_levels-- ;
+//             coarsest_P = P ;
+//             break ;
+//         }
+//         else if(num_levels == 4)
+//         {
+//             coarsest_P = coarse_P ;
+//             break ;
+//         }
+//         // Timer_Flush(G_Current_Problem_Name, l - 1) ;
+
+//         P = coarse_P ;
+//         l++ ;
+//         TIMER_STOP(T_COARSEN) ;
+//         Timer_Flush(l-1) ;
+//     }
+//     coarsest_P->child_problem = NULL ;
+
+//     /* Set upper bounds */
+//     P = coarsest_P ;
+//     while(P != NULL)
+//     {
+//        SetUpperBound(P, options) ;
+//        P = P->parent_problem ;
+//     }
+
+//     return coarsest_P ;
+// }
