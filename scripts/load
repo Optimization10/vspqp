@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEST_DIR="/home/ovi/VSP/VSPQP/doc/mats"
+DEST_DIR="/home/ovi/vsp/vspqp/doc/mats"
 DEST="$DEST_DIR/ManualMatsList.txt"
 
 if [ $# -eq 0 ]; then

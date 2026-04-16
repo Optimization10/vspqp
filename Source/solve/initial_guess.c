@@ -317,6 +317,10 @@ static void set_bisection_initial_guess
     Compute_Az(X->point, X->Az, Ai, Ap, n) ;
     Compute_Az(Y->point, Y->Az, Ai, Ap, n) ;
 
+#ifdef DEBUG
+    check_states(X, Y, problem) ;
+#endif
+
     // Cleanup
     free(part) ;
 }
