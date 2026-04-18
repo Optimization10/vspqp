@@ -26,15 +26,4 @@ Problem *Problem_Recursive_Coarsen
     Options    *options
 ) ;
 
-int Check_Matrix
-(
-    VSPINT  *Ai,
-    VSPLONG *Ap,
-    VSPINT  *Ae,
-    VSPINT   n,
-    VSPLONG  nz,
-    int      require_sorted,
-    int      use_error_macro
-) ;
-
 #endif
