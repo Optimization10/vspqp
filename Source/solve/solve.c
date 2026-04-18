@@ -30,8 +30,8 @@ static void ResolveLevelDecideAndDo
 
     // if(problem->level <= 4) return ;
 
-    // Try_And_Keep_If_Better(X, Y, problem, strategy_centroid_restart, options) ;
-    Try_And_Keep_If_Better(X, Y, problem, strategy_bisection_restart, options) ;
+    Try_And_Keep_If_Better(X, Y, problem, strategy_centroid_restart, options) ;
+    // Try_And_Keep_If_Better(X, Y, problem, strategy_bisection_restart, options) ;
 }
 
 

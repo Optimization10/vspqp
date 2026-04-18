@@ -4,6 +4,7 @@
 #include <string.h>
 #include "utils.h"
 #include <limits.h>
+#include <stdarg.h>
 
 
 bool Is_Coarsest_Problem(Problem *problem)
@@ -1094,15 +1095,6 @@ void ResetDumpFile()
     return ;
 }
 
-void check_matrix_is_symmetric(
-    VSPINT           *Ai,
-    VSPLONG *Ap,
-    VSPINT           *Ae,
-    VSPLONG nz,
-    VSPINT             n,
-    Options* options
-) ;
-
 /* Check each state individually, as well as the cross term */
 void check_states(State *X, State *Y, Problem *problem)
 {
@@ -1434,159 +1426,6 @@ void Check_Arrays_Are_Equal_VSPLONG
     return ;
 }
 
-/*
- INPUTS:
- a) A matrix A in compressed column format
- b) Edge weights (optional)
-
- OUTPUTS:
- a) If the matrix passes all the checks, return TRUE (i.e. integer 1).
-    Otherwise, return FALSE (integer 0) and print errors to the error log.
-*/
-VSPINT check_matrix
-(
-    VSPINT* Ai,
-    VSPLONG* Ap,
-    VSPINT* Ae,
-    VSPLONG nz,
-    VSPINT n,
-    Options* options
-) {
-    static long long unsigned count = 0 ;
-    count += 1;
-
-    WARN_IF_NOT_DEBUG_MODE ;
-
-    VSPINT i, j, k ;
-    VSPLONG end, p ;
-    VSPINT repeated_entry             = FALSE ;
-    VSPINT diag_nonzero               = FALSE ;
-    VSPINT invalid_neighbor           = FALSE ;
-    VSPINT error                      = FALSE ;
-    VSPINT invalid_entry_in_Ap        = FALSE ;
-    VSPINT last_entry_of_Ap_incorrect = FALSE ;
-
-
-
-    /* Check that Ap is (weakly) increasing, and each entry is in [0, nz]*/
-    VSPINT Ap_not_increasing = FALSE ;
-    for (i = 0 ; i < n ; i++) {
-        if ( Ap [i] > Ap [i+1] ) Ap_not_increasing = TRUE ;
-        if ( Ap [i] < 0 || Ap [i] > nz) invalid_entry_in_Ap = TRUE ;
-    }
-
-    /* Check that the last entry of Ap is nz */
-    if ( Ap [n] != nz ) last_entry_of_Ap_incorrect = TRUE ;
-
-
-    /* Check the following: Members of Ai are in [0, n-1], no repeated entries
-    any chunk representing a column, diagonal is 0 */
-    VSPINT* col = malloc(n * sizeof(VSPINT)) ;
-    for (k = 0 ; k < n ; k++) {
-
-        /* zero out the column*/
-        for (j = 0 ; j < n ; j++) col [j] = 0 ;
-
-        end = Ap [ k + 1 ] ;
-        for (p = Ap [k] ; p < end ; p++) {
-            i = Ai [p] ;
-
-            /* Check that neighbors are not repeated */
-            if( col [i] == 0 ) {
-                col [i] = 1 ;
-            }
-            else {
-                repeated_entry = TRUE ;
-            }
-
-            /* Check that the neighbor is between 0 and n-1, inclusive */
-            if ( i < 0 || i > n - 1) {
-                invalid_neighbor = TRUE ;
-            }
-
-
-            /* Check that the edge cost is at least 1, and reasonably small */
-            if ( Ae [p] < 1 ) {
-                Error(" Error in edge weights", DBG_INFO) ;
-            }
-            if ( Ae [p] > 1E10 ) {
-                Error("Warning: probable error in edge weights", DBG_INFO) ;
-            }
-
-        }
-
-        /* Check that the diagonal is 0 */
-        if (col [k] != 0) {
-            diag_nonzero = TRUE ;
-        }
-    }
-
-    /* Check that the matrix is symmetric */
-    check_matrix_is_symmetric(Ai, Ap, Ae, nz, n, options) ;
-
-    /* Print errors, if there are any */
-    if ( Ap_not_increasing ) {
-        Error("Ap not increasing", DBG_INFO) ;
-    }
-
-    if ( repeated_entry ) {
-        Error("Repeated neighbor in Ai", DBG_INFO) ;
-        error = TRUE ;
-    }
-
-    if ( diag_nonzero ) {
-        Error("Nonzero diagonal", DBG_INFO) ;
-        error = TRUE ;
-    }
-
-    if ( invalid_neighbor ) {
-        Error("Invalid neighbor in graph", DBG_INFO) ;
-        error = TRUE ;
-    }
-
-    if ( last_entry_of_Ap_incorrect ) {
-        Error("Last entry of Ap incorrect", DBG_INFO) ;
-    }
-
-    if ( invalid_entry_in_Ap ) {
-        Error("Invalid entry in Ap", DBG_INFO) ;
-    }
-
-    /* Free memory */
-    free(col) ;
-
-    return error ;
-}
-
-
-void check_matrix_is_symmetric
-(
-    VSPINT           *Ai,
-    VSPLONG *Ap,
-    VSPINT           *Ae,
-    VSPLONG nz,
-    VSPINT             n,
-    Options* options
-) {
-    /* Get the transpose */
-    Problem* T = transpose(Ai, Ap, Ae, nz, n, options) ;
-    VSPINT *Ti = T->graph->Ai, *Te = T->graph->Ae ;
-    VSPLONG *Tp = T->graph->Ap ;
-
-    /* Check that the number of 1's in each column is the same in A and T */
-    Check_Arrays_Are_Equal_VSPLONG(Ap, Tp, n+1) ;
-
-    /* Check that the row index of each 1 in each column is the same in A, T*/
-    for(VSPINT j = 0 ; j < n ; j++) {
-        check_permutation(&Ai[Ap[j]], &Ti[Tp[j]], Ap[j+1] - Ap[j]) ;
-    }
-
-    if (Ae != NULL) check_permutation(Ae, Te, nz) ;
-
-    /* Free memory */
-    Destroy_Problem(T) ;
-}
-
 
 /* ============================================================================
    ================ check_entries_are_between_bounds ======================
@@ -1685,6 +1524,350 @@ void check_max_of_array(
     }
 }
 
+
+
+
+/* --------------------------------------------------------------------------
+   check_graph_matrix: validate a CSC adjacency matrix of a weighted
+   undirected graph with no self-loops and positive edge weights.
+
+   Assumes VSPINT, VSPLONG, the Error() macro, and DBG_INFO are already
+   defined by the surrounding codebase. If your Error macro takes a
+   different argument list, adjust the single call inside
+   graph_check_report below.
+
+   Parameters
+     Ai              row indices, length nz
+     Ap              column pointers, length n+1
+     Ae              edge weights, length nz; if NULL, all weights are 1
+     n               number of vertices (>= 0)
+     nz              number of stored entries (2 * undirected edge count)
+     require_sorted  if nonzero, row indices within each column must be
+                     strictly increasing; if zero, any order is accepted
+                     as long as the graph is still symmetric
+     use_error_macro if nonzero, failures go through Error();
+                     if zero, failures are printed to stdout
+
+   Returns 1 if every invariant holds, 0 otherwise. Continues past most
+   failures so all problems are reported in one pass (fatal Ap issues
+   still abort because they would corrupt downstream walking).
+
+   Invariants checked
+     n >= 0, nz >= 0, Ap/Ai non-NULL when sized
+     Ap[0]==0, Ap[n]==nz, Ap non-decreasing, Ap[i] in [0, nz]
+     Ai[p] in [0, n-1]
+     No self-loops (Ai[p] != j inside column j)
+     No duplicate row within a column
+     Row indices strictly increasing per column  (if require_sorted)
+     Ae[p] > 0                                    (if Ae != NULL)
+     Structural symmetry: edge (i,j) iff edge (j,i)
+     Weight symmetry:     A(i,j) == A(j,i)
+   -------------------------------------------------------------------------- */
+
+static void graph_check_report(int use_macro, const char *fmt, ...)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+
+    char buf[512];
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+
+    if (use_macro) {
+        Error(buf, DBG_INFO);
+    } else {
+        printf("check_graph_matrix: %s\n", buf);
+    }
+}
+
+int Check_Matrix
+(
+    VSPINT  *Ai,
+    VSPLONG *Ap,
+    VSPINT  *Ae,
+    VSPINT   n,
+    VSPLONG  nz,
+    int      require_sorted,
+    int      use_error_macro
+)
+{
+    int      ok    = 1;
+    VSPINT  *seen  = NULL;
+    VSPINT  *w     = NULL;
+    VSPINT  *Ti    = NULL;
+    VSPLONG *Tp    = NULL;
+    VSPINT  *Te    = NULL;
+    VSPLONG *work  = NULL;
+
+    /* ===== 1. Argument sanity ============================================ */
+
+    if (n < 0) {
+        graph_check_report(use_error_macro,
+            "n = %lld is negative", (long long)n);
+        return 0;
+    }
+    if (nz < 0) {
+        graph_check_report(use_error_macro,
+            "nz = %lld is negative", (long long)nz);
+        return 0;
+    }
+    if (n > 0 && Ap == NULL) {
+        graph_check_report(use_error_macro, "Ap is NULL but n > 0");
+        return 0;
+    }
+    if (nz > 0 && Ai == NULL) {
+        graph_check_report(use_error_macro, "Ai is NULL but nz > 0");
+        return 0;
+    }
+    if (n == 0) {
+        if (nz != 0) {
+            graph_check_report(use_error_macro,
+                "n = 0 but nz = %lld", (long long)nz);
+            return 0;
+        }
+        return 1; /* trivially valid empty graph */
+    }
+
+    /* ===== 2. Ap invariants (fatal if broken) ============================ */
+
+    int ap_fatal = 0;
+
+    if (Ap[0] != 0) {
+        graph_check_report(use_error_macro,
+            "Ap[0] = %lld, expected 0", (long long)Ap[0]);
+        ok = 0; ap_fatal = 1;
+    }
+    if (Ap[n] != nz) {
+        graph_check_report(use_error_macro,
+            "Ap[n] = %lld, expected nz = %lld",
+            (long long)Ap[n], (long long)nz);
+        ok = 0; ap_fatal = 1;
+    }
+    for (VSPINT i = 0; i <= n; i++) {
+        if (Ap[i] < 0 || Ap[i] > nz) {
+            graph_check_report(use_error_macro,
+                "Ap[%lld] = %lld out of [0, %lld]",
+                (long long)i, (long long)Ap[i], (long long)nz);
+            ok = 0; ap_fatal = 1;
+        }
+    }
+    for (VSPINT i = 0; i < n; i++) {
+        if (Ap[i+1] < Ap[i]) {
+            graph_check_report(use_error_macro,
+                "Ap not non-decreasing at i=%lld: Ap[%lld]=%lld > Ap[%lld]=%lld",
+                (long long)i,
+                (long long)i,     (long long)Ap[i],
+                (long long)(i+1), (long long)Ap[i+1]);
+            ok = 0; ap_fatal = 1;
+        }
+    }
+    if (ap_fatal) return 0;
+
+    /* ===== 3. Ai range, self-loops, duplicates, optional sortedness ====== */
+
+    seen = (VSPINT *) malloc((size_t)n * sizeof(*seen));
+    if (seen == NULL) {
+        graph_check_report(use_error_macro, "malloc failed (seen)");
+        return 0;
+    }
+    for (VSPINT i = 0; i < n; i++) seen[i] = -1;
+
+    int bad_row = 0; /* if any Ai was out of range, skip symmetry */
+
+    for (VSPINT j = 0; j < n; j++) {
+        VSPINT prev = -1;
+        for (VSPLONG p = Ap[j]; p < Ap[j+1]; p++) {
+            VSPINT i = Ai[p];
+
+            if (i < 0 || i >= n) {
+                graph_check_report(use_error_macro,
+                    "Ai[%lld] = %lld out of [0, %lld) in column %lld",
+                    (long long)p, (long long)i,
+                    (long long)n, (long long)j);
+                ok = 0; bad_row = 1;
+                continue;
+            }
+            if (i == j) {
+                graph_check_report(use_error_macro,
+                    "self-loop at vertex %lld (Ai[%lld] = %lld)",
+                    (long long)j, (long long)p, (long long)i);
+                ok = 0;
+            }
+            if (seen[i] == j) {
+                graph_check_report(use_error_macro,
+                    "duplicate entry for row %lld in column %lld",
+                    (long long)i, (long long)j);
+                ok = 0;
+            }
+            seen[i] = j;
+
+            if (require_sorted && prev >= 0 && i <= prev) {
+                graph_check_report(use_error_macro,
+                    "row indices not strictly increasing in column %lld: "
+                    "Ai[%lld] = %lld follows %lld",
+                    (long long)j, (long long)p,
+                    (long long)i, (long long)prev);
+                ok = 0;
+            }
+            prev = i;
+        }
+    }
+
+    /* ===== 4. Weight positivity ========================================== */
+
+    if (Ae != NULL) {
+        for (VSPLONG p = 0; p < nz; p++) {
+            if (Ae[p] <= 0) {
+                graph_check_report(use_error_macro,
+                    "Ae[%lld] = %lld is not positive",
+                    (long long)p, (long long)Ae[p]);
+                ok = 0;
+            }
+        }
+    }
+
+    /* Out-of-range Ai would cascade false errors through symmetry; stop. */
+    if (bad_row) {
+        free(seen);
+        return 0;
+    }
+
+    /* ===== 5. Symmetry via counting-sort transpose ======================= */
+
+    Tp   = (VSPLONG *) malloc((size_t)(n + 1) * sizeof(*Tp));
+    work = (VSPLONG *) malloc((size_t)(n + 1) * sizeof(*work));
+    if (nz > 0) {
+        Ti = (VSPINT *) malloc((size_t)nz * sizeof(*Ti));
+        if (Ae != NULL) Te = (VSPINT *) malloc((size_t)nz * sizeof(*Te));
+    }
+    if (Tp == NULL || work == NULL ||
+        (nz > 0 && Ti == NULL) ||
+        (Ae != NULL && nz > 0 && Te == NULL))
+    {
+        graph_check_report(use_error_macro, "malloc failed (transpose)");
+        free(seen); free(Tp); free(work); free(Ti); free(Te);
+        return 0;
+    }
+
+    for (VSPINT i = 0; i <= n; i++) Tp[i] = 0;
+    for (VSPLONG p = 0; p < nz; p++) Tp[Ai[p] + 1]++;
+    for (VSPINT i = 0; i < n; i++)  Tp[i+1] += Tp[i];
+    for (VSPINT i = 0; i <= n; i++) work[i] = Tp[i];
+
+    /* Walk A in column order. Because j advances monotonically, each
+       column of A^T comes out with rows in sorted order by construction. */
+    for (VSPINT j = 0; j < n; j++) {
+        for (VSPLONG p = Ap[j]; p < Ap[j+1]; p++) {
+            VSPINT  row  = Ai[p];
+            VSPLONG dest = work[row]++;
+            Ti[dest] = j;
+            if (Te != NULL) Te[dest] = Ae[p];
+        }
+    }
+
+    if (require_sorted) {
+        /* Positional compare — cheap because A is sorted and A^T is sorted
+           by construction, so matching entries must sit at matching offsets. */
+        for (VSPINT j = 0; j < n; j++) {
+            VSPLONG lenA = Ap[j+1] - Ap[j];
+            VSPLONG lenT = Tp[j+1] - Tp[j];
+            if (lenA != lenT) {
+                graph_check_report(use_error_macro,
+                    "column %lld: %lld entries but transpose has %lld "
+                    "(structural asymmetry)",
+                    (long long)j, (long long)lenA, (long long)lenT);
+                ok = 0;
+                continue;
+            }
+            for (VSPLONG k = 0; k < lenA; k++) {
+                VSPINT iA = Ai[Ap[j] + k];
+                VSPINT iT = Ti[Tp[j] + k];
+                if (iA != iT) {
+                    graph_check_report(use_error_macro,
+                        "column %lld pos %lld: Ai=%lld vs A^T=%lld "
+                        "(structural asymmetry)",
+                        (long long)j, (long long)k,
+                        (long long)iA, (long long)iT);
+                    ok = 0;
+                } else if (Ae != NULL) {
+                    if (Ae[Ap[j] + k] != Te[Tp[j] + k]) {
+                        graph_check_report(use_error_macro,
+                            "weight asymmetry: A(%lld,%lld) = %lld vs "
+                            "A(%lld,%lld) = %lld",
+                            (long long)iA, (long long)j,
+                            (long long)Ae[Ap[j] + k],
+                            (long long)j, (long long)iA,
+                            (long long)Te[Tp[j] + k]);
+                        ok = 0;
+                    }
+                }
+            }
+        }
+    } else {
+        /* Scatter-based compare — works regardless of A's row ordering.
+           Reuses seen[] as a column-tagged sentinel: seen[i]==j means
+           "row i is in the current column of A". */
+        for (VSPINT i = 0; i < n; i++) seen[i] = -1;
+        if (Ae != NULL) {
+            w = (VSPINT *) malloc((size_t)n * sizeof(*w));
+            if (w == NULL) {
+                graph_check_report(use_error_macro, "malloc failed (w)");
+                free(seen); free(Tp); free(work); free(Ti); free(Te);
+                return 0;
+            }
+        }
+
+        for (VSPINT j = 0; j < n; j++) {
+            VSPLONG lenA = Ap[j+1] - Ap[j];
+            VSPLONG lenT = Tp[j+1] - Tp[j];
+            if (lenA != lenT) {
+                graph_check_report(use_error_macro,
+                    "column %lld: %lld entries but transpose has %lld "
+                    "(structural asymmetry)",
+                    (long long)j, (long long)lenA, (long long)lenT);
+                ok = 0;
+                continue;
+            }
+            /* Scatter A's column j */
+            for (VSPLONG p = Ap[j]; p < Ap[j+1]; p++) {
+                VSPINT i = Ai[p];
+                seen[i] = j;
+                if (Ae != NULL) w[i] = Ae[p];
+            }
+            /* Probe with A^T's column j */
+            for (VSPLONG q = Tp[j]; q < Tp[j+1]; q++) {
+                VSPINT i = Ti[q];
+                if (seen[i] != j) {
+                    graph_check_report(use_error_macro,
+                        "edge (%lld,%lld) exists but edge (%lld,%lld) does not",
+                        (long long)j, (long long)i,
+                        (long long)i, (long long)j);
+                    ok = 0;
+                } else if (Ae != NULL && w[i] != Te[q]) {
+                    graph_check_report(use_error_macro,
+                        "weight asymmetry: A(%lld,%lld) = %lld vs "
+                        "A(%lld,%lld) = %lld",
+                        (long long)i, (long long)j, (long long)w[i],
+                        (long long)j, (long long)i, (long long)Te[q]);
+                    ok = 0;
+                }
+            }
+        }
+    }
+
+    free(seen);
+    free(w);
+    free(Tp);
+    free(work);
+    free(Ti);
+    free(Te);
+
+    return ok;
+}
+
+
 /* ============================================================================
    ================ check_problem =========================================
    ============================================================================
@@ -1739,7 +1922,7 @@ VSPINT check_problem
 
 
     /* Do all the matrix checks */
-    check_matrix(Ai, Ap, Ae, nz, n, options) ;
+    Check_Matrix(Ai, Ap, Ae, n, nz, FALSE, FALSE) ;
 
     /* Check that ci and wi are >= 1. Also, compute alpha, gamma, and the
        sum of all ci, and max degree */

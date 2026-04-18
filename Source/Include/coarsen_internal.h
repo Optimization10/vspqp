@@ -39,15 +39,6 @@ VSPINT there_is_an_edge
     VSPLONG     *Ap
 ) ;
 
-void check_matrix_is_symmetric
-(
-    VSPINT           *Ai,
-    VSPLONG          *Ap,
-    VSPINT           *Ae,
-    VSPLONG           nz,
-    VSPINT             n,
-    Options* options
-) ;
 
 VSPINT check_for_edge_between_arrays_of_vertices
 (
@@ -58,15 +49,6 @@ VSPINT check_for_edge_between_arrays_of_vertices
     VSPLONG  *Ap
 ) ;
 
-VSPINT check_matrix
-(
-    VSPINT*           Ai,
-    VSPLONG*          Ap,
-    VSPINT*           Ae,
-    VSPLONG           nz,
-    VSPINT             n,
-    Options* options
-) ;
 
 VSPINT get_match(VSPINT vertex, VSPINT* match) ;
 

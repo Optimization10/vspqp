@@ -40,14 +40,15 @@ static Graph* Graph_Coarsen
         static long long unsigned count = 0 ;
         count += 1 ;
 
-        check_matrix
+        Check_Matrix
         (
             GraphFine->Ai,
             GraphFine->Ap,
             GraphFine->Ae,
-            GraphFine->nz,
             GraphFine->n,
-            options
+            GraphFine->nz,
+            FALSE,
+            FALSE
         ) ;
 
     #endif
@@ -222,14 +223,15 @@ static Graph* Graph_Coarsen
     free(htable) ;
 
     #ifdef DEBUG
-        check_matrix
+        Check_Matrix
         (
             Graph_Coarse->Ai,
             Graph_Coarse->Ap,
             Graph_Coarse->Ae,
-            Graph_Coarse->nz,
             Graph_Coarse->n,
-            options
+            Graph_Coarse->nz,
+            FALSE,
+            FALSE
         ) ;
     #endif
 

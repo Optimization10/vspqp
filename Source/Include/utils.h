@@ -465,7 +465,6 @@ void Check_Feasibility
 ) ;
 
 
-
 void Check_Az_Int
 (
     const VSPINT *const  z,

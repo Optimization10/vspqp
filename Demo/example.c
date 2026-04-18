@@ -473,7 +473,8 @@ static void Set_Custom_Options(Options *options)
     // options->ratioUBLimit = 0.47 ;    // same sep as original, phenomenal imb
     // options->ratioUBLimit = 0.5 ;
     // options->ratioUBLimit = 0.39 ;    // same sep as original, phenomenal imb
-    options->ratioUBLimit = 0.41 ;
+    // options->ratioUBLimit = 0.41 ;
+    options->ratioUBLimit = 0.47 ;
 
     // options->relaxUB      = false ; 
     // options->ratioUBLimit = 0.6 ;
@@ -568,8 +569,8 @@ int main(int argc, char** argv)
     options = construct_options() ;
     set_default_options(options) ;
     Set_Custom_Options(options) ;
-    // options->initial_guess = centroid_initial_guess ;
-    options->initial_guess = bisection_initial_guess ;
+    options->initial_guess = centroid_initial_guess ;
+    // options->initial_guess = bisection_initial_guess ;
 
     /*** I/O ******************************************************************/
     /* 1. Set column title for Numerical_Results.csv */
