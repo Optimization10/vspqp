@@ -190,7 +190,6 @@ void reset_output_files()
     reset_file("output/errors.txt") ;
     reset_file("output/stats.txt") ;
     reset_file("./output/SolveLog.txt") ;
-    reset_file("./output/FileReadingTime.csv") ;
     return ;
 }
 
@@ -253,28 +252,6 @@ void Read_hager6_File
     double read_time = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9 ;
 
     fclose(fp);
-
-    // Write the processing time
-    double fileSize ;
-    struct stat st  ;
-    char *fileName = strrchr(path, '/') + 1 ;
-    if (stat(path, &st) == 0)
-    {
-        // Convert bytes to GB
-        fileSize = (double)st.st_size / (1024 * 1024 * 1024); 
-
-        fp = fopen("./output/FileReadingTime.csv", "a") ;
-        fprintf
-        (
-            fp, "\n%s,%f,%f,%f",
-            fileName, fileSize, read_time,fileSize/read_time
-        ) ;
-        fclose(fp) ;
-    }
-    else
-    {
-        printf("\nCould not read file size") ;
-    }
 
     // Write n
     *n = ntemp ;
@@ -394,7 +371,7 @@ VSPINT Prepend
 /******************************************************************************/
 
 
-void write_to_csv
+void Write_Results
 (
     char           *graph_name,
     solution_stats   *solStats,
@@ -575,11 +552,6 @@ int main(int argc, char** argv)
     /*** I/O ******************************************************************/
     /* 1. Set column title for results.csv */
     char filePath[MAX_MATRIX_PATH_LENGTH] = "" ;
-  
-    FILE *fp = fopen("./output/FileReadingTime.csv", "a") ; 
-    fprintf(fp, "File,Size(GB),Time(s),Speed(GB/s)") ;
-    fclose(fp) ;
-
 
     VSPINT num_graphs = 0 ;
     double total_time = 0 ;
@@ -632,9 +604,8 @@ int main(int argc, char** argv)
         sum_imb += ABS_DIFF(sltn_stats->num_nodes_x, sltn_stats->num_nodes_y) ; 
         sum_time += elapsed_time ;
 
-        // Write results to disk
-        write_to_csv(filePath, sltn_stats, options) ;
-
+        // Write to output/results.csv
+        Write_Results(filePath, sltn_stats, options) ;
 
         // Free memory
         free(Ai) ;
