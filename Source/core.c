@@ -212,7 +212,7 @@ void Error
         error_count++ ;
 
 
-        FILE* file = fopen ( "output/Error_log.txt", "a" ) ;
+        FILE* file = fopen ( "output/errors.txt", "a" ) ;
         if(error_count <= 10000)
         {
             fprintf(file, "\n\n ERROR: %s", msg) ;

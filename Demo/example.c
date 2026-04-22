@@ -165,7 +165,7 @@ void reset_file(char* name)
 
 static void SaveRndSeed(time_t seed)
 {
-    FILE* file = fopen("output/Error_log.txt", "w") ;
+    FILE* file = fopen("output/errors.txt", "w") ;
     fprintf(file, "Seed: %li", seed) ;
     fclose(file) ;
 
@@ -187,7 +187,7 @@ void destruct_solve_result(solve_result *result)
 void reset_output_files()
 {
     reset_file("output/results.txt") ;
-    reset_file("output/Error_log.txt") ;
+    reset_file("output/errors.txt") ;
     reset_file("output/stats.txt") ;
     reset_file("./output/SolveLog.txt") ;
     reset_file("./output/FileReadingTime.csv") ;
@@ -412,12 +412,12 @@ void write_to_csv
     if(count == 1)
     {
         // Reset file and write column titles
-        file = fopen("output/Numerical_Results.csv", "w") ;
+        file = fopen("output/results.csv", "w") ;
         fprintf(file, "id,n,edges,sep,imb,time\n" ) ;
     }
     else
     {
-        file = fopen("output/Numerical_Results.csv", "a") ;
+        file = fopen("output/results.csv", "a") ;
     }
 
     /* Write data */
@@ -573,7 +573,7 @@ int main(int argc, char** argv)
     // options->initial_guess = bisection_initial_guess ;
 
     /*** I/O ******************************************************************/
-    /* 1. Set column title for Numerical_Results.csv */
+    /* 1. Set column title for results.csv */
     char filePath[MAX_MATRIX_PATH_LENGTH] = "" ;
   
     FILE *fp = fopen("./output/FileReadingTime.csv", "a") ; 
