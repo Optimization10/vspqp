@@ -222,49 +222,6 @@ static Graph* Graph_Coarsen
     /* Free memory */
     free(htable) ;
 
-    /* ==================================================================== */
-    /* Sort row indices within each column by transposing twice.            */
-    /* transpose() builds T's columns by walking A in column-major order,   */
-    /* so every column of T comes out sorted by construction. For a         */
-    /* symmetric weighted graph, A == A^T as a matrix, so replacing A with  */
-    /* T is purely a sort of the row indices (with edge weights moved       */
-    /* along for the ride). Requires weight symmetry to be correct -- which */
-    /* coarsening preserves when the input is weight-symmetric.             */
-    /* ==================================================================== */
-    {
-        Problem *T = transpose(
-            Graph_Coarse->Ai,
-            Graph_Coarse->Ap,
-            Graph_Coarse->Ae,
-            Graph_Coarse->nz,
-            Graph_Coarse->n,
-            options) ;
-
-        /* Swap the array buffers: Graph_Coarse gets the sorted arrays,
-           T's graph holds onto the original unsorted ones so they get
-           freed when we destroy T. Metadata on Graph_Coarse (n, nz,
-           max_deg, costs, etc.) stays untouched -- it's already correct
-           and transposing a symmetric matrix doesn't change any of it. */
-        VSPINT  *old_Ai = Graph_Coarse->Ai ;
-        VSPLONG *old_Ap = Graph_Coarse->Ap ;
-        VSPINT  *old_Ae = Graph_Coarse->Ae ;
-
-        Graph_Coarse->Ai = T->graph->Ai ;
-        Graph_Coarse->Ap = T->graph->Ap ;
-        Graph_Coarse->Ae = T->graph->Ae ;
-
-        T->graph->Ai = old_Ai ;
-        T->graph->Ap = old_Ap ;
-        T->graph->Ae = old_Ae ;
-
-        Destroy_Problem(T) ;
-
-        /* Refresh local aliases in case the DEBUG blocks below use them. */
-        Ap_coarse = Graph_Coarse->Ap ;
-        Ai_coarse = Graph_Coarse->Ai ;
-        Ae_coarse = Graph_Coarse->Ae ;
-    }
-
 #ifdef DEBUG
     Check_Matrix
     (

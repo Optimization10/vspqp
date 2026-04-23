@@ -370,7 +370,6 @@ VSPINT Prepend
 
 /******************************************************************************/
 
-
 void Write_Results
 (
     char           *graph_name,
@@ -413,12 +412,6 @@ void Write_Results
 static void Set_Custom_Options(Options *options)
 {
     /*------------------------------------------------------------------------*/
-    /* Coarsening Options                                                     */
-    /*------------------------------------------------------------------------*/
-    options->use_coarsening             = true ;
-    options->max_size_of_coarsest_graph = 10  ;
-
-    /*------------------------------------------------------------------------*/
     /* Restart Level Options                                                  */
     /*------------------------------------------------------------------------*/
     options->restart_decision = construct_restart_decision() ;
@@ -436,8 +429,6 @@ static void Set_Custom_Options(Options *options)
     /*------------------------------------------------------------------------*/
     /* Gamma Reduction Options                                                */
     /*------------------------------------------------------------------------*/
-    options->use_gamma_reduction      = true ;
-
     options->max_num_vert_small_graph = 8000 ;
     options->num_gr_for_small_graphs  = 4 ;
     options->num_gr_for_large_graphs  = 1 ;
@@ -474,11 +465,6 @@ static void Set_Custom_Options(Options *options)
     // options->FM_Limit = 250 ;
     // options->FM_Limit = 300 ;
     // options->FM_Limit = 350 ;
-
-    /*------------------------------------------------------------------------*/
-    /* Miscellaneous Options                                                  */
-    /*------------------------------------------------------------------------*/
-    options->sep_at_each_level = false ;
 
 
     /* ====================================================================== */
@@ -549,6 +535,7 @@ int main(int argc, char** argv)
     options->initial_guess = centroid_initial_guess ;
     // options->initial_guess = bisection_initial_guess ;
 
+    Print_Options(options, "output/opts.txt") ;
     /*** I/O ******************************************************************/
     /* 1. Set column title for results.csv */
     char filePath[MAX_MATRIX_PATH_LENGTH] = "" ;

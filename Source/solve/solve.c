@@ -171,7 +171,7 @@ void    preprocess_finest_problem
     problem->graph->max_deg = maxDeg ;
 
     /* Compute alpha, gamma, and the sum of all costs */
-    if (options->c_is_all_ones == TRUE )
+    if (problem->graph->c == NULL)
     {
         alpha = 1 ;
         gamma = 1 ;

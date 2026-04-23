@@ -50,11 +50,6 @@ typedef struct restart_decision_struct
 
 typedef struct Options_struct
 {
-    /* Coarsening 
-       If use_coarsening is false, all other coarsening parameters are ignored*/
-    bool                    use_coarsening ;
-    VSPINT                  max_size_of_coarsest_graph ;
-
     /* Initial guess */
     initial_guess      initial_guess;
     VSPFLOAT               random_point_weight_proportion ;
@@ -62,9 +57,7 @@ typedef struct Options_struct
 
     restart_decision *restart_decision ;
 
-    /* Gamma reduction 
-       If use_gamma_reduction is false, all other g.r. parameters are ignored */
-    bool  use_gamma_reduction ;
+
     /* Since gamma reduction is much cheaper for small graphs, we may want to
        do it more times for small graphs than for large graphs.               */
     VSPINT num_gr_for_small_graphs ;  /* How many gr to do for small graphs   */
@@ -73,11 +66,6 @@ typedef struct Options_struct
                                          to be considered a "small" graph     */
 
     /* Miscellaneous */
-    bool     sep_at_each_level ; /* If true, get a separator (i.e. change x, y
-                                    to make the penalty term zero) after solving
-                                    each level. If false, get a separator only
-                                    after the finest level has been solved.   */
-    VSPINT      c_is_all_ones  ;
     VSPFLOAT              eps  ; /* Small non-negative number, representing the
                                  tolerance used in various comparisons. As eps
                                  decreases, the solution quality may increase,
@@ -159,6 +147,7 @@ void restart_decide_reset(restart_decision *dec) ;
 
 Options* construct_options() ;
 void set_default_options(Options* options) ;
+void Print_Options(const Options *opts, const char *path) ;
 
 
 long double compute_elapsed_time(struct timespec start, struct timespec end) ;

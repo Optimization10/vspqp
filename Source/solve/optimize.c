@@ -73,16 +73,13 @@ static void Determine_Num_GR
 )
 {
     *numGR = 0 ;
-    if(options->use_gamma_reduction)
+    if(n <= options->max_num_vert_small_graph)
     {
-        if(n <= options->max_num_vert_small_graph)
-        {
-            *numGR = options->num_gr_for_small_graphs ;
-        }
-        else
-        {
-            *numGR = options->num_gr_for_large_graphs ;
-        }
+        *numGR = options->num_gr_for_small_graphs ;
+    }
+    else
+    {
+        *numGR = options->num_gr_for_large_graphs ;
     }
     return ;
 }

@@ -455,23 +455,16 @@ void destruct_options(Options* options)
 
 void set_default_options(Options* options)
 {
-    /* Coarsening */
-    options->use_coarsening             = true ;
-    options->max_size_of_coarsest_graph = 10;
-
     /* Initial guess */
     options->initial_guess                  = centroid_initial_guess;
     options->random_point_weight_proportion = 0.58 ;
     options->centroidVal = 0.6 ;
 
     /* Gamma reduction */
-    options->use_gamma_reduction        = true ;
     options->num_gr_for_large_graphs    = 15 ;
     options->num_gr_for_small_graphs    = 30 ;
     options->max_num_vert_small_graph   = 150 ;
 
-    options->sep_at_each_level          = false ;
-    options->c_is_all_ones              = FALSE ;
     options->eps                        = 1E-8 ;
 
 
@@ -498,4 +491,66 @@ void set_default_options(Options* options)
     options->compression_threshold = 0.65 ;
 
     return ;
+}
+
+static const char *initial_guess_to_str(initial_guess g)
+{
+    switch (g) {
+        case centroid_initial_guess:  return "centroid";
+        case random_initial_guess:    return "random";
+        case manual_initial_guess:    return "manual";
+        case bisection_initial_guess: return "bisection";
+        default:                      return "unknown";
+    }
+}
+
+void Print_Options(const Options *opts, const char *path)
+{
+    if (path == NULL)
+    {
+        printf("Print_Options: path is NULL\n");
+        return;
+    }
+    FILE *f = fopen(path, "w");
+    if (f == NULL)
+    {
+        printf("Print_Options: could not open %s for writing\n", path);
+        return;
+    }
+
+    if (opts == NULL)
+    {
+        fprintf(f, "Options: (null)\n");
+        fclose(f);
+        return;
+    }
+
+    fprintf(f, "Options:\n");
+
+    fprintf(f, "  initial_guess                  = %s\n",   initial_guess_to_str(opts->initial_guess));
+    fprintf(f, "  random_point_weight_proportion = %g\n",   opts->random_point_weight_proportion);
+    fprintf(f, "  centroidVal                    = %g\n",   opts->centroidVal);
+
+    /* Gamma reduction */
+    fprintf(f, "  num_gr_for_small_graphs        = %lld\n", PRI(opts->num_gr_for_small_graphs));
+    fprintf(f, "  num_gr_for_large_graphs        = %lld\n", PRI(opts->num_gr_for_large_graphs));
+    fprintf(f, "  max_num_vert_small_graph       = %lld\n", PRI(opts->max_num_vert_small_graph));
+
+    /* Miscellaneous */
+    fprintf(f, "  eps                            = %g\n",   opts->eps);
+    fprintf(f, "  relaxUB                        = %s\n",   opts->relaxUB ? "true" : "false");
+    fprintf(f, "  ratioUBLimit                   = %g\n",   opts->ratioUBLimit);
+
+    /* FM Options */
+    fprintf(f, "  FM_Limit                       = %lld\n", PRI(opts->FM_Limit));
+
+    /* Mountain Climbing Options */
+    fprintf(f, "  tol_LP_opt_checker             = %g\n",   opts->tol_LP_opt_checker);
+
+    /* Simple Coarsening Options */
+    fprintf(f, "  max_density                    = %g\n",   opts->max_density);
+    fprintf(f, "  limit_num_nodes                = %lld\n", PRI(opts->limit_num_nodes));
+    fprintf(f, "  compression_threshold          = %g\n",   opts->compression_threshold);
+
+    fclose(f);
 }
