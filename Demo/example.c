@@ -475,8 +475,6 @@ static void Set_Custom_Options(Options *options)
     /* ====================================================================== */
     // Simple Coarsening options
     /* ====================================================================== */
-    options->max_density     = 0.8 ;
-    options->limit_num_nodes = 100 ;
     options->compression_threshold = 0.51 ;
 
     return ;

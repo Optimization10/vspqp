@@ -486,8 +486,6 @@ void set_default_options(Options* options)
     /* ====================================================================== */
     // Simple Coarsening options
     /* ====================================================================== */
-    options->max_density     = 0.8 ;
-    options->limit_num_nodes = 100 ;
     options->compression_threshold = 0.65 ;
 
     return ;
@@ -548,8 +546,6 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  tol_LP_opt_checker             = %g\n",   opts->tol_LP_opt_checker);
 
     /* Simple Coarsening Options */
-    fprintf(f, "  max_density                    = %g\n",   opts->max_density);
-    fprintf(f, "  limit_num_nodes                = %lld\n", PRI(opts->limit_num_nodes));
     fprintf(f, "  compression_threshold          = %g\n",   opts->compression_threshold);
 
     fclose(f);
