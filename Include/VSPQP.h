@@ -65,13 +65,6 @@ typedef struct Options_struct
     VSPINT max_num_vert_small_graph ; /* Max number of vertices in  what is
                                          to be considered a "small" graph     */
 
-    /* Miscellaneous */
-    VSPFLOAT              eps  ; /* Small non-negative number, representing the
-                                 tolerance used in various comparisons. As eps
-                                 decreases, the solution quality may increase,
-                                 but the speed may decrease.                  */
-
-
     bool relaxUB ;
     VSPFLOAT ratioUBLimit ;
 

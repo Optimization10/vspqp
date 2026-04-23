@@ -186,10 +186,8 @@ void destruct_solve_result(solve_result *result)
 
 void reset_output_files()
 {
-    reset_file("output/results.txt") ;
     reset_file("output/errors.txt") ;
-    reset_file("output/stats.txt") ;
-    reset_file("./output/SolveLog.txt") ;
+    reset_file("./output/progress.txt") ;
     return ;
 }
 
@@ -562,7 +560,7 @@ int main(int argc, char** argv)
 
         // Log the current problem name
         name = strrchr(filePath, '/') + 1 ;
-        FILE *f = fopen("./output/SolveLog.txt", "a") ;
+        FILE *f = fopen("./output/progress.txt", "a") ;
         fprintf(f, "Starting problem: %s\n", name) ;
         fclose(f) ;
 

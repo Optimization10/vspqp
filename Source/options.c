@@ -465,9 +465,6 @@ void set_default_options(Options* options)
     options->num_gr_for_small_graphs    = 30 ;
     options->max_num_vert_small_graph   = 150 ;
 
-    options->eps                        = 1E-8 ;
-
-
     /* Restart optimization at the current level */
     options->restart_decision = NULL ;
 
@@ -535,7 +532,6 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  max_num_vert_small_graph       = %lld\n", PRI(opts->max_num_vert_small_graph));
 
     /* Miscellaneous */
-    fprintf(f, "  eps                            = %g\n",   opts->eps);
     fprintf(f, "  relaxUB                        = %s\n",   opts->relaxUB ? "true" : "false");
     fprintf(f, "  ratioUBLimit                   = %g\n",   opts->ratioUBLimit);
 
