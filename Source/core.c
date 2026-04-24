@@ -211,8 +211,10 @@ void Error
         static long long unsigned error_count = 0 ;
         error_count++ ;
 
+        FILE* file ;
+        if(error_count == 1) file = fopen ( "output/errors.txt", "w" ) ;
+        else                 file = fopen ( "output/errors.txt", "a" ) ;
 
-        FILE* file = fopen ( "output/errors.txt", "a" ) ;
         if(error_count <= 10000)
         {
             fprintf(file, "\n\n ERROR: %s", msg) ;

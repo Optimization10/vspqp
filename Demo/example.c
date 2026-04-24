@@ -173,12 +173,7 @@ void destruct_solve_result(solve_result *result)
     return ;
 }
 
-void reset_output_files()
-{
-    reset_file("output/errors.txt") ;
-    reset_file("./output/progress.txt") ;
-    return ;
-}
+
 
 
 /******************************************************************************/
@@ -476,8 +471,6 @@ int main(int argc, char** argv)
      
     // Text file from which to read matrix names, one per line
     char matricesList[] = "doc/mats/ManualMatsList.txt" ;
-    // char matricesList[] = "doc/mats/1.txt" ;
-    // char matricesList[] = "/home/ovi/data/int32-n-sorted.txt" ;
 
     // Set data directory
     char matricesDir[256];
@@ -493,8 +486,8 @@ int main(int argc, char** argv)
     char *name ;
     
     /*------------------------------------------------------------------------*/
-
-    reset_output_files() ; 
+    // Reset progress file
+    reset_file("./output/progress.txt") ;
     unsigned int seed ;
 
     // seed = (unsigned VSPINT) time(NULL) ;
