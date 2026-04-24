@@ -38,6 +38,9 @@ static void Consider_Restart
         case bisection_initial_guess:
             strategy = strategy_bisection_restart;
             break;
+        case random_initial_guess:
+            strategy = strategy_random_restart;
+            break;
         default:
             fprintf(stderr, "ERROR: Unsupported starting guess for restart\n");
             return;

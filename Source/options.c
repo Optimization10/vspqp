@@ -457,8 +457,8 @@ void set_default_options(Options* options)
 {
     /* Initial guess */
     options->initial_guess                  = centroid_initial_guess;
-    options->random_point_weight_proportion = 0.58 ;
-    options->centroidVal = 0.6 ;
+    options->random_point_weight_proportion = 0.38 ;
+    options->centroidVal = 0.35 ;
 
     /* Gamma reduction */
     options->num_gr_for_large_graphs    = 15 ;

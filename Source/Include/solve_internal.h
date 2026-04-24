@@ -59,4 +59,8 @@ void strategy_bisection_restart
 (
     State *X, State *Y, Problem *problem, Options *options
 ) ;
+void strategy_random_restart
+(
+    State *X, State *Y, Problem *problem, Options *options
+) ;
 #endif

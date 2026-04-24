@@ -510,8 +510,11 @@ int main(int argc, char** argv)
     options = construct_options() ;
     set_default_options(options) ;
     Set_Custom_Options(options) ;
+
+    options->initial_guess = random_initial_guess ;
     // options->initial_guess = centroid_initial_guess ;
-    options->initial_guess = bisection_initial_guess ;
+    // options->initial_guess = bisection_initial_guess ;
+
 
     Print_Options(options, "output/opts.txt") ;
     /*** I/O ******************************************************************/
