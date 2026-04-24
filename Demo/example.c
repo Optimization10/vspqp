@@ -163,17 +163,6 @@ void reset_file(char* name)
     return ;
 }
 
-static void SaveRndSeed(time_t seed)
-{
-    FILE* file = fopen("output/errors.txt", "w") ;
-    fprintf(file, "Seed: %li", seed) ;
-    fclose(file) ;
-
-    file = fopen("output/random_seed.txt", "w") ;
-    fprintf(file, "Seed: %li", seed) ;
-    fclose(file) ;
-    return ;
-}
 
 void destruct_solve_result(solve_result *result)
 {
@@ -434,13 +423,13 @@ static void Set_Custom_Options(Options *options)
     /*------------------------------------------------------------------------*/
     /* Relax Upper Bound Options                                              */
     /*------------------------------------------------------------------------*/
-    // options->relaxUB      = true ;
+    options->relaxUB      = true ;
     // options->ratioUBLimit = 0.40 ;    // same sep as original, phenomenal imb
     // options->ratioUBLimit = 0.47 ;    // same sep as original, phenomenal imb
     // options->ratioUBLimit = 0.5 ;
     // options->ratioUBLimit = 0.39 ;    // same sep as original, phenomenal imb
     // options->ratioUBLimit = 0.41 ;
-    options->ratioUBLimit = 0.47 ;
+    options->ratioUBLimit = 0.5 ;
 
     // options->relaxUB      = false ; 
     // options->ratioUBLimit = 0.6 ;
@@ -512,7 +501,6 @@ int main(int argc, char** argv)
     seed = 1 ;
 
     srand(seed) ;
-    SaveRndSeed(seed) ;
     printf("\nSeed : %u", seed ) ;
 
     /* Local vars */
