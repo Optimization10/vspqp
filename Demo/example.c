@@ -470,7 +470,7 @@ int main(int argc, char** argv)
     /*------------------------------------------------------------------------*/
      
     // Text file from which to read matrix names, one per line
-    char matricesList[] = "doc/mats/ManualMatsList.txt" ;
+    char matricesList[] = "doc/mats.txt" ;
 
     // Set data directory
     char matricesDir[256];
