@@ -419,6 +419,7 @@ static void Set_Custom_Options(Options *options)
     /* Relax Upper Bound Options                                              */
     /*------------------------------------------------------------------------*/
     options->relaxUB      = true ;
+
     // options->ratioUBLimit = 0.40 ;    // same sep as original, phenomenal imb
     // options->ratioUBLimit = 0.47 ;    // same sep as original, phenomenal imb
     // options->ratioUBLimit = 0.5 ;
@@ -509,8 +510,8 @@ int main(int argc, char** argv)
     options = construct_options() ;
     set_default_options(options) ;
     Set_Custom_Options(options) ;
-    options->initial_guess = centroid_initial_guess ;
-    // options->initial_guess = bisection_initial_guess ;
+    // options->initial_guess = centroid_initial_guess ;
+    options->initial_guess = bisection_initial_guess ;
 
     Print_Options(options, "output/opts.txt") ;
     /*** I/O ******************************************************************/
