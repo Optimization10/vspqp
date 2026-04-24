@@ -3,6 +3,7 @@
 #include "core.h"
 #include "coarsen.h"
 #include "utils.h"
+#include <stdio.h>
 #include <string.h>
 #include "profiler.h"
 
@@ -17,7 +18,7 @@ bool restart_decide
 ) ;
 
 /* Determine if we should resolve, and if so, do it */
-static void ResolveLevelDecideAndDo
+static void Consider_Restart
 (
     State             *X,
     State             *Y,
@@ -28,10 +29,20 @@ static void ResolveLevelDecideAndDo
     bool dec = restart_decide(options->restart_decision, 0, 0, problem);
     if (!dec || problem->child_problem == NULL) return;
 
-    // if(problem->level <= 4) return ;
-
-    Try_And_Keep_If_Better(X, Y, problem, strategy_centroid_restart, options) ;
-    // Try_And_Keep_If_Better(X, Y, problem, strategy_bisection_restart, options) ;
+    void (*strategy)(State*, State*, Problem*, Options*) = NULL;
+    switch (options->initial_guess)
+    {
+        case centroid_initial_guess:
+            strategy = strategy_centroid_restart;
+            break;
+        case bisection_initial_guess:
+            strategy = strategy_bisection_restart;
+            break;
+        default:
+            fprintf(stderr, "ERROR: Unsupported starting guess for restart\n");
+            return;
+    }
+    Try_And_Keep_If_Better(X, Y, problem, strategy, options);
 }
 
 
@@ -243,7 +254,7 @@ void Solve_Level
     TIMER_START(T_TOTAL) ;
     Optimize(X, Y, problem, options) ;
     relaxed_to_vertex_separator(X, Y, problem) ;
-    ResolveLevelDecideAndDo(X, Y, problem, options) ;
+    Consider_Restart(X, Y, problem, options) ;
     relaxed_to_vertex_separator(X, Y, problem) ;
     TIMER_STOP(T_TOTAL) ;
     Timer_Flush(problem->level) ;
