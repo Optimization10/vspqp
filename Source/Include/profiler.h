@@ -3,7 +3,7 @@
 
 #include <time.h>
 
-enum timer_id { T_FLIPS, T_MC, T_FM, T_COARSEN, T_TOTAL, T_EQUIV, T_COUNT };
+enum timer_id { T_FLIPS, T_MC, T_FM, T_COARSEN, T_TOTAL, T_COUNT };
 
 extern double timings[T_COUNT];
 extern int counts[T_COUNT];

@@ -262,13 +262,6 @@ void light_check_Az
     Az *Az
 ) ;
 
-
-void relaxed_to_vertex_separator(
-    State* X,
-    State* Y,
-    Problem* problem
-) ;
-
 void Copy_Point(Point *src, Point *dst) ;
 
 
