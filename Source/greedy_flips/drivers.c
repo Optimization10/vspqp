@@ -16,11 +16,9 @@ void Greedy_Flips
     bool        deep_search
 )
 {
-#ifdef DEBUG
-    static long long unsigned count = 0 ;
-    count++ ;
-#endif
     TIMER_START(T_FLIPS) ;
+    static int count = 0 ;
+    count++ ;
 
     Round_Down_Fractions(X, Y, problem) ;
 

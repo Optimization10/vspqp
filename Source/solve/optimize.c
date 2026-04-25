@@ -170,6 +170,9 @@ void Optimize
     Options     *options
 )
 {
+    static int count = 0 ;
+    count++ ;
+
     #ifdef DEBUG
         check_states(X, Y, problem);
     #endif
@@ -203,7 +206,7 @@ void Optimize
     Gamma_Reduction_Loop(X, Y, problem, options, gamma_org);
 
     // Phase 6: Final cleanup flips
-    Greedy_Flips(X, Y, problem, 5, (problem->level <= 2));
+    Greedy_Flips(X, Y, problem, 5, true);
 
     CLEANUP:
 

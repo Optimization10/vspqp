@@ -7,8 +7,9 @@ Point *Clone_Point(Point *src) ;
 
 VSPINT Point_Diffs
 (
-    Point *p1,
-    Point *p2
+    Point  *p1,
+    Point  *p2,
+    VSPINT *diff_idx // First index where there's a difference. Can be NULL
 ) ;
 
 void Record_Graph_Stats

@@ -201,6 +201,9 @@ void relaxed_to_vertex_separator
 {
     TIMER_START(T_EQUIV) ;
 
+    // Point *xinit = Clone_Point(X->point) ;
+    // Point *yinit = Clone_Point(Y->point) ;
+
     #ifdef DEBUG
         check_states(X, Y, problem) ;
     #endif
@@ -407,8 +410,25 @@ void relaxed_to_vertex_separator
         }
     #endif
 
-
     improve(X, Y, problem) ;
+
+    // VSPINT idx_diff_x, idx_diff_y ;
+    // VSPINT ndiffsx = Point_Diffs(xinit, X->point, &idx_diff_x) ;
+    // VSPINT ndiffsy = Point_Diffs(xinit, X->point, &idx_diff_y) ;
+
+    // if(ndiffsx)
+    // {
+    //     printf("Num diffs X: %i  First idx of diff: %i\n", ndiffsx, idx_diff_x) ;
+    // }
+    // if(ndiffsy)
+    // {
+    //     printf("Num diffs Y: %i  First idx of diff: %i\n", ndiffsy, idx_diff_y) ;
+    // }
+    // fflush(stdout) ;
+    // Destroy_Point(xinit) ;
+    // Destroy_Point(yinit) ;
+
+
 
     #ifdef DEBUG
         check_states(X, Y, problem) ;

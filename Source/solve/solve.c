@@ -254,11 +254,12 @@ void Solve_Level
     State *X, State *Y, Problem *problem, Options *options
 )
 {
+    static int count = 0 ;
+    count++ ;
+
     TIMER_START(T_TOTAL) ;
     Optimize(X, Y, problem, options) ;
-    relaxed_to_vertex_separator(X, Y, problem) ;
     Consider_Restart(X, Y, problem, options) ;
-    relaxed_to_vertex_separator(X, Y, problem) ;
     TIMER_STOP(T_TOTAL) ;
     Timer_Flush(problem->level) ;
 }

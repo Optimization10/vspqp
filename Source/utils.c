@@ -597,8 +597,9 @@ Point *Clone_Point(Point *src)
 
 VSPINT Point_Diffs
 (
-    Point *p1,
-    Point *p2
+    Point  *p1,
+    Point  *p2,
+    VSPINT *diff_idx // First index where there's a difference. Can be NULL
 )
 {
     VSPINT i ;
@@ -606,11 +607,18 @@ VSPINT Point_Diffs
     VSPINT num_diffs = 0 ;
     VSPFLOAT entry1, entry2 ;
 
+    if(diff_idx != NULL) *diff_idx = EMPTY ;
+    
+
     for(i = 0 ; i < n ; i++)
     {
         entry1 = p1->int_part[i] + (i == p1->ind_frac) * p1->val_frac ;
         entry2 = p2->int_part[i] + (i == p2->ind_frac) * p2->val_frac ;
-        if( fabs(entry1 - entry2) > 1E-8 ) num_diffs++ ;
+        if( fabs(entry1 - entry2) > 1E-8 )
+        {
+            num_diffs++ ;
+            if(diff_idx != NULL && *diff_idx == EMPTY) *diff_idx = i ;
+        }
     }
     return num_diffs ;
 }
