@@ -187,7 +187,6 @@ void Optimize
     Greedy_Flips(X, Y, problem, 9, (problem->level <= 2));
 
     // Phase 3: FM
-    relaxed_to_vertex_separator(X, Y, problem);
     VSPINT n_passes;
     if (problem->level >= problem->coarsest_level_num / 2) n_passes = 3;
     else n_passes = 2;
