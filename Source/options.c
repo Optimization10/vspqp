@@ -453,37 +453,52 @@ void destruct_options(Options* options)
 }
 
 
-void set_default_options(Options* options)
+void set_default_options(Options *options)
 {
-    /* Initial guess */
-    options->initial_guess                  = centroid_initial_guess;
+    /*------------------------------------------------------------------------*/
+    /* Restart Level Options                                                  */
+    /*------------------------------------------------------------------------*/
+    /* All levels in [2, infty) */
+    options->restart_decision             = construct_restart_decision() ;
+    options->restart_decision->use_levels = true ;
+    options->restart_decision->levels     = construct_levels(SPECIFY_UNSELECTED_LEVELS) ;
+    Levels_unselect(0, options->restart_decision->levels) ;
+    Levels_unselect(1, options->restart_decision->levels) ;
+
+    /*------------------------------------------------------------------------*/
+    /* Gamma Reduction Options                                                */
+    /*------------------------------------------------------------------------*/
+    options->max_num_vert_small_graph = 8000 ;
+    options->num_gr_for_small_graphs  = 4 ;
+    options->num_gr_for_large_graphs  = 1 ;
+
+    /*------------------------------------------------------------------------*/
+    /* Relax Upper Bound Options                                              */
+    /*------------------------------------------------------------------------*/
+    options->relaxUB      = true ;
+    options->ratioUBLimit = 0.5 ;
+
+    /*------------------------------------------------------------------------*/
+    /* Starting Guess Options                                                 */
+    /*------------------------------------------------------------------------*/
+    options->initial_guess                  = centroid_initial_guess ;
+    options->centroidVal                    = 0.35 ;
     options->random_point_weight_proportion = 0.38 ;
-    options->centroidVal = 0.35 ;
 
-    /* Gamma reduction */
-    options->num_gr_for_large_graphs    = 15 ;
-    options->num_gr_for_small_graphs    = 30 ;
-    options->max_num_vert_small_graph   = 150 ;
+    /*------------------------------------------------------------------------*/
+    /* FM Options                                                             */
+    /*------------------------------------------------------------------------*/
+    options->FM_Limit = 300 ;
 
-    /* Restart optimization at the current level */
-    options->restart_decision = NULL ;
+    /*------------------------------------------------------------------------*/
+    /* Mountain Climbing Options                                              */
+    /*------------------------------------------------------------------------*/
+    options->tol_LP_opt_checker = 1E-10 ;
 
-    /* Relaxing or constricting upper bound */
-    options->relaxUB = false ;
-    options->ratioUBLimit = 0.6 ;
-
-    /* FM Options */
-    options->FM_Limit = 400 ;
-
-    /* ====================================================================== */
-    // Mountain Climbing Options
-    /* ====================================================================== */
-    options->tol_LP_opt_checker = 1E-8 ;
-
-    /* ====================================================================== */
-    // Simple Coarsening options
-    /* ====================================================================== */
-    options->compression_threshold = 0.65 ;
+    /*------------------------------------------------------------------------*/
+    /* Simple Coarsening Options                                              */
+    /*------------------------------------------------------------------------*/
+    options->compression_threshold = 0.51 ;
 
     return ;
 }

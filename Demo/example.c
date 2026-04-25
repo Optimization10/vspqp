@@ -391,79 +391,6 @@ void Write_Results
 }
 
 
-static void Set_Custom_Options(Options *options)
-{
-    /*------------------------------------------------------------------------*/
-    /* Restart Level Options                                                  */
-    /*------------------------------------------------------------------------*/
-    options->restart_decision = construct_restart_decision() ;
-
-    // /* All levels in [2, infty) */
-    options->restart_decision->use_levels = true ;
-    options->restart_decision->levels     = construct_levels(SPECIFY_UNSELECTED_LEVELS) ;
-    Levels_unselect(0, options->restart_decision->levels) ;
-    Levels_unselect(1, options->restart_decision->levels) ;
-
-    // /* Disable restarts */
-    // options->restart_decision->use_levels = true ;
-    // options->restart_decision->levels = construct_levels(NO_LEVELS) ;
-
-    /*------------------------------------------------------------------------*/
-    /* Gamma Reduction Options                                                */
-    /*------------------------------------------------------------------------*/
-    options->max_num_vert_small_graph = 8000 ;
-    options->num_gr_for_small_graphs  = 4 ;
-    options->num_gr_for_large_graphs  = 1 ;
-
-    /*------------------------------------------------------------------------*/
-    /* Relax Upper Bound Options                                              */
-    /*------------------------------------------------------------------------*/
-    options->relaxUB      = true ;
-
-    // options->ratioUBLimit = 0.40 ;    // same sep as original, phenomenal imb
-    // options->ratioUBLimit = 0.47 ;    // same sep as original, phenomenal imb
-    // options->ratioUBLimit = 0.5 ;
-    // options->ratioUBLimit = 0.39 ;    // same sep as original, phenomenal imb
-    // options->ratioUBLimit = 0.41 ;
-    options->ratioUBLimit = 0.5 ;
-
-    // options->relaxUB      = false ; 
-    // options->ratioUBLimit = 0.6 ;
-
-    /*------------------------------------------------------------------------*/
-    /* Starting Guess Options                                                 */
-    /*------------------------------------------------------------------------*/
-    options->initial_guess     = centroid_initial_guess ;
-    
-    // best so far
-    options->centroidVal       = 0.35 ;
-
-    /*------------------------------------------------------------------------*/
-    /* FM Options                                                             */
-    /*------------------------------------------------------------------------*/
-    // Best so far
-    options->FM_Limit = 300 ;
-
-    // options->FM_Limit = 200 ;
-    // options->FM_Limit = 250 ;
-    // options->FM_Limit = 300 ;
-    // options->FM_Limit = 350 ;
-
-
-    /* ====================================================================== */
-    // Mountain Climbing Options
-    /* ====================================================================== */
-    options->tol_LP_opt_checker = 1E-10 ;
-
-    /* ====================================================================== */
-    // Simple Coarsening options
-    /* ====================================================================== */
-    options->compression_threshold = 0.51 ;
-
-    return ;
-}
-
-
 int main(int argc, char** argv)
 {
     /*------------------------------------------------------------------------*/
@@ -509,12 +436,9 @@ int main(int argc, char** argv)
     /*** Options **************************************************************/
     options = construct_options() ;
     set_default_options(options) ;
-    Set_Custom_Options(options) ;
 
-    options->initial_guess = random_initial_guess ;
-    // options->initial_guess = centroid_initial_guess ;
-    // options->initial_guess = bisection_initial_guess ;
-
+    // Custom options
+    options->ratioUBLimit = 0.45 ;
 
     Print_Options(options, "output/opts.txt") ;
     /*** I/O ******************************************************************/
