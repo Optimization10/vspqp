@@ -331,7 +331,6 @@ solve_result *VSP_Solve
     // X_0, Y_0 is the solution at the finest, uncompressed level
     X_0 = X_lp1 ;
     Y_0 = Y_lp1 ;
-    relaxed_to_vertex_separator(X_0, Y_0, probFinest) ;
     solve_result *result = Package_Result(X_0, Y_0, probFinest) ;
     Destroy_State(X_0) ;
     Destroy_State(Y_0) ;
