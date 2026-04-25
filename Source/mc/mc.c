@@ -46,52 +46,31 @@ void mountain_climbing
     VSPINT loop = 0;
     char optimal_var;
 
-    /*** Diagonal Phase *******************************************************/
-    while (true)
+    /*** Start Phase **********************************************************/
+    /* Optimize over x to get x_star */
+    VSPFLOAT f_xstar_y = LP_solver_4(Xstar, Y->Az, c, bal,
+                                                gamma, problem, options, 'x') ;
+    f_xstar_y += Y->weight;
+
+    /* Optimize over y to get y_star */
+    VSPFLOAT f_x_ystar = LP_solver_4(Ystar, X->Az, c, bal,
+                                                gamma, problem, options, 'y') ;
+    f_x_ystar += X->weight;
+
+    /* Adjust objective value to prevent cycling */
+    f_xstar_y = MAX(f_xstar_y, obj);
+    f_x_ystar = MAX(f_x_ystar, obj);
+
+
+    if (f_xstar_y > f_x_ystar + f_x_ystar * EPS)
     {
-        loop++;
-
-        /* Optimize over x to get x_star */
-        VSPFLOAT f_xstar_y = LP_solver_4(Xstar, Y->Az, c, bal,
-                                                 gamma, problem, options, 'x') ;
-        f_xstar_y += Y->weight;
-
-        /* Optimize over y to get y_star */
-        VSPFLOAT f_x_ystar = LP_solver_4(Ystar, X->Az, c, bal,
-                                                 gamma, problem, options, 'y') ;
-        f_x_ystar += X->weight;
-
-        /* Adjust objective value to prevent cycling */
-        f_xstar_y = MAX(f_xstar_y, obj);
-        f_x_ystar = MAX(f_x_ystar, obj);
-
-        /* Compare f(x*, y*) vs f(x_star, y) vs f(x, y_star) */
-        VSPFLOAT f_xstar_ystar;
-        f_xstar_ystar = compute_obj(Xstar, Ystar, problem, gamma);
-
-        if (f_xstar_ystar > MAX(f_xstar_y, f_x_ystar) + MAX(f_xstar_y, f_x_ystar) * EPS)
-        {
-            /* Set (x, y) <- (x_star, y_star) and repeat */
-            /* TODO speed: Don't have 2 states and copy. Just maintain 4 states
-               throughout an entire level                                     */
-            copy_state(Xstar, X);
-            copy_state(Ystar, Y);
-
-            obj = f_xstar_ystar;
-            continue;
-        }
-        else if (f_xstar_y > f_x_ystar + f_x_ystar * EPS)
-        {
-            copy_state(Xstar, X);
-            optimal_var = 'x';
-            break ;
-        }
-        else
-        {
-            copy_state(Ystar, Y);
-            optimal_var = 'y';
-            break;
-        }
+        copy_state(Xstar, X);
+        optimal_var = 'x';
+    }
+    else
+    {
+        copy_state(Ystar, Y);
+        optimal_var = 'y';
     }
 
     /* Free memory */
