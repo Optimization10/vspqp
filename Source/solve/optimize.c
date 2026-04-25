@@ -131,7 +131,6 @@ static void Gamma_Reduction_Loop
         mountain_climbing(Xc, Yc, problem, options, gamma, false);
         mountain_climbing(Xc, Yc, problem, options, gamma_org, true);
         Greedy_Flips(Xc, Yc, problem, 9, (problem->level <= 2));
-        relaxed_to_vertex_separator(Xc, Yc, problem);
 
         VSPINT np;
         if (problem->level >= problem->coarsest_level_num / 2) np = 3;
