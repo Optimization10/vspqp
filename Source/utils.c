@@ -510,6 +510,15 @@ VSPFLOAT* Point_to_array(Point *z) {
     return z_arr ;
 }
 
+void Copy_Point(Point *src, Point *dst)
+{
+    VSPINT i ;
+    VSPINT n = src->n ;
+    for(i = 0 ; i < n ; i++) dst->int_part[i] = src->int_part[i] ;
+    dst->ind_frac = src->ind_frac ;
+    dst->val_frac = src->val_frac ;
+    dst->n        = src->n ;
+}
 
 
 // Create a deep copy. Assume that all memory is already allocated
@@ -582,7 +591,7 @@ State *Clone_State(State *src)
 Point *Clone_Point(Point *src)
 {
     Point *dst = Construct_Point(src->n) ;
-    copy_point(src, dst, src->n) ;
+    Copy_Point(src, dst) ;
     return dst ;
 }
 

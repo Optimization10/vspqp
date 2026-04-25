@@ -407,6 +407,7 @@ void relaxed_to_vertex_separator
         }
     #endif
 
+
     improve(X, Y, problem) ;
 
     #ifdef DEBUG

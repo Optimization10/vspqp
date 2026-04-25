@@ -268,11 +268,7 @@ void relaxed_to_vertex_separator(
     Problem* problem
 ) ;
 
-void copy_point(
-    Point* from,
-    Point* to,
-    VSPINT n
-) ;
+void Copy_Point(Point *src, Point *dst) ;
 
 
 
