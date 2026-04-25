@@ -1,5 +1,6 @@
 #include "core.h"
 #include "data_structures.h"
+#include <math.h>
 #include <stdint.h>
 #include <string.h>
 #include "utils.h"
@@ -578,7 +579,32 @@ State *Clone_State(State *src)
     return dst;
 }
 
+Point *Clone_Point(Point *src)
+{
+    Point *dst = Construct_Point(src->n) ;
+    copy_point(src, dst, src->n) ;
+    return dst ;
+}
 
+VSPINT Point_Diffs
+(
+    Point *p1,
+    Point *p2
+)
+{
+    VSPINT i ;
+    VSPINT n = p1->n ;
+    VSPINT num_diffs = 0 ;
+    VSPFLOAT entry1, entry2 ;
+
+    for(i = 0 ; i < n ; i++)
+    {
+        entry1 = p1->int_part[i] + (i == p1->ind_frac) * p1->val_frac ;
+        entry2 = p2->int_part[i] + (i == p2->ind_frac) * p2->val_frac ;
+        if( fabs(entry1 - entry2) > 1E-8 ) num_diffs++ ;
+    }
+    return num_diffs ;
+}
 
 /* Use when you want to sort an array in increasing order using qsort from
    stdlib                                                                     */

@@ -3,6 +3,14 @@
 
 #include "core.h"
 
+Point *Clone_Point(Point *src) ;
+
+VSPINT Point_Diffs
+(
+    Point *p1,
+    Point *p2
+) ;
+
 void Record_Graph_Stats
 (
     Graph   *graph,
