@@ -1338,7 +1338,7 @@ void check_Az
     static long long unsigned count = 0 ;
     count ++ ;
 
-    VSPINT i ;
+    VSPINT i, idx_mismatch = EMPTY ;
     VSPINT n       = problem->graph->n ;
     VSPINT *Az_int = az->int_part ;
 
@@ -1377,12 +1377,15 @@ void check_Az
         VSPINT  one               = az->one ;
         VSPINT  one_dbg           = Az_dbg->one ;
 
-        for(i = 0 ; i < n ; i++) {
+        for(i = 0 ; i < n ; i++)
+        {
             bool Az_is_one     = (col_frac_z[i]     == one) ;
             bool Az_dbg_is_one = (col_frac_z_dbg[i] == one_dbg) ;
 
-            if(Az_is_one != Az_dbg_is_one) {
+            if(Az_is_one != Az_dbg_is_one)
+            {
                 same = false ;
+                if(idx_mismatch == EMPTY) idx_mismatch = i ;
             }
             /* Check that each entry is between 0 and one */
             if(col_frac_z[i] < 0 || col_frac_z[i] > one) one_is_ok = false ;

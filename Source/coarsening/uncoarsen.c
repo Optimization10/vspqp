@@ -178,6 +178,16 @@ static void CheckForFracEntryAndRefineIt
             Zfine->Az->val_frac_z = valFrac ;
 
             Zfine->weight = ufine ;
+
+            extract_matrix_col
+            (
+                Zfine->Az->col_frac_z,
+                Zfine->point->ind_frac,
+                Zfine->Az->one,
+                probFine->graph->Ai,
+                probFine->graph->Ap
+            ) ;
+
             break ;
         }
 
