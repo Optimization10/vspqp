@@ -961,36 +961,10 @@ void FM_Metis
     count++ ;
     TIMER_START(T_FM) ;
 
-    // Check that x, y are binary and compute xAy
-    if(Z->point->ind_frac != EMPTY) printf("x has frac component in FM METIS. Count %llu\n", count) ;
-    if(W->point->ind_frac != EMPTY) printf("y has frac component in FM METIS. Count %llu\n", count) ;
-
-    VSPINT xAy = 0 ;
-    for(VSPINT ii = 0 ; ii < problem->graph->n ; ii++)
-    {
-        xAy += Z->point->int_part[ii] * W->Az->int_part[ii] ;
-    }
-
-    VSPINT yAx = 0 ;
-    for(VSPINT ii = 0 ; ii < problem->graph->n ; ii++)
-    {
-        xAy += W->point->int_part[ii] * Z->Az->int_part[ii] ;
-    }
-
-    if(xAy != yAx) printf("Cross term not accurate in FM METIS. Count %llu\n", count) ;
-    if(xAy != 0) printf("Cross term not zero FM METIS. Cross term value: %lld Count %llu\n", (long long) xAy, count) ;
-
-
-
-    // printf("\nStarting FM_METIS") ;
-    fflush(stdout) ;
-
-    #ifdef DEBUG
-
+#ifdef DEBUG
         Check_FM_Inputs(Z, W, problem) ;
-        
         VSPFLOAT objin = compute_obj(Z, W, problem, problem->graph->max_vtx_cost) ;
-    #endif
+#endif
     /*--- Parameters (temporary, to be put in options struct -----------------*/
     VSPINT *moved = malloc( problem->graph->n * sizeof(*moved) ) ;
     /*------------------------------------------------------------------------*/

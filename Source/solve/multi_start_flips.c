@@ -38,7 +38,7 @@ void Multi_Start_Flips
         Xstar = Clone_State(X);
         Ystar = Clone_State(Y);
 
-        Greedy_Flips(Xstar, Ystar, problem, numPassesInFlips, true);
+        Greedy_Flips(Xstar, Ystar, problem, numPassesInFlips, true, false);
 
         VSPINT objStar;
         Compute_ObjValSimple

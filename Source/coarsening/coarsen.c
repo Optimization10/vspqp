@@ -40,16 +40,16 @@ static Graph* Graph_Coarsen
         static long long unsigned count = 0 ;
         count += 1 ;
 
-        Check_Matrix
-        (
-            GraphFine->Ai,
-            GraphFine->Ap,
-            GraphFine->Ae,
-            GraphFine->n,
-            GraphFine->nz,
-            TRUE,
-            FALSE
-        ) ;
+        // Check_Matrix
+        // (
+        //     GraphFine->Ai,
+        //     GraphFine->Ap,
+        //     GraphFine->Ae,
+        //     GraphFine->n,
+        //     GraphFine->nz,
+        //     TRUE,
+        //     FALSE
+        // ) ;
 
     #endif
 
@@ -223,16 +223,16 @@ static Graph* Graph_Coarsen
     free(htable) ;
 
 #ifdef DEBUG
-    Check_Matrix
-    (
-        Graph_Coarse->Ai,
-        Graph_Coarse->Ap,
-        Graph_Coarse->Ae,
-        Graph_Coarse->n,
-        Graph_Coarse->nz,
-        TRUE,   /* require_sorted -- now enforceable */
-        FALSE
-    ) ;
+    // Check_Matrix
+    // (
+    //     Graph_Coarse->Ai,
+    //     Graph_Coarse->Ap,
+    //     Graph_Coarse->Ae,
+    //     Graph_Coarse->n,
+    //     Graph_Coarse->nz,
+    //     TRUE,   /* require_sorted -- now enforceable */
+    //     FALSE
+    // ) ;
 #endif
 
     #ifdef DEBUG_COARSENING

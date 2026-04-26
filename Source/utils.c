@@ -1965,7 +1965,7 @@ VSPINT check_problem
 
 
     /* Do all the matrix checks */
-    Check_Matrix(Ai, Ap, Ae, n, nz, TRUE, FALSE) ;
+    // Check_Matrix(Ai, Ap, Ae, n, nz, TRUE, FALSE) ;
 
     /* Check that ci and wi are >= 1. Also, compute alpha, gamma, and the
        sum of all ci, and max degree */

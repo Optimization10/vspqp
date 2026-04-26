@@ -318,7 +318,7 @@ void IdxGroupsByC_Check
     VSPINT gamma     = Groups->gamma ;
     VSPINT **groups  = Groups->groups ;
     VSPINT *sizes    = Groups->sizes ;
-    const VSPINT *c        = Groups->c ;
+    const VSPINT *c  = Groups->c ;
     VSPINT *maxSizes = Groups->maxSizes ;
 
     const VSPINT *z        = Groups->z ;
@@ -455,6 +455,10 @@ void IdxGroupsByC_Check
             ERR("Very strange error") ;
         }
     }
+
+    /*------------------------------------------------------------------------*/
+    // Ensure that all i in the group have the correct (target)zi and Awi values
+    /*------------------------------------------------------------------------*/
 
     free(witnessGroups) ;
     free(witnessAccurate) ;

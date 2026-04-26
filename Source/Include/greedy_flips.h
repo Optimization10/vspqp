@@ -9,7 +9,8 @@ void Greedy_Flips
     State     *Y,
     Problem   *problem,
     VSPINT     maxNumPasses,
-    bool       deep_search
+    bool       deep_search,
+    bool       set_frac
 ) ;
 
 #endif

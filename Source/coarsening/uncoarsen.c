@@ -154,11 +154,13 @@ static void CheckForFracEntryAndRefineIt
         if( Zfine->weight + cfine[fineVert] < ufine )
         {
             zfineInt[fineVert] = 1 ;
+            Az_pm_col_of_A(Zfine->Az->int_part, fineVert, PLUS, probFine) ;
             Zfine->weight += cfine[fineVert] ;
         }
         else if( Zfine->weight + cfine[fineVert] == ufine )
         {
             zfineInt[fineVert] = 1 ;
+            Az_pm_col_of_A(Zfine->Az->int_part, fineVert, PLUS, probFine) ;
             Zfine->weight = ufine ;
 
             Zfine->point->ind_frac = EMPTY ;
@@ -172,6 +174,9 @@ static void CheckForFracEntryAndRefineIt
             VSPFLOAT valFrac = (ufine - Zfine->weight) / ( (VSPFLOAT) cfine[fineVert] ) ;
             Zfine->point->ind_frac = fineVert ;
             Zfine->point->val_frac = valFrac ;
+            Zfine->Az->ind_frac_z = fineVert ;
+            Zfine->Az->val_frac_z = valFrac ;
+
             Zfine->weight = ufine ;
             break ;
         }

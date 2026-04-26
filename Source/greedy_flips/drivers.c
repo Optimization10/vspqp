@@ -13,7 +13,8 @@ void Greedy_Flips
     State      *Y,
     Problem    *problem,
     VSPINT      maxNumPasses,
-    bool        deep_search
+    bool        deep_search,
+    bool        set_frac
 )
 {
     TIMER_START(T_FLIPS) ;
@@ -37,6 +38,7 @@ void Greedy_Flips
 
 #ifdef DEBUG
     Check_Inputs(x, Ax, *wgtx, y, Ay, *wgty, problem) ;
+    check_states(X, Y, problem) ;
 #endif
 
     /*------------------------------------------------------------------------*/
@@ -70,6 +72,16 @@ void Greedy_Flips
 
     VSPINT numFeasibleStrictlyBenFlips, numFeasibleBenFlips ;
 
+#ifdef DEBUG
+        Check_All_Data
+        (
+            x, Ax, *wgtx, y, Ay, *wgty,
+            x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
+            y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
+            problem
+        ) ;
+#endif
+
     FeasibleBeneficialFlips
     (
         x, y, Ax, Ay, wgtx, wgty, deep_search, false,
@@ -77,6 +89,16 @@ void Greedy_Flips
         y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
         problem, &numFeasibleBenFlips
     ) ;
+
+#ifdef DEBUG
+        Check_All_Data
+        (
+            x, Ax, *wgtx, y, Ay, *wgty,
+            x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
+            y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
+            problem
+        ) ;
+#endif
 
 
     Neutral_Flips_Strategy_1
@@ -87,6 +109,16 @@ void Greedy_Flips
         maxNumPasses, problem
     ) ;
 
+#ifdef DEBUG
+        Check_All_Data
+        (
+            x, Ax, *wgtx, y, Ay, *wgty,
+            x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
+            y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
+            problem
+        ) ;
+#endif
+
     Balance_Flips
     (
         x, y, Ax, Ay, wgtx, wgty,
@@ -94,6 +126,16 @@ void Greedy_Flips
         y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
         problem
     ) ;
+
+#ifdef DEBUG
+        Check_All_Data
+        (
+            x, Ax, *wgtx, y, Ay, *wgty,
+            x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
+            y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
+            problem
+        ) ;
+#endif
 
     FeasibleBeneficialFlips
     (
@@ -103,6 +145,83 @@ void Greedy_Flips
         problem, &numFeasibleBenFlips
     ) ;
 
+#ifdef DEBUG
+        Check_All_Data
+        (
+            x, Ax, *wgtx, y, Ay, *wgty,
+            x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
+            y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
+            problem
+        ) ;
+#endif
+
+
+    VSPINT idx_x = EMPTY, idx_y = EMPTY ;
+    VSPINT wgt_x = X->weight ;
+    VSPINT wgt_y = Y->weight ;
+
+    if(set_frac)
+    // if(0)
+    {
+        // THIS IS WRONG FUNCTION TO CALL!!!
+        // IdxGroupsByC_Num_Idx_With_Top_C(x0Ay0_groups, &idx_x) ;
+        // IdxGroupsByC_Num_Idx_With_Top_C(y0Ax0_groups, &idx_y) ;
+
+        // Must guard Against size = 0. Guard with size 0 heap
+        if(x0Ay0_groups->maxHeap->sizeHeap > 0)
+        {
+            IdxGroupsByC_See_Random_Idx_Top_C(x0Ay0_groups, 1, &idx_x) ;
+        }
+        if(y0Ax0_groups->maxHeap->sizeHeap > 0)
+        {
+            IdxGroupsByC_See_Random_Idx_Top_C(y0Ax0_groups, 1, &idx_y) ;
+        }
+        
+
+        if(idx_x != EMPTY && X->weight < u)
+        {
+            X->point->ind_frac = idx_x ;
+            X->point->val_frac = (u - wgt_x) / ((VSPFLOAT) c[idx_x]) ;
+            X->Az->ind_frac_z  = idx_x ;
+            X->Az->val_frac_z  = (u - wgt_x) / ((VSPFLOAT) c[idx_x]) ;
+
+            X->weight = u ;
+
+            X->Az->one++ ;
+            extract_matrix_col
+            (
+                X->Az->col_frac_z,
+                X->point->ind_frac,
+                X->Az->one,
+                problem->graph->Ai,
+                problem->graph->Ap
+            ) ;
+        }
+
+        if(idx_y != EMPTY && Y->weight < u)
+        {
+            Y->point->ind_frac = idx_y ;
+            Y->point->val_frac = (u - wgt_y) / ((VSPFLOAT) c[idx_y]) ;
+            Y->Az->ind_frac_z  = idx_y ;
+            Y->Az->val_frac_z  = (u - wgt_y) / ((VSPFLOAT) c[idx_y]) ;
+
+            Y->weight = u ;
+
+            Y->Az->one++ ;
+            extract_matrix_col
+            (
+                Y->Az->col_frac_z,
+                Y->point->ind_frac,
+                Y->Az->one,
+                problem->graph->Ai,
+                problem->graph->Ap
+            ) ;
+        }
+    }
+
+#ifdef DEBUG
+    check_states(X, Y, problem) ;
+#endif
 
     // Free memory
     free(maxGroupSizes) ;
