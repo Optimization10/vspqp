@@ -53,6 +53,7 @@ static Graph* Graph_Coarsen
 
     #endif
 
+    VSPINT deg ;
     VSPLONG *Ap_fine = GraphFine->Ap;
     VSPINT *Ai_fine  = GraphFine->Ai;
     VSPINT *Ae_fine  = GraphFine->Ae;
@@ -73,6 +74,7 @@ static Graph* Graph_Coarsen
     VSPINT  *c_coarse  = Graph_Coarse->c;
     VSPINT   num_vtx_cost_gamma = 0 ;
     VSPLONG  munch = 0;
+    VSPINT singletons_cost = 0 ;
 
     /* Hashtable stores column pointer values. */
     VSPLONG* htable = malloc(n_coarse * sizeof(*htable));
@@ -112,10 +114,9 @@ static Graph* Graph_Coarsen
         /* Compute the degree of vertex k - 1 */
         if( k >= 1 )
         {
-            if( Ap_coarse[k] - Ap_coarse[k-1] > maxDeg)
-            {
-                maxDeg = Ap_coarse[k] - Ap_coarse[k-1] ;
-            }
+            deg = Ap_coarse[k] - Ap_coarse[k-1] ;
+            if(deg > maxDeg) maxDeg = deg ;
+            if(deg == 0)     singletons_cost += c_coarse[k-1] ;
         }
 
         VSPINT vertexCost = 0;
@@ -205,10 +206,13 @@ static Graph* Graph_Coarsen
     Ap_coarse[n_coarse] = munch;
 
     /* Update max degree with the last vertex */
-    if( Ap_coarse[n_coarse] - Ap_coarse[n_coarse - 1] > maxDeg)
+    deg = Ap_coarse[n_coarse] - Ap_coarse[n_coarse - 1] ;
+    if( deg > maxDeg)
     {
-        maxDeg =  Ap_coarse[n_coarse] - Ap_coarse[n_coarse - 1] ;
+        
+        maxDeg = deg ;
     }
+    if(deg == 0) singletons_cost += c_coarse[n_coarse - 1] ;
 
     /* Update coarse graph */
     Graph_Coarse->n              = n_coarse ;

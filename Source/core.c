@@ -82,6 +82,8 @@ Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae)
     Graph->n         = n  ;
     Graph->nz        = nz ;
 
+    Graph->singletons_cost = EMPTY ;
+
     if(Ae == NULL)
     {
         Graph->Ae = malloc(  nz     * sizeof(VSPINT) ) ;
