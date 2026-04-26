@@ -17,13 +17,10 @@ void Multi_Start_Flips
     VSPINT n = problem->graph->n;
     VSPINT gamma = problem->graph->max_vtx_cost;
 
-    VSPINT objBest ;
-    Compute_ObjValSimple
-    (
-        X->point->int_part, X->Az->int_part, X->weight,
-        Y->point->int_part, Y->Az->int_part, Y->weight,
-        problem, &objBest
-    ) ;
+    VSPFLOAT objBest ;
+    VSPFLOAT objStar ;
+    objBest = compute_obj(X, Y, problem, (VSPFLOAT) gamma) ;
+
     VSPINT imbBest = IMBALANCE(X->weight, Y->weight);
 
     State *Xstar = NULL;
@@ -38,15 +35,10 @@ void Multi_Start_Flips
         Xstar = Clone_State(X);
         Ystar = Clone_State(Y);
 
-        Greedy_Flips(Xstar, Ystar, problem, numPassesInFlips, true, false);
+        Greedy_Flips(Xstar, Ystar, problem, numPassesInFlips, true, true);
 
-        VSPINT objStar;
-        Compute_ObjValSimple
-        (
-            Xstar->point->int_part, Xstar->Az->int_part, Xstar->weight,
-            Ystar->point->int_part, Ystar->Az->int_part, Ystar->weight,
-            problem, &objStar
-        );
+        objStar = compute_obj(Xstar, Ystar, problem, (VSPFLOAT) gamma) ;
+
         VSPINT imbStar = IMBALANCE(Xstar->weight, Ystar->weight);
 
         if (objStar > objBest || (objStar == objBest && imbStar < imbBest))

@@ -163,10 +163,6 @@ void Greedy_Flips
     if(set_frac)
     // if(0)
     {
-        // THIS IS WRONG FUNCTION TO CALL!!!
-        // IdxGroupsByC_Num_Idx_With_Top_C(x0Ay0_groups, &idx_x) ;
-        // IdxGroupsByC_Num_Idx_With_Top_C(y0Ax0_groups, &idx_y) ;
-
         // Must guard Against size = 0. Guard with size 0 heap
         if(x0Ay0_groups->maxHeap->sizeHeap > 0)
         {

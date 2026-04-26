@@ -34,22 +34,12 @@ void Best_Of_MC_And_Greedy_Flips
 
     // MC path (in-place on X, Y)
     mountain_climbing(X, Y, problem, options, gamma, true);
-    Round_Down_Fractions(X, Y, problem);
+
 
     // Compare
-    VSPINT objMC, objFlips ;
-    Compute_ObjValSimple
-    (
-        X->point->int_part, X->Az->int_part, X->weight,
-        Y->point->int_part, Y->Az->int_part, Y->weight,
-        problem, &objMC
-    );
-    Compute_ObjValSimple
-    (
-        Xf->point->int_part, Xf->Az->int_part, Xf->weight,
-        Yf->point->int_part, Yf->Az->int_part, Yf->weight,
-        problem, &objFlips
-    );
+    VSPFLOAT objMC, objFlips ;
+    objMC    = compute_obj(X, Y   , problem, (VSPFLOAT) gamma) ;
+    objFlips = compute_obj(Xf, Yf , problem, (VSPFLOAT) gamma) ;
 
     bool flipsBetter    = (objFlips > objMC);
     bool flipsSame      = (objFlips == objMC);
@@ -179,7 +169,9 @@ void Optimize
     VSPINT gamma_org = problem->graph->max_vtx_cost;
 
     // Phase 1: MC vs Flips — run both on same input, keep better
-    Best_Of_MC_And_Greedy_Flips(X, Y, problem, options, 5);
+    // Phase 1: MC
+    mountain_climbing(X, Y, problem, options, problem->graph->max_vtx_cost, true);
+    
 
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
