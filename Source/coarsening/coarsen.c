@@ -524,7 +524,7 @@ static VSPINT *Singletons_Solution(Problem *P, VSPINT N0, VSPINT u0, VSPINT *nSi
 
     bool success ;
     VSPINT *c   = P->graph->c ;
-    VSPINT *Ap  = P->graph->Ap ;
+    VSPLONG *Ap  = P->graph->Ap ;
     VSPINT  n   = P->graph->n ;
     VSPINT  size_heap ;
     VSPINT  sol_cost ;    // running total cost of singletons in sol
@@ -648,6 +648,11 @@ static VSPINT *Singletons_Solution(Problem *P, VSPINT N0, VSPINT u0, VSPINT *nSi
         free(sol) ;
         sol = NULL ;
         nsol = 0 ;
+        printf("FAIL\n") ;
+    }
+    else
+    {
+        printf("SUCCESS\n") ;
     }
     *nSing = nsol ;
     return sol ;

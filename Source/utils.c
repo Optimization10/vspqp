@@ -2861,7 +2861,7 @@ void Record_Graph_Stats
 {
     FILE *fp ;
     VSPINT i ;
-    VSPINT *Ap = graph->Ap ;
+    VSPLONG *Ap = graph->Ap ;
     VSPINT cost_sing = 0 ;
     VSPINT count_sing = 0 ;
 
