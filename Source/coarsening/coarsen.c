@@ -648,12 +648,8 @@ static VSPINT *Singletons_Solution(Problem *P, VSPINT N0, VSPINT u0, VSPINT *nSi
         free(sol) ;
         sol = NULL ;
         nsol = 0 ;
-        printf("FAIL\n") ;
     }
-    else
-    {
-        printf("SUCCESS\n") ;
-    }
+
     *nSing = nsol ;
     return sol ;
 
@@ -716,7 +712,7 @@ Problem *Problem_Recursive_Coarsen
             coarsest_P = coarse_P ;
             break ;
         }
-        else if(Is_Complete_Graph(coarse_P->graph->n, coarse_P->graph->nz))
+        else if(Is_Complete_Graph(coarse_P->graph->n, coarse_P->graph->nz) || coarse_P->graph->nz == 0)
         {
             Destroy_Problem(coarse_P) ;
             coarsest_P = P ;
