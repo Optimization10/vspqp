@@ -506,21 +506,34 @@ static void SetUpperBound
     return ;
 }
 
+
+// Absolute difference between two VSPINTs.
+static inline VSPINT abs_diff(VSPINT a, VSPINT b)
+{
+    return (a > b) ? a - b : b - a ;
+}
+
 // Let N0 be the number of vertices at the finest level, and u0 the upper bound
 // on the size of a shore at the finest level. Assume u0 >= N0/2.
 // Given a problem where the cost of singletons is at least N0-u0, find a
-// subset of singletons whose cost is <= u0
+// subset of singletons whose cost is in [N0-u0, u0], ideally close to N0/2.
 static VSPINT *Singletons_Solution(Problem *P, VSPINT N0, VSPINT u0, VSPINT *nSing)
 {
     SET_FUNCTION_COUNTER ;
     VSP_ASSERT(u0 >= N0/2) ;
 
-    VSPINT *Ap = P->graph->Ap ;
-    VSPINT size_heap ;
-    VSPINT cost_sings ;
+    bool success ;
+    VSPINT *c   = P->graph->c ;
+    VSPINT *Ap  = P->graph->Ap ;
+    VSPINT  n   = P->graph->n ;
+    VSPINT  size_heap ;
+    VSPINT  sol_cost ;    // running total cost of singletons in sol
     VSPINT *heap ;
-    VSPINT i ;
-    VSPINT n = P->graph->n ;
+    VSPINT *sol ;
+    VSPINT  nsol ;
+    VSPINT  i ;
+    const VSPINT target = N0 / 2 ;
+    const VSPINT lo     = N0 - u0 ;
 
     // Arrange singletons into a heap
     size_heap = 0 ;
@@ -532,13 +545,112 @@ static VSPINT *Singletons_Solution(Problem *P, VSPINT N0, VSPINT u0, VSPINT *nSi
             heap[ ++size_heap ] = i ;
         }
     }
-    
+    MaxHeap_Heapify_v1(heap, size_heap, c) ;
 
+    // Initialize solution vector
+    nsol     = 0 ;
+    sol      = malloc(n * sizeof(*sol)) ;
+    success  = false ;
+    sol_cost = 0 ;
 
-    // Make a max heap. Keep popping off elements, either adding them to the
-    // list of taken singletons, or popping them but not 
-    // If the cost of the current singletons is >= N0/2, then quit
+    // Once sol_cost reaches target, any further addition (positive cost)
+    // can only move us further from target. So short-circuit the loop.
+    while(size_heap > 0 && sol_cost < target)
+    {
+        VSPINT sing1, sing2 ; // two nodes from the heap
+        VSPINT c1, c2 ;       // c values of sing1 and sing2
+        bool   have2 ;        // true if sing2 exists
+        bool   take1, take2 ; // flags specifying a subset of {sing1, sing2}
 
+        // For each candidate subset we compute the resulting sol_cost (the
+        // "trial") and its gap to target. We track the best (smallest gap)
+        // seen so far in this iteration.
+        VSPINT trial_sol_cost, trial_gap ;
+        VSPINT best_sol_cost,  best_gap ;
+
+        // Pop up to 2 from the heap
+        MaxHeap_Get_Top_Val_v1(heap, &size_heap, c, &sing1) ;
+        c1 = c[sing1] ;
+        have2 = false ;
+        if(size_heap > 0)
+        {
+            MaxHeap_Get_Top_Val_v1(heap, &size_heap, c, &sing2) ;
+            c2 = c[sing2] ;
+            have2 = true ;
+        }
+
+        // Among {}, {sing1}, {sing2}, {sing1,sing2}, find the one whose total
+        // cost (added to sol_cost) lands closest to target without breaching
+        // u0. The empty subset is the implicit baseline.
+        take1         = false ;
+        take2         = false ;
+        best_sol_cost = sol_cost ;
+        best_gap      = abs_diff(sol_cost, target) ;
+
+        // Case: {sing1}
+        trial_sol_cost = sol_cost + c1 ;
+        if(trial_sol_cost <= u0)
+        {
+            trial_gap = abs_diff(trial_sol_cost, target) ;
+            if(trial_gap < best_gap)
+            {
+                best_gap      = trial_gap ;
+                best_sol_cost = trial_sol_cost ;
+                take1         = true ;
+                take2         = false ;
+            }
+        }
+
+        if(have2)
+        {
+            // Case: {sing2}
+            trial_sol_cost = sol_cost + c2 ;
+            if(trial_sol_cost <= u0)
+            {
+                trial_gap = abs_diff(trial_sol_cost, target) ;
+                if(trial_gap < best_gap)
+                {
+                    best_gap      = trial_gap ;
+                    best_sol_cost = trial_sol_cost ;
+                    take1         = false ;
+                    take2         = true ;
+                }
+            }
+
+            // Case: {sing1, sing2}
+            trial_sol_cost = sol_cost + c1 + c2 ;
+            if(trial_sol_cost <= u0)
+            {
+                trial_gap = abs_diff(trial_sol_cost, target) ;
+                if(trial_gap < best_gap)
+                {
+                    best_gap      = trial_gap ;
+                    best_sol_cost = trial_sol_cost ;
+                    take1         = true ;
+                    take2         = true ;
+                }
+            }
+        }
+
+        // Take the chosen subset
+        if(take1) sol[nsol++] = sing1 ;
+        if(take2) sol[nsol++] = sing2 ;
+        sol_cost = best_sol_cost ;
+    }
+
+    success = (sol_cost >= lo && sol_cost <= u0) ;
+
+    // Cleanup
+    free(heap) ;
+
+    if(!success)
+    {
+        free(sol) ;
+        sol = NULL ;
+        nsol = 0 ;
+    }
+    *nSing = nsol ;
+    return sol ;
 
     // Remember: This doesn't always save us from returning a graph with no
     // edges from coarsening. I should have a stopping criteria for not
