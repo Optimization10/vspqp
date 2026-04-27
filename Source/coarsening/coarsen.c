@@ -75,7 +75,7 @@ static Graph* Graph_Coarsen
     VSPINT  *c_coarse  = Graph_Coarse->c;
     VSPINT   num_vtx_cost_gamma = 0 ;
     VSPLONG  munch = 0;
-    VSPINT singletons_cost = 0 ;
+    VSPINT singletons_cost ;
 
     /* Hashtable stores column pointer values. */
     VSPLONG* htable = malloc(n_coarse * sizeof(*htable));
@@ -117,7 +117,6 @@ static Graph* Graph_Coarsen
         {
             deg = Ap_coarse[k] - Ap_coarse[k-1] ;
             if(deg > maxDeg) maxDeg = deg ;
-            if(deg == 0)     singletons_cost += c_coarse[k-1] ;
         }
 
         VSPINT vertexCost = 0;
@@ -213,7 +212,15 @@ static Graph* Graph_Coarsen
         
         maxDeg = deg ;
     }
-    if(deg == 0) singletons_cost += c_coarse[n_coarse - 1] ;
+
+    singletons_cost = 0 ;
+    for(VSPINT i = 0 ; i < n_coarse ; i++)
+    {
+        if(Ap_coarse[i+1] == Ap_coarse[i])
+        {
+            singletons_cost += c_coarse[i] ;
+        }
+    }
 
     /* Update coarse graph */
     Graph_Coarse->n               = n_coarse ;
