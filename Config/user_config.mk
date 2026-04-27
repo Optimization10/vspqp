@@ -22,7 +22,7 @@ VERSION = release
 
 # Path to Intel MKL include files. Ignored if MKL not used
 MKL_INCLUDE = /usr/include/mkl
-
+ 
 #------------------------------------------------------------------------------
 # Configure Types
 #------------------------------------------------------------------------------
