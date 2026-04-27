@@ -11,14 +11,13 @@
 #include </usr/include/mkl/mkl.h>
 #include </usr/include/mkl/mkl_spblas.h>
 
-#define VSINT    VSPINT
-#define VSLINT   VSPLONG
-#define VSFLOAT  VSPFLOAT
-
-
 /* ========================================================================== */
 /* === macros =============================================================== */
 /* ========================================================================== */
+
+#define VSINT    VSPINT
+#define VSLINT   VSPLONG
+#define VSFLOAT  VSPFLOAT
 
 #define PRI(A) ( (long long) (A) )
 
@@ -481,6 +480,8 @@ int vs
     VSINT    *Ex, /* edge weights,   NULL => all entries in Ex are 1 */
     VSINT     *a, /* vertex weights, NULL => all entries in a are 1 */
     VSINT      n, /* problem dimension */
+    VSFLOAT    m, /* balance constraint parameter: 0.5 * original # vertices
+                     m = 0.5*sum(vw [i]) */
     VSparm *Parm  /* parameter structure */
 ) ;
 
@@ -518,6 +519,15 @@ void * vs_Lmalloc
 void vs_free
 (
     void * p
+) ;
+
+void vs_printAMATLAB
+(
+    VSINT   const ncol, /* number of cols in A */
+    VSLINT  const  *Ap, /* size ncol+1, column pointers */
+    VSINT   const  *Ai, /* size Ap [ncol], row indices for A */
+    VSFLOAT const  *Ax, /* size Ap [ncol], numerical entries of A */
+    char           *what  /* name of the matrix */
 ) ;
 
 VSFLOAT vs_max
@@ -604,7 +614,7 @@ void vs_vecadd
     VSINT   const  n
 ) ;
 
-VSFLOAT * vs_boundary /* return cost improvement */
+void vs_boundary /* return cost improvement */
 (
     VSFLOAT   *x, /* feasible point for (GB), output described above */
     VSINT    *Ai, /* row numbers */
@@ -616,7 +626,7 @@ VSFLOAT * vs_boundary /* return cost improvement */
     VSFLOAT   *g  /* work array for storing gradient vector */
 ) ;
 
-int vs_interior
+VSINT vs_interior
 (
    VSINT    ilower, /* search x for indices > ilower and < n */
    VSFLOAT      *x, /* search for 0 < x [i] < 1 */
@@ -695,6 +705,16 @@ void vs_A1mult
     VSFLOAT     *Ax, // Matrix entries
     VSINT         n, // Number of columns
     int    E_is_one  // Flag (set to 1 for binary matrix, 0 otherwise) 
+) ;
+
+int vs_sort_cols
+(
+    VSLINT      *Ap, /* given column pointers for symmetric matrix */
+    VSINT       *Ai, /* sorted row indices (spaced malloc'd by user) */
+    VSINT       *Ax, /* sorted numerical entries (spaced malloc'd by user) */
+    VSINT const *Bi, /* given row indices (unsorted) */
+    VSINT const *Bx, /* given entries (unsorted), Bx = NULL => Ax = NULL */
+    VSINT         n  /* number of rows in matrix */
 ) ;
 
 void vs_daxpy
