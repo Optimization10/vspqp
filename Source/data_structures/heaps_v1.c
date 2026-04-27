@@ -18,26 +18,7 @@ However, if i is not in the heap, there is no guarantee on ptrs[i]
 // Max heap
 /*----------------------------------------------------------------------------*/
 
-// Input  : heap array is populated and lookup is correct
-// Output : heap array is a heap and lookup is correct
-void MaxHeap_Heapify_v0
-(
-    VSPINT           *heap,
-    VSPINT         *lookup,
-    VSPINT        numNodes, // Number of nodes currently in the heap
-    VSPINT              *c
-)
-{
-    for (VSPINT p = numNodes / 2  ; p >= 1  ; p--)
-    {
-        MaxHeap_Bubble_Down_v0(heap, lookup, numNodes, c, p) ;
-    }
 
-    #ifdef DEBUG
-        MaxHeap_Check_v0(heap, lookup, numNodes, c) ;
-    #endif
-    return ;
-}
 
 /* On input:
    The child heaps of node p are 100% valid, but the value in node p may be
@@ -46,7 +27,7 @@ void MaxHeap_Heapify_v0
    On output: 
    The heap starting at node p is valid
 */
-void MaxHeap_Bubble_Down_v0
+static void MaxHeap_Bubble_Down_v1
 (
     VSPINT           *heap,
     VSPINT         *lookup,
@@ -136,9 +117,29 @@ void MaxHeap_Bubble_Down_v0
     }
 }
 
+// Input  : heap array is populated and lookup is correct
+// Output : heap array is a heap and lookup is correct
+void MaxHeap_Heapify_v1
+(
+    VSPINT           *heap,
+    VSPINT         *lookup,
+    VSPINT        numNodes, // Number of nodes currently in the heap
+    VSPINT              *c
+)
+{
+    for (VSPINT p = numNodes / 2  ; p >= 1  ; p--)
+    {
+        MaxHeap_Bubble_Down_v1(heap, lookup, numNodes, c, p) ;
+    }
+
+    #ifdef DEBUG
+        MaxHeap_Check_v1(heap, lookup, numNodes, c) ;
+    #endif
+    return ;
+}
 
 // ASSUMED: to_insert is NOT in the queue
-void MaxHeap_Insert_v0
+void MaxHeap_Insert_v1
 (
     VSPINT      *heap,
     VSPINT    *lookup,
@@ -154,7 +155,7 @@ void MaxHeap_Insert_v0
             Error("Element already in heap", DBG_INFO) ;
         }
 
-        MaxHeap_Check_v0(heap, lookup, *numNodes, c) ;
+        MaxHeap_Check_v1(heap, lookup, *numNodes, c) ;
     #endif
 
     VSPINT node_par ;
@@ -184,7 +185,7 @@ void MaxHeap_Insert_v0
     lookup[toInsert] = node_child ;
 
     #ifdef DEBUG
-        MaxHeap_Check_v0(heap, lookup, *numNodes, c) ;
+        MaxHeap_Check_v1(heap, lookup, *numNodes, c) ;
     #endif
 
     return ;
@@ -194,7 +195,7 @@ void MaxHeap_Insert_v0
 
 // Remove the value "toDel" from the queue
 // ASSUMED: toDel is in the heap
-void MaxHeap_Delete_v0
+void MaxHeap_Delete_v1
 (
     VSPINT      *heap,
     VSPINT    *lookup,
@@ -204,7 +205,7 @@ void MaxHeap_Delete_v0
 )
 {
     #ifdef DEBUG
-        MaxHeap_Check_v0(heap, lookup, *numNodes, c) ;
+        MaxHeap_Check_v1(heap, lookup, *numNodes, c) ;
     #endif
 
     VSPINT address  = lookup[toDel] ;
@@ -216,7 +217,7 @@ void MaxHeap_Delete_v0
     {
         (*numNodes)-- ;
         #ifdef DEBUG
-            MaxHeap_Check_v0(heap, lookup, *numNodes, c) ;
+            MaxHeap_Check_v1(heap, lookup, *numNodes, c) ;
         #endif
         return ;
     }
@@ -231,7 +232,7 @@ void MaxHeap_Delete_v0
         /* Bubble down */
         heap[address] = replacement ;
         lookup[replacement] = address ;
-        MaxHeap_Bubble_Down_v0(heap, lookup, *numNodes, c, address) ;
+        MaxHeap_Bubble_Down_v1(heap, lookup, *numNodes, c, address) ;
     }
     else
     {
@@ -255,14 +256,14 @@ void MaxHeap_Delete_v0
     }
 
     #ifdef DEBUG
-        MaxHeap_Check_v0(heap, lookup, *numNodes, c) ;
+        MaxHeap_Check_v1(heap, lookup, *numNodes, c) ;
     #endif
     return ;
 }
 
 
 // Returns EMPTY if heap is empty
-void MaxHeap_See_Top_Val_v0
+void MaxHeap_See_Top_Val_v1
 (
     VSPINT     *heap,
     VSPINT        *c,
@@ -275,7 +276,7 @@ void MaxHeap_See_Top_Val_v0
 }
 
 // Returns EMPTY if the heap is empty
-void MaxHeap_Get_Top_Val_v0
+void MaxHeap_Get_Top_Val_v1
 (
     VSPINT      *heap,
     VSPINT    *lookup,
@@ -290,12 +291,12 @@ void MaxHeap_Get_Top_Val_v0
         return ;
     }
     *topVal = heap[1] ;
-    MaxHeap_Delete_v0(heap, lookup, numNodes, c, *topVal) ;
+    MaxHeap_Delete_v1(heap, lookup, numNodes, c, *topVal) ;
     return ;
 }
 
 // Returns EMPTY if heap is empty
-void MaxHeap_See_Top_Key_v0
+void MaxHeap_See_Top_Key_v1
 (
     VSPINT     *heap,
     VSPINT        *c,
@@ -308,7 +309,7 @@ void MaxHeap_See_Top_Key_v0
 }
 
 // Returns EMPTY if the heap is empty
-void MaxHeap_Get_Top_Key_v0
+void MaxHeap_Get_Top_Key_v1
 (
     VSPINT      *heap,
     VSPINT    *lookup,
@@ -323,12 +324,12 @@ void MaxHeap_Get_Top_Key_v0
         return ;
     }
     *topKey = c[ heap[1] ] ;
-    MaxHeap_Delete_v0(heap, lookup, numNodes, c, heap[1]) ;
+    MaxHeap_Delete_v1(heap, lookup, numNodes, c, heap[1]) ;
     return ;
 }
 
 
-void MaxHeap_Check_v0
+void MaxHeap_Check_v1
 (
     VSPINT      *heap,
     VSPINT    *lookup,
@@ -369,7 +370,7 @@ void MaxHeap_Check_v0
 // Min heap
 /*---------------------------------------------------------------------------*/
 
-void MinHeap_Bubble_Down_v0
+void MinHeap_Bubble_Down_v1
 (
     VSPINT  *heap,
     VSPINT  *lookup,
@@ -447,7 +448,7 @@ void MinHeap_Bubble_Down_v0
     }
 }
 
-void MinHeap_Heapify_v0
+void MinHeap_Heapify_v1
 (
     VSPINT  *heap,
     VSPINT  *lookup,
@@ -457,14 +458,14 @@ void MinHeap_Heapify_v0
 {
     for (VSPINT p = numNodes / 2; p >= 1; p--)
     {
-        MinHeap_Bubble_Down_v0(heap, lookup, numNodes, c, p);
+        MinHeap_Bubble_Down_v1(heap, lookup, numNodes, c, p);
     }
     #ifdef DEBUG
-        MinHeap_Check_v0(heap, lookup, numNodes, c) ;
+        MinHeap_Check_v1(heap, lookup, numNodes, c) ;
     #endif
 }
 
-void MinHeap_Insert_v0
+void MinHeap_Insert_v1
 (
     VSPINT  *heap,
     VSPINT  *lookup,
@@ -475,7 +476,7 @@ void MinHeap_Insert_v0
 {
     SET_FUNCTION_COUNTER ;
     #ifdef DEBUG
-        MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
+        MinHeap_Check_v1(heap, lookup, *numNodes, c) ;
 
         if(Is_Array_Member(toInsert, heap, 1, *numNodes + 1) )
         {
@@ -506,12 +507,12 @@ void MinHeap_Insert_v0
     lookup[toInsert]   = node_child;
 
     #ifdef DEBUG
-        MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
+        MinHeap_Check_v1(heap, lookup, *numNodes, c) ;
     #endif
 }
 
 // ASSUMED: toDel is in the heap
-void MinHeap_Delete_v0
+void MinHeap_Delete_v1
 (
     VSPINT  *heap,
     VSPINT  *lookup,
@@ -521,7 +522,7 @@ void MinHeap_Delete_v0
 )
 {
     #ifdef DEBUG
-        MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
+        MinHeap_Check_v1(heap, lookup, *numNodes, c) ;
     #endif
 
     VSPINT address = lookup[toDel];
@@ -530,7 +531,7 @@ void MinHeap_Delete_v0
     {
         (*numNodes)--;
         #ifdef DEBUG
-            MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
+            MinHeap_Check_v1(heap, lookup, *numNodes, c) ;
         #endif
         return;
     }
@@ -542,7 +543,7 @@ void MinHeap_Delete_v0
     {
         heap[address]    = replacement;
         lookup[replacement] = address;
-        MinHeap_Bubble_Down_v0(heap, lookup, *numNodes, c, address);
+        MinHeap_Bubble_Down_v1(heap, lookup, *numNodes, c, address);
     }
     else
     {
@@ -564,11 +565,11 @@ void MinHeap_Delete_v0
         lookup[replacement] = address;
     }
     #ifdef DEBUG
-        MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
+        MinHeap_Check_v1(heap, lookup, *numNodes, c) ;
     #endif
 }
 
-void MinHeap_See_Top_Val_v0
+void MinHeap_See_Top_Val_v1
 (
     VSPINT  *heap,
     VSPINT  *c,
@@ -579,7 +580,7 @@ void MinHeap_See_Top_Val_v0
     *topVal = (numNodes != 0) ? heap[1] : EMPTY;
 }
 
-void MinHeap_Get_Top_Val_v0
+void MinHeap_Get_Top_Val_v1
 (
     VSPINT  *heap,
     VSPINT  *lookup,
@@ -594,10 +595,10 @@ void MinHeap_Get_Top_Val_v0
         return;
     }
     *topVal = heap[1];
-    MinHeap_Delete_v0(heap, lookup, numNodes, c, *topVal);
+    MinHeap_Delete_v1(heap, lookup, numNodes, c, *topVal);
 }
 
-void MinHeap_See_Top_Key_v0
+void MinHeap_See_Top_Key_v1
 (
     VSPINT  *heap,
     VSPINT  *c,
@@ -608,7 +609,7 @@ void MinHeap_See_Top_Key_v0
     *topKey = (numNodes != 0) ? c[heap[1]] : EMPTY;
 }
 
-void MinHeap_Get_Top_Key_v0
+void MinHeap_Get_Top_Key_v1
 (
     VSPINT  *heap,
     VSPINT  *lookup,
@@ -623,11 +624,11 @@ void MinHeap_Get_Top_Key_v0
         return;
     }
     *topKey = c[heap[1]];
-    MinHeap_Delete_v0(heap, lookup, numNodes, c, heap[1]);
+    MinHeap_Delete_v1(heap, lookup, numNodes, c, heap[1]);
 }
 
 
-void MinHeap_Check_v0
+void MinHeap_Check_v1
 (
     VSPINT  *heap,
     VSPINT  *lookup,

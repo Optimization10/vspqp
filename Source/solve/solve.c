@@ -257,6 +257,10 @@ void Solve_Level
     static int count = 0 ;
     count++ ;
 
+#ifdef DEBUG
+    check_problem(problem, options) ;
+#endif
+
     TIMER_START(T_TOTAL) ;
     Optimize(X, Y, problem, options) ;
     Consider_Restart(X, Y, problem, options) ;
@@ -317,6 +321,11 @@ solve_result *VSP_Solve
     // Invariant: X_l, Y_l holds the solution at level l
     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
     {
+        VSPFLOAT ratio = (VSPFLOAT) P->graph->singletons_cost / P->graph->total_vtx_cost ;
+        printf("%f\n", ratio) ;
+
+        // if( ratio > 0.4) printf("Problem: %s\n", G_Current_Problem_Name) ;
+        // else printf("no\n") ;
         X_l = Construct_State(P->graph->n) ;
         Y_l = Construct_State(P->graph->n) ;
         Uncoarsen_Point(P, X_l, Y_l, X_lp1, Y_lp1) ;

@@ -5,6 +5,7 @@
 #include <time.h>
 #include <utils.h>
 #include "profiler.h"
+#include "data_structures.h"
 
 /* Coarsening works as follows: iterate through each vertex k of the coarse*/
 /* Graph-> Let A and B be the vertices in the finer graph which*/
@@ -40,16 +41,16 @@ static Graph* Graph_Coarsen
         static long long unsigned count = 0 ;
         count += 1 ;
 
-        // Check_Matrix
-        // (
-        //     GraphFine->Ai,
-        //     GraphFine->Ap,
-        //     GraphFine->Ae,
-        //     GraphFine->n,
-        //     GraphFine->nz,
-        //     TRUE,
-        //     FALSE
-        // ) ;
+        Check_Matrix
+        (
+            GraphFine->Ai,
+            GraphFine->Ap,
+            GraphFine->Ae,
+            GraphFine->n,
+            GraphFine->nz,
+            FALSE,
+            FALSE
+        ) ;
 
     #endif
 
@@ -215,28 +216,29 @@ static Graph* Graph_Coarsen
     if(deg == 0) singletons_cost += c_coarse[n_coarse - 1] ;
 
     /* Update coarse graph */
-    Graph_Coarse->n              = n_coarse ;
-    Graph_Coarse->nz             = munch ;
-    Graph_Coarse->max_deg        = maxDeg ;
-    Graph_Coarse->min_vtx_cost   = alpha_coarse ;
-    Graph_Coarse->max_vtx_cost   = gamma_coarse ;
-    Graph_Coarse->total_vtx_cost = GraphFine->total_vtx_cost ;
-    Graph_Coarse->ratio_max_cost = ((VSPFLOAT) num_vtx_cost_gamma) / n_coarse ;
+    Graph_Coarse->n               = n_coarse ;
+    Graph_Coarse->nz              = munch ;
+    Graph_Coarse->max_deg         = maxDeg ;
+    Graph_Coarse->singletons_cost = singletons_cost ;
+    Graph_Coarse->min_vtx_cost    = alpha_coarse ;
+    Graph_Coarse->max_vtx_cost    = gamma_coarse ;
+    Graph_Coarse->total_vtx_cost  = GraphFine->total_vtx_cost ;
+    Graph_Coarse->ratio_max_cost  = ((VSPFLOAT) num_vtx_cost_gamma) / n_coarse ;
 
     /* Free memory */
     free(htable) ;
 
 #ifdef DEBUG
-    // Check_Matrix
-    // (
-    //     Graph_Coarse->Ai,
-    //     Graph_Coarse->Ap,
-    //     Graph_Coarse->Ae,
-    //     Graph_Coarse->n,
-    //     Graph_Coarse->nz,
-    //     TRUE,   /* require_sorted -- now enforceable */
-    //     FALSE
-    // ) ;
+    Check_Matrix
+    (
+        Graph_Coarse->Ai,
+        Graph_Coarse->Ap,
+        Graph_Coarse->Ae,
+        Graph_Coarse->n,
+        Graph_Coarse->nz,
+        FALSE,
+        FALSE
+    ) ;
 #endif
 
     #ifdef DEBUG_COARSENING
@@ -504,8 +506,45 @@ static void SetUpperBound
     return ;
 }
 
+// Let N0 be the number of vertices at the finest level, and u0 the upper bound
+// on the size of a shore at the finest level. Assume u0 >= N0/2.
+// Given a problem where the cost of singletons is at least N0-u0, find a
+// subset of singletons whose cost is <= u0
+static VSPINT *Singletons_Solution(Problem *P, VSPINT N0, VSPINT u0, VSPINT *nSing)
+{
+    SET_FUNCTION_COUNTER ;
+    VSP_ASSERT(u0 >= N0/2) ;
 
-// ORIGINAL VERSION
+    VSPINT *Ap = P->graph->Ap ;
+    VSPINT size_heap ;
+    VSPINT cost_sings ;
+    VSPINT *heap ;
+    VSPINT i ;
+    VSPINT n = P->graph->n ;
+
+    // Arrange singletons into a heap
+    size_heap = 0 ;
+    heap = malloc((n+1) * sizeof(*heap)) ;
+    for(i = 0 ; i < n ; i++)
+    {
+        if(Ap[i+1] - Ap[i] == 0)
+        {
+            heap[ ++size_heap ] = i ;
+        }
+    }
+    
+
+
+    // Make a max heap. Keep popping off elements, either adding them to the
+    // list of taken singletons, or popping them but not 
+    // If the cost of the current singletons is >= N0/2, then quit
+
+
+    // Remember: This doesn't always save us from returning a graph with no
+    // edges from coarsening. I should have a stopping criteria for not
+    // returning a graph with no edges
+}
+
 Problem *Problem_Recursive_Coarsen
 (
     Problem *probFinest,

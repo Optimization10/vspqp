@@ -264,7 +264,16 @@ void light_check_Az
 
 void Copy_Point(Point *src, Point *dst) ;
 
-
+int Check_Matrix
+(
+    VSPINT  *Ai,
+    VSPLONG *Ap,
+    VSPINT  *Ae,
+    VSPINT   n,
+    VSPLONG  nz,
+    int      require_sorted,
+    int      use_error_macro
+) ;
 
 void extract_matrix_col(
     VSPINT           *Ak, /* Array to store the column */
