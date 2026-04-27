@@ -22,8 +22,10 @@ void Uncoarsen_Point
 
 Problem *Problem_Recursive_Coarsen
 (
-    Problem *probFinest,
-    Options    *options
+    Problem   *probFinest,
+    Options   *options,
+    VSPINT   **sing_sol,
+    VSPINT    *n_sings
 ) ;
 
 #endif

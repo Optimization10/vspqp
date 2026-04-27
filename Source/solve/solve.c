@@ -268,6 +268,92 @@ void Solve_Level
     Timer_Flush(problem->level) ;
 }
 
+// solve_result *VSP_Solve
+// (
+//     VSPINT    n,
+//     VSPLONG  *Ap,
+//     VSPINT   *Ai,
+//     VSPINT   *Ae,      // Temporary argument while I'm refactoring
+//     Options  *options,
+//     char     *name     // Optional. Problem name
+// )
+// {
+//     SET_FUNCTION_COUNTER ;
+//     G_Current_Problem_Name = name ;
+
+//     Problem *probFinest, *probCoarsest, *P ;
+
+//     probFinest = Construct_Problem(n, Ap[n], Ai, Ap, Ae, options) ;
+//     set_default_problem_data(probFinest) ;
+
+//     /* Preprocessing */
+//     check_for_complete_graph(probFinest) ;
+//     preprocess_finest_problem(probFinest, options) ;
+
+//     #ifdef DEBUG
+//         check_problem(probFinest, options) ;
+//     #endif
+
+//     if(probFinest->graph->nz == 0)
+//     {
+//         solve_result *ret = Solve_Null_Graph(probFinest) ;
+//         Destroy_All_Problems(probFinest) ;
+//         return ret ;
+//     }
+
+//     /*--------------------------------------------------------------------*/
+//     // Coarsen
+//     /*--------------------------------------------------------------------*/
+//     VSPINT *sol_sings ;
+//     VSPINT  n_sings ;
+//     probCoarsest = Problem_Recursive_Coarsen
+//                    (
+//                        probFinest, options, &sol_sings, &n_sings
+//                    ) ;
+//     State *X_l = NULL, *Y_l = NULL, *X_lp1 = NULL , *Y_lp1 = NULL,
+//     *X_0 = NULL, *Y_0 = NULL ;
+
+//     /*------------------------------------------------------------------------*/
+//     // Solve the coarsest level
+//     /*------------------------------------------------------------------------*/
+//     P = probCoarsest ;
+//     X_lp1 = Construct_State(P->graph->n) ;
+//     Y_lp1 = Construct_State(P->graph->n) ;
+//     set_initial_guess(X_lp1, Y_lp1, P, options) ;
+//     Solve_Level(X_lp1, Y_lp1, P, options) ;
+    
+
+//     // Invariant: X_l, Y_l holds the solution at level l
+//     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
+//     {
+//         VSPFLOAT ratio = (VSPFLOAT) P->graph->singletons_cost / P->graph->total_vtx_cost ;
+//         printf("%f\n", ratio) ;
+
+//         // if( ratio > 0.4) printf("Problem: %s\n", G_Current_Problem_Name) ;
+//         // else printf("no\n") ;
+//         X_l = Construct_State(P->graph->n) ;
+//         Y_l = Construct_State(P->graph->n) ;
+//         Uncoarsen_Point(P, X_l, Y_l, X_lp1, Y_lp1) ;
+
+//         // Solve level l
+//         Solve_Level(X_l, Y_l, P, options) ;
+
+//         X_lp1 = X_l ;
+//         Y_lp1 = Y_l ;
+//     }
+
+//     // X_0, Y_0 is the solution at the finest, uncompressed level
+//     X_0 = X_lp1 ;
+//     Y_0 = Y_lp1 ;
+//     solve_result *result = Package_Result(X_0, Y_0, probFinest) ;
+//     Destroy_State(X_0) ;
+//     Destroy_State(Y_0) ;
+//     Destroy_All_Problems(probFinest) ;
+
+//     return result ;
+// }
+
+
 solve_result *VSP_Solve
 (
     VSPINT    n,
@@ -304,34 +390,65 @@ solve_result *VSP_Solve
     /*--------------------------------------------------------------------*/
     // Coarsen
     /*--------------------------------------------------------------------*/
-    probCoarsest = Problem_Recursive_Coarsen(probFinest, options) ;
+    VSPINT *sol_sings ;
+    VSPINT  n_sings ;
+    probCoarsest = Problem_Recursive_Coarsen
+                   (
+                       probFinest, options, &sol_sings, &n_sings
+                   ) ;
     State *X_l = NULL, *Y_l = NULL, *X_lp1 = NULL , *Y_lp1 = NULL,
     *X_0 = NULL, *Y_0 = NULL ;
 
     /*------------------------------------------------------------------------*/
-    // Solve the coarsest level
+    // Solve the coarsest level (or seed it from the singleton short-circuit)
     /*------------------------------------------------------------------------*/
     P = probCoarsest ;
     X_lp1 = Construct_State(P->graph->n) ;
     Y_lp1 = Construct_State(P->graph->n) ;
-    set_initial_guess(X_lp1, Y_lp1, P, options) ;
-    Solve_Level(X_lp1, Y_lp1, P, options) ;
-    
 
-    // Invariant: X_l, Y_l holds the solution at level l
+    if(sol_sings != NULL)
+    {
+        // Singleton short-circuit: the coarse vertices listed in sol_sings
+        // (and their finest-level preimages) go in shore X, everything else
+        // in shore Y, with no separator
+        VSPINT *c        = P->graph->c ;
+        VSPINT  n_coarse = P->graph->n ;
+        VSPINT  weight_x = 0 ;
+
+        for(VSPINT i = 0 ; i < n_coarse ; i++)
+        {
+            X_lp1->point->int_part[i] = 0 ;
+            Y_lp1->point->int_part[i] = 1 ;
+        }
+        for(VSPINT k = 0 ; k < n_sings ; k++)
+        {
+            VSPINT v = sol_sings[k] ;
+            X_lp1->point->int_part[v] = 1 ;
+            Y_lp1->point->int_part[v] = 0 ;
+            weight_x += c[v] ;
+        }
+        X_lp1->weight = weight_x ;
+        Y_lp1->weight = P->graph->total_vtx_cost - weight_x ;
+    }
+    else
+    {
+        set_initial_guess(X_lp1, Y_lp1, P, options) ;
+        Solve_Level(X_lp1, Y_lp1, P, options) ;
+    }
+
+    // Invariant: X_l, Y_l holds the solution at level l.
+    // On the singleton path we only uncoarsen; no Solve_Level calls because
+    // the separator is already empty (objective = 0, can't be improved).
     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
     {
-        VSPFLOAT ratio = (VSPFLOAT) P->graph->singletons_cost / P->graph->total_vtx_cost ;
-        printf("%f\n", ratio) ;
-
-        // if( ratio > 0.4) printf("Problem: %s\n", G_Current_Problem_Name) ;
-        // else printf("no\n") ;
         X_l = Construct_State(P->graph->n) ;
         Y_l = Construct_State(P->graph->n) ;
         Uncoarsen_Point(P, X_l, Y_l, X_lp1, Y_lp1) ;
 
-        // Solve level l
-        Solve_Level(X_l, Y_l, P, options) ;
+        if(sol_sings == NULL)
+        {
+            Solve_Level(X_l, Y_l, P, options) ;
+        }
 
         X_lp1 = X_l ;
         Y_lp1 = Y_l ;
@@ -343,6 +460,7 @@ solve_result *VSP_Solve
     solve_result *result = Package_Result(X_0, Y_0, probFinest) ;
     Destroy_State(X_0) ;
     Destroy_State(Y_0) ;
+    free(sol_sings) ; // safe if NULL
     Destroy_All_Problems(probFinest) ;
 
     return result ;

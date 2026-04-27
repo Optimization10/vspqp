@@ -659,8 +659,10 @@ static VSPINT *Singletons_Solution(Problem *P, VSPINT N0, VSPINT u0, VSPINT *nSi
 
 Problem *Problem_Recursive_Coarsen
 (
-    Problem *probFinest,
-    Options    *options
+    Problem   *probFinest,
+    Options   *options,
+    VSPINT   **sing_sol,
+    VSPINT    *n_sings
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -670,6 +672,12 @@ Problem *Problem_Recursive_Coarsen
     Problem  *P         = probFinest ;
     Problem  *coarse_P ;
     Problem  *coarsest_P ;
+    VSPINT    N0 = probFinest->graph->n ;
+    VSPINT    u0 = P->u ;
+    VSPINT    lo = N0 - u0 ;
+
+    *sing_sol = NULL ;
+    *n_sings  = 0 ;
 
     l = 0 ; // Invariant: l = # of coarsenings
     while( 1 )
@@ -687,6 +695,16 @@ Problem *Problem_Recursive_Coarsen
         // Coarsen P
         coarse_P = Problem_Coarsen(P, options) ;
  
+        if(coarse_P->graph->singletons_cost >= lo)
+        {
+            *sing_sol = Singletons_Solution(coarse_P, N0, u0, n_sings) ;
+            if(*sing_sol != NULL)
+            {
+                coarsest_P = coarse_P ;
+                break ;
+            }
+        }
+
         if(Graph_Density(coarse_P->graph->n, coarse_P->graph->nz) > 0.4
            || coarse_P->graph->n < 10)
         {
