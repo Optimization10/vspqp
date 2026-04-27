@@ -1968,14 +1968,16 @@ VSPINT check_problem
 
 
     /* Do all the matrix checks */
-    // Check_Matrix(Ai, Ap, Ae, n, nz, TRUE, FALSE) ;
+    Check_Matrix(Ai, Ap, Ae, n, nz, FALSE, FALSE) ;
 
     /* Check that ci and wi are >= 1. Also, compute alpha, gamma, and the
        sum of all ci, and max degree */
+    // Check cost of singletons as well
     VSPINT locally_computed_alpha = c [0] ;
     VSPINT locally_computed_gamma = EMPTY ;
     VSPINT sum_of_all_ci = 0 ;
     VSPINT maxDeg = EMPTY ;
+    VSPINT costSing = 0 ;
     for (i = 0 ; i < n ; i++)
     {
         VSPINT ci = c [i] ;
@@ -1989,6 +1991,19 @@ VSPINT check_problem
         {
             maxDeg = deg ;
         }
+        if(deg == 0) costSing += ci ;
+    }
+
+    if(problem->graph->singletons_cost == EMPTY)
+    {
+        if(problem->level != 0)
+        {
+            Error("Empty singletons cost at coarse level", DBG_INFO) ;
+        }
+    }
+    else
+    {
+        VSP_ASSERT(problem->graph->singletons_cost == costSing) ;
     }
 
     if (cost_is_wrong) {
@@ -2846,7 +2861,7 @@ void Record_Graph_Stats
 {
     FILE *fp ;
     VSPINT i ;
-    VSPINT *Ap = graph->Ap ;
+    VSPLONG *Ap = graph->Ap ;
     VSPINT cost_sing = 0 ;
     VSPINT count_sing = 0 ;
 

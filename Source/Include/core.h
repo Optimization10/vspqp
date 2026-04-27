@@ -111,6 +111,8 @@ typedef struct
     VSPINT    total_vtx_cost ;
     VSPFLOAT  ratio_max_cost ; // ratio of vertices with max cost
 
+    VSPINT singletons_cost ; // EMPTY if this was not computed
+
     // If true, then memory was allocated by the graph constructor
     // which needs to be freed by the destroyer
     bool owns_Ai ;
