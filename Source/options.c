@@ -559,6 +559,7 @@ void Print_Options(const Options *opts, const char *path)
 
     /* Simple Coarsening Options */
     fprintf(f, "  compression_threshold          = %g\n",   opts->compression_threshold);
+    fprintf(f, "  sort_cols                      = %i\n",   opts->sort_cols || opts->initial_guess == bisection_initial_guess);
 
     fclose(f);
 }
