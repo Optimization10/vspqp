@@ -252,7 +252,7 @@ static Graph* Graph_Coarsen
     VSPINT *tmp_i = malloc(nz_coarse * sizeof(VSPINT)) ;
     VSPINT *tmp_e = malloc(nz_coarse * sizeof(VSPINT)) ;
 
-    // vs_sort_cols(Ap_coarse, tmp_i, tmp_e, Ai_coarse, Ae_coarse, n_coarse);
+    vs_sort_cols(Ap_coarse, tmp_i, tmp_e, Ai_coarse, Ae_coarse, n_coarse);
 
     free(Graph_Coarse->Ai) ;
     free(Graph_Coarse->Ae) ;

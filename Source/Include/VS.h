@@ -1302,4 +1302,13 @@ void vs_separator_approx
     VSFLOAT *time_entire_ret
 ) ;
 
+VSPFLOAT *vs_to_bisect
+(
+    VSPINT   *shore_x,
+    VSPINT    ind_frac_x,
+    VSPINT   *shore_y,
+    VSPINT    ind_frac_y,
+    VSPINT    n
+) ;
+
 #endif

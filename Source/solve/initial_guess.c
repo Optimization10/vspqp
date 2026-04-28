@@ -278,7 +278,7 @@ static void set_bisection_initial_guess
     vs_default (Parm) ;
 
     // Get partition
-    VSPINT m = problem->graph->total_vtx_cost / 2 ;
+    VSPINT m = (problem->graph->total_vtx_cost) / 2 ;
     vs(part, Ai, Ap, Ae, c, n, m,Parm) ;
 
     // ====================================================================== //
