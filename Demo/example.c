@@ -440,7 +440,8 @@ int main(int argc, char** argv)
     set_default_options(options) ;
 
     // Custom options
-    options->ratioUBLimit = 0.45 ;
+    // options->sort_cols     = true ;
+    options->ratioUBLimit  = 0.45 ;
     options->initial_guess = bisection_initial_guess ;
 
     Print_Options(options, "output/opts.txt") ;

@@ -499,6 +499,7 @@ void set_default_options(Options *options)
     /* Simple Coarsening Options                                              */
     /*------------------------------------------------------------------------*/
     options->compression_threshold = 0.51 ;
+    options->sort_cols = false ;
 
     return ;
 }

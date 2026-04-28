@@ -247,7 +247,8 @@ static Graph* Graph_Coarsen
     /* Free memory */
     free(htable) ;
 
-    if(options->initial_guess == bisection_initial_guess)
+
+    if(options->sort_cols || options->initial_guess == bisection_initial_guess)
     {
         /* Sort columns of the coarse graph */
         VSPLONG nz_coarse = Ap_coarse[n_coarse] ;
