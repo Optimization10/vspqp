@@ -5,6 +5,7 @@
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
+#include <threads.h>
 #include "profiler.h"
 
 const char *G_Current_Problem_Name ;
@@ -26,6 +27,8 @@ static void Consider_Restart
     Options     *options
 )
 {
+    VSPFLOAT ratio ;
+    bool success ;
     bool dec = restart_decide(options->restart_decision, 0, 0, problem);
     if (!dec || problem->child_problem == NULL) return;
 
@@ -45,11 +48,66 @@ static void Consider_Restart
             fprintf(stderr, "ERROR: Unsupported starting guess for restart\n");
             return;
     }
-    Try_And_Keep_If_Better(X, Y, problem, strategy, options);
+
+    success = Try_And_Keep_If_Better(X, Y, problem, strategy, options, &ratio) ;
+
+    // Record if restart was a success
+    problem->stats.restart_success   = success ? 1 : 0 ;
+    problem->stats.restart_obj_ratio = ratio ;
 }
 
+void Print_Stats
+(
+    Problem *Pfinest    
+)
+{
+    FILE    *fp ;
+    Problem  *P = Pfinest ;
 
+    static bool first_time = true ;
+    if(first_time)
+    {
+        first_time = false ;
+        fp = fopen("output/stats.csv", "w") ;
+        fprintf(fp,"id,lvl,n,edges,restart,ratio-sep\n") ;
+    }
+    else
+    {
+        fp = fopen("output/stats.csv", "a") ;
+    }
+    if(!fp) printf("Error: Could not open output/stats.csv") ;
 
+    char *success = "success" ;
+    char *fail    = "fail" ;
+    char *na      = "" ;
+    char *status ;
+
+    while ( P != NULL)
+    {
+        if(P->stats.restart_success == EMPTY) status = na ;
+        else status = (P->stats.restart_success) ? success : fail ;
+        fprintf
+        (
+            fp, "%s,%lld,%lld,%lld,",
+            G_Current_Problem_Name,
+            PRI(P->level),
+            PRI(P->graph->n),
+            PRI(P->graph->nz / 2)
+        ) ;
+
+        if(status != na)
+        {
+            fprintf(fp, "%s,%f\n", status, P->stats.restart_obj_ratio) ;
+        }
+        else
+        {
+            fprintf(fp, ",\n") ;
+        }
+
+        P = P->child_problem ;
+    }
+    fclose(fp) ;
+}
 
 void Destroy_All_Problems(Problem *problemFinest)
 {
@@ -517,7 +575,9 @@ solve_result *VSP_Solve
     solve_result *result = Package_Result(X_0, Y_0, probFinest) ;
     Destroy_State(X_0) ;
     Destroy_State(Y_0) ;
-    free(sol_sings) ; // safe if NULL
+    free(sol_sings) ;
+
+    Print_Stats(probFinest) ;
     Destroy_All_Problems(probFinest) ;
 
     return result ;

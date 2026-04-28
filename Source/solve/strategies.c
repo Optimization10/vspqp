@@ -6,15 +6,18 @@
 
 // Run a strategy on a cloned point. If it beats the original, swap.
 // Returns true if the clone was better.
+// ratio is the ratio between the two objectives. ratio can be NULL
 bool Try_And_Keep_If_Better
 (
-    State   *X,
-    State   *Y,
-    Problem *problem,
-    void   (*strategy)(State*, State*, Problem*, Options*),
-    Options *options
+    State    *X,
+    State    *Y,
+    Problem  *problem,
+    void    (*strategy)(State*, State*, Problem*, Options*),
+    Options  *options,
+    VSPFLOAT *ratio    
 )
 {
+    VSPINT total_vtx_cost ;
     State *Xc = Clone_State(X);
     State *Yc = Clone_State(Y);
     VSPINT gamma = problem->graph->max_vtx_cost;
@@ -33,6 +36,11 @@ bool Try_And_Keep_If_Better
 
     Destroy_State(Xc);
     Destroy_State(Yc);
+
+    // Set ratio
+    total_vtx_cost = problem->graph->total_vtx_cost ;
+    if(ratio != NULL) *ratio = (total_vtx_cost - obj_new) / (total_vtx_cost - obj_orig) ;
+
     return better;
 }
 

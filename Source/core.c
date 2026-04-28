@@ -185,6 +185,8 @@ Problem* Construct_Problem
     problem->level = 0 ;
     problem->coarsest_level_num = 0 ;
 
+    /* Initialize stats */
+    problem->stats.restart_success = EMPTY ;
     return problem;
 }
 

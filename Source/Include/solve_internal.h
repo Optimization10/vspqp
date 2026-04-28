@@ -48,7 +48,7 @@ typedef void (*Strategy)(State*, State*, Problem*, Options*) ;
 bool Try_And_Keep_If_Better
 (
     State *X, State *Y, Problem *problem,
-    Strategy strategy, Options *options
+    Strategy strategy, Options *options, VSPFLOAT *ratio 
 );
 
 void strategy_mc_and_flips(State*, State*, Problem*, Options*);

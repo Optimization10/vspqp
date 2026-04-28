@@ -636,8 +636,8 @@ printf ("norm (A2 - T, inf)\n") ;
     cutedge /= 2 ;
     // printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
     
-    // vs_separator (x, Ei, Ep, n, vw, 0, NULL, NULL, NULL, NULL, NULL) ;
-    vs_separator_approx (x, Ei, Ep, n, vw, 0, NULL, NULL, NULL, NULL, NULL) ;
+    vs_separator (x, Ei, Ep, n, vw, 0, NULL, NULL, NULL, NULL, NULL) ;
+    // vs_separator_approx (x, Ei, Ep, n, vw, 0, NULL, NULL, NULL, NULL, NULL) ;
 
     n0 = n1 = ns = 0 ;
     for (j = 0; j < n; j++)

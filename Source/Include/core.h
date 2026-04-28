@@ -144,6 +144,13 @@ typedef struct
     VSPINT               cn ; // Number of vertices in coarse graph
 } Matching ;
 
+typedef struct stats
+{
+    // EMPTY if no restart tried, 0 if tried and failed,1 if tried and succeeded
+    int      restart_success ;
+    VSPFLOAT restart_obj_ratio ; // new obj / old obj
+} Stats ;
+
 typedef struct Problem_struct
 {
     Graph *graph ;  /* the graph being solved */
@@ -161,6 +168,8 @@ typedef struct Problem_struct
     VSPINT coarsest_level_num ; /* the level of the coarsest problem */
 
     VSPINT ubFinest ;
+
+    Stats stats ;
 
 } Problem ;
 
