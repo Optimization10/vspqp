@@ -398,7 +398,7 @@ int main(int argc, char** argv)
     /*------------------------------------------------------------------------*/
      
     // Text file from which to read matrix names, one per line
-    char matricesList[] = "doc/mats.txt" ;
+    char matricesList[] = "data/to-solve" ;
 
     // Set data directory
     char matricesDir[256];
@@ -412,6 +412,7 @@ int main(int argc, char** argv)
     }
 
     char *name ;
+    
     
     /*------------------------------------------------------------------------*/
     // Reset progress file
@@ -433,12 +434,14 @@ int main(int argc, char** argv)
     Options           *options ;
     solve_result       *result = NULL ;
 
+
     /*** Options **************************************************************/
     options = construct_options() ;
     set_default_options(options) ;
 
     // Custom options
     options->ratioUBLimit = 0.45 ;
+    // options->initial_guess = bisection_initial_guess ;
 
     Print_Options(options, "output/opts.txt") ;
     /*** I/O ******************************************************************/
@@ -447,7 +450,6 @@ int main(int argc, char** argv)
 
     VSPINT num_graphs = 0 ;
     double total_time = 0 ;
-
 
     /*--------------------------------------------------------------------*/
     // Solve all problems using flips

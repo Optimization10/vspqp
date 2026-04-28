@@ -634,7 +634,7 @@ printf ("norm (A2 - T, inf)\n") ;
         }
     }
     cutedge /= 2 ;
-    printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
+    // printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
     
     vs_separator (x, Ei, Ep, n, vw, 0, NULL, NULL, NULL, NULL, NULL) ;
 
@@ -657,7 +657,7 @@ printf ("norm (A2 - T, inf)\n") ;
             else             ns += vw [j] ;
         }
     }
-    printf ("n0: %i n1: %i ns: %i\n", n0, n1, ns) ;
+    // printf ("n0: %i n1: %i ns: %i\n", n0, n1, ns) ;
 
     /* project z onto constraints of the graph partitioning problem (GB) */
 
@@ -953,8 +953,8 @@ int vs_sort_cols
 {
     VSINT i, j ;
     VSLINT nz, p, *Bp ;
-    nz = Ap [n] ;
-    Bp = malloc (nz*sizeof (VSLINT)) ;
+    // Bp = malloc (nz*sizeof (VSLINT)) ; // BUG: should be n, not nz
+    Bp = malloc ( (n+1)*sizeof (VSLINT)) ; 
     if ( Bp == NULL ) return (1) ;
     int const AxExists = (Bx != NULL) ? 1 : 0 ;
     for (j = 0; j < n; j++) Bp [j] = Ap [j] ;

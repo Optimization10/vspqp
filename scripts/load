@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DEST_DIR="/home/ovi/vsp/vspqp/doc"
-DEST="$DEST_DIR/mats.txt"
+DEST_DIR="/home/ovi/vsp/vspqp/data"
+DEST="$DEST_DIR/to-solve"
 
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <filename>"

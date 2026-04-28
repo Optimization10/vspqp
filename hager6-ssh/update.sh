@@ -2,8 +2,8 @@
 
 # Update the code from local computer to remote computer
 rsync -rtv -e "ssh" --delete \
-      --exclude 'data' --exclude 'output' --exclude 'outputs_archive' \
-      --exclude 'random_seed.txt' --exclude 'build' --exclude '.*' \
+      --exclude 'output' --exclude 'outputs_archive' \
+      --exclude 'random_seed.txt' --exclude 'Build' --exclude '.*' \
       --exclude 'hager6-ssh/' --exclude '*.zst' \
       /home/ovi/vsp/vspqp/ \
-      onechita@ls-hager6.math.ufl.edu:/home/onechita/codes/VSPQP/
+      onechita@ls-hager6.math.ufl.edu:/home/onechita/codes/vspqp/
