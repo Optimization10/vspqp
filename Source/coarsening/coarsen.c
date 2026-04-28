@@ -1,3 +1,4 @@
+#include "VSPQP.h"
 #include "core.h"
 #include "coarsen_internal.h"
 #include "coarsen.h"
@@ -246,20 +247,20 @@ static Graph* Graph_Coarsen
     /* Free memory */
     free(htable) ;
 
-
-    /* Sort columns of the coarse graph */
-    VSPLONG nz_coarse = Ap_coarse[n_coarse] ;
-    VSPINT *tmp_i = malloc(nz_coarse * sizeof(VSPINT)) ;
-    VSPINT *tmp_e = malloc(nz_coarse * sizeof(VSPINT)) ;
-
-    vs_sort_cols(Ap_coarse, tmp_i, tmp_e, Ai_coarse, Ae_coarse, n_coarse);
-
-    free(Graph_Coarse->Ai) ;
-    free(Graph_Coarse->Ae) ;
-    Graph_Coarse->Ai = tmp_i ;
-    Graph_Coarse->Ae = tmp_e ;
-    Ai_coarse = tmp_i ;
-    Ae_coarse = tmp_e ;
+    if(options->initial_guess == bisection_initial_guess)
+    {
+        /* Sort columns of the coarse graph */
+        VSPLONG nz_coarse = Ap_coarse[n_coarse] ;
+        VSPINT *tmp_i = malloc(nz_coarse * sizeof(VSPINT)) ;
+        VSPINT *tmp_e = malloc(nz_coarse * sizeof(VSPINT)) ;
+        vs_sort_cols(Ap_coarse, tmp_i, tmp_e, Ai_coarse, Ae_coarse, n_coarse) ;
+        free(Graph_Coarse->Ai) ;
+        free(Graph_Coarse->Ae) ;
+        Graph_Coarse->Ai = tmp_i ;
+        Graph_Coarse->Ae = tmp_e ;
+        Ai_coarse = tmp_i ;
+        Ae_coarse = tmp_e ;
+    }
 
 
 #ifdef DEBUG
