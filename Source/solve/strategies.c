@@ -18,6 +18,7 @@ bool Try_And_Keep_If_Better
 )
 {
     VSPINT total_vtx_cost ;
+    VSPFLOAT sep_new, sep_orig ;
     State *Xc = Clone_State(X);
     State *Yc = Clone_State(Y);
     VSPINT gamma = problem->graph->max_vtx_cost;
@@ -39,7 +40,14 @@ bool Try_And_Keep_If_Better
 
     // Set ratio
     total_vtx_cost = problem->graph->total_vtx_cost ;
-    if(ratio != NULL) *ratio = (total_vtx_cost - obj_new) / (total_vtx_cost - obj_orig) ;
+
+    sep_orig = total_vtx_cost - obj_orig ;
+    if(sep_orig == 0) sep_orig = 1 ;
+
+    sep_new = total_vtx_cost - obj_new ;
+    if(sep_new == 0) sep_new = 1 ;
+
+    if(ratio != NULL) *ratio = sep_new / sep_orig ;
 
     return better;
 }
