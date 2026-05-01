@@ -7,8 +7,8 @@
 #------------------------------------------------------------------------------
 # Choose debug or release version
 #------------------------------------------------------------------------------
-# VERSION = release
-VERSION = dev
+VERSION = release
+# VERSION = dev
 # VERSION = debug
 
 
