@@ -321,7 +321,7 @@ void Solve_Level
 
     TIMER_START(T_TOTAL) ;
     Optimize(X, Y, problem, options) ;
-    Consider_Restart(X, Y, problem, options) ;
+    // Consider_Restart(X, Y, problem, options) ;
     TIMER_STOP(T_TOTAL) ;
     Timer_Flush(problem->level) ;
 }
