@@ -744,14 +744,21 @@ Problem *Problem_Recursive_Coarsen
             }
         }
 
+        // Stopping conditions
         n  = coarse_P->graph->n ;
         nz = coarse_P->graph->nz ;
-        if(Graph_Density(n, nz) > opts->density_cutoff || n < opts->node_cutoff)
+        if(Graph_Density(n, nz) > opts->density_cutoff|| n < opts->node_cutoff)
         {
+            if(Is_Complete_Graph(n, nz))
+            {
+                Destroy_Problem(coarse_P) ;
+                coarsest_P = P ;
+                break ;
+            }
             coarsest_P = coarse_P ;
             break ;
         }
-        else if(Is_Complete_Graph(n, nz) || nz == 0)
+        else if(nz == 0)
         {
             Destroy_Problem(coarse_P) ;
             coarsest_P = P ;
