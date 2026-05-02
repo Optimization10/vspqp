@@ -75,7 +75,10 @@ void Destroy_State(State* Z)
 
 
 /* *************** Graph **************************************************** */
-Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae)
+Graph *Construct_Graph
+(
+    VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, bool alloc_Ae
+)
 {
     Graph *Graph = calloc(1, sizeof(*Graph)) ;
 
@@ -84,16 +87,11 @@ Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae)
 
     Graph->singletons_cost = EMPTY ;
 
-    if(Ae == NULL)
+    if(alloc_Ae)
     {
         Graph->Ae = malloc(  nz     * sizeof(VSPINT) ) ;
-        Graph->owns_Ae = true ;
     }
-    else
-    {
-        Graph->Ae = Ae ;
-        Graph->owns_Ae = false ;
-    }
+    else Graph->Ae = NULL ;
 
     if(Ai == NULL)
     {
@@ -123,7 +121,7 @@ Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae)
 
 void Destroy_Graph(Graph *Graph)
 {
-    if(Graph->owns_Ae) free(Graph->Ae) ;
+    free(Graph->Ae) ;
     if(Graph->owns_Ai) free(Graph->Ai) ;
     if(Graph->owns_Ap) free(Graph->Ap) ;
     free(Graph->c ) ;
@@ -164,7 +162,7 @@ Problem* Construct_Problem
     VSPLONG                nz,
     VSPINT                *Ai, // If NULL, then this is allocated
     VSPLONG               *Ap, // If NULL, then this is allocated
-    VSPINT                *Ae, // If NULL, then this is allocated
+    bool             alloc_Ae,
     Options          *options
 )
 {
@@ -172,14 +170,14 @@ Problem* Construct_Problem
     Problem* problem = calloc(1, sizeof(Problem));
 
     /* Construct adjacency matrix */
-    problem->graph = Construct_Graph(num_vertices, nz, Ap, Ai, Ae) ;
+    problem->graph = Construct_Graph(num_vertices, nz, Ap, Ai, alloc_Ae) ;
 
     /* Initialize the matching to NULL */
     problem->matching = Matching_Construct(num_vertices) ;
 
     /* Initialize scalars */
-    problem->graph->n  = num_vertices;
-    problem->graph->nz = nz;
+    problem->graph->n  = num_vertices ;
+    problem->graph->nz = nz ;
     problem->parent_problem = NULL ;
     problem->child_problem  = NULL ;
     problem->level = 0 ;
@@ -190,7 +188,7 @@ Problem* Construct_Problem
     return problem;
 }
 
-// Npte: does NOT free matching
+// Note: does NOT free matching
 void Destroy_Problem(Problem* problem)
 {
     Destroy_Graph(problem->graph) ;

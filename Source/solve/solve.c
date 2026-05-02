@@ -373,7 +373,6 @@ solve_result *VSP_Solve
     VSPINT    n,
     VSPLONG  *Ap,
     VSPINT   *Ai,
-    VSPINT   *Ae,      // Temporary argument while I'm refactoring
     Options  *options,
     char     *name     // Optional. Problem name
 )
@@ -383,7 +382,7 @@ solve_result *VSP_Solve
 
     Problem *probFinest, *probCoarsest, *P ;
 
-    probFinest = Construct_Problem(n, Ap[n], Ai, Ap, Ae, options) ;
+    probFinest = Construct_Problem(n, Ap[n], Ai, Ap, false, options) ;
     set_default_problem_data(probFinest) ;
 
     /* Preprocessing */

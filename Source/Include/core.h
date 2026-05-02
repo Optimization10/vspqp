@@ -117,7 +117,6 @@ typedef struct
     // which needs to be freed by the destroyer
     bool owns_Ai ;
     bool owns_Ap ;
-    bool owns_Ae ;
 } Graph ;
 
 typedef enum match_type_enum
@@ -217,7 +216,7 @@ Problem* Construct_Problem
     VSPLONG                nz,
     VSPINT                *Ai, // If NULL, then this is allocated
     VSPLONG               *Ap, // If NULL, then this is allocated
-    VSPINT                *Ae, // If NULL, then this is allocated
+    bool             alloc_Ae,
     Options          *options
 ) ;
 
@@ -225,7 +224,11 @@ void Destroy_Problem(Problem* problem) ;
 
 
 
-Graph *Construct_Graph(VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, VSPINT*Ae) ;
+Graph *Construct_Graph
+(
+    VSPINT n, VSPLONG nz, VSPLONG *Ap, VSPINT *Ai, bool alloc_Ae
+) ;
+
 void Destroy_Graph(Graph *Graph) ;
 
 Az* Construct_Az(VSPINT n) ;
