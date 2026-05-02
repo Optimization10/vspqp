@@ -746,7 +746,7 @@ Problem *Problem_Recursive_Coarsen
 
         n  = coarse_P->graph->n ;
         nz = coarse_P->graph->nz ;
-        if(Graph_Density(n, nz) > 0.4 || n < 32)
+        if(Graph_Density(n, nz) > 0.4 || n < options->node_cutoff)
         {
             coarsest_P = coarse_P ;
             break ;
