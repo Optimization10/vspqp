@@ -87,8 +87,9 @@ typedef struct Options_struct
     // To enable Hager BM always, set compression_threshold = 0'
     // To disable Hager BM always, set compression_threshold = 1
     VSPFLOAT compression_threshold ;
-    bool sort_cols ;
-    VSPINT node_cutoff ;
+    bool     sort_cols ;
+    VSPINT   node_cutoff ;
+    VSPFLOAT density_cutoff ;
 
 } Options;
 

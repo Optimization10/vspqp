@@ -46,7 +46,7 @@ static Graph* Graph_Coarsen
     VSPINT           *matchmap,
     VSPINT        *invmatchmap,
     VSPINT           *matching,
-    Options           *options
+    Options           *opts
 )
 {
     #ifdef DEBUG
@@ -78,7 +78,7 @@ static Graph* Graph_Coarsen
     // Q: I am using the fine problem nz here, is this a problem?
     // A: No. The fine nz should be an upper bound on the coarse nz. And later
     //    on, we set problem_coarse->graph->nz = munch, which is the true coarse nz
-    // Problem* problem_coarse = Construct_Problem(n_coarse, GraphFine->nz, options) ;
+    // Problem* problem_coarse = Construct_Problem(n_coarse, GraphFine->nz, opts) ;
     Graph *Graph_Coarse = Construct_Graph(n_coarse, GraphFine->nz, NULL, NULL, NULL) ;
 
     VSPLONG *Ap_coarse = Graph_Coarse->Ap;
@@ -248,7 +248,7 @@ static Graph* Graph_Coarsen
     free(htable) ;
 
 
-    if(options->sort_cols || options->initial_guess == bisection_initial_guess)
+    if(opts->sort_cols || opts->initial_guess == bisection_initial_guess)
     {
         /* Sort columns of the coarse graph */
         VSPLONG nz_coarse = Ap_coarse[n_coarse] ;
@@ -460,7 +460,7 @@ static Graph* Graph_Coarsen
 static Problem *Problem_Coarsen
 (
     Problem *P,
-    Options *options
+    Options *opts
 )
 {
     Problem *Q ;
@@ -474,7 +474,7 @@ static Problem *Problem_Coarsen
         P->matching->cn,
         P->matching->matchmap,
         P->matching->invmatchmap,
-        P->matching->match, options
+        P->matching->match, opts
     ) ;
 
     P_coarse = Construct_Problem
@@ -482,7 +482,7 @@ static Problem *Problem_Coarsen
         Graph_Coarse->n,
         Graph_Coarse->nz,
         NULL, NULL, NULL,
-        options
+        opts
     ) ;
 
     // Free the graph coming from constructor
@@ -514,10 +514,10 @@ static Problem *Problem_Coarsen
 static void SetUpperBound
 (
     Problem *problem,
-    Options *options
+    Options *opts
 )
 {
-    if(options->relaxUB == false || problem->coarsest_level_num == 0 )
+    if(opts->relaxUB == false || problem->coarsest_level_num == 0 )
     {
         problem->u = problem->ubFinest ;
         return ;
@@ -526,7 +526,7 @@ static void SetUpperBound
     VSPINT currLvl = problem->level ;
     VSPINT maxLvl  = problem->coarsest_level_num ;
 
-    VSPFLOAT ratioUBLimit = options->ratioUBLimit ;
+    VSPFLOAT ratioUBLimit = opts->ratioUBLimit ;
 
     // Linear Version
     VSPFLOAT gap          = ratioUBLimit - 0.6 ;
@@ -697,7 +697,7 @@ static VSPINT *Singletons_Solution(Problem *P, VSPINT N0, VSPINT u0, VSPINT *nSi
 Problem *Problem_Recursive_Coarsen
 (
     Problem   *probFinest,
-    Options   *options,
+    Options   *opts,
     VSPINT   **sing_sol,
     VSPINT    *n_sings
 )
@@ -728,11 +728,11 @@ Problem *Problem_Recursive_Coarsen
             P->graph,
             P->matching,
             P->level,
-            options
+            opts
         ) ;
 
         // Coarsen P
-        coarse_P = Problem_Coarsen(P, options) ;
+        coarse_P = Problem_Coarsen(P, opts) ;
  
         if(coarse_P->graph->singletons_cost >= lo)
         {
@@ -746,7 +746,7 @@ Problem *Problem_Recursive_Coarsen
 
         n  = coarse_P->graph->n ;
         nz = coarse_P->graph->nz ;
-        if(Graph_Density(n, nz) > 0.4 || n < options->node_cutoff)
+        if(Graph_Density(n, nz) > opts->density_cutoff || n < opts->node_cutoff)
         {
             coarsest_P = coarse_P ;
             break ;
@@ -770,7 +770,7 @@ Problem *Problem_Recursive_Coarsen
     P = coarsest_P ;
     while(P != NULL)
     {
-       SetUpperBound(P, options) ;
+       SetUpperBound(P, opts) ;
        P = P->parent_problem ;
     }
 
