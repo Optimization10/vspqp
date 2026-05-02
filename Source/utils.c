@@ -2365,14 +2365,16 @@ void compute_weight(Point *Z, VSPINT *weight_z, VSPINT *c) {
     *weight_z = weight ;
 }
 
-Problem* transpose(
+Problem* transpose
+(
     VSPINT           *Ai, /* Row indices of non-zeros  */
-    VSPLONG *Ap, /* Column pointers           */
+    VSPLONG          *Ap, /* Column pointers           */
     VSPINT           *Ae, /* Entries                   */
-    VSPLONG nz, /* Number of rows/columns    */
+    VSPLONG           nz, /* Number of rows/columns    */
     VSPINT             n, /* Number of nonzeros        */
-    Options* options
-) {
+    Options*     options
+)
+{
  
     #ifdef DEBUG
         static long long unsigned count = 0 ;

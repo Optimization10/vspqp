@@ -88,6 +88,7 @@ static Graph* Graph_Coarsen
     VSPINT   num_vtx_cost_gamma = 0 ;
     VSPLONG  munch = 0;
     VSPINT singletons_cost ;
+    bool Ae_is_one = (Ae_fine == NULL) ;
 
     /* Hashtable stores column pointer values. */
     VSPLONG* htable = malloc(n_coarse * sizeof(*htable));
@@ -184,7 +185,7 @@ static Graph* Graph_Coarsen
                    Ap array (so the index being some p), and then you go to
                    index p in the Ae array
                     */
-                VSPINT edgeWeight = Ae_fine[ p ] ;
+                VSPINT edgeWeight = (Ae_is_one) ? 1: Ae_fine[ p ] ;
 
                 /* Check the hashtable before scattering. */
                 VSPLONG cp = htable[toCoarsened];

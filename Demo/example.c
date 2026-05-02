@@ -477,10 +477,6 @@ int main(int argc, char** argv)
         fprintf(f, "Starting problem: %s\n", name) ;
         fclose(f) ;
 
-        // Create edge weights
-        VSPINT *Ae = malloc(Ap[n] * sizeof(*Ae)) ;
-        for(VSPLONG i = 0 ; i < Ap[n] ; i++) Ae[i] = 1 ;
-
         // Solve the problem
         restart_decide_reset(options->restart_decision) ;
         clock_gettime(CLOCK_REALTIME, &start) ;
@@ -506,7 +502,6 @@ int main(int argc, char** argv)
         // Free memory
         free(Ai) ;
         free(Ap) ;
-        free(Ae) ;
         destruct_solve_result(result) ;
         free(sltn_stats) ;
     }

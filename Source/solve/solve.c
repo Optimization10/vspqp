@@ -203,10 +203,6 @@ void set_default_problem_data(Problem* problem)
     VSPINT* c = problem->graph->c ;
     for(i = 0 ; i < n ; i++) c[i] = 1 ;
 
-    /* Set the edge weights to 1 */
-    VSPINT* Ae = problem->graph->Ae ;
-    for(i = 0 ; i < nz ; i++) Ae[i] = 1 ;
-
     /* Set the upper balance constraint to 60%, and lower constraint to 1 */
     problem->u =        (VSPINT) (problem->graph->n * 0.6);
     problem->ubFinest = (VSPINT) (problem->graph->n * 0.6) ;

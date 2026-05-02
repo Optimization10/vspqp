@@ -600,6 +600,8 @@ void Graph_Simple_Match
     VSPINT pow2l   = pow_ints(2, lvl) ;
     VSPINT pow2lp1 = pow_ints(2, lvl + 1) ;
 
+    bool Ae_is_one = (Ae == NULL) ;
+
     VSPINT n_matches   = 0 ;
     VSPINT n_unmatched = n ;
 
@@ -640,7 +642,7 @@ void Graph_Simple_Match
             k = Ai[p];
             if(Is_Matched(k, matching)) continue ;
 
-            k_ew = Ae[p] ;
+            k_ew = Ae_is_one ? 1 : Ae[p] ;
             if ( k_ew > j_ew || (k_ew == j_ew && c[k] > cj) )
             {
                 j    = k ;
@@ -702,7 +704,7 @@ void Graph_Simple_Match
             neigh = Ai[p] ;
             VSP_ASSERT(Is_Matched(neigh, matching)) ;
 
-            ew = Ae[p] ;
+            ew = Ae_is_one ? 1 : Ae[p] ;
             if (ew > ew_pivot)
             {
                 ew_pivot   = ew ;
