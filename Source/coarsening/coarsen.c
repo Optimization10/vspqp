@@ -743,7 +743,10 @@ Problem *Problem_Recursive_Coarsen
         }
 
         if(Graph_Density(coarse_P->graph->n, coarse_P->graph->nz) > 0.4
-           || coarse_P->graph->n < 10)
+        //    || coarse_P->graph->n < 10)
+        //    || coarse_P->graph->n < 20)
+        //    || coarse_P->graph->n < 30) best
+           || coarse_P->graph->n < 32)
         {
             coarsest_P = coarse_P ;
             break ;
