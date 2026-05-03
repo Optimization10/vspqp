@@ -14,7 +14,8 @@ void vs_default
     Parm->PrintLevel  = 0 ;
     Parm->PrintParms  = VSFALSE ;
     Parm->PrintStatus = VSFALSE ;
-
+    Parm->compute_eig = VSTRUE ;
+    
     /* seed for random number generator */
     Parm->seed = 1 ;
 

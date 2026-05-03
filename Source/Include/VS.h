@@ -268,8 +268,8 @@ typedef struct VSparm      /* parameters */
     int       PrintParms ; /* TRUE means print parameter values */
     int      PrintStatus ; /* TRUE means print status */
 
-    unsigned int seed ;     /* seed to start srand */
-
+    int      compute_eig ; /* TRUE means use eigenvector to start bisection */
+    unsigned    int seed ; /* seed to start srand */
     VSFLOAT          eps ; /* machine epsilon for VSFLOAT */
     int      SmallMatrix ; /* full diagonalization of A when n <= SmallMatrix */
     VSFLOAT basis_factor ; /* # Lanczos iter = basis_factor*log2(dimension) */
@@ -1300,15 +1300,6 @@ void vs_separator_approx
     VSINT          *wgt_cover,
     VSINT              *imbal,
     VSFLOAT *time_entire_ret
-) ;
-
-VSPFLOAT *vs_to_bisect
-(
-    VSPINT   *shore_x,
-    VSPINT    ind_frac_x,
-    VSPINT   *shore_y,
-    VSPINT    ind_frac_y,
-    VSPINT    n
 ) ;
 
 #endif

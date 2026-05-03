@@ -80,7 +80,10 @@
 int vs
 (
     int       *x, /* x [i] = 0, 1, or 2 to put i in set 0, set 1, or separator
-                     respectively,  malloc'd by user */
+                     respectively,  malloc'd by user. For VSP-based start
+                     guess, x is starting guess for bisection problem.
+                     If x [i] = 2, then use 1/2 for the associated starting
+                     guess for bisection problem. */
     VSINT    *Ei, /* row numbers */
     VSLINT   *Ep, /* column pointers */
     VSINT    *Ex, /* edge weights,   NULL => all entries in Ex are 1 */
@@ -92,22 +95,20 @@ int vs
 )
 {
     int PrintLevel, qr_its ;
-    VSINT i, j, j0, k, LO, nO, nOmax, nQR, nRot, SmallMatrix, *Ai ;
-    VSLINT nz, nzA, p, q, *Ap ;
-    VSFLOAT ab, ba, Amax, err, Lanczos_tol, r, s, t,
-           *a, *A, *A12, *AP, *Ax, *b, *cost, *d, *u, *V,
-           *vnew, *vprior, *vpprior, *y, *z ;
-    VSgivens Gstruc ;
-    VSgivens *G = &Gstruc ;
     VScom Com ;
-    Com.G = G ;
     Com.Parm = Parm ;
+
+    VSINT i, j, j0, *Ai ;
+    VSLINT nz, nzA, p, q, *Ap ;
+    VSFLOAT Amax, r, s, t, *a, *A12, *Ax, *b, *z ;
 
     int status = 0 ;
     PrintLevel = Parm->PrintLevel ;
     if ( (PrintLevel > 0) && Parm->PrintParms ) vs_print_parms (Parm) ;
-    qr_its = Parm->qr_its ; /* qr_its times matrix dimension = max # QR iter */
-    SmallMatrix = Parm->SmallMatrix ;
+
+    b = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
+    Com.wx = b ;
+    Com.wi = (VSINT *)   vs_malloc (&status, n, sizeof (VSINT)) ;
 
     int const vw_is_one = (vw  == NULL) ? VSTRUE : VSFALSE ;
     int const E_is_one = (Ex == NULL) ? VSTRUE : VSFALSE ;
@@ -144,8 +145,8 @@ int vs
     VSFLOAT const aa = (vw_is_one) ? VSONE/n : VSONE/vs_dot (a, a, n) ;
     p = 0 ; /* points into E */
     q = 0 ; /* points into A */
-    s = 0 ; /* largest element in A */
-    j0= 0 ; /* first column to process */
+    Amax = 0 ; /* largest element in A */
+    j0 = 0 ; /* first column to process */
     Ap [0] = 0 ;
     /* build Ax which is the same as Ex except for diagonal element =
        largest element of E in column */
@@ -154,7 +155,7 @@ int vs
         VSLINT const l = Ep [j] ;
         if ( !needAx ) /* do not need Ax */
         {
-            s = 1 ;
+            Amax = 1 ;
             VSLINT const qstart = q ;
             for (; p < l; )
             {
@@ -214,7 +215,7 @@ int vs
             if ( p == l ) /* no break occurred, insert diagonal */
             {
                 Ax [q] = -t ;
-                if ( t > s ) s = t ;
+                if ( t > Amax ) Amax = t ;
                 Ai [q++] = j0 ;
             }
             else
@@ -230,308 +231,334 @@ int vs
                     Ai [q++] = Ei [p++] ;
                 }
                 Ax [i] = -t ;
-                if ( t > s ) s = t ;
+                if ( t > Amax ) Amax = t ;
             }
             Ap [j] = q ;
             j0 = j++ ;
         }
     }
-    Amax = s ;
-#if 0
-vs_printAMATLAB (n, Ap, Ai, Ax, "A") ;
-printf ("Temp = zeros (%i, %i) ;\n", nzA, 3) ;
-vs_printA (n, Ap, Ai, Ax, 0, "A12") ;
-printf ("n = size(A12, 1) ;\n") ;
-printf ("a = ones(n, 1) ;\n") ;
-printf ("P = eye(n) - (a*a')/(a'*a) ;\n") ;
-printf ("LAL = P*A12*P ;\n") ;
-fflush(stdout) ;
-#endif
 
-    /* allocate memory for work arrays */
-    if ( n <= SmallMatrix ) /* small matrix */
+    /* Two different approaches are used to compute a starting guess for
+       the VSP. Approach 1, as explained in the documentation,
+       involves solving an eigenvalue problem associated with the bisection
+       problem. This approach is used at a coarse graph, before we have an
+       approximation to the solution of the VSP. In Approach 2,
+       we use the starting guess for the VSP, which was computed by
+       interpolation from a coarser graph, to generate a starting guess
+       for the bisection problem. Only use this approach when one of the 
+       variables associated with the VSP, either x or y, is near an upper
+       or lower bound of the balance constraint. When a variable is near
+       such a bound, this bound reduces the search space.
+       This unbalanced starting guess for the bisection problem leads to
+       a balanced solution of the bisection problem, which yields
+       a balanced starting point for the VSP, which is less restricted by
+       the balance constraint.
+
+       The next block of code is used to compute the eigenvector-based
+       starting guess for the bisection problem. */
+    if ( Parm->compute_eig )
     {
-        /* # columns in orthogonal basis, nO = actual # cols, nOmax = max cols*/
-        nO = nOmax = n ;
-    }
-    else /* large matrix, use Lanczos process */
-    {
-        int n2 ;
-        frexp((double) n, &n2) ; /* n2 = log2(n) */
-        nOmax = Parm->basis_factor*(n2-1) ; /* max # orthogonal basis vectors */
-        /* actual number nO of basis vector <= nOmax */
-        V = (VSFLOAT *) vs_Lmalloc (&status, (nOmax+1)*(int64_t) n,
-                                     sizeof (VSFLOAT)) ;
-    }
-    /* max number of QR iterations */
-    nQR = nOmax*qr_its ;   /* QR iter = max dimension * qr_its */
-    nRot = nOmax*nQR ;     /* max # Givens rotations */
-    b = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
-    Com.wx = b ;
-    Com.wi = (VSINT *)   vs_malloc (&status, n, sizeof (VSINT)) ;
+        VSINT LO, nO, nOmax, nQR, nRot, SmallMatrix ;
+        VSFLOAT ab, ba, Lanczos_tol,
+               *A, *AP, *d, *u, *V, *vnew, *vprior, *vpprior ;
+        VSgivens Gstruc ;
+        VSgivens *G = &Gstruc ;
+        Com.G = G ;
 
-    /* space for final dense matrix */
-    A = (VSFLOAT *) vs_malloc(&status, nOmax*nOmax, sizeof (VSFLOAT));
-
-    /* allocate space for Givens rotations in diagonalization */
-    G->gx = vs_malloc (&status, nRot, sizeof (VSFLOAT)) ;
-    G->gy = vs_malloc (&status, nRot, sizeof (VSFLOAT)) ;
-    G->gz = vs_malloc (&status, nRot, sizeof (short)) ;
-    G->gs = vs_malloc (&status, (nRot/30)+nQR+nOmax+5, sizeof (VSFLOAT)) ;
-    G->gi = vs_malloc (&status, (nRot/30)+nQR+nOmax+5, sizeof (VSINT)) ;
-    G->gj = vs_malloc (&status, nQR, sizeof (VSINT)) ;
-    G->gk = vs_malloc (&status, nQR, sizeof (VSINT)) ;
-    G->gf = vs_malloc (&status, nQR, sizeof (VSINT)) ;
-    d = (VSFLOAT *) vs_malloc (&status, nOmax, sizeof (VSFLOAT)) ;
-    u = (VSFLOAT *) vs_malloc (&status, nOmax, sizeof (VSFLOAT)) ;
-    if ( status ) return (status) ;
-
-    /* tridiagonalize the matrix */
-    if ( n <= SmallMatrix )
-    {
-        /* Small matrices are tridiagonalized by Householder reflections.
-           First, create the dense matrix
-
-               LAL = [I - aa'/(a'a)] * A * [I - aa'/(a'a)]
-
-           If b = A*a, then
-
-               LAL = A + a[a(b'a)/(a'a)^2 - b/(a'a)]' - ba'/(a'a) ,
-
-           which can be computed column by column. */
-
-        /* evaluate b and ba := b'a */
-
-        ba = VSZERO ;
-        if ( E_is_one && vw_is_one )
+        /* qr_its times matrix dimension = max # QR iter */
+        qr_its = Parm->qr_its ;
+        SmallMatrix = Parm->SmallMatrix ;
+        /* allocate memory for work arrays */
+        if ( n <= SmallMatrix ) /* small matrix */
         {
-            for (j = 0; j < n; j++)
-            {
-                t = Ap [j] - Ap [j+1] ; /* < 0 */
-                b [j] = t ;
-                ba += t ;
-            }
+            /* # columns in orthogonal basis, nO = actual # cols,
+                                           nOmax = max cols*/
+            nO = nOmax = n ;
         }
-        else if ( vw_is_one ) /* vw = 1, but E not 1 */
+        else /* large matrix, use Lanczos process */
         {
-            p = 0 ;
-            for (j = 0; j < n; j++)
+            int n2 ;
+            /* n2 = log2(n) */
+            frexp((double) n, &n2) ;
+            /* max # orthogonal basis vectors */
+            nOmax = Parm->basis_factor*(n2-1) ;
+            /* actual number nO of basis vector <= nOmax */
+            V = (VSFLOAT *) vs_Lmalloc (&status, (nOmax+1)*(int64_t) n,
+                                         sizeof (VSFLOAT)) ;
+        }
+        /* max number of QR iterations */
+        nQR = nOmax*qr_its ;   /* QR iter = max dimension * qr_its */
+        nRot = nOmax*nQR ;     /* max # Givens rotations */
+    
+        /* space for final dense matrix */
+        A = (VSFLOAT *) vs_malloc(&status, nOmax*nOmax, sizeof (VSFLOAT));
+    
+        /* allocate space for Givens rotations in diagonalization */
+        G->gx = vs_malloc (&status, nRot, sizeof (VSFLOAT)) ;
+        G->gy = vs_malloc (&status, nRot, sizeof (VSFLOAT)) ;
+        G->gz = vs_malloc (&status, nRot, sizeof (short)) ;
+        G->gs = vs_malloc (&status, (nRot/30)+nQR+nOmax+5, sizeof (VSFLOAT)) ;
+        G->gi = vs_malloc (&status, (nRot/30)+nQR+nOmax+5, sizeof (VSINT)) ;
+        G->gj = vs_malloc (&status, nQR, sizeof (VSINT)) ;
+        G->gk = vs_malloc (&status, nQR, sizeof (VSINT)) ;
+        G->gf = vs_malloc (&status, nQR, sizeof (VSINT)) ;
+        d = (VSFLOAT *) vs_malloc (&status, nOmax, sizeof (VSFLOAT)) ;
+        u = (VSFLOAT *) vs_malloc (&status, nOmax, sizeof (VSFLOAT)) ;
+        if ( status ) return (status) ;
+    
+        /* tridiagonalize the matrix */
+        if ( n <= SmallMatrix )
+        {
+            /* Small matrices are tridiagonalized by Householder reflections.
+               First, create the dense matrix
+    
+                   LAL = [I - aa'/(a'a)] * A * [I - aa'/(a'a)]
+    
+               If b = A*a, then
+    
+                   LAL = A + a[a(b'a)/(a'a)^2 - b/(a'a)]' - ba'/(a'a) ,
+    
+               which can be computed column by column. */
+    
+            /* evaluate b and ba := b'a */
+    
+            ba = VSZERO ;
+            if ( E_is_one && vw_is_one )
             {
-                VSLINT const l = Ap [j+1] ;
-                t = VSZERO ;
-                for (; p < l; p++)
+                for (j = 0; j < n; j++)
                 {
-                    t += Ax [p] ;
+                    t = Ap [j] - Ap [j+1] ; /* < 0 */
+                    b [j] = t ;
+                    ba += t ;
                 }
-                b [j] = t ;
-                ba += t ;
             }
-        }
-        else if ( !vw_is_one && E_is_one ) /* vw_not_one && E_is_one */
-        {
+            else if ( vw_is_one ) /* vw = 1, but E not 1 */
+            {
+                p = 0 ;
+                for (j = 0; j < n; j++)
+                {
+                    VSLINT const l = Ap [j+1] ;
+                    t = VSZERO ;
+                    for (; p < l; p++)
+                    {
+                        t += Ax [p] ;
+                    }
+                    b [j] = t ;
+                    ba += t ;
+                }
+            }
+            else if ( !vw_is_one && E_is_one ) /* vw_not_one && E_is_one */
+            {
+                p = 0 ;
+                for (j = 0; j < n; j++)
+                {
+                    VSLINT const l = Ap [j+1] ;
+                    t = VSZERO ;
+                    for (; p < l; p++)
+                    {
+                        t -= a [Ai [p]] ;
+                    }
+                    b [j] = t ;
+                    ba += t*a [j] ;
+                }
+            }
+            else /* general case: both vw and E not one */
+            {
+                p = 0 ;
+                for (j = 0; j < n; j++)
+                {
+                    VSLINT const l = Ap [j+1] ;
+                    t = VSZERO ;
+                    for (; p < l; p++)
+                    {
+                        t += Ax [p]*a [Ai [p]] ;
+                    }
+                    b [j] = t ;
+                    ba += t*a [j] ;
+                }
+            }
+    
+            /* construct the dense A matrix column by columns */
+            t = ba*aa*aa ; /* b'a/(a'a)^2 since aa = 1/(a'a) */
+            AP = A ;
             p = 0 ;
+            /* LAL = A + a[a(b'a)/(a'a)^2 - b/(a'a)]' - ba'/(a'a) */
+            for (j = 0; j < n;)
+            {
+                if ( vw_is_one )
+                {
+                    s = t - b [j]*aa ;
+                    for (i = 0; i < n; i++) AP [i] = s - b [i]*aa ;
+                    }
+                else /* !vw_is_one */
+                {
+                    s = a [j]*t - b [j]*aa ;
+                    r = a [j]*aa ;
+                    for (i = 0; i < n; i++) AP [i] = a [i]*s - b [i]*r ;
+                }
+                /* subtract Ax from current column */
+                VSLINT const l = Ap [++j] ;
+    
+                if ( E_is_one )
+                {
+                    for (; p < l; p++) AP [Ai [p]]-- ;
+                }
+                else
+                {
+                    for (; p < l; p++) AP [Ai [p]] += Ax [p] ;
+                }
+    
+                AP += n ;
+            }
+    
+            /* reduce A to tridiagonal form using Householder matrices */
+            vs_house (A, d, u, n, &Com) ;
+    
+            /* diagonalize the tridiagonal matrix using Givens rotations */
+            vs_diag (d, u, n, &Com) ;
+    
+            /* find the smallest eigenvalue */
+            t = d [0] ;
+            i = 0 ;
+            for (j = 1; j < n; j++)
+            {
+                if ( d [j] < t )
+                {
+                    t = d [j] ;
+                    i = j ;
+                }
+            }
+            /* t = smallest eigenvalue of L'AL and i = index in d,
+               evaluate corresponding eigenvector of L'AL */
+            vs_initx (b, VSZERO, n) ;
+            b [i] = VSONE ;
+            vs_tGivensMult (b, Com.G, Com.npass, Com.nscale, n) ;
+            vs_DenseMult (z, b, A, n, n) ;
+        }
+        else /* n > SmallMatrix, Lanczos tridiagonalization */
+        {
+            /* stop Lanczos iteration when |u [j]| <= Amax*(machine epsilon) */
+            Lanczos_tol = Amax*Parm->Lanczos_tol ;
+    
+            /* seed for random number generator, default is 1 */
+            srand (Parm->seed) ;
+            VSFLOAT rand_norm = VSONE/RAND_MAX ;
+    
+            /* random starting guess:
+               first choose random numbers on [-0.5, +0.5] */
             for (j = 0; j < n; j++)
             {
-                VSLINT const l = Ap [j+1] ;
-                t = VSZERO ;
-                for (; p < l; p++)
+                V [j] = rand_norm*rand() - 0.5 ;
+            }
+            /* replace starting vector by it projection */
+            vs_project (V, a, aa, vw_is_one, n) ;
+            t = vs_norm (V, n) ;
+            t = VSONE/t ;
+            /* normalize the starting vector */
+            vs_scale (V, t, n) ;
+            vnew = V+n ;
+            /* vprior = random starting guess projected on orth complement (V)*/
+            vprior = V ;
+            /* Lanczos startup process: vnew = LA*vprior */
+            vs_Amult (vnew, vprior, Ap, Ai, Ax, n) ;
+            vs_project (vnew, a, aa, vw_is_one, n) ; /* vnew = LAL * vprior */
+            d [0] = vs_dot (vnew, vprior, n) ;
+            vs_daxpy (vnew, vprior, -d [0], n) ;
+            u [0] = vs_norm (vnew, n) ;
+            /* evaluate second Lanczos vector if termination not reached */
+            if ( fabs(u [0]) > Lanczos_tol )
+            {
+                /* normalize vnew to be a unit vector */
+                t = VSONE/u [0] ;
+                vs_scale (vnew, t, n) ;
+                nO = 1 ;
+                while ( 1 )
                 {
-                    t -= a [Ai [p]] ;
+                    vpprior = vprior ;
+                    vprior = vnew ;
+                    vnew = vnew+n ;
+                    /* vnew = LAL * vprior where L*vprior = vprior
+                       initially compute vnew = A*vprior */
+                    vs_Amult (vnew, vprior, Ap, Ai, Ax, n) ;
+                    /* now project vnew to obtain vnew = L*A*vprior */
+                    vs_project (vnew, a, aa, vw_is_one, n) ;
+                    d [nO] = vs_dot (vnew, vprior, n) ;
+                    nO++ ;
+                    if ( nO >= nOmax ) break ;
+                    vs_daxpy (vnew, vpprior, -u [nO-2], n) ;
+                    vs_daxpy (vnew, vprior, -d [nO-1], n) ;
+                    s = u [nO-1] = vs_norm (vnew, n) ;
+                    if ( s <= Lanczos_tol ) break ;
+                    s = VSONE/s ;
+                    vs_scale (vnew, s, n) ;
                 }
-                b [j] = t ;
-                ba += t*a [j] ;
             }
-        }
-        else /* general case: both vw and E not one */
-        {
-            p = 0 ;
-            for (j = 0; j < n; j++)
+
+            /* diagonalize the tridiagonal matrix using Givens rotations */
+            vs_diag (d, u, nO, &Com) ;
+    
+            /* find the smallest eigenvalue */
+            t = d [0] ;
+            i = 0 ;
+            for (j = 1; j < nO; j++)
             {
-                VSLINT const l = Ap [j+1] ;
-                t = VSZERO ;
-                for (; p < l; p++)
+                if ( d [j] < t )
                 {
-                    t += Ax [p]*a [Ai [p]] ;
+                    t = d [j] ;
+                    i = j ;
                 }
-                b [j] = t ;
-                ba += t*a [j] ;
             }
+            /*printf ("eval = %25.15e index = %i\n", t, i) ;*/
+            /* t = smallest eigenvalue of L'AL and i = index in d,
+               evaluate corresponding eigenvector of L'AL */
+            vs_initx (b, VSZERO, nO) ;
+            b [i] = VSONE ;
+            vs_tGivensMult (b, G, Com.npass, Com.nscale, nO) ;
+            vs_DenseMult (z, b, V, n, nO) ;
+            vs_free (V) ;
+            /* (n, nO) = number of (rows, cols) in orthogonal matrix V
+               z  = V*b = eigenvector estimate */
         }
-
-        /* construct the dense A matrix column by columns */
-        t = ba*aa*aa ; /* b'a/(a'a)^2 since aa = 1/(a'a) */
-        AP = A ;
-        p = 0 ;
-        /* LAL = A + a[a(b'a)/(a'a)^2 - b/(a'a)]' - ba'/(a'a) */
-        for (j = 0; j < n;)
-        {
-            if ( vw_is_one )
-            {
-                s = t - b [j]*aa ;
-                for (i = 0; i < n; i++) AP [i] = s - b [i]*aa ;
-            }
-            else /* !vw_is_one */
-            {
-                s = a [j]*t - b [j]*aa ;
-                r = a [j]*aa ;
-                for (i = 0; i < n; i++) AP [i] = a [i]*s - b [i]*r ;
-            }
-            /* subtract Ax from current column */
-            VSLINT const l = Ap [++j] ;
-
-            if ( E_is_one )
-            {
-                for (; p < l; p++) AP [Ai [p]]-- ;
-            }
-            else
-            {
-                for (; p < l; p++) AP [Ai [p]] += Ax [p] ;
-            }
-
-            AP += n ;
-        }
-
-        /* reduce A to tridiagonal form using Householder matrices */
-        vs_house (A, d, u, n, &Com) ;
-
-        /* diagonalize the tridiagonal matrix using Givens rotations */
-        vs_diag (d, u, n, &Com) ;
-
-        /* find the smallest eigenvalue */
-        t = d [0] ;
-        i = 0 ;
-        for (j = 1; j < n; j++)
-        {
-            if ( d [j] < t )
-            {
-                t = d [j] ;
-                i = j ;
-            }
-        }
-        /* t = smallest eigenvalue of L'AL and i = index in d,
-           evaluate corresponding eigenvector of L'AL */
-        vs_initx (b, VSZERO, n) ;
-        b [i] = VSONE ;
-        vs_tGivensMult (b, Com.G, Com.npass, Com.nscale, n) ;
-        vs_DenseMult (z, b, A, n, n) ;
+ 
+        /* compute square of length of z (eigenvector) */
+        s = vs_dot (z, z, n) ;
+        /* r_e = sqrt(RE_SCALAR*n), s = r_e/||z||  */
+        s = sqrt(RE_SCALAR*n/s) ;
+        /* multiply z by s to obtain a vector whose length is r_e */
+        vs_scale (z, s, n) ;
+        /* translate z by the centroid c = 1/2 of the box constraint */
+        vs_translate (z, VSHALF, n) ;
+ 
+        vs_free (d) ;
+        vs_free (u) ;
+        vs_free (A) ;
+        vs_free (Com.wi) ;
+        vs_free (G->gs) ;
+        vs_free (G->gi) ;
+        vs_free (G->gj) ;
+        vs_free (G->gk) ;
+        vs_free (G->gf) ;
+        vs_free (G->gx) ;
+        vs_free (G->gy) ;
+        vs_free (G->gz) ;
     }
-    else /* n > SmallMatrix, Lanczos tridiagonalization */
+    else /* VSP-based start guess */
     {
-        /* stop Lanczos iteration when |u [j]| <= Amax*(machine epsilon) */
-        Lanczos_tol = Amax*Parm->Lanczos_tol ;
-
-        /* seed for random number generator, default is 1 */
-        srand (Parm->seed) ;
-        VSFLOAT rand_norm = VSONE/RAND_MAX ;
-
-        /* random starting guess, first choose random numbers on [-0.5, +0.5] */
-        for (j = 0; j < n; j++)
+        for (i = 0; i < n; i++)
         {
-            V [j] = rand_norm*rand() - 0.5 ;
+            if ( x [i] == 2 ) z [i] = VSHALF ;
+            else              z [i] = (VSFLOAT) x [i] ;
         }
-        /* replace starting vector by it projection */
-        vs_project (V, a, aa, vw_is_one, n) ;
-        t = vs_norm (V, n) ;
-        t = VSONE/t ;
-        /* normalize the starting vector */
-        vs_scale (V, t, n) ;
-        vnew = V+n ;
-        /* vprior = projection random starting guess on orth complement (V) */
-        vprior = V ;
-        /* Lanczos startup process: vnew = LA*vprior */
-        vs_Amult (vnew, vprior, Ap, Ai, Ax, n) ;
-        vs_project (vnew, a, aa, vw_is_one, n) ; /* vnew = LAL * vprior */
-        d [0] = vs_dot (vnew, vprior, n) ;
-        vs_daxpy (vnew, vprior, -d [0], n) ;
-        u [0] = vs_norm (vnew, n) ;
-        /* evaluate second Lanczos vector if termination not reached */
-        if ( fabs(u [0]) > Lanczos_tol )
-        {
-            /* normalize vnew to be a unit vector */
-            t = VSONE/u [0] ;
-            vs_scale (vnew, t, n) ;
-            nO = 1 ;
-            while ( 1 )
-            {
-                vpprior = vprior ;
-                vprior = vnew ;
-                vnew = vnew+n ;
-                /* vnew = LAL * vprior where L*vprior = vprior
-                   initially compute vnew = A*vprior */
-                vs_Amult (vnew, vprior, Ap, Ai, Ax, n) ;
-                /* now project vnew to obtain vnew = L*A*vprior */
-                vs_project (vnew, a, aa, vw_is_one, n) ;
-                d [nO] = vs_dot (vnew, vprior, n) ;
-                nO++ ;
-                if ( nO >= nOmax ) break ;
-                vs_daxpy (vnew, vpprior, -u [nO-2], n) ;
-                vs_daxpy (vnew, vprior, -d [nO-1], n) ;
-                s = u [nO-1] = vs_norm (vnew, n) ;
-                if ( s <= Lanczos_tol ) break ;
-                s = VSONE/s ;
-                vs_scale (vnew, s, n) ;
-            }
-        }
-#if 0
-printf ("n = %i ;\n", n) ;
-printf ("nO = %i ;\n", nO) ;
-vs_printxMATLAB (V, n*nO, "V") ;
-printf ("V = reshape (V, n, nO) ;\n") ;
-vs_printxMATLAB (d, nO, "d") ;
-vs_printxMATLAB (u, nO-1, "u") ;
-printf ("u(nO) = 0 ;\n") ;
-printf ("T = V'*LAL*V ;\n") ;
-printf ("A2 = zeros(nO, nO) ;\n") ;
-printf ("A2(1,1) = d(1) ;\n") ;
-printf ("for i = 2:nO\n") ;
-printf ("    A2(i,i) = d(i) ;\n") ;
-printf ("    A2(i-1,i) = u(i-1) ;\n") ;
-printf ("    A2(i,i-1) = u(i-1) ;\n") ;
-printf ("end\n") ;
-printf ("norm (A2 - T, inf)\n") ;
-#endif
-
-        /* diagonalize the tridiagonal matrix using Givens rotations */
-        vs_diag (d, u, nO, &Com) ;
-
-        /* find the smallest eigenvalue */
-        t = d [0] ;
-        i = 0 ;
-        for (j = 1; j < nO; j++)
-        {
-            if ( d [j] < t )
-            {
-                t = d [j] ;
-                i = j ;
-            }
-        }
-/*printf ("eval = %25.15e index = %i\n", t, i) ;*/
-        /* t = smallest eigenvalue of L'AL and i = index in d,
-           evaluate corresponding eigenvector of L'AL */
-        vs_initx (b, VSZERO, nO) ;
-        b [i] = VSONE ;
-        vs_tGivensMult (b, G, Com.npass, Com.nscale, nO) ;
-        vs_DenseMult (z, b, V, n, nO) ;
-        vs_free (V) ;
-        /* (n, nO) = number of (rows, cols) in orthogonal matrix V
-           z  = V*b = eigenvector estimate */
     }
-
-    /* compute square of length of z (eigenvector) */
-    s = vs_dot (z, z, n) ;
-    /* r_e = sqrt(RE_SCALAR*n), s = r_e/||z||  */
-    s = sqrt(RE_SCALAR*n/s) ;
-    /* multiply z by s to obtain a vector whose length is r_e */
-    vs_scale (z, s, n) ;
-    /* translate z by the centroid c = 1/2 of the box constraint */
-    vs_translate (z, VSHALF, n) ;
-    /* Perform ngp gradient projection steps where the gradient is normalized
-       to have length r_n = sqrt(n)/4. The projection is computed using napheap.
-       Here is the setup for napheap. Our version of napheap sets the lower
-       and upper bounds to 0 and 1, so these parameters are constants, not
-       variables.  */
+    /* Perform ngp gradient projection steps where the gradient is
+       normalized to have length r_n = sqrt(n)/4. The projection is
+       computed using napheap.  Here is the setup for napheap.
+       Our version of napheap sets the lower and upper bounds to 0 and 1,
+       so these parameters are constants, not variables.  */
     NAPdata *napdata ;
-    VSFLOAT *X ;
+    VSFLOAT sqrtn, inv_n, *X ;
+    sqrtn = 1.25*sqrt((VSFLOAT) n) ;
+    inv_n = VSONE/n ;
     napdata = napheap_setup () ;
     napdata->c = z ; /* z is projected onto feasible set for (GB) */
     napdata->n = n ;
@@ -551,6 +578,10 @@ printf ("norm (A2 - T, inf)\n") ;
     A12 = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
     if ( status ) return (status) ;
     vs_A1mult (A12, Ap, Ax, n, E_is_one) ;
+    /* project starting point z on feasible set for the bisection problem */
+    status = napheap (napdata) ;
+    /* move projection from X back to z */
+    vs_copyx (z, X, n) ;
 
     /* perform ngp gradient projection steps */
     for (i = 0; i < ngp; i++)
@@ -559,13 +590,36 @@ printf ("norm (A2 - T, inf)\n") ;
         vs_Amult (b, z, Ap, Ai, Ax, n) ;
         /* compute b += A12 ; */
         vs_vecadd (b, A12, n) ;
-        /* compute square of length of b */
-        s = vs_dot (b, b, n) ;
-        s = sqrt(0.125*m/s) ; /* (n/16)/(b'*b) */
+        /* determine scaling factor for the gradient */
+        /* if ( i == 0 )*/
+        {
+            /* compute square of length of b */
+            s = vs_dot (b, b, n) ;
+            s = sqrt(0.125*m/s) ; /* sqrt((n/16)/(b'*b)) */
+        }
+#if 0
+        /* Decreasing the step size based on the distance to the surface of
+           the sphere with center c and radius sqrt(n)/2 did not work as
+           well. The larger fixed stepsize given above was better. */
+        else /* i > 0 */
+        {
+             /* use 1.25*(sqrt(n)/2 - ||z-c||) since ||z-c|| approx
+                         (sqrt(n)/2 at optimality */
+             t = 0 ;
+             for (i = 0; i < n; i++)
+             {
+                 s = z [i] - VSHALF ;
+                 t += s*s ;
+             }
+             t = sqrtn*(0.5 - sqrt(inv_n*t)) ; /* desired length of grad vec */
+             s = vs_dot (b, b, n) ;
+             s *= t*sqrt(VSONE/s) ;
+        }
+#endif
         /* multiply b by -s to obtain a vector along negative gradient
-           whose length is r_n */
+           whose length is sqrt(n)/4 */
         vs_scale (b, -s, n) ;
-        /* perform gradient step on z += b */
+        /* add the negative gradient vector to the current iterate */
         vs_vecadd (z, b, n) ;
         /*for (i = 0; i < n; i++)
         {
@@ -576,13 +630,14 @@ printf ("norm (A2 - T, inf)\n") ;
         /* project z onto feasible set for (GB) */
         status = napheap (napdata) ;
 
-        /* err = napheap_check (&r, &s, &t, napdata) ;
+        /* VSFLOAT err ;
+        err = napheap_check (&r, &s, &t, napdata) ;
         printf ("err: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
         if ( err > 1.e-6 )
         {
             printf ("NAPHEAP error: %e\n", err) ;
             exit(1) ;
-        }*/
+        } */
 
         /* move projection from X back to z */
         vs_copyx (z, X, n) ;
@@ -634,10 +689,9 @@ printf ("norm (A2 - T, inf)\n") ;
         }
     }
     cutedge /= 2 ;
-    // printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
+    printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
     
     vs_separator (x, Ei, Ep, n, vw, 0, NULL, NULL, NULL, NULL, NULL) ;
-    // vs_separator_approx (x, Ei, Ep, n, vw, 0, NULL, NULL, NULL, NULL, NULL) ;
 
     n0 = n1 = ns = 0 ;
     for (j = 0; j < n; j++)
@@ -658,29 +712,18 @@ printf ("norm (A2 - T, inf)\n") ;
             else             ns += vw [j] ;
         }
     }
-    // printf ("n0: %i n1: %i ns: %i\n", n0, n1, ns) ;
+    printf ("n0: %i n1: %i ns: %i\n", n0, n1, ns) ;
 
     /* project z onto constraints of the graph partitioning problem (GB) */
 
     if ( a != NULL ) vs_free (a) ;
     if ( Ax != NULL ) vs_free (Ax) ;
-    vs_free (d) ;
-    vs_free (u) ;
+    vs_free (b) ;
     vs_free (z) ;
-    vs_free (A) ;
     vs_free (X) ;
+    vs_free (Ai) ;
     vs_free (Ap) ;
     vs_free (A12) ;
-    vs_free (Com.wx) ;
-    vs_free (Com.wi) ;
-    vs_free (G->gs) ;
-    vs_free (G->gi) ;
-    vs_free (G->gj) ;
-    vs_free (G->gk) ;
-    vs_free (G->gf) ;
-    vs_free (G->gx) ;
-    vs_free (G->gy) ;
-    vs_free (G->gz) ;
     return (status) ;
 }
 
@@ -953,9 +996,8 @@ int vs_sort_cols
 )
 {
     VSINT i, j ;
-    VSLINT nz, p, *Bp ;
-    // Bp = malloc (nz*sizeof (VSLINT)) ; // BUG: should be n, not nz
-    Bp = malloc ( (n+1)*sizeof (VSLINT)) ; 
+    VSLINT p, *Bp ;
+    Bp = malloc ((n+1)*sizeof (VSLINT)) ;
     if ( Bp == NULL ) return (1) ;
     int const AxExists = (Bx != NULL) ? 1 : 0 ;
     for (j = 0; j < n; j++) Bp [j] = Ap [j] ;
@@ -1310,17 +1352,16 @@ void vs_vecadd
       |                           2                                    |
       |               subject to a'x = m, 0 <= x <= 1                  |
       |                                                                |
-      |    n = number of vertices in an undirected graph,              |
-      |    m = n/2, elements of "a" vector are positive and sum to n.  |
-      |    A = D + E, E is the edge weighted adjacency matrix for graph|
-      |    (the diagonal of E is zero), and D is a diagonal matrix with|
-      |    d_{jj} the maximum element of E in column j. It is assumed  |
-      |    that A has no columns of zero. Given a feasible point x, the|
-      |    code outputs a new feasible point x* with f(x*) <= f(x), and|
-      |    with x [i] = 0 or 1 for n-1 distinct i in [0, n). The final |
-      |    value of i should satisfy 0 <= x [i] <= 1, however, both    | 
-      |    inequalities are potentially strict.                        |
-      |                                                                |
+      |    n = number of vertices in an undirected graph, a > 0,       |
+      |    m = (sum a_i)/2, A = D + E where where E is the edge        |
+      |    weighted adjacency matrix for graph (diagonal of E is zero),|
+      |    and D is a diagonal matrix with d_{jj} the maximum element  |
+      |    of E in column j. It is assumed that A has no zero columns. |
+      |    Given a feasible point x, the code outputs a new feasible   |
+      |    point x* with f(x*) <= f(x), and with x [i] = 0 or 1        |
+      |    for n-1 distinct i in [0, n). The final value of i should   |
+      |    satisfy 0 <= x [i] <= 1, however, both inequalities are     | 
+      |    potentially strict.                                         |              |                                                                |
       |    Algorithm:                                                  |
       |                                                                |
       |    Search for two components of x with                         |
