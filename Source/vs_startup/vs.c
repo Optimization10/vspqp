@@ -1516,7 +1516,7 @@ void vs_boundary /* return original cost and its improvement */
                     x [j] += pj ;
                     if ( x [j] <= VSZERO )
                     {
-                        printf ("x [%i]: %e violates lower bound\n", j, x [j]) ;
+                        // printf ("x [%i]: %e violates lower bound\n", j, x [j]) ;
                         two_hit = VSTRUE ;
                         x [j] = VSZERO ;
                     }
@@ -1531,7 +1531,7 @@ void vs_boundary /* return original cost and its improvement */
                     x [i] += pi ;
                     if ( x [i] >= VSONE )
                     {
-                        printf ("x [%i]: %e violates upper bound\n", i, x [i]) ;
+                        // printf ("x [%i]: %e violates upper bound\n", i, x [i]) ;
                         two_hit = VSTRUE ;
                         x [i] = VSONE ;
                     }
@@ -1549,7 +1549,7 @@ void vs_boundary /* return original cost and its improvement */
                     x [j] += pj ;
                     if ( x [j] >= VSONE )
                     {
-                        printf ("x [%i]: %e violates upper bound\n", j, x [j]) ;
+                        // printf ("x [%i]: %e violates upper bound\n", j, x [j]) ;
                         two_hit = VSTRUE ;
                         x [j] = VSONE ;
                     }
@@ -1563,7 +1563,7 @@ void vs_boundary /* return original cost and its improvement */
                     x [i] += pi ;
                     if ( x [i] <= VSZERO )
                     {
-                    printf ("x [%i]: %e violates lower bound\n", i, x [i]) ;
+                    // printf ("x [%i]: %e violates lower bound\n", i, x [i]) ;
                         two_hit = VSTRUE ;
                         x [i] = VSZERO ;
                     }
@@ -1584,7 +1584,7 @@ void vs_boundary /* return original cost and its improvement */
                 x [j] += pj ;
                 if ( x [j] >= VSONE )
                 {
-                    printf ("x [%i]: %e violates upper bound\n", j, x [j]) ;
+                    // printf ("x [%i]: %e violates upper bound\n", j, x [j]) ;
                     two_hit = VSTRUE ;
                     x [j] = VSONE ;
                 }
@@ -1598,7 +1598,7 @@ void vs_boundary /* return original cost and its improvement */
                 x [i] += pi ;
                 if ( x [i] <= VSZERO )
                 {
-                    printf ("x [%i]: %e violates lower bound\n", i, x [i]) ;
+                    // printf ("x [%i]: %e violates lower bound\n", i, x [i]) ;
                     two_hit = VSTRUE ;
                     x [i] = VSZERO ;
                 }
@@ -1618,7 +1618,7 @@ void vs_boundary /* return original cost and its improvement */
                 x [j] += pj ;
                 if ( x [j] <= VSZERO )
                 {
-                    printf ("x [%i]: %e violates lower bound\n", j, x [j]) ;
+                    // printf ("x [%i]: %e violates lower bound\n", j, x [j]) ;
                     two_hit = VSTRUE ;
                     x [j] = VSZERO ;
                 }
@@ -1632,7 +1632,7 @@ void vs_boundary /* return original cost and its improvement */
                 x [i] += pi ;
                 if ( x [i] >= VSONE )
                 {
-                    printf ("x [%i]: %e violates upper bound\n", i, x [i]) ;
+                    // printf ("x [%i]: %e violates upper bound\n", i, x [i]) ;
                     two_hit = VSTRUE ;
                     x [i] = VSONE ;
                 }

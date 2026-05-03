@@ -3,6 +3,8 @@
 #include "utils.h"
 #include "greedy_flips.h"
 #include "FM.h"
+#include "VS.h"
+#include "mc.h"
 
 // Run a strategy on a cloned point. If it beats the original, swap.
 // Returns true if the clone was better.
@@ -89,4 +91,51 @@ void strategy_random_restart
     Optimize(X, Y, problem, options);
     Round_Down_Fractions(X, Y, problem);
     options->initial_guess = tmp ;
+}
+
+
+void strategy_explore_bisection
+(
+    State *X, State *Y, Problem *problem, Options *options
+)
+{
+    // Convert the current separator to an x array for vs()
+    VSPINT   i ;
+    VSPINT  *x  = X->point->int_part ;
+    VSPINT  *y  = Y->point->int_part ;
+    VSPINT   n  = problem->graph->n ;
+    VSPINT   m  = (problem->graph->total_vtx_cost) / 2 ;
+    VSPINT  *c  = problem->graph->c ;
+    VSPINT  *Ai = problem->graph->Ai ;
+    VSPINT  *Ae = problem->graph->Ae ;
+    VSPLONG *Ap = problem->graph->Ap ;
+    VSPINT   idx_frac_x = X->point->ind_frac ;
+    VSPINT   idx_frac_y = Y->point->ind_frac ;
+    VSPFLOAT gamma      = problem->graph->max_vtx_cost ;
+
+    int *part = malloc(n * sizeof(*part)) ;
+
+    for(i = 0 ; i < n ; i++)
+    {
+        if     (x[i]) part[i] = 0 ;
+        else if(y[i]) part[i] = 1 ;
+        else          part[i] = 2 ;
+    }
+
+    if(idx_frac_x != EMPTY) part[idx_frac_x] = 0 ;
+    if(idx_frac_y != EMPTY) part[idx_frac_y] = 1 ;
+
+    // Call vs
+    VSparm ParmStruc, *Parm ;
+    Parm = &ParmStruc ;
+    vs_default (Parm) ;
+    Parm->ngp = 10 ;
+    vs(part, Ai, Ap, Ae, c, n, m,Parm) ;
+
+    // Convert vs point to states
+    Part_To_States(part, X, Y, problem) ;
+    free(part) ;
+
+    // Do mc
+    mountain_climbing(X, Y,problem, options, gamma, true) ;
 }

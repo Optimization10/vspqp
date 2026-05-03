@@ -43,6 +43,14 @@ void Best_Of_MC_And_Greedy_Flips
 ) ;
 
 
+void Part_To_States
+(
+    int        *part,
+    State      *X,
+    State      *Y,
+    Problem    *problem
+) ;
+
 typedef void (*Strategy)(State*, State*, Problem*, Options*) ;
 
 bool Try_And_Keep_If_Better
@@ -60,6 +68,11 @@ void strategy_bisection_restart
     State *X, State *Y, Problem *problem, Options *options
 ) ;
 void strategy_random_restart
+(
+    State *X, State *Y, Problem *problem, Options *options
+) ;
+
+void strategy_explore_bisection
 (
     State *X, State *Y, Problem *problem, Options *options
 ) ;

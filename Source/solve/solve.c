@@ -316,7 +316,14 @@ void Solve_Level
 #endif
 
     TIMER_START(T_TOTAL) ;
+    
     Optimize(X, Y, problem, options) ;
+    // if(problem->level == 0)
+    if( 0 )
+    {
+        Try_And_Keep_If_Better(X, Y, problem, strategy_explore_bisection, options, NULL) ;
+    }
+
     TIMER_STOP(T_TOTAL) ;
     Timer_Flush(problem->level) ;
 }

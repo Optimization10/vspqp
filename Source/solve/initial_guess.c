@@ -251,35 +251,23 @@ static void set_centroid
     return ;
 }
 
-static void set_bisection_initial_guess
+
+void Part_To_States
 (
-    State         *X,
-    State         *Y,
-    Problem *problem,
-    Options *options
+    int        *part,
+    State      *X,
+    State      *Y,
+    Problem    *problem
 )
 {
-    SET_FUNCTION_COUNTER ;
-
     VSPINT   i ;
-    VSPINT   u    = problem->u ;
-    VSPINT   n    = problem->graph->n ;
-    VSPINT  *c    = problem->graph->c ;
-    VSPINT  *Ai   = problem->graph->Ai ;
-    VSPINT  *Ae   = problem->graph->Ae ;
-    VSPINT  *part = malloc(n * sizeof(*part)) ;
-    VSPINT  *x    = X->point->int_part ;
-    VSPINT  *y    = Y->point->int_part ;
-    VSPLONG *Ap   = problem->graph->Ap ;
-
-    // Set parameters for the bisection
-    VSparm ParmStruc, *Parm ;
-    Parm = &ParmStruc ;
-    vs_default (Parm) ;
-
-    // Get partition
-    VSPINT m = (problem->graph->total_vtx_cost) / 2 ;
-    vs(part, Ai, Ap, Ae, c, n, m,Parm) ;
+    VSPINT  *x  = X->point->int_part ;
+    VSPINT  *y  = Y->point->int_part ;
+    VSPINT   n  = problem->graph->n ;
+    VSPINT  *c  = problem->graph->c ;
+    VSPINT   u  = problem->u ;
+    VSPINT  *Ai = problem->graph->Ai ;
+    VSPLONG *Ap = problem->graph->Ap ;
 
     // ====================================================================== //
     // Populate states according to partition
@@ -330,6 +318,41 @@ static void set_bisection_initial_guess
 #ifdef DEBUG
     check_states(X, Y, problem) ;
 #endif
+
+}
+
+static void set_bisection_initial_guess
+(
+    State         *X,
+    State         *Y,
+    Problem *problem,
+    Options *options
+)
+{
+    SET_FUNCTION_COUNTER ;
+
+    VSPINT   i ;
+    VSPINT   u    = problem->u ;
+    VSPINT   n    = problem->graph->n ;
+    VSPINT  *c    = problem->graph->c ;
+    VSPINT  *Ai   = problem->graph->Ai ;
+    VSPINT  *Ae   = problem->graph->Ae ;
+    VSPINT  *part = malloc(n * sizeof(*part)) ;
+    VSPINT  *x    = X->point->int_part ;
+    VSPINT  *y    = Y->point->int_part ;
+    VSPLONG *Ap   = problem->graph->Ap ;
+
+    // Set parameters for the bisection
+    VSparm ParmStruc, *Parm ;
+    Parm = &ParmStruc ;
+    vs_default (Parm) ;
+
+    // Get partition
+    VSPINT m = (problem->graph->total_vtx_cost) / 2 ;
+    vs(part, Ai, Ap, Ae, c, n, m,Parm) ;
+
+    // Convert partition to states
+    Part_To_States(part, X, Y, problem) ;
 
     // Cleanup
     free(part) ;
