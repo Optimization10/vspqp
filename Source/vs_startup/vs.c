@@ -689,7 +689,7 @@ int vs
         }
     }
     cutedge /= 2 ;
-    printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
+    // printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
     
     vs_separator (x, Ei, Ep, n, vw, 0, NULL, NULL, NULL, NULL, NULL) ;
 
@@ -712,7 +712,7 @@ int vs
             else             ns += vw [j] ;
         }
     }
-    printf ("n0: %i n1: %i ns: %i\n", n0, n1, ns) ;
+    // printf ("n0: %i n1: %i ns: %i\n", n0, n1, ns) ;
 
     /* project z onto constraints of the graph partitioning problem (GB) */
 
