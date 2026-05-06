@@ -106,10 +106,6 @@ int vs
     PrintLevel = Parm->PrintLevel ;
     if ( (PrintLevel > 0) && Parm->PrintParms ) vs_print_parms (Parm) ;
 
-    b = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
-    Com.wx = b ;
-    Com.wi = (VSINT *)   vs_malloc (&status, n, sizeof (VSINT)) ;
-
     int const vw_is_one = (vw  == NULL) ? VSTRUE : VSFALSE ;
     int const E_is_one = (Ex == NULL) ? VSTRUE : VSFALSE ;
 
@@ -261,9 +257,17 @@ int vs
         VSINT LO, nO, nOmax, nQR, nRot, SmallMatrix ;
         VSFLOAT ab, ba, Lanczos_tol,
                *A, *AP, *d, *u, *V, *vnew, *vprior, *vpprior ;
+        
+        // Ovi: move here
+        b = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
+        Com.wx = b ;
+
         VSgivens Gstruc ;
         VSgivens *G = &Gstruc ;
         Com.G = G ;
+
+        // Ovi: move here
+        Com.wi = (VSINT *)   vs_malloc (&status, n, sizeof (VSINT)) ;
 
         /* qr_its times matrix dimension = max # QR iter */
         qr_its = Parm->qr_its ;
