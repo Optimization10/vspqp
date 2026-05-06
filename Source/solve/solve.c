@@ -318,8 +318,8 @@ void Solve_Level
     TIMER_START(T_TOTAL) ;
     
     Optimize(X, Y, problem, options) ;
-    // if(problem->level == 0)
-    if( 0 )
+    if(problem->level == 0)
+    // if( 1 )
     {
         Try_And_Keep_If_Better(X, Y, problem, strategy_explore_bisection, options, NULL) ;
     }

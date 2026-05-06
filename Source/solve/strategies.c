@@ -130,6 +130,7 @@ void strategy_explore_bisection
     Parm = &ParmStruc ;
     vs_default (Parm) ;
     Parm->ngp = 10 ;
+    Parm->compute_eig = FALSE ;
     vs(part, Ai, Ap, Ae, c, n, m,Parm) ;
 
     // Convert vs point to states
