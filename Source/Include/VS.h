@@ -279,6 +279,9 @@ typedef struct VSparm      /* parameters */
     VSFLOAT   qr_tol_abs ; /* stop QR when |u_{k-1}| <= qr_abs_tol */
     VSFLOAT     qr_lower ; /* controls rescaling */
     int              ngp ; /* number of gradient projection iterations */
+    int  initial_project ; /* TRUE: project z onto feasible set for bisection
+                              before the gradient projection loop;
+                              FALSE: skip the initial projection */
 } VSparm ;
 
 typedef struct VSgivens    /* Givens rotations in diagonalization */

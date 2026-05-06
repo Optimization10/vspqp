@@ -574,14 +574,19 @@ int vs
     napdata->x = X = (VSFLOAT *) vs_malloc (&status,  n, sizeof (VSFLOAT)) ;
     if ( status ) return (status) ;
     int const ngp = Parm->ngp ;
+
     /* evaluate the linear term = A*(1/2) in the objective of (GB). */
+    // Ovi: make this initial projection optional
     A12 = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
     if ( status ) return (status) ;
     vs_A1mult (A12, Ap, Ax, n, E_is_one) ;
-    /* project starting point z on feasible set for the bisection problem */
-    status = napheap (napdata) ;
-    /* move projection from X back to z */
-    vs_copyx (z, X, n) ;
+    /* optionally project starting point z on feasible set for bisection */
+    if ( Parm->initial_project )
+    {
+        status = napheap (napdata) ;
+        /* move projection from X back to z */
+        vs_copyx (z, X, n) ;
+    }
 
     /* perform ngp gradient projection steps */
     for (i = 0; i < ngp; i++)

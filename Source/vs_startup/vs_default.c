@@ -51,4 +51,6 @@ void vs_default
 
     /* number of gradient projection steps */
     Parm->ngp = 3 ;
+
+    Parm->initial_project = VSFALSE ;
 }

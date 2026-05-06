@@ -64,6 +64,9 @@ void vs_print_parms
              vs_print_TF (Parm->PrintParms) ;
     printf ("PrintStatus .............................................: ") ;
              vs_print_TF (Parm->PrintStatus) ;
+    printf ("initial_project: %s\n",
+            Parm->initial_project ? "TRUE (project before GP loop)"
+                                : "FALSE (skip initial projection)") ;
 }
 
 void vs_print_TF 
