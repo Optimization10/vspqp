@@ -6,7 +6,7 @@ export VSPATH
 
 include $(VSPATH)/Config/internal.mk
 
-.PHONY: lib example run_example valgrind clean
+.PHONY: lib example run_example valgrind clean callgrind
 
 default: lib
 
@@ -46,13 +46,29 @@ valgrind: example
   --suppressions=$(VSPATH)/Config/mkl.supp \
 	./Demo/example > output/valgrind.txt 2>&1
 
+callgrind: example
+	@mkdir -p $(VSPATH)/output/callgrind
+	@echo ""
+	@echo "Running callgrind with cache simulation..."
+	@valgrind \
+		--tool=callgrind \
+		--cache-sim=yes \
+		--callgrind-out-file=$(VSPATH)/output/callgrind/callgrind.out \
+		./Demo/example
+	@callgrind_annotate --threshold=99 \
+		$(VSPATH)/output/callgrind/callgrind.out \
+		> $(VSPATH)/output/callgrind/callgrind.txt
+	@echo ""
+	@echo "Output: $(VSPATH)/output/callgrind/callgrind.txt"
+	@echo "        $(VSPATH)/output/callgrind/callgrind.out (open with kcachegrind)"
+
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -f $(LIB_VSPQP)
 	rm -f $(VSPATH)/Demo/example
 	rm -f $(VSPATH)/Demo/example.d
 	rm -f $(VSPQP_CONFIG_H)
-	rm -f output/*
+	rm -rf output/*
 
 
 # =============================================================================
