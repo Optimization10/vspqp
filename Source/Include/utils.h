@@ -562,4 +562,6 @@ VSPINT Get_Rand_Array_Entry
     VSPINT    n  // size of arr
 ) ;
 
+VSPINT Get_u_Finest(Problem *P) ;
+
 #endif

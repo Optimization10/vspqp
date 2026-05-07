@@ -328,7 +328,7 @@ void Solve_Level
     Timer_Flush(problem->level) ;
 }
 
-
+// Assumed: coarse X and Y have no fractional entries
 void Uncoarsen_Point_NoSep
 (
     Problem    *fine_graph,
@@ -382,6 +382,7 @@ solve_result *VSP_Solve
     SET_FUNCTION_COUNTER ;
     G_Current_Problem_Name = name ;
 
+    bool have_global_optimum = false ;
     Problem *probFinest, *probCoarsest, *P ;
 
     probFinest = Construct_Problem(n, Ap[n], Ai, Ap, false, options) ;
@@ -423,6 +424,8 @@ solve_result *VSP_Solve
 
     if(sol_sings != NULL)
     {
+        have_global_optimum = true ;
+
         // Singleton short-circuit: the coarse vertices listed in sol_sings
         // (and their finest-level preimages) go in shore X, everything else
         // in shore Y, with no separator. Since c is preserved through
@@ -450,7 +453,11 @@ solve_result *VSP_Solve
     else
     {
         set_initial_guess(X_lp1, Y_lp1, P, options) ;
-        Solve_Level(X_lp1, Y_lp1, P, options) ;
+        have_global_optimum =
+                (X_lp1->weight + Y_lp1->weight == P->graph->total_vtx_cost) ;
+
+        // Solve coarsest level if initial solution is not globally optimal
+        if(!have_global_optimum) Solve_Level(X_lp1, Y_lp1, P, options) ;
     }
 
     // Invariant: X_l, Y_l holds the solution at level l.
@@ -462,7 +469,7 @@ solve_result *VSP_Solve
         X_l = Construct_State(P->graph->n) ;
         Y_l = Construct_State(P->graph->n) ;
 
-        if(sol_sings != NULL)
+        if(have_global_optimum)
         {
             Uncoarsen_Point_NoSep(P, X_l, Y_l, X_lp1, Y_lp1) ;
         }

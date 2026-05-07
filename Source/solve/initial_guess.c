@@ -251,7 +251,9 @@ static void set_centroid
     return ;
 }
 
-
+// If separator from part array is empty, and the shores are feasible
+// at the finest level, then only the int parts of X and Y
+// are set. Ax and Ay are not set
 void Part_To_States
 (
     int        *part,
@@ -261,6 +263,9 @@ void Part_To_States
 )
 {
     VSPINT   i ;
+    VSPINT   side ;
+    VSPINT   u_finest ;
+    VSPINT   wgts_part[3] = {0, 0, 0} ;
     VSPINT  *x  = X->point->int_part ;
     VSPINT  *y  = Y->point->int_part ;
     VSPINT   n  = problem->graph->n ;
@@ -277,7 +282,10 @@ void Part_To_States
     Y->weight = 0 ;
     for(i = 0 ; i < n ; i++)
     {
-        if(part[i] == 0)
+        side = part[i] ;
+        wgts_part[side] += c[i] ;
+
+        if(side == 0)
         {
             y[i] = 0 ;
             if(X->weight + c[i] <= u)
@@ -287,7 +295,7 @@ void Part_To_States
             }
             else x[i] = 0 ;
         }
-        else if(part[i] == 1)
+        else if(side == 1)
         {
             x[i] = 0 ;
             if(Y->weight + c[i] <= u)
@@ -299,7 +307,7 @@ void Part_To_States
         }
         else
         {
-            VSP_ASSERT(part[i] == 2) ; 
+            VSP_ASSERT(side == 2) ; 
             x[i] = 0 ;
             y[i] = 0 ;
         }
@@ -311,9 +319,26 @@ void Part_To_States
     X->point->val_frac = 0 ;
     Y->point->val_frac = 0 ;
 
-    // Set Ax and Ay
-    Compute_Az(X->point, X->Az, Ai, Ap, n) ;
-    Compute_Az(Y->point, Y->Az, Ai, Ap, n) ;
+    u_finest = Get_u_Finest(problem) ;
+    if(wgts_part[2] == 0 && wgts_part[0] <= u_finest && wgts_part[1]<=u_finest)
+    {
+        for(i = 0 ; i < n ; i++)
+        {
+            x[i] = 0 ;
+            y[i] = 0 ;
+            if(part[i] == 0)      x[i] = 1 ;
+            else if(part[i] == 1) y[i] = 1 ;
+        }
+        X->weight = wgts_part[0] ;
+        Y->weight = wgts_part[1] ;
+    }
+    else
+    {
+        // Set Ax and Ay
+        Compute_Az(X->point, X->Az, Ai, Ap, n) ;
+        Compute_Az(Y->point, Y->Az, Ai, Ap, n) ;
+    }
+
 
 #ifdef DEBUG
     check_states(X, Y, problem) ;
@@ -358,7 +383,8 @@ static void set_bisection_initial_guess
     free(part) ;
 }
 
-
+// May return a point that's infeasible for the coarsest level, but
+// has zero sep and is feasible for the finest level
 void set_initial_guess
 (
     State         *X,
@@ -386,6 +412,4 @@ void set_initial_guess
         VSPFLOAT obj = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
         (void) obj ;
     #endif
-
-    return ;
 }
