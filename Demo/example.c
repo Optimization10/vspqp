@@ -442,11 +442,13 @@ int main(int argc, char** argv)
 
     // Custom options
     // options->sort_cols     = true ;
+    options->attempt_second_start = FALSE ;
     options->u_ratio_coarsest  = 0.45 ;
     // options->u_ratio_coarsest  = 0.42 ;
     options->initial_guess = bisection_initial_guess ;
     // options->ub_based_on_bisection = true ;
-    options->initial_project = TRUE ;
+    options->initial_project = FALSE ;
+    // options->initial_project = TRUE ;
 
     Print_Options(options, "output/opts.txt") ;
     /*** I/O ******************************************************************/

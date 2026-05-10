@@ -2,8 +2,11 @@
 #define COARSENING_API_H
 #include "core.h"
 
-#define LINEAR    0
-#define QUADRATIC 1
+typedef enum
+{
+    LINEAR,
+    QUADRATIC
+} Interpolation ;
 
 void Graph_Simple_Match
 (
@@ -32,9 +35,9 @@ Problem *Problem_Recursive_Coarsen
 
 void Set_Upper_Bound
 (
-    Problem *problem,
-    Options *opts,
-    int      interpolation
+    Problem      *problem,
+    Options      *opts,
+    Interpolation interpolation
 ) ;
 
 #endif

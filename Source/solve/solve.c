@@ -460,12 +460,6 @@ solve_result *VSP_Solve
         have_global_optimum =
                 (X_lp1->weight + Y_lp1->weight == P->graph->total_vtx_cost) ;
 
-        if(have_global_optimum)
-        {
-            printf("empty-sep-vs\n") ;
-            fflush(stdout) ;
-        }
-
         // Solve coarsest level if initial solution is not globally optimal
         if(!have_global_optimum) Solve_Level(X_lp1, Y_lp1, P, options) ;
     }

@@ -514,9 +514,9 @@ static Problem *Problem_Coarsen
 
 void Set_Upper_Bound
 (
-    Problem *problem,
-    Options *opts,
-    int      interpolation
+    Problem      *problem,
+    Options      *opts,
+    Interpolation interpolation
 )
 {
     // Return early if we're not modifying u, or if there are no coarse levels
@@ -536,26 +536,28 @@ void Set_Upper_Bound
     VSPFLOAT ratio_0 = (VSPFLOAT) (problem->ubFinest) / cost_graph ;
     VSPFLOAT ratio_L = opts->u_ratio_coarsest ;
 
-    if(interpolation == LINEAR)
+    // Compute ratio_l
+    switch(interpolation)
     {
-        // Linear Version
-        gap        = ratio_L - 0.6 ;
-        ratio_l    = 0.6 + l * (gap / L) ;
-        problem->u = (VSPINT) floor(ratio_l * cost_graph) ;
+        case LINEAR:
+            gap        = ratio_L - 0.6 ;
+            ratio_l    = 0.6 + l * (gap / L) ;
+            break ;
+
+        case QUADRATIC:
+            a          = (0.6 - ratio_L) / (L * L) ;
+            ratio_l    = a * (l - L) * (l - L) + ratio_L ;
+            // printf("ub: %f\n", ratio_l) ;
+            break ;
+
+        default:
+            printf("Interpolation not supported\n") ;
+            problem->u = problem->ubFinest ;
+            return ;
     }
-    else if(interpolation == QUADRATIC)
-    {
-        // Quadratic version
-        a          = (0.6 - ratio_L) / (L * L) ;
-        ratio_l    = a * (l - L) * (l - L) + ratio_L ;
-        problem->u = (VSPINT) floor( ratio_l  * cost_graph ) ;
-        // printf("ub: %f\n", ratio_l) ;
-    }
-    else
-    {
-        printf("Interpolation not supported\n") ;
-        problem->u = problem->ubFinest ;
-    }
+
+    // Set u based on ratio_l
+    problem->u = (VSPINT) floor(ratio_l * cost_graph) ;
 
     return ;
 }
@@ -795,7 +797,7 @@ Problem *Problem_Recursive_Coarsen
     P = coarsest_P ;
     while(P != NULL)
     {
-       Set_Upper_Bound(P, opts, 0) ;
+       Set_Upper_Bound(P, opts, LINEAR) ;
        P = P->parent_problem ;
     }
 

@@ -333,10 +333,6 @@ void Part_To_States
         }
         X->weight = wgts_part[0] ;
         Y->weight = wgts_part[1] ;
-        if(empty_sep)
-        {
-            printf("inside %s\n", G_Current_Problem_Name) ;
-        }
     }
     else
     {
@@ -402,7 +398,7 @@ static void set_bisection_initial_guess
         options->u_ratio_coarsest = u_ratio_coarsest ;
         while(P != NULL)
         {
-            Set_Upper_Bound(P, options, 1) ;
+            Set_Upper_Bound(P, options, QUADRATIC) ;
             P = P->parent_problem ;
         }
 
