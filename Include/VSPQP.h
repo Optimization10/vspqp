@@ -65,8 +65,8 @@ typedef struct Options_struct
     VSPINT max_num_vert_small_graph ; /* Max number of vertices in  what is
                                          to be considered a "small" graph     */
 
-    bool     relaxUB ;
-    VSPFLOAT ratioUBLimit ;
+    bool     tighten_u ;
+    VSPFLOAT u_ratio_coarsest ;
     bool     ub_based_on_bisection ;
 
     /* FM Options */
@@ -113,7 +113,7 @@ typedef struct Options_struct
     // min level required to trigger second start
     VSPINT   min_level_second_start ;
 
-} Options;
+} Options ;
 
 
 typedef struct {

@@ -475,8 +475,8 @@ void set_default_options(Options *options)
     /*------------------------------------------------------------------------*/
     /* Relax Upper Bound Options                                              */
     /*------------------------------------------------------------------------*/
-    options->relaxUB      = true ;
-    options->ratioUBLimit = 0.5 ;
+    options->tighten_u      = true ;
+    options->u_ratio_coarsest = 0.5 ;
     options->ub_based_on_bisection = false ;
 
     /*------------------------------------------------------------------------*/
@@ -557,8 +557,8 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  max_num_vert_small_graph       = %lld\n", PRI(opts->max_num_vert_small_graph));
 
     /* Miscellaneous */
-    fprintf(f, "  relaxUB                        = %s\n",   opts->relaxUB ? "true" : "false");
-    fprintf(f, "  ratioUBLimit                   = %g\n",   opts->ratioUBLimit);
+    fprintf(f, "  tighten_u                      = %s\n",   opts->tighten_u ? "true" : "false");
+    fprintf(f, "  u_ratio_coarsest               = %g\n",   opts->u_ratio_coarsest);
 
     /* FM Options */
     fprintf(f, "  FM_Limit                       = %lld\n", PRI(opts->FM_Limit));

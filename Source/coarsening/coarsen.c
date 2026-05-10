@@ -512,39 +512,49 @@ static Problem *Problem_Coarsen
 }
 
 
-void SetUpperBound
+void Set_Upper_Bound
 (
     Problem *problem,
     Options *opts,
-    int      quadratic
+    int      interpolation
 )
 {
-    if(opts->relaxUB == false || problem->coarsest_level_num == 0 )
+    // Return early if we're not modifying u, or if there are no coarse levels
+    if(opts->tighten_u == false || problem->coarsest_level_num == 0 )
     {
         problem->u = problem->ubFinest ;
         return ;
     }
 
-    VSPINT currLvl = problem->level ;
-    VSPINT maxLvl  = problem->coarsest_level_num ;
+    VSPINT l          = problem->level ;
+    VSPINT L          = problem->coarsest_level_num ;
+    VSPINT cost_graph = problem->graph->total_vtx_cost ;
 
-    VSPFLOAT ratioUBLimit = opts->ratioUBLimit ;
+    VSPFLOAT gap, a, ratio_l ;
+    
+    // Use ratio_0 instead of 0.6. To be done soon
+    VSPFLOAT ratio_0 = (VSPFLOAT) (problem->ubFinest) / cost_graph ;
+    VSPFLOAT ratio_L = opts->u_ratio_coarsest ;
 
-    if(quadratic)
+    if(interpolation == LINEAR)
+    {
+        // Linear Version
+        gap        = ratio_L - 0.6 ;
+        ratio_l    = 0.6 + l * (gap / L) ;
+        problem->u = (VSPINT) floor(ratio_l * cost_graph) ;
+    }
+    else if(interpolation == QUADRATIC)
     {
         // Quadratic version
-        VSPFLOAT ratioUB_curr ;
-        VSPFLOAT a  = (0.6 - ratioUBLimit) / (maxLvl * maxLvl) ;
-        VSPFLOAT ratioUb_Curr = a * (currLvl - maxLvl) * (currLvl - maxLvl) + ratioUBLimit ;
-        problem->u = (VSPINT) floor( ratioUb_Curr  * problem->graph->total_vtx_cost ) ;
-        // printf("\nub: %f", problem->u / ((VSPFLOAT) problem->graph->total_vtx_cost )) ;
+        a          = (0.6 - ratio_L) / (L * L) ;
+        ratio_l    = a * (l - L) * (l - L) + ratio_L ;
+        problem->u = (VSPINT) floor( ratio_l  * cost_graph ) ;
+        // printf("ub: %f\n", ratio_l) ;
     }
     else
     {
-        // Linear Version
-        VSPFLOAT gap          = ratioUBLimit - 0.6 ;
-        VSPFLOAT ratioUb_Curr = 0.6 + currLvl * (gap / maxLvl) ;
-        problem->u = (VSPINT) floor( ratioUb_Curr  * problem->graph->total_vtx_cost ) ;
+        printf("Interpolation not supported\n") ;
+        problem->u = problem->ubFinest ;
     }
 
     return ;
@@ -785,7 +795,7 @@ Problem *Problem_Recursive_Coarsen
     P = coarsest_P ;
     while(P != NULL)
     {
-       SetUpperBound(P, opts, 0) ;
+       Set_Upper_Bound(P, opts, 0) ;
        P = P->parent_problem ;
     }
 

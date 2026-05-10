@@ -3,6 +3,7 @@
 #include "solve_internal.h"
 #include "mc.h"
 #include "utils.h"
+#include "coarsen.h"
 #include "VS.h"
 
 static void set_manual_initial_guess
@@ -351,13 +352,6 @@ void Part_To_States
 
 }
 
-void SetUpperBound
-(
-    Problem *problem,
-    Options *opts,
-    int quadratic
-) ;
-
 static void set_bisection_initial_guess
 (
     State         *X,
@@ -393,27 +387,27 @@ static void set_bisection_initial_guess
     if(options->ub_based_on_bisection)
     {
         Problem *P = problem ;
-        VSPFLOAT ratioUBLimit ;
-        VSPFLOAT ratioUBLimit_Old ;
+        VSPFLOAT u_ratio_coarsest ;
+        VSPFLOAT u_ratio_coarsest_Old ;
         VSPINT   wgts[3] = {0, 0, 0} ;
 
         // Calculate new upper bound at coarsest level
         for(i = 0 ; i < n ; i++) wgts[ part[i] ] += c[i] ;
-        ratioUBLimit = MAX(wgts[0], wgts[1]) / (VSPFLOAT) (P->graph->total_vtx_cost) ;
-        ratioUBLimit = MAX(ratioUBLimit, options->ratioUBLimit) ;
+        u_ratio_coarsest = MAX(wgts[0], wgts[1]) / (VSPFLOAT) (P->graph->total_vtx_cost) ;
+        u_ratio_coarsest = MAX(u_ratio_coarsest, options->u_ratio_coarsest) ;
 
-        // printf("Coarsest ub: %f\n", ratioUBLimit) ;
+        // printf("Coarsest ub: %f\n", u_ratio_coarsest) ;
 
-        ratioUBLimit_Old = options->ratioUBLimit ;
-        options->ratioUBLimit = ratioUBLimit ;
+        u_ratio_coarsest_Old = options->u_ratio_coarsest ;
+        options->u_ratio_coarsest = u_ratio_coarsest ;
         while(P != NULL)
         {
-            SetUpperBound(P, options, 1) ;
+            Set_Upper_Bound(P, options, 1) ;
             P = P->parent_problem ;
         }
 
         // Restore
-        options->ratioUBLimit = ratioUBLimit_Old ;
+        options->u_ratio_coarsest = u_ratio_coarsest_Old ;
     }
 
     // Convert partition to states
