@@ -12,7 +12,8 @@
 
 #define ABS_DIFF(a, b) ( ((a) > (b)) ? ( (a) - (b) ) : ( (b) - (a) ) )
 #define CAST(arg, type) ( ((type) (arg)) )
-
+#define TRUE  1
+#define FALSE 0
 
 /* The cleanup is done in-place */
 void cleanupGraphName(char *graph_name)
@@ -444,6 +445,8 @@ int main(int argc, char** argv)
     options->ratioUBLimit  = 0.45 ;
     // options->ratioUBLimit  = 0.42 ;
     options->initial_guess = bisection_initial_guess ;
+    // options->ub_based_on_bisection = true ;
+    options->initial_project = TRUE ;
 
     Print_Options(options, "output/opts.txt") ;
     /*** I/O ******************************************************************/

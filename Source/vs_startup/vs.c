@@ -252,22 +252,20 @@ int vs
 
        The next block of code is used to compute the eigenvector-based
        starting guess for the bisection problem. */
+    // Ovi: move here
+    b = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
+    Com.wx = b ;
+    Com.wi = (VSINT *)   vs_malloc (&status, n, sizeof (VSINT)) ;
     if ( Parm->compute_eig )
     {
         VSINT LO, nO, nOmax, nQR, nRot, SmallMatrix ;
         VSFLOAT ab, ba, Lanczos_tol,
                *A, *AP, *d, *u, *V, *vnew, *vprior, *vpprior ;
-        
-        // Ovi: move here
-        b = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
-        Com.wx = b ;
+    
 
         VSgivens Gstruc ;
         VSgivens *G = &Gstruc ;
         Com.G = G ;
-
-        // Ovi: move here
-        Com.wi = (VSINT *)   vs_malloc (&status, n, sizeof (VSINT)) ;
 
         /* qr_its times matrix dimension = max # QR iter */
         qr_its = Parm->qr_its ;

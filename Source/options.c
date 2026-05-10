@@ -477,6 +477,7 @@ void set_default_options(Options *options)
     /*------------------------------------------------------------------------*/
     options->relaxUB      = true ;
     options->ratioUBLimit = 0.5 ;
+    options->ub_based_on_bisection = false ;
 
     /*------------------------------------------------------------------------*/
     /* Starting Guess Options                                                 */
@@ -502,6 +503,12 @@ void set_default_options(Options *options)
     options->sort_cols             = false ;
     options->node_cutoff           = 32 ;
     options->density_cutoff        = 0.4 ;
+
+    options->initial_project       = FALSE ;
+
+    options->attempt_second_start = TRUE ;
+    options->min_imbal_ratio_second_start = 0.07 ;
+    options->min_level_second_start = 4 ;
 
     return ;
 }
@@ -564,6 +571,17 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  sort_cols                      = %i\n",   opts->sort_cols || opts->initial_guess == bisection_initial_guess);
     fprintf(f, "  node_cutoff                    = %i\n",   opts->node_cutoff);
     fprintf(f, "  density_cutoff                 = %f\n",   opts->density_cutoff);
+
+
+    /* vs options */
+    fprintf(f, "  initial_projection             = %s\n",   (opts->initial_project) ? "yes" : "no") ;
+
+    /* Second start options */
+    fprintf(f, "  attempt_second_start           = %s\n",   opts->attempt_second_start ? "true" : "false");
+    fprintf(f, "  min_imbal_ratio_second_start   = %g\n",   opts->min_imbal_ratio_second_start);
+    fprintf(f, "  min_level_second_start         = %lld\n", PRI(opts->min_level_second_start));
+
+
 
     fclose(f);
 }

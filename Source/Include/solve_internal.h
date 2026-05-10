@@ -48,7 +48,8 @@ void Part_To_States
     int        *part,
     State      *X,
     State      *Y,
-    Problem    *problem
+    Problem    *problem,
+    bool        empty_sep
 ) ;
 
 typedef void (*Strategy)(State*, State*, Problem*, Options*) ;

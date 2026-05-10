@@ -318,11 +318,15 @@ void Solve_Level
     TIMER_START(T_TOTAL) ;
     
     Optimize(X, Y, problem, options) ;
-    // if(problem->level == 0)
-    // if( 1 )
-    // {
-    //     Try_And_Keep_If_Better(X, Y, problem, strategy_explore_bisection, options, NULL) ;
-    // }
+    VSPFLOAT imbal_ratio = (VSPFLOAT) abs(X->weight - Y->weight) / problem->graph->total_vtx_cost ;
+    // printf("\nImbal ratio: %f\n", imbal_ratio) ;
+
+    if(   options->attempt_second_start
+       && imbal_ratio > options->min_imbal_ratio_second_start
+       && problem->level >= options->min_level_second_start)
+    {
+        Try_And_Keep_If_Better(X, Y, problem, strategy_explore_bisection, options, NULL) ;
+    }
 
     TIMER_STOP(T_TOTAL) ;
     Timer_Flush(problem->level) ;
@@ -455,6 +459,12 @@ solve_result *VSP_Solve
         set_initial_guess(X_lp1, Y_lp1, P, options) ;
         have_global_optimum =
                 (X_lp1->weight + Y_lp1->weight == P->graph->total_vtx_cost) ;
+
+        if(have_global_optimum)
+        {
+            printf("empty-sep-vs\n") ;
+            fflush(stdout) ;
+        }
 
         // Solve coarsest level if initial solution is not globally optimal
         if(!have_global_optimum) Solve_Level(X_lp1, Y_lp1, P, options) ;

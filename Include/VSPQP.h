@@ -65,8 +65,9 @@ typedef struct Options_struct
     VSPINT max_num_vert_small_graph ; /* Max number of vertices in  what is
                                          to be considered a "small" graph     */
 
-    bool relaxUB ;
+    bool     relaxUB ;
     VSPFLOAT ratioUBLimit ;
+    bool     ub_based_on_bisection ;
 
     /* FM Options */
     VSPINT FM_Limit ;
@@ -90,6 +91,27 @@ typedef struct Options_struct
     bool     sort_cols ;
     VSPINT   node_cutoff ;
     VSPFLOAT density_cutoff ;
+
+
+    int initial_project ;
+
+    /* ====================================================================== */
+    // Second start options
+    /* ====================================================================== */
+    // In the second start, if the imbalance is sufficiently large after
+    // optimizing at a coarse level, we apply vs() to this point, followed by
+    // the optimization routine, and accept this point if it has a (weakly)
+    // smaller separator.
+
+    // 0 or 1. Controls if the second start is attempted. Other fields ignored
+    // if 0
+    int      attempt_second_start ;
+    
+    // min value of |C(X) - C(Y)| / C(V) required to trigger second start
+    VSPFLOAT min_imbal_ratio_second_start ;
+
+    // min level required to trigger second start
+    VSPINT   min_level_second_start ;
 
 } Options;
 

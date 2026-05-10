@@ -512,10 +512,11 @@ static Problem *Problem_Coarsen
 }
 
 
-static void SetUpperBound
+void SetUpperBound
 (
     Problem *problem,
-    Options *opts
+    Options *opts,
+    int      quadratic
 )
 {
     if(opts->relaxUB == false || problem->coarsest_level_num == 0 )
@@ -529,16 +530,22 @@ static void SetUpperBound
 
     VSPFLOAT ratioUBLimit = opts->ratioUBLimit ;
 
-    // Linear Version
-    VSPFLOAT gap          = ratioUBLimit - 0.6 ;
-    VSPFLOAT ratioUb_Curr = 0.6 + currLvl * (gap / maxLvl) ;
-    problem->u = (VSPINT) floor( ratioUb_Curr  * problem->graph->total_vtx_cost ) ;
-
-    // Quadratic version
-    // VSPFLOAT a  = (0.6 - ratioUBLimit) / (maxLvl * maxLvl) ;
-    // VSPFLOAT ratioUb_Curr = a * (currLvl - maxLvl) * (currLvl - maxLvl) + ratioUBLimit ;
-    // problem->u = (VSPINT) floor( ratioUb_Curr  * problem->graph->total_vtx_cost ) ;
-    // printf("\nub: %f", problem->u / ((VSPFLOAT) problem->graph->total_vtx_cost )) ;
+    if(quadratic)
+    {
+        // Quadratic version
+        VSPFLOAT ratioUB_curr ;
+        VSPFLOAT a  = (0.6 - ratioUBLimit) / (maxLvl * maxLvl) ;
+        VSPFLOAT ratioUb_Curr = a * (currLvl - maxLvl) * (currLvl - maxLvl) + ratioUBLimit ;
+        problem->u = (VSPINT) floor( ratioUb_Curr  * problem->graph->total_vtx_cost ) ;
+        // printf("\nub: %f", problem->u / ((VSPFLOAT) problem->graph->total_vtx_cost )) ;
+    }
+    else
+    {
+        // Linear Version
+        VSPFLOAT gap          = ratioUBLimit - 0.6 ;
+        VSPFLOAT ratioUb_Curr = 0.6 + currLvl * (gap / maxLvl) ;
+        problem->u = (VSPINT) floor( ratioUb_Curr  * problem->graph->total_vtx_cost ) ;
+    }
 
     return ;
 }
@@ -778,7 +785,7 @@ Problem *Problem_Recursive_Coarsen
     P = coarsest_P ;
     while(P != NULL)
     {
-       SetUpperBound(P, opts) ;
+       SetUpperBound(P, opts, 0) ;
        P = P->parent_problem ;
     }
 

@@ -259,7 +259,8 @@ void Part_To_States
     int        *part,
     State      *X,
     State      *Y,
-    Problem    *problem
+    Problem    *problem,
+    bool        empty_sep
 )
 {
     VSPINT   i ;
@@ -320,7 +321,7 @@ void Part_To_States
     Y->point->val_frac = 0 ;
 
     u_finest = Get_u_Finest(problem) ;
-    if(wgts_part[2] == 0 && wgts_part[0] <= u_finest && wgts_part[1]<=u_finest)
+    if(empty_sep && wgts_part[2] == 0 && wgts_part[0] <= u_finest && wgts_part[1]<=u_finest)
     {
         for(i = 0 ; i < n ; i++)
         {
@@ -331,6 +332,10 @@ void Part_To_States
         }
         X->weight = wgts_part[0] ;
         Y->weight = wgts_part[1] ;
+        if(empty_sep)
+        {
+            printf("inside %s\n", G_Current_Problem_Name) ;
+        }
     }
     else
     {
@@ -345,6 +350,13 @@ void Part_To_States
 #endif
 
 }
+
+void SetUpperBound
+(
+    Problem *problem,
+    Options *opts,
+    int quadratic
+) ;
 
 static void set_bisection_initial_guess
 (
@@ -371,13 +383,41 @@ static void set_bisection_initial_guess
     VSparm ParmStruc, *Parm ;
     Parm = &ParmStruc ;
     vs_default (Parm) ;
+    Parm->initial_project = options->initial_project ;
 
     // Get partition
     VSPINT m = (problem->graph->total_vtx_cost) / 2 ;
     vs(part, Ai, Ap, Ae, c, n, m,Parm) ;
 
+
+    if(options->ub_based_on_bisection)
+    {
+        Problem *P = problem ;
+        VSPFLOAT ratioUBLimit ;
+        VSPFLOAT ratioUBLimit_Old ;
+        VSPINT   wgts[3] = {0, 0, 0} ;
+
+        // Calculate new upper bound at coarsest level
+        for(i = 0 ; i < n ; i++) wgts[ part[i] ] += c[i] ;
+        ratioUBLimit = MAX(wgts[0], wgts[1]) / (VSPFLOAT) (P->graph->total_vtx_cost) ;
+        ratioUBLimit = MAX(ratioUBLimit, options->ratioUBLimit) ;
+
+        // printf("Coarsest ub: %f\n", ratioUBLimit) ;
+
+        ratioUBLimit_Old = options->ratioUBLimit ;
+        options->ratioUBLimit = ratioUBLimit ;
+        while(P != NULL)
+        {
+            SetUpperBound(P, options, 1) ;
+            P = P->parent_problem ;
+        }
+
+        // Restore
+        options->ratioUBLimit = ratioUBLimit_Old ;
+    }
+
     // Convert partition to states
-    Part_To_States(part, X, Y, problem) ;
+    Part_To_States(part, X, Y, problem, true) ;
 
     // Cleanup
     free(part) ;
