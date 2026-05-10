@@ -75,10 +75,6 @@ void strategy_bisection_restart
     initial_guess tmp = options->initial_guess ;
     options->initial_guess = bisection_initial_guess ;
     set_initial_guess(X, Y, problem, options);
-    if(X->weight + Y->weight == problem->graph->total_vtx_cost)
-    {
-        printf("intermediate-empty-sep!!!!\n") ;
-    }
     Optimize(X, Y, problem, options);
     Round_Down_Fractions(X, Y, problem);
     options->initial_guess = tmp ;
@@ -89,7 +85,7 @@ void strategy_random_restart
     State *X, State *Y, Problem *problem, Options *options
 )
 {
-    initial_guess tmp = options->initial_guess ;
+    initial_guess tmp      = options->initial_guess ;
     options->initial_guess = random_initial_guess ;
     set_initial_guess(X, Y, problem, options);
     Optimize(X, Y, problem, options);

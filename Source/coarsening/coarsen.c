@@ -530,23 +530,22 @@ void Set_Upper_Bound
     VSPINT L          = problem->coarsest_level_num ;
     VSPINT cost_graph = problem->graph->total_vtx_cost ;
 
-    VSPFLOAT gap, a, ratio_l ;
+    VSPFLOAT gap, coeff, ratio_l ;
     
-    // Use ratio_0 instead of 0.6. To be done soon
-    VSPFLOAT ratio_0 = (VSPFLOAT) (problem->ubFinest) / cost_graph ;
+    VSPFLOAT ratio_0 = opts->u_ratio_finest ;
     VSPFLOAT ratio_L = opts->u_ratio_coarsest ;
 
     // Compute ratio_l
     switch(interpolation)
     {
         case LINEAR:
-            gap        = ratio_L - 0.6 ;
-            ratio_l    = 0.6 + l * (gap / L) ;
+            gap        = ratio_L - ratio_0 ;
+            ratio_l    = ratio_0+ l * (gap / L) ;
             break ;
 
         case QUADRATIC:
-            a          = (0.6 - ratio_L) / (L * L) ;
-            ratio_l    = a * (l - L) * (l - L) + ratio_L ;
+            coeff   = (ratio_0- ratio_L) / (L * L) ;
+            ratio_l = coeff * (l - L) * (l - L) + ratio_L ;
             // printf("ub: %f\n", ratio_l) ;
             break ;
 
@@ -797,7 +796,7 @@ Problem *Problem_Recursive_Coarsen
     P = coarsest_P ;
     while(P != NULL)
     {
-       Set_Upper_Bound(P, opts, LINEAR) ;
+       Set_Upper_Bound(P, opts, QUADRATIC) ;
        P = P->parent_problem ;
     }
 

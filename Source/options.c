@@ -475,7 +475,8 @@ void set_default_options(Options *options)
     /*------------------------------------------------------------------------*/
     /* Relax Upper Bound Options                                              */
     /*------------------------------------------------------------------------*/
-    options->tighten_u      = true ;
+    options->tighten_u        = true ;
+    options->u_ratio_finest   = 0.6 ;
     options->u_ratio_coarsest = 0.5 ;
     options->ub_based_on_bisection = false ;
 
@@ -558,7 +559,8 @@ void Print_Options(const Options *opts, const char *path)
 
     /* Miscellaneous */
     fprintf(f, "  tighten_u                      = %s\n",   opts->tighten_u ? "true" : "false");
-    fprintf(f, "  u_ratio_coarsest               = %g\n",   opts->u_ratio_coarsest);
+    fprintf(f, "  u_ratio_finest                 = %f\n",   opts->u_ratio_finest);
+    fprintf(f, "  u_ratio_coarsest               = %f\n",   opts->u_ratio_coarsest);
 
     /* FM Options */
     fprintf(f, "  FM_Limit                       = %lld\n", PRI(opts->FM_Limit));

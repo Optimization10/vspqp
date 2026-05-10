@@ -51,9 +51,9 @@ typedef struct restart_decision_struct
 typedef struct Options_struct
 {
     /* Initial guess */
-    initial_guess      initial_guess;
-    VSPFLOAT               random_point_weight_proportion ;
-    VSPFLOAT               centroidVal ;
+    initial_guess  initial_guess;
+    VSPFLOAT       random_point_weight_proportion ;
+    VSPFLOAT       centroidVal ;
 
     restart_decision *restart_decision ;
 
@@ -66,6 +66,7 @@ typedef struct Options_struct
                                          to be considered a "small" graph     */
 
     bool     tighten_u ;
+    VSPFLOAT u_ratio_finest ;
     VSPFLOAT u_ratio_coarsest ;
     bool     ub_based_on_bisection ;
 
@@ -116,12 +117,13 @@ typedef struct Options_struct
 } Options ;
 
 
-typedef struct {
-    VSPINT  weight_x ;
-    VSPINT  weight_y ;
-    VSPFLOAT obj_val ;
-    VSPINT *x ;
-    VSPINT *y ;
+typedef struct
+{
+    VSPINT    weight_x ;
+    VSPINT    weight_y ;
+    VSPFLOAT  obj_val ;
+    VSPINT   *x ;
+    VSPINT   *y ;
 } solve_result ;
 
 
