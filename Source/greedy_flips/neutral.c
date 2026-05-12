@@ -525,8 +525,9 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
     char   varFlip ;
 
     VSPINT max_num_upflips = 0.01 * problem->graph->n ;
+    // VSPINT max_num_upflips = 0.05 * problem->graph->n ;
     // VSPINT max_num_upflips = MAX(100, 0.005 * problem->graph->n) ;
-    // VSPINT max_num_upflips =  problem->graph->n ;
+    // VSPINT max_num_upflips =  MIN(10, problem->graph->n / 10) ;
 
     VSPINT numFlips = 0 ;
     VSPINT numNeutFlips = 0 ;
@@ -574,7 +575,8 @@ void Neutral_Upflips_In_z_And_Downflips_In_w1Az2
             
                 indFlip, problem
             ) ;
-            numFlips++ ;
+            // numFlips++ ;
+            numFlips = 0 ;
         }
         else
         {
