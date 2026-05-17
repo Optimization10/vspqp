@@ -8026,18 +8026,59 @@ void vs_separator
     TIME(end) ;
     Elapsed_Time(start, end, &time_generate) ;
 
+    VSINT nrows = B->m ;
 
     // Get maximum matching
     TIME(start) ;
     matching = Maximum_Matching_Get(B, 1) ;
 
-    // Since the rows of T are the 0 vertices and the columns are the 
-    // 1-vertices, on output, cover[0...n0) contains the cover status of the
-    // 0-vertices and cover[n0...n0+n1) contains the cover status of the
-    // 1-vertices 
+    // Compute two candidate min vertex covers via Konig's construction:
+    //   cover_col_start: BFS from unmatched columns (standard)
+    //   cover_row_start: BFS from unmatched rows (needs B^T for edge access)
+    // Both have the same cardinality; we pick whichever yields a more
+    // balanced post-separator partition between part 0 and part 1.
+    CSC *Bt = CSC_Transpose(B) ;
+    VSINT *cover_col_start, *cover_row_start ;
+    Vtx_Cover_From_Max_Matching_Get(B, matching, &cover_col_start, 0, NULL) ;
+    Vtx_Cover_From_Max_Matching_Get(B, matching, &cover_row_start, 1, Bt)   ;
+    CSC_Destroy(Bt) ;
+
+    // Imbalance = | weight of part-0 vertices not in cover
+    //             - weight of part-1 vertices not in cover |
+    // Compute it for each candidate, using the original part[] values
+    // (part[] has not been modified yet).
+    VSINT wgt0_a = 0, wgt1_a = 0, wgt0_b = 0, wgt1_b = 0 ;
+    for(i = 0 ; i < n ; i++)
+    {
+        j = localBipLabel[i] ;
+        if(j == VSEMPTY) continue ;
+        VSINT g = (part[i] == 0) ? j : nrows + j ;
+        if(!cover_col_start[g])
+        {
+            if(part[i] == 0) wgt0_a += vtx_wgts[i] ;
+            else             wgt1_a += vtx_wgts[i] ;
+        }
+        if(!cover_row_start[g])
+        {
+            if(part[i] == 0) wgt0_b += vtx_wgts[i] ;
+            else             wgt1_b += vtx_wgts[i] ;
+        }
+    }
+    VSINT imbal_a = VSABS(wgt0_a - wgt1_a) ;
+    VSINT imbal_b = VSABS(wgt0_b - wgt1_b) ;
+
+    // Pick the more balanced cover
     VSINT *cover ;
-    VSINT nrows = B->m ;
-    Vtx_Cover_From_Max_Matching_Get(B, matching, &cover, FALSE, NULL) ;
+    if(imbal_a <= imbal_b)
+    {
+        cover = cover_col_start ;
+        free(cover_row_start) ;
+    }
+    else
+    {
+        cover = cover_row_start ;
+        free(cover_col_start) ;
+    }
     TIME(end) ;
     Elapsed_Time(start, end, &time_cover) ;
 
@@ -8076,11 +8117,11 @@ void vs_separator
             }
             else if(part_org_cpy[i] == 1) // i is a column vertex
             {
-                w[nrows+j] = vtx_wgts[i] ; 
+                w[nrows+j] = vtx_wgts[i] ;
             }
         }
 
-        // Get the time 
+        // Get the time
         TIME(end_entire) ;
         Elapsed_Time(start_entire, end_entire, time_entire_ret) ;
 
@@ -8096,19 +8137,9 @@ void vs_separator
             *wgt_cover += cover[i] * w[i] ;
         }
 
+        // Imbalance of the chosen cover (already computed above)
+        *imbal = (imbal_a <= imbal_b) ? imbal_a : imbal_b ;
 
-        // Return imbalance of cover
-        // Compute weight of rows vertices not in cover
-        VSINT wgt_row = 0, wgt_col = 0 ;
-        for(i = 0 ; i < B->m + B->n ; i++)
-        {
-            if(cover[i]) continue ;
-
-            if(i < B->m) wgt_row += w[i] ;
-            else         wgt_col += w[i] ;
-        }
-
-        *imbal = VSABS(wgt_row - wgt_col) ;
         free(w) ;
         free(part_org_cpy) ;
 
