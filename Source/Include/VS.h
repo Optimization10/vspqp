@@ -1234,8 +1234,10 @@ static VSINT *Maximum_Matching_Get(const CSC *A, VSINT seed) ;
 static void Vtx_Cover_From_Max_Matching_Get
 (
     CSC            *B,
-    VSINT  *matching,
-    VSINT     **cover
+    VSINT   *matching,
+    VSINT     **cover,
+    int    start_from_rows,   // NEW
+    CSC            *Bt        // NEW: required iff start_from_rows
 ) ;
 
 static int Are_All_Neighbors_In_Cover

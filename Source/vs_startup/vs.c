@@ -7694,89 +7694,81 @@ static VSINT *Maximum_Matching_Get(const CSC *A, VSINT seed)
 static void Vtx_Cover_From_Max_Matching_Get
 (
     CSC            *B,
-    VSINT  *matching,
-    VSINT     **cover
+    VSINT   *matching,
+    VSINT     **cover,
+    int    start_from_rows,   // NEW
+    CSC            *Bt        // NEW: required iff start_from_rows
 )
 {
-    VSINT m = B->m, n = B->n ;
-    VSLINT *Bp = B->p ;
-    VSINT  *Bi = B->i ;
-    VSINT i, j, k ;
-    VSLINT p, end ;
+    VSINT m = B->m, n = B->n, i, j, k;
+    VSLINT p, end, *Sp;
+    VSINT  *Si;
+    VSINT  *matchingStart, *matchingOther;
+    VSINT  *coverStart,    *coverOther;
+    VSINT  n_start, n_other;
 
-    VSINT *matchingRows = matching ;
-    VSINT *matchingCols = matching + m ;
-
-    *cover = malloc((B->m + B->n) * sizeof(**cover) ) ;
-    VSINT *coverRows = *cover ;
-    VSINT *coverCols = (*cover) + m ;
-
-    // A node being visited just means it was discovered. That is, it's
-    // in the queue and unprocessed, or it was in the queue in the past
-    // and it was processed
-    VSINT *visited = calloc(m+n, sizeof(*visited)) ;
-
-    // Initially, cover contains all the columns and none of the rows
-    // As we do BFS, remove reacheable column vertices from the cover, and add
-    // reacheable row vertices to the cover
-    for(i = 0 ; i < m ; i++) coverRows[i] = 0 ;
-    for(i = 0 ; i < n ; i++) coverCols[i] = 1 ;
-
-    // Initialize a queue with all unmatched nodes in col set
-    Queue *Q = Queue_Init(m + n) ;
-    for(i = 0 ; i < n ; i++)
-    {
-        if(matchingCols[i] != VSEMPTY) continue ;
-
-        coverCols[i] = 0 ;
-        visited[m+i]   = 1 ;
-        Queue_Push(Q, m + i) ;
+    if (!start_from_rows) {
+        Sp = B->p;  Si = B->i;
+        n_start = n;  n_other = m;
+        matchingStart = matching + m;   // col matches
+        matchingOther = matching;        // row matches
+    } else {
+        Sp = Bt->p; Si = Bt->i;
+        n_start = m;  n_other = n;
+        matchingStart = matching;        // row matches
+        matchingOther = matching + m;    // col matches
     }
 
-    while( (j = Queue_Pop(Q)) != VSEMPTY)
-    {
-        if(j < m) // j is a row
-        {
-            // Add it to the cover
-            coverRows[j] = 1 ;
+    *cover = malloc((m + n) * sizeof(**cover));
+    if (!start_from_rows) {
+        coverStart = (*cover) + m;       // col cover slot
+        coverOther = *cover;              // row cover slot
+    } else {
+        coverStart = *cover;              // row cover slot
+        coverOther = (*cover) + m;       // col cover slot
+    }
 
-            // Add its match to the queue if it wasn't visited already
-            k = matchingRows[j] ;
-            if(k != VSEMPTY && !visited[m + k])
-            {
-                Queue_Push(Q, m + k) ;
-                visited[m + k] = 1 ;
+    for (i = 0; i < n_other; i++) coverOther[i] = 0;
+    for (i = 0; i < n_start; i++) coverStart[i] = 1;
+
+    VSINT *visited = calloc(m + n, sizeof(*visited));
+    Queue *Q = Queue_Init(m + n);
+
+    // Seed the queue with unmatched vertices on the starting side.
+    // Queue convention: [0, n_other) are "other" verts,
+    //                   [n_other, n_other + n_start) are "starting" verts.
+    for (i = 0; i < n_start; i++) {
+        if (matchingStart[i] != VSEMPTY) continue;
+        coverStart[i] = 0;
+        visited[n_other + i] = 1;
+        Queue_Push(Q, n_other + i);
+    }
+
+    while ((j = Queue_Pop(Q)) != VSEMPTY) {
+        if (j < n_other) {
+            coverOther[j] = 1;
+            k = matchingOther[j];
+            if (k != VSEMPTY && !visited[n_other + k]) {
+                Queue_Push(Q, n_other + k);
+                visited[n_other + k] = 1;
             }
-        }
-        else // j is a column
-        {
-            j = j - m ; // Convert j to local index
-
-            // Kick j out of the cover, look at all the unmatched edges
-            // emanating from j, and add their endpoints to the queue
-            coverCols[j] = 0 ;
-            end = Bp[j+1] ;
-            for(p = Bp[j] ; p < end ; p++)
-            {
-                i = Bi[p] ;
-
-                // Do not add visited neighbors to the queue
-                if(visited[i]) continue ;
-
-                // Add j if the edge (i, j) is unmatched
-                if(matchingCols[j] != i)
-                {
-                    Queue_Push(Q, i) ;
-                    visited[i] = 1 ;
+        } else {
+            j = j - n_other;
+            coverStart[j] = 0;
+            end = Sp[j+1];
+            for (p = Sp[j]; p < end; p++) {
+                i = Si[p];
+                if (visited[i]) continue;
+                if (matchingStart[j] != i) {
+                    Queue_Push(Q, i);
+                    visited[i] = 1;
                 }
             }
         }
-
     }
 
-    // Cleanup
-    Queue_Destroy(Q) ;
-    free(visited) ;
+    Queue_Destroy(Q);
+    free(visited);
 }
 
 // Check if all neighbors of vtx_col are in the cover. It is 
@@ -8045,7 +8037,7 @@ void vs_separator
     // 1-vertices 
     VSINT *cover ;
     VSINT nrows = B->m ;
-    Vtx_Cover_From_Max_Matching_Get(B, matching, &cover) ;
+    Vtx_Cover_From_Max_Matching_Get(B, matching, &cover, FALSE, NULL) ;
     TIME(end) ;
     Elapsed_Time(start, end, &time_cover) ;
 
