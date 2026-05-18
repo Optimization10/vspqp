@@ -282,6 +282,7 @@ typedef struct VSparm      /* parameters */
     int  initial_project ; /* TRUE: project z onto feasible set for bisection
                               before the gradient projection loop;
                               FALSE: skip the initial projection */
+    int try_both_covers ;
 } VSparm ;
 
 typedef struct VSgivens    /* Givens rotations in diagonalization */
@@ -777,8 +778,14 @@ void vs_separator
     VSLINT               *Ap, // Original graph
     VSINT                  n, // Original graph n
     VSINT          *vtx_wgts,
-    int            get_stats,// Binary flag to determine if (somewhat expensive)
-                             // stats should be computed
+    int      try_both_covers, // If nonzero: compute both Konig covers (BFS
+                              // from unmatched cols and from unmatched rows)
+                              // and pick the one with smallest weight,
+                              // tiebreaking on smallest imbalance.
+                              // If zero: original logic, single cover from
+                              // BFS on unmatched columns.
+    int            get_stats,  // Binary flag to determine if (somewhat
+                               // expensive) stats should be computed
 
     // Ignored if get_stats is false. In particular, they can be NULL
     VSINT             *n_bip,
@@ -1269,6 +1276,12 @@ void vs_separator
     VSLINT               *Ap, // Original graph
     VSINT                  n, // Original graph n
     VSINT          *vtx_wgts,
+    int      try_both_covers, // If nonzero: compute both Konig covers (BFS
+                              // from unmatched cols and from unmatched rows)
+                              // and pick the one with smallest weight,
+                              // tiebreaking on smallest imbalance.
+                              // If zero: original logic, single cover from
+                              // BFS on unmatched columns.
     int            get_stats,  // Binary flag to determine if (somewhat
                                // expensive) stats should be computed
 

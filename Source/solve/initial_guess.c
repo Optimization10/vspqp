@@ -374,6 +374,7 @@ static void set_bisection_initial_guess
     Parm = &ParmStruc ;
     vs_default (Parm) ;
     Parm->initial_project = options->initial_project ;
+    Parm->try_both_covers = options->try_both_covers ;
 
     // Get partition
     VSPINT m = (problem->graph->total_vtx_cost) / 2 ;

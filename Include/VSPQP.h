@@ -95,6 +95,9 @@ typedef struct Options_struct
 
 
     int initial_project ;
+    
+    // Obtain a min vertex cover from the left and from the right in vs() 
+    int try_both_covers ;
 
     /* ====================================================================== */
     // Second start options

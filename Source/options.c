@@ -506,6 +506,7 @@ void set_default_options(Options *options)
     options->density_cutoff        = 0.4 ;
 
     options->initial_project       = FALSE ;
+    options->try_both_covers       = TRUE ;
 
     options->attempt_second_start = TRUE ;
     options->min_imbal_ratio_second_start = 0.07 ;
@@ -577,6 +578,7 @@ void Print_Options(const Options *opts, const char *path)
 
     /* vs options */
     fprintf(f, "  initial_projection             = %s\n",   (opts->initial_project) ? "yes" : "no") ;
+    fprintf(f, "  try_both_covers                = %s\n",   (opts->try_both_covers) ? "yes" : "no") ;
 
     /* Second start options */
     fprintf(f, "  attempt_second_start           = %s\n",   opts->attempt_second_start ? "true" : "false");

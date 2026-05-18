@@ -53,4 +53,5 @@ void vs_default
     Parm->ngp = 3 ;
 
     Parm->initial_project = VSFALSE ;
+    Parm->try_both_covers = VSTRUE ;
 }

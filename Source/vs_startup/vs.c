@@ -698,7 +698,18 @@ int vs
     cutedge /= 2 ;
     // printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
     
-    vs_separator (x, Ei, Ep, n, vw, 0, NULL, NULL, NULL, NULL, NULL) ;
+    vs_separator
+    (
+        x, Ei, Ep, n, vw,
+        Parm->try_both_covers, 0,
+        NULL, NULL, NULL, NULL, NULL
+    ) ;
+
+    // vs_separator_approx
+    // (
+    //     x, Ei, Ep, n, vw, 0,
+    //     NULL, NULL, NULL, NULL, NULL
+    // ) ;
 
     n0 = n1 = ns = 0 ;
     for (j = 0; j < n; j++)
@@ -7989,6 +8000,12 @@ void vs_separator
     VSLINT               *Ap, // Original graph
     VSINT                  n, // Original graph n
     VSINT          *vtx_wgts,
+    int      try_both_covers, // If nonzero: compute both Konig covers (BFS
+                              // from unmatched cols and from unmatched rows)
+                              // and pick the one with smallest weight,
+                              // tiebreaking on smallest imbalance.
+                              // If zero: original logic, single cover from
+                              // BFS on unmatched columns.
     int            get_stats,  // Binary flag to determine if (somewhat
                                // expensive) stats should be computed
 
@@ -8000,10 +8017,12 @@ void vs_separator
     VSFLOAT *time_entire_ret
 )
 {
-    // When getting stats, make a copy of partition array
-    // We are intentionally not timing this part in time_entire_ret
-    VSINT *part_org_cpy ;
-    if(get_stats)
+    // The original (single-cover) stats path computes its stats from a
+    // bipartite weight array w[] AFTER part[] has been overwritten with
+    // separators, so it needs a copy of the original partition. The
+    // two-cover path doesn't (it computes everything before modifying part[]).
+    VSINT *part_org_cpy = NULL ;
+    if(get_stats && !try_both_covers)
     {
         part_org_cpy = malloc(n * sizeof(*part_org_cpy)) ;
         for(VSINT i = 0 ; i < n ; i++)
@@ -8032,52 +8051,68 @@ void vs_separator
     TIME(start) ;
     matching = Maximum_Matching_Get(B, 1) ;
 
-    // Compute two candidate min vertex covers via Konig's construction:
-    //   cover_col_start: BFS from unmatched columns (standard)
-    //   cover_row_start: BFS from unmatched rows (needs B^T for edge access)
-    // Both have the same cardinality; we pick whichever yields a more
-    // balanced post-separator partition between part 0 and part 1.
-    CSC *Bt = CSC_Transpose(B) ;
-    VSINT *cover_col_start, *cover_row_start ;
-    Vtx_Cover_From_Max_Matching_Get(B, matching, &cover_col_start, 0, NULL) ;
-    Vtx_Cover_From_Max_Matching_Get(B, matching, &cover_row_start, 1, Bt)   ;
-    CSC_Destroy(Bt) ;
-
-    // Imbalance = | weight of part-0 vertices not in cover
-    //             - weight of part-1 vertices not in cover |
-    // Compute it for each candidate, using the original part[] values
-    // (part[] has not been modified yet).
-    VSINT wgt0_a = 0, wgt1_a = 0, wgt0_b = 0, wgt1_b = 0 ;
-    for(i = 0 ; i < n ; i++)
-    {
-        j = localBipLabel[i] ;
-        if(j == VSEMPTY) continue ;
-        VSINT g = (part[i] == 0) ? j : nrows + j ;
-        if(!cover_col_start[g])
-        {
-            if(part[i] == 0) wgt0_a += vtx_wgts[i] ;
-            else             wgt1_a += vtx_wgts[i] ;
-        }
-        if(!cover_row_start[g])
-        {
-            if(part[i] == 0) wgt0_b += vtx_wgts[i] ;
-            else             wgt1_b += vtx_wgts[i] ;
-        }
-    }
-    VSINT imbal_a = VSABS(wgt0_a - wgt1_a) ;
-    VSINT imbal_b = VSABS(wgt0_b - wgt1_b) ;
-
-    // Pick the more balanced cover
     VSINT *cover ;
-    if(imbal_a <= imbal_b)
+    VSINT chosen_wgt = 0, chosen_imbal = 0 ;  // only used in try_both_covers
+
+    if(try_both_covers)
     {
-        cover = cover_col_start ;
-        free(cover_row_start) ;
+        // Two candidate Konig covers (same cardinality, possibly different
+        // weight and balance). Heuristic for min-weight vertex cover: pick
+        // the cheaper of the two; break ties on partition balance.
+        //   cover_col_start: BFS from unmatched columns (standard)
+        //   cover_row_start: BFS from unmatched rows (needs B^T)
+        CSC *Bt = CSC_Transpose(B) ;
+        VSINT *cover_col_start, *cover_row_start ;
+        Vtx_Cover_From_Max_Matching_Get(B, matching, &cover_col_start, 0, NULL);
+        Vtx_Cover_From_Max_Matching_Get(B, matching, &cover_row_start, 1, Bt)  ;
+        CSC_Destroy(Bt) ;
+
+        // For each cover: cover weight (primary, minimize) and imbalance
+        // (tiebreak, minimize). part[] still holds original 0/1 values here.
+        VSINT wgt_cov_a = 0, wgt0_a = 0, wgt1_a = 0 ;
+        VSINT wgt_cov_b = 0, wgt0_b = 0, wgt1_b = 0 ;
+        for(i = 0 ; i < n ; i++)
+        {
+            j = localBipLabel[i] ;
+            if(j == VSEMPTY) continue ;
+            VSINT g  = (part[i] == 0) ? j : nrows + j ;
+            VSINT wi = vtx_wgts[i] ;
+
+            if(cover_col_start[g])      wgt_cov_a += wi ;
+            else if(part[i] == 0)       wgt0_a    += wi ;
+            else                        wgt1_a    += wi ;
+
+            if(cover_row_start[g])      wgt_cov_b += wi ;
+            else if(part[i] == 0)       wgt0_b    += wi ;
+            else                        wgt1_b    += wi ;
+        }
+        VSINT imbal_a = VSABS(wgt0_a - wgt1_a) ;
+        VSINT imbal_b = VSABS(wgt0_b - wgt1_b) ;
+
+        int pick_a ;
+        if      (wgt_cov_a < wgt_cov_b) pick_a = 1 ;
+        else if (wgt_cov_a > wgt_cov_b) pick_a = 0 ;
+        else                            pick_a = (imbal_a <= imbal_b) ;
+
+        if(pick_a)
+        {
+            cover        = cover_col_start ;
+            chosen_wgt   = wgt_cov_a ;
+            chosen_imbal = imbal_a ;
+            free(cover_row_start) ;
+        }
+        else
+        {
+            cover        = cover_row_start ;
+            chosen_wgt   = wgt_cov_b ;
+            chosen_imbal = imbal_b ;
+            free(cover_col_start) ;
+        }
     }
     else
     {
-        cover = cover_row_start ;
-        free(cover_col_start) ;
+        // Original logic: single Konig cover from BFS on unmatched columns.
+        Vtx_Cover_From_Max_Matching_Get(B, matching, &cover, 0, NULL) ;
     }
     TIME(end) ;
     Elapsed_Time(start, end, &time_cover) ;
@@ -8104,49 +8139,74 @@ void vs_separator
     // Compute stats
     if(get_stats)
     {
-        // Generate vertex weights for bipartite cover
-        VSINT *w = malloc( (B->m + B->n) * sizeof(*w) ) ;
-        for(i = 0 ; i < n ; i++)
+        if(try_both_covers)
         {
-            j = localBipLabel[i] ;
-            if(j == VSEMPTY) continue ;
+            // Values already computed during cover selection
+            TIME(end_entire) ;
+            Elapsed_Time(start_entire, end_entire, time_entire_ret) ;
 
-            if(part_org_cpy[i] == 0) // i is a row vertex
-            {
-                w[j] = vtx_wgts[i] ;
-            }
-            else if(part_org_cpy[i] == 1) // i is a column vertex
-            {
-                w[nrows+j] = vtx_wgts[i] ;
-            }
+            *n_bip     = B->m + B->n ;
+            *nz_bip    = B->nz ;
+            *wgt_cover = chosen_wgt ;
+            *imbal     = chosen_imbal ;
         }
-
-        // Get the time
-        TIME(end_entire) ;
-        Elapsed_Time(start_entire, end_entire, time_entire_ret) ;
-
-        TIME(start) ;
-
-        *n_bip  = B->m + B->n ;
-        *nz_bip = B->nz ;
-
-        // Return weight of cover. Loop through all vertices of the graph
-        *wgt_cover = 0 ;
-        for(i = 0 ; i < B->m + B->n ; i++)
+        else
         {
-            *wgt_cover += cover[i] * w[i] ;
+            // Original stats path: build bipartite vertex weights, then
+            // compute cover weight and imbalance from them.
+            VSINT *w = malloc( (B->m + B->n) * sizeof(*w) ) ;
+            for(i = 0 ; i < n ; i++)
+            {
+                j = localBipLabel[i] ;
+                if(j == VSEMPTY) continue ;
+
+                if(part_org_cpy[i] == 0) // i is a row vertex
+                {
+                    w[j] = vtx_wgts[i] ;
+                }
+                else if(part_org_cpy[i] == 1) // i is a column vertex
+                {
+                    w[nrows+j] = vtx_wgts[i] ;
+                }
+            }
+
+            // Get the time
+            TIME(end_entire) ;
+            Elapsed_Time(start_entire, end_entire, time_entire_ret) ;
+
+            TIME(start) ;
+
+            *n_bip  = B->m + B->n ;
+            *nz_bip = B->nz ;
+
+            // Return weight of cover. Loop through all vertices of the graph
+            *wgt_cover = 0 ;
+            for(i = 0 ; i < B->m + B->n ; i++)
+            {
+                *wgt_cover += cover[i] * w[i] ;
+            }
+
+
+            // Return imbalance of cover
+            // Compute weight of rows vertices not in cover
+            VSINT wgt_row = 0, wgt_col = 0 ;
+            for(i = 0 ; i < B->m + B->n ; i++)
+            {
+                if(cover[i]) continue ;
+
+                if(i < B->m) wgt_row += w[i] ;
+                else         wgt_col += w[i] ;
+            }
+
+            *imbal = VSABS(wgt_row - wgt_col) ;
+            free(w) ;
+            free(part_org_cpy) ;
+
+            TIME(end) ;
+            VSFLOAT time_stats ;
+            Elapsed_Time(start, end, &time_stats) ;
+            // printf("\nStats time: %f\n", time_stats) ;
         }
-
-        // Imbalance of the chosen cover (already computed above)
-        *imbal = (imbal_a <= imbal_b) ? imbal_a : imbal_b ;
-
-        free(w) ;
-        free(part_org_cpy) ;
-
-        TIME(end) ;
-        VSFLOAT time_stats ;
-        Elapsed_Time(start, end, &time_stats) ;
-        // printf("\nStats time: %f\n", time_stats) ;
     }
 
     #ifdef SVP_DEBUG
