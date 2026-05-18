@@ -76,6 +76,8 @@
       |________________________________________________________________|*/
 
 #include "VS.h"
+#include "core.h"
+#include <stdio.h>
 
 int vs
 (
@@ -8108,6 +8110,8 @@ void vs_separator
             chosen_imbal = imbal_b ;
             free(cover_col_start) ;
         }
+        // printf("%s,%i,%i,%i,%i\n", G_Current_Problem_Name, wgt_cov_a, wgt_cov_b, imbal_a, imbal_b) ;
+        fflush(stdout) ;
     }
     else
     {
