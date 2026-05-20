@@ -282,6 +282,7 @@ typedef struct VSparm      /* parameters */
     int  initial_project ; /* TRUE: project z onto feasible set for bisection
                               before the gradient projection loop;
                               FALSE: skip the initial projection */
+
     int try_both_covers ;
 } VSparm ;
 
@@ -618,16 +619,17 @@ void vs_vecadd
     VSINT   const  n
 ) ;
 
-void vs_boundary /* return cost improvement */
+void vs_boundary /* return original cost and its improvement */
 (
-    VSFLOAT   *x, /* feasible point for (GB), output described above */
-    VSINT    *Ai, /* row numbers */
-    VSLINT   *Ap, /* column pointers */
-    VSFLOAT  *Ax, /* edge weights,   NULL => all entries in Ax are 1 */
-    VSFLOAT   *a, /* vertex weights, NULL => all entries in a are 1 */
-    VSINT      n, /* problem dimension */
-    VSFLOAT  *A1, /* linear term in objective of (GB) */
-    VSFLOAT   *g  /* work array for storing gradient vector */
+    VSFLOAT           *x, /* feasible point for (GB), output described above */
+    VSINT            *Ai, /* row numbers */
+    VSLINT           *Ap, /* column pointers */
+    VSFLOAT          *Ax, /* edge weights,   NULL => all entries in Ax are 1 */
+    VSFLOAT           *a, /* vertex weights, NULL => all entries in a are 1 */
+    VSINT              n, /* problem dimension */
+    VSFLOAT         *A12, /* linear term in objective of (GB) */
+    VSFLOAT           *g, /* work array for storing gradient vector */
+    int const PrintLevel
 ) ;
 
 VSINT vs_interior
@@ -1238,15 +1240,6 @@ static void Augment (VSINT k, const CSC *A, VSINT *jmatch, VSLINT *cheap,
 
 static VSINT *Maximum_Matching_Get(const CSC *A, VSINT seed) ;
 
-static void Vtx_Cover_From_Max_Matching_Get
-(
-    CSC            *B,
-    VSINT   *matching,
-    VSINT     **cover,
-    int    start_from_rows,   // NEW
-    CSC            *Bt        // NEW: required iff start_from_rows
-) ;
-
 static int Are_All_Neighbors_In_Cover
 (
     CSC             *B,
@@ -1269,30 +1262,6 @@ static void Separator_Check
     CSC       *A  // Adjacency matrix
 ) ;
 
-void vs_separator
-(
-    int                *part, // array with entries 0, 1, or 2
-    VSINT                *Ai, // Original graph
-    VSLINT               *Ap, // Original graph
-    VSINT                  n, // Original graph n
-    VSINT          *vtx_wgts,
-    int      try_both_covers, // If nonzero: compute both Konig covers (BFS
-                              // from unmatched cols and from unmatched rows)
-                              // and pick the one with smallest weight,
-                              // tiebreaking on smallest imbalance.
-                              // If zero: original logic, single cover from
-                              // BFS on unmatched columns.
-    int            get_stats,  // Binary flag to determine if (somewhat
-                               // expensive) stats should be computed
-
-    // Ignored if get_stats is false. In particular, they can be NULL
-    VSINT             *n_bip,
-    VSLINT           *nz_bip,
-    VSINT         *wgt_cover,
-    VSINT             *imbal,
-    VSFLOAT *time_entire_ret
-) ;
-
 static void Check_Its_A_Cover(CSC *B, VSINT *cover) ;
 
 void Pricing_Algorithm_Vertex_Cover_Get
@@ -1302,22 +1271,5 @@ void Pricing_Algorithm_Vertex_Cover_Get
     VSINT     *cover
 ) ;
 
-void vs_separator_approx
-(   
-    int                *part, // array with entries 0, 1, or 2
-    VSINT                *Ai, // Original graph
-    VSLINT               *Ap, // Original graph
-    VSINT                  n, // Original graph n
-    VSINT          *vtx_wgts,
-    int            get_stats,  // Binary flag to determine if (somewhat
-                               // expensive) stats should be computed
-
-    // Ignored if get_stats is false. In particular, they can be NULL
-    VSINT       *num_vert_bip,
-    VSLINT            *nz_bip,
-    VSINT          *wgt_cover,
-    VSINT              *imbal,
-    VSFLOAT *time_entire_ret
-) ;
 
 #endif

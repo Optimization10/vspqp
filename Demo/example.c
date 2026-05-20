@@ -451,6 +451,7 @@ int main(int argc, char** argv)
     options->initial_project = FALSE ;
     // options->initial_project = TRUE ;
     options->FM_Limit = 320 ;
+    // options->try_both_covers = FALSE ;
 
     Print_Options(options, "output/opts.txt") ;
     /*** I/O ******************************************************************/

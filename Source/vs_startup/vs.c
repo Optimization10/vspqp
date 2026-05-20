@@ -76,8 +76,6 @@
       |________________________________________________________________|*/
 
 #include "VS.h"
-#include "core.h"
-#include <stdio.h>
 
 int vs
 (
@@ -96,16 +94,17 @@ int vs
     VSparm *Parm  /* parameter structure */
 )
 {
-    int PrintLevel, qr_its ;
+    int qr_its ;
     VScom Com ;
     Com.Parm = Parm ;
 
+    VSINT n0, n1, ns, cutedge ;
     VSINT i, j, j0, *Ai ;
     VSLINT nz, nzA, p, q, *Ap ;
     VSFLOAT Amax, r, s, t, *a, *A12, *Ax, *b, *z ;
 
     int status = 0 ;
-    PrintLevel = Parm->PrintLevel ;
+    int const PrintLevel = Parm->PrintLevel ;
     if ( (PrintLevel > 0) && Parm->PrintParms ) vs_print_parms (Parm) ;
 
     int const vw_is_one = (vw  == NULL) ? VSTRUE : VSFALSE ;
@@ -254,7 +253,6 @@ int vs
 
        The next block of code is used to compute the eigenvector-based
        starting guess for the bisection problem. */
-    // Ovi: move here
     b = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
     Com.wx = b ;
     Com.wi = (VSINT *)   vs_malloc (&status, n, sizeof (VSINT)) ;
@@ -566,9 +564,12 @@ int vs
     napdata = napheap_setup () ;
     napdata->c = z ; /* z is projected onto feasible set for (GB) */
     napdata->n = n ;
-    /*printf ("n = %i\n", n) ;
-    printf ("m = %i\n", (int) m) ;
-    for (i = 0; i < n; i++)
+    if ( PrintLevel )
+    {
+        printf ("n = %i\n", n) ;
+        printf ("m = %i\n", (int) m) ;
+    }
+    /* for (i = 0; i < n; i++)
     {
         printf ("a[%i] = %i ;\n", i, (int) a [i]) ;
     }*/
@@ -580,7 +581,6 @@ int vs
     int const ngp = Parm->ngp ;
 
     /* evaluate the linear term = A*(1/2) in the objective of (GB). */
-    // Ovi: make this initial projection optional
     A12 = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
     if ( status ) return (status) ;
     vs_A1mult (A12, Ap, Ax, n, E_is_one) ;
@@ -599,13 +599,10 @@ int vs
         vs_Amult (b, z, Ap, Ai, Ax, n) ;
         /* compute b += A12 ; */
         vs_vecadd (b, A12, n) ;
+
         /* determine scaling factor for the gradient */
-        /* if ( i == 0 )*/
-        {
-            /* compute square of length of b */
-            s = vs_dot (b, b, n) ;
-            s = sqrt(0.125*m/s) ; /* sqrt((n/16)/(b'*b)) */
-        }
+        s = vs_dot (b, b, n) ;
+        s = sqrt(0.125*m/s) ; /* sqrt((n/16)/(b'*b)) */
 #if 0
         /* Decreasing the step size based on the distance to the surface of
            the sphere with center c and radius sqrt(n)/2 did not work as
@@ -639,14 +636,17 @@ int vs
         /* project z onto feasible set for (GB) */
         status = napheap (napdata) ;
 
-        /* VSFLOAT err ;
-        err = napheap_check (&r, &s, &t, napdata) ;
-        printf ("err: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
-        if ( err > 1.e-6 )
+        if ( PrintLevel )
         {
-            printf ("NAPHEAP error: %e\n", err) ;
-            exit(1) ;
-        } */
+            VSFLOAT err ;
+            err = napheap_check (&r, &s, &t, napdata) ;
+            printf ("err: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
+            if ( err > 1.e-6 )
+            {
+                printf ("NAPHEAP error: %e\n", err) ;
+                exit(1) ;
+            }
+        }
 
         /* move projection from X back to z */
         vs_copyx (z, X, n) ;
@@ -657,48 +657,58 @@ int vs
        of the feasible set, where z [i] = 0 or 1 for n-1 choices of i in
       [0, n). The objective value for the boundary point <= objective value
       at the initial feasible point. */
-    vs_boundary (z, Ai, Ap, Ax, a, n, A12, b) ;
+    vs_boundary (z, Ai, Ap, Ax, a, n, A12, b, PrintLevel) ;
 
-    VSINT n0, n1, ns, cutedge ;
-    n0 = n1 = ns = cutedge = 0 ;
+    if ( PrintLevel ) n0 = n1 = ns = cutedge = 0 ;
     p = 0 ;
     for (j = 0; j < n; j++)
     {
         if ( z [j] == 0 )
         {
             x [j] = 0 ;
-            if ( vw_is_one ) n0++ ;
-            else             n0 += vw [j] ;
-            /* look for z [j] = 1 */
-            VSLINT const l = Ap [j+1] ;
-            for (; p < l; p++)
+            if ( PrintLevel )
             {
-                if ( Ai [p] == j ) continue ;
-                if ( z [Ai [p]] == 1 ) cutedge++ ;
+                if ( vw_is_one ) n0++ ;
+                else             n0 += vw [j] ;
+                VSLINT const l = Ap [j+1] ;
+                for (; p < l; p++)
+                {
+                    if ( Ai [p] == j ) continue ;
+                    if ( z [Ai [p]] == 1 ) cutedge++ ;
+                }
             }
         }
         else if ( z [j] == 1 )
         {
             x [j] = 1 ;
-            if ( vw_is_one ) n1++ ;
-            else             n1 += vw [j] ;
-            /* look for z [j] = 0 */
-            VSLINT const l = Ap [j+1] ;
-            for (; p < l; p++)
+            if ( PrintLevel )
             {
-                if ( Ai [p] == j ) continue ;
-                if ( z [Ai [p]] == 0 ) cutedge++ ;
+                if ( vw_is_one ) n1++ ;
+                else             n1 += vw [j] ;
+                /* look for z [j] = 0 */
+                VSLINT const l = Ap [j+1] ;
+                for (; p < l; p++)
+                {
+                    if ( Ai [p] == j ) continue ;
+                    if ( z [Ai [p]] == 0 ) cutedge++ ;
+                }
             }
         }
         else
         {
-            if ( vw_is_one ) ns++ ;
-            else             ns += vw [j] ;
+            if ( PrintLevel )
+            {
+                if ( vw_is_one ) ns++ ;
+                else             ns += vw [j] ;
+            }
             x [j] = 2 ;
         }
     }
-    cutedge /= 2 ;
-    // printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
+    if ( PrintLevel )
+    {
+        cutedge /= 2 ;
+        printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
+    }
     
     vs_separator
     (
@@ -707,34 +717,29 @@ int vs
         NULL, NULL, NULL, NULL, NULL
     ) ;
 
-    // vs_separator_approx
-    // (
-    //     x, Ei, Ep, n, vw, 0,
-    //     NULL, NULL, NULL, NULL, NULL
-    // ) ;
-
-    n0 = n1 = ns = 0 ;
-    for (j = 0; j < n; j++)
+    if ( PrintLevel )
     {
-        if      ( x [j] == 0 )
+        n0 = n1 = ns = 0 ;
+        for (j = 0; j < n; j++)
         {
-            if ( vw_is_one ) n0++ ;
-            else             n0 += vw [j] ;
+            if      ( x [j] == 0 )
+            {
+                if ( vw_is_one ) n0++ ;
+                else             n0 += vw [j] ;
+            }
+            else if ( x [j] == 1 )
+            {
+                if ( vw_is_one ) n1++ ;
+                else             n1 += vw [j] ;
+            }
+            else
+            {
+                if ( vw_is_one ) ns++ ;
+                else             ns += vw [j] ;
+            }
         }
-        else if ( x [j] == 1 )
-        {
-            if ( vw_is_one ) n1++ ;
-            else             n1 += vw [j] ;
-        }
-        else
-        {
-            if ( vw_is_one ) ns++ ;
-            else             ns += vw [j] ;
-        }
+        printf ("n0: %i n1: %i ns: %i\n", n0, n1, ns) ;
     }
-    // printf ("n0: %i n1: %i ns: %i\n", n0, n1, ns) ;
-
-    /* project z onto constraints of the graph partitioning problem (GB) */
 
     if ( a != NULL ) vs_free (a) ;
     if ( Ax != NULL ) vs_free (Ax) ;
@@ -1442,14 +1447,15 @@ void vs_vecadd
 
 void vs_boundary /* return original cost and its improvement */
 (
-    VSFLOAT   *x, /* feasible point for (GB), output described above */
-    VSINT    *Ai, /* row numbers */
-    VSLINT   *Ap, /* column pointers */
-    VSFLOAT  *Ax, /* edge weights,   NULL => all entries in Ax are 1 */
-    VSFLOAT   *a, /* vertex weights, NULL => all entries in a are 1 */
-    VSINT      n, /* problem dimension */
-    VSFLOAT *A12, /* linear term in objective of (GB) */
-    VSFLOAT   *g  /* work array for storing gradient vector */
+    VSFLOAT           *x, /* feasible point for (GB), output described above */
+    VSINT            *Ai, /* row numbers */
+    VSLINT           *Ap, /* column pointers */
+    VSFLOAT          *Ax, /* edge weights,   NULL => all entries in Ax are 1 */
+    VSFLOAT           *a, /* vertex weights, NULL => all entries in a are 1 */
+    VSINT              n, /* problem dimension */
+    VSFLOAT         *A12, /* linear term in objective of (GB) */
+    VSFLOAT           *g, /* work array for storing gradient vector */
+    int const PrintLevel
 )
 {
     int dumpi, dumpj, two_hit ;
@@ -1536,7 +1542,11 @@ void vs_boundary /* return original cost and its improvement */
                     x [j] += pj ;
                     if ( x [j] <= VSZERO )
                     {
-                        // printf ("x [%i]: %e violates lower bound\n", j, x [j]) ;
+                        if ( PrintLevel )
+                        {
+                            printf ("x [%i]: %e violates lower bound\n",
+                                     j, x [j]) ;
+                        }
                         two_hit = VSTRUE ;
                         x [j] = VSZERO ;
                     }
@@ -1551,7 +1561,11 @@ void vs_boundary /* return original cost and its improvement */
                     x [i] += pi ;
                     if ( x [i] >= VSONE )
                     {
-                        // printf ("x [%i]: %e violates upper bound\n", i, x [i]) ;
+                        if ( PrintLevel )
+                        {
+                            printf ("x [%i]: %e violates upper bound\n",
+                                     i, x [i]) ;
+                        }
                         two_hit = VSTRUE ;
                         x [i] = VSONE ;
                     }
@@ -1569,7 +1583,11 @@ void vs_boundary /* return original cost and its improvement */
                     x [j] += pj ;
                     if ( x [j] >= VSONE )
                     {
-                        // printf ("x [%i]: %e violates upper bound\n", j, x [j]) ;
+                        if ( PrintLevel )
+                        {
+                            printf ("x [%i]: %e violates upper bound\n",
+                                     j, x [j]) ;
+                        }
                         two_hit = VSTRUE ;
                         x [j] = VSONE ;
                     }
@@ -1583,7 +1601,11 @@ void vs_boundary /* return original cost and its improvement */
                     x [i] += pi ;
                     if ( x [i] <= VSZERO )
                     {
-                    // printf ("x [%i]: %e violates lower bound\n", i, x [i]) ;
+                        if ( PrintLevel )
+                        {
+                            printf ("x [%i]: %e violates lower bound\n",
+                                     i, x [i]) ;
+                        }
                         two_hit = VSTRUE ;
                         x [i] = VSZERO ;
                     }
@@ -1604,7 +1626,10 @@ void vs_boundary /* return original cost and its improvement */
                 x [j] += pj ;
                 if ( x [j] >= VSONE )
                 {
-                    // printf ("x [%i]: %e violates upper bound\n", j, x [j]) ;
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %e violates upper bound\n", j, x [j]) ;
+                    }
                     two_hit = VSTRUE ;
                     x [j] = VSONE ;
                 }
@@ -1618,7 +1643,10 @@ void vs_boundary /* return original cost and its improvement */
                 x [i] += pi ;
                 if ( x [i] <= VSZERO )
                 {
-                    // printf ("x [%i]: %e violates lower bound\n", i, x [i]) ;
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %e violates lower bound\n", i, x [i]) ;
+                    }
                     two_hit = VSTRUE ;
                     x [i] = VSZERO ;
                 }
@@ -1638,7 +1666,10 @@ void vs_boundary /* return original cost and its improvement */
                 x [j] += pj ;
                 if ( x [j] <= VSZERO )
                 {
-                    // printf ("x [%i]: %e violates lower bound\n", j, x [j]) ;
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %e violates lower bound\n", j, x [j]) ;
+                    }
                     two_hit = VSTRUE ;
                     x [j] = VSZERO ;
                 }
@@ -1652,7 +1683,10 @@ void vs_boundary /* return original cost and its improvement */
                 x [i] += pi ;
                 if ( x [i] >= VSONE )
                 {
-                    // printf ("x [%i]: %e violates upper bound\n", i, x [i]) ;
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %e violates upper bound\n", i, x [i]) ;
+                    }
                     two_hit = VSTRUE ;
                     x [i] = VSONE ;
                 }
