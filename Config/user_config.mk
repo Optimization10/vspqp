@@ -7,8 +7,8 @@
 #------------------------------------------------------------------------------
 # Choose debug or release version
 #------------------------------------------------------------------------------
-VERSION = release
-# VERSION = dev
+# VERSION = release
+VERSION = dev
 # VERSION = debug
 
 
@@ -54,12 +54,12 @@ EXTRA_WARNINGS = disabled
 #------------------------------------------------------------------------------
 # Specify C Compiler
 #------------------------------------------------------------------------------
-CC = gcc
-# CC = clang
+# CC = gcc
+CC = clang
 
 
 #------------------------------------------------------------------------------
 # Additional Compiler Flags
 #------------------------------------------------------------------------------
 # Add any other compiler flags, such as as -DLOG
-USER_FLAGS = 
+# USER_FLAGS = -fsanitize=address

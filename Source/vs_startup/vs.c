@@ -8711,7 +8711,7 @@ static VSFLOAT VSP_Obj
 )
 {
     VSINT i ;
-    VSFLOAT obj ;
+    VSFLOAT obj = 0 ;
 
     for(i = 0 ; i < n ; i++)
     {
@@ -8812,7 +8812,7 @@ void VSP_Grad_Proj
     Y = malloc (n*sizeof (VSPFLOAT)) ; // stores projection in y
 
     // Compute initial objective, obj_0
-    obj_0 = VSP_Obj(x, gx, y, a, n) ;
+    obj_0 = VSP_Obj(x, gx, y, a, n) - n * 1e-10 ;
 
 
 
@@ -8846,8 +8846,10 @@ void VSP_Grad_Proj
                                     sy is projected on the y-feasible set */
         // Lower bound on objective
         obj = -gamma * n * n ;
+        int counter = 0 ;
         while(obj < obj_0)
         {
+            counter++ ;
             // Scale gradients by 0.5
             vs_scale(gx, VSHALF, n) ;
             vs_scale(gy, VSHALF, n) ;
@@ -8862,14 +8864,26 @@ void VSP_Grad_Proj
             status = napheap(napdata) ;
             if( status ) napheap_print_status (napdata) ;
 
+            VSFLOAT err, r ;            
+            err = napheap_check (&r, &s, &t, napdata) ;
+            printf ("err: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
+
+            // if(counter == 2) exit(1) ; 
+
             // Project sy to feasible set
             napdata->c = sy ;
             napdata->x = Y ;
             status = napheap(napdata) ;
             if( status ) napheap_print_status (napdata) ;
 
+            // err = napheap_check (&r, &s, &t, napdata) ;
+            // printf ("err: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
+
             VSP_Grad(gxtemp, a, Y, Ai, Ap, gamma, n) ;
             obj = VSP_Obj(X, gxtemp, Y, a, n) ;
+
+            // printf("obj: %f    obj0: %f\n", obj, obj_0) ;
+            // fflush(stdout) ;
         }
 
         /* Update: x <- X and y <- Y */
@@ -8878,6 +8892,8 @@ void VSP_Grad_Proj
         vs_copyx(x, X, n) ;
         VSP_Grad(gy, a, x, Ai, Ap, gamma, n) ;
         vs_copyx(y, Y, n) ;
+
+        if( fabs(obj - obj_0) < n * 1e-10 ) break ;
     }
 
     napheap_terminate(&napdata) ;

@@ -428,7 +428,7 @@ int main(int argc, char** argv)
     seed = 1 ;
 
     srand(seed) ;
-    printf("\nSeed : %u", seed ) ;
+    printf("\nSeed : %u\n\n", seed ) ;
 
     /* Local vars */
     VSPINT                 sum_sep ;

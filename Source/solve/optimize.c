@@ -180,7 +180,7 @@ void Optimize
     // Phase 0: Gradient Projection
     /* ====================================================================== */
     
-#if( 0 )
+// #if( 0 )
     /* Step 1: Convert x, y, c to floats, and compute gx and gy */
     x_flt = Point_To_Array(X->point) ;
     gx    = Az_To_Grad(c, gamma, Y->Az) ;
@@ -208,7 +208,7 @@ void Optimize
     free(gx) ;
     free(gy) ;
     free(c_flt) ;
-#endif
+// #endif
 
     /* ====================================================================== */
     // Phase 1: Mountain climbing
