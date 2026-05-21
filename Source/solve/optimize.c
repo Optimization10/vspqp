@@ -187,6 +187,8 @@ void Optimize
     /* Move x_flt, y_flt to almost binary points */
 
     /* Update the X and Y states with x_flt and y_flt */
+    Array_To_State(x_flt, X, problem->graph) ;
+    Array_To_State(y_flt, Y, problem->graph) ;
 
     /* Cleanup */
     free(x_flt) ;

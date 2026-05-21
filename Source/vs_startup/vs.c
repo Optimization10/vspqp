@@ -8439,3 +8439,238 @@ void vs_separator_approx
     free(w) ;
     CSC_Destroy(B) ;
 }
+
+static VSINT VSPinterior
+(
+   VSINT    ilower, /* search x for indices > ilower and < n */
+   VSFLOAT      *x, /* search for 0 < x [i] < 1 */
+   VSINT         n  /* dimension of x */
+)
+{
+    VSINT i ;
+    for (i = ilower+1; i < n; i++)
+    {
+        if ( (x [i] > VSZERO) && (x [i] < VSONE) ) break ;
+    }
+    if ( i < n ) return (i) ;
+    else         return (VSEMPTY) ;
+}
+
+/* =========================================================================
+   ============================= VSPboundary ===============================
+   =========================================================================
+       ________________________________________________________________
+      |    Consider the following problem:                             |
+      |                                                                |
+      |    (P)        max f(x) := x'g                                  |
+      |                                                                |
+      |               subject to a'x = m, 0 <= x <= 1                  |
+      |                                                                |
+      |    n = number of vertices in an undirected graph, a > 0, m     |
+      |    arbitrary integer in [0, a'*1]. Given a feasible point x,   |
+      |    the code replaces x with a new feasible point x* satisfying |
+      |    f(x*) >= f(x).  Moreover, x [i] = 0 or 1 for at least n-1   |
+      |    distinct i in [0, n). If x* is binary, then the code returns|
+      |    -1. If x* is fractional, then the code returns the index of |
+      |    the fractional components of x*.                            | 
+      |                                                                |
+      |    Algorithm:                                                  |
+      |                                                                |
+      |    First search for i and then search for j such that          |
+      |                                                                |
+      |        0 < x [i] < 1, 0 < x [j] < 1, and i < j.                |
+      |                                                                |
+      |    If i does not exist, then return -1. If j does not exist,   |
+      |    then return j. Assuming both i and j exist, then let        |
+      |    p denote a vector with all components zero except for       |
+      |    p [i] = a [j] and p [j] = -a [i]. For this choice of p,     |
+      |    we have a'p = 0. Hence, x(s) := x + s*p satisfies the linear|
+      |    constraint of (P) for any choice of s. By the structure of  |
+      |    the objective, we have                                      |
+      |                                                                |
+      |        f(x + s*p) = f(x) + s*b  where  b := g_i p_i + g_j p_j. |
+      |                                                                |
+      |    If b >= 0, then let s > 0 be the first value of s > 0 where |
+      |    either x_i (s) = 1  or x_j (s) = 0. If b < 0, then let s < 0|
+      |    be the first value of s < 0 where either x_i (s) = 0 or     |
+      |    x_j (x) = 1. If s is choosen in this way, the objective     | 
+      |    value cannot decrease and the new x remains feasible.       |
+      |________________________________________________________________|
+
+       ________________________________________________________________
+      |This program is free software; you can redistribute it and/or   |
+      |modify it under the terms of the GNU General Public License as  |
+      |published by the Free Software Foundation; either version 2 of  |
+      |the License, or (at your option) any later version.             |
+      |This program is distributed in the hope that it will be useful, |
+      |but WITHOUT ANY WARRANTY; without even the implied warranty of  |
+      |MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   |
+      |GNU General Public License for more details.                    |
+      |                                                                |
+      |You should have received a copy of the GNU General Public       |
+      |License along with this program; if not, write to the Free      |
+      |Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, |
+      |MA  02110-1301  USA                                             |
+      |________________________________________________________________|*/
+
+VSINT VSPboundary
+(
+    VSFLOAT           *x, /* feasible point for (GB), output described above */
+    VSFLOAT           *a, /* vertex weights, NULL => all entries in a are 1 */
+    VSFLOAT           *g, /* linear vector in objective */
+    VSINT              n, /* problem dimension */
+    int const PrintLevel
+)
+{
+    int dumpi, dumpj, two_hit ;
+    VSFLOAT pi, pj, s1, s2, s3, s4, xi, xj, tlinear ;
+    VSINT i, j ;
+
+    /* find index > -1 */
+    i = VSPinterior (-1, x, n) ;
+    if ( i == VSEMPTY )
+    {
+        /* x has no interior components */
+        return (EMPTY) ;
+    }
+    j = VSPinterior (i, x, n) ;
+    if ( j == VSEMPTY )
+    {
+        /* done since x has at most one fractional component */
+        return (i) ;
+    }
+    int const a_is_one = (a == NULL) ? VSTRUE : VSFALSE ;
+    two_hit = VSFALSE ;
+    dumpi = VSFALSE ;
+    dumpj = VSFALSE ;
+    while ( 1 )
+    {
+        /* components i and j of x are fractional */
+        VSFLOAT const ai = (a_is_one) ? VSONE : a [i] ;
+        VSFLOAT const aj = (a_is_one) ? VSONE : a [j] ;
+        VSFLOAT const xi = x [i] ;
+        VSFLOAT const xj = x [j] ;
+        /* pi = aj, pj = -ai */
+        tlinear = g [i]*aj - g [j]*ai ;
+
+        /* if tlinear = 0, then determine whether a positive or a negative s
+           step is larger in absolute value, and take the larger step */
+        if ( tlinear >= VSZERO )
+        {
+            /* pos s step */
+            s1 = (1-xi)/aj ; /* xi hits upper bound */
+            s2 = xj/ai ;     /* xj hits lower bound */
+            if ( s1 < s2 ) /* s is positive and xi hits upper bound */
+            {
+                pi = VSONE - xi ;
+                x [i] = VSONE ;
+                pj = -s1*ai ;
+                x [j] += pj ;
+                if ( x [j] <= VSZERO )
+                {
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %e violates lower bound\n",
+                                 j, x [j]) ;
+                    }
+                    two_hit = VSTRUE ;
+                    x [j] = VSZERO ;
+                }
+                else dumpi = VSTRUE ;
+            }
+            else /* xj hits lower bound */
+            {
+                pj = -xj ;
+                x [j] = VSZERO ;
+                pi = s2*aj ;
+                x [i] += pi ;
+                if ( x [i] >= VSONE )
+                {
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %e violates upper bound\n",
+                                 i, x [i]) ;
+                    }
+                    two_hit = VSTRUE ;
+                    x [i] = VSONE ;
+                }
+                else dumpj = VSTRUE ;
+            }
+        }
+        else     /* tlinear < 0 */
+        {
+            /* neg s step */
+            s3 = xi/aj ;       /* xi hits lower bound */
+            s4 = (1-xj)/ai ;   /* xj hits upper bound */
+            if ( s3 < s4 ) /* s is negative and xi hits lower bound */
+            {
+                pi = -xi ;
+                x [i] = VSZERO ;
+                pj = s3*ai ;
+                x [j] += pj ;
+                if ( x [j] >= VSONE )
+                {
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %e violates upper bound\n",
+                                 j, x [j]) ;
+                    }
+                    two_hit = VSTRUE ;
+                    x [j] = VSONE ;
+                }
+                else dumpi = VSTRUE ;
+            }
+            else /* s is negative and xj hits upper bound */
+            {
+                pj = VSONE - xj ;
+                x [j] = VSONE ;
+                pi = -s4*aj ;
+                x [i] += pi ;
+                if ( x [i] <= VSZERO )
+                {
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %e violates lower bound\n",
+                                 i, x [i]) ;
+                    }
+                    two_hit = VSTRUE ;
+                    x [i] = VSZERO ;
+                }
+                else dumpj = VSTRUE ;
+            }
+        }
+
+        /* update i and j if two_hit is TRUE */
+        if ( two_hit )
+        {
+            /* find first index > j */
+            i = VSPinterior (j, x, n) ;
+            if ( i == VSEMPTY )
+            {
+                /* x has no interior components */
+                return (EMPTY) ;
+            }
+            j = VSPinterior (j, x, n) ;
+            if ( j == VSEMPTY )
+            {
+                /* done since x has at most one fractional component */
+                return (i) ;
+            }
+            two_hit = VSFALSE ;
+        }
+        else if ( dumpi )
+        {
+            i = j ;
+            j = VSPinterior (j, x, n) ;
+            if ( j == VSEMPTY ) return (i) ;
+            dumpi = VSFALSE ;
+        }
+        else /* dumpj */
+        {
+            j = VSPinterior (j, x, n) ;
+            if ( j == VSEMPTY ) return (i) ;
+            dumpj = VSFALSE ;
+        }
+    }
+}
+

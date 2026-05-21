@@ -216,7 +216,7 @@ static void set_centroid
     obj_y += problem->u ;
 
     /* Update the state of y */
-    array_to_point(y_f, Y->point) ;
+    Array_To_Point(y_f, Y->point) ;
     Compute_Az(Y->point, Y->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
     compute_weight(Y->point, &Y->weight, c) ;
 

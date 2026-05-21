@@ -461,7 +461,7 @@ VSPFLOAT* Az_To_Array (Az *Az)
 }
 
 
-void array_to_point
+void Array_To_Point
 (
     VSPFLOAT  *z_float,
     Point     *z
