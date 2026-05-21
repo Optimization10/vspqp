@@ -2903,4 +2903,31 @@ VSPINT Get_u_Finest(Problem *P)
     VSP_ASSERT(P != NULL) ;
     while(P->parent_problem != NULL) P = P->parent_problem ;
     return P->ubFinest ;
-} 
+}
+
+VSPFLOAT *Point_To_Float(Point *Z)
+{
+    VSPINT    i ;
+    VSPINT    n     = Z->n ;
+    VSPINT   *z     = Z->int_part ;
+    VSPFLOAT *z_flt = malloc(n * sizeof(*z_flt)) ;
+
+    for(i = 0 ; i < n ; i++) z_flt[i] = z[i] ;
+    if(Z->ind_frac != EMPTY)
+    {
+        z_flt[ Z->ind_frac ] = Z->val_frac ;
+    }
+
+    return z_flt ;
+}
+
+VSPFLOAT *Az_To_Float(Az *AZ)
+{
+    VSPINT    i ;
+    VSPINT    n      = AZ->n ;
+    VSPFLOAT *Az_flt = malloc(n * sizeof(*Az_flt)) ;
+
+    for(i = 0 ; i < n ; i++) Az_flt[i] = Azi(i, AZ) ;
+
+    return Az_flt ;
+}

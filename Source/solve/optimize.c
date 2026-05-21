@@ -169,6 +169,13 @@ void Optimize
     VSPINT L     = problem->coarsest_level_num ;
     VSPINT gamma = problem->graph->max_vtx_cost ;
 
+    // Phase 0: Gradient Projection
+    // Convert x, y, Ax, Ay to floats
+
+    // Compute gradient projection
+
+    // Move x_flt, y_flt to an almost binary point and compute Ax and Ay
+
     // Phase 1: Mountain Climbing
     mountain_climbing(X, Y, problem, options, gamma, true) ;
     if (Early_Exit(X, Y, problem)) goto CLEANUP;

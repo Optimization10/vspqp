@@ -564,4 +564,8 @@ VSPINT Get_Rand_Array_Entry
 
 VSPINT Get_u_Finest(Problem *P) ;
 
+VSPFLOAT *Point_To_Float(Point *Z) ;
+
+VSPFLOAT *Az_To_Float(Az *AZ) ;
+
 #endif
