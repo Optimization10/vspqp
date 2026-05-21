@@ -326,10 +326,10 @@ void Part_To_States
     {
         for(i = 0 ; i < n ; i++)
         {
-            x[i] = 0 ;
-            y[i] = 0 ;
-            if(part[i] == 0)      x[i] = 1 ;
-            else if(part[i] == 1) y[i] = 1 ;
+            const int side = part[i] ;
+            x[i] = (side == 0) ;
+            y[i] = (side == 1) ;
+            VSP_ASSERT(side == 0 || side == 1) ;
         }
         X->weight = wgts_part[0] ;
         Y->weight = wgts_part[1] ;
