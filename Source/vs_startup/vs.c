@@ -1747,7 +1747,9 @@ void vs_boundary /* return original cost and its improvement */
                 /* x has no interior components */
                 break ;
             }
-            j = vs_interior (j, x, n) ;
+            // Buggy
+            // j = vs_interior (j, x, n) ;
+            j = vs_interior (i, x, n) ;
             if ( j == VSEMPTY )
             {
                 /* done since x has at most one fractional component */
