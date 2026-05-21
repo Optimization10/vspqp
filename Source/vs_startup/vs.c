@@ -8720,6 +8720,69 @@ static VSFLOAT VSP_Obj
     return obj ;
 }
 
+void VSP_Mat_Vec_Mult_Float
+(
+    const VSFLOAT *const z,
+    VSFLOAT       *const Az,
+    const VSPINT  *const Ai,
+    const VSPLONG *const Ap,
+    const VSPINT         n
+)
+{
+    VSPINT col = 0 ;
+    VSPLONG p, start, end ;
+
+    /* Initialize Az to all 0's */
+    for(col = 0; col < n; col++) Az[col] = 0 ;
+
+    for (col = 0; col < n; col++)
+    {
+        VSFLOAT const zcol = z[col] ;
+        if ( zcol )
+        {
+            start = Ap[col] ;
+            end   = Ap[col + 1] ;
+            for (p = start ; p < end ; p++) Az[ Ai[p] ] += zcol ;
+            
+            /* Take identity into account */
+            Az[col] += zcol ;
+        }
+    }
+}
+
+/* Compute gz = a - gamma * Az */
+void VSP_Grad
+(
+    VSFLOAT       *const gz,
+    const VSFLOAT *const a,
+    const VSFLOAT *const z,
+    const VSPINT  *const Ai,
+    const VSPLONG *const Ap,
+    const VSFLOAT        gamma,
+    const VSPINT         n
+)
+{
+    VSPINT col = 0 ;
+    VSPLONG p, start, end ;
+
+    /* Initialize Az to all 0's */
+    for(col = 0; col < n; col++) gz[col] = a[col] ;
+
+    for (col = 0; col < n; col++)
+    {
+        VSFLOAT const zcol = -gamma * z[col] ;
+        if ( zcol )
+        {
+            start = Ap[col] ;
+            end   = Ap[col + 1] ;
+            for (p = start ; p < end ; p++) gz[ Ai[p] ] += zcol ;
+            
+            /* Take identity into account */
+            gz[col] += zcol ;
+        }
+    }
+}
+
 void VSP_Grad_Proj
 (
     VSFLOAT  *x,
@@ -8731,12 +8794,12 @@ void VSP_Grad_Proj
     VSLINT   *Ap,
     VSINT     u,
     VSINT     n,
-    VSINT     gamma
+    VSFLOAT   gamma
 )
 {
     VSPINT i ;
     VSFLOAT *X, *Y, obj_0, obj, s, t, *sx, *sy ;
-    int ngp ;
+    int ngp, status ;
 
     NAPdata *napdata ;
     napdata = napheap_setup () ;
@@ -8788,8 +8851,21 @@ void VSP_Grad_Proj
             vs_scale(gx, VSHALF, n) ;
             vs_scale(gy, VSHALF, n) ;
 
+            // Compute new point (sx, sy)
             vs_vecadd(sx, x, gx, n) ;
             vs_vecadd(sy, y, gy, n) ;
+
+            // Project sx to feasible set
+            napdata->c = sx ;
+            napdata->x = X ;
+            status = napheap(napdata) ;
+            if( status ) napheap_print_status (napdata) ;
+
+            // Project sy to feasible set
+            napdata->c = sy ;
+            napdata->x = Y ;
+            status = napheap(napdata) ;
+            if( status ) napheap_print_status (napdata) ;
         }
     }
 
