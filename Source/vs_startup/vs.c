@@ -76,6 +76,7 @@
       |________________________________________________________________|*/
 
 #include "vs_internal.h"
+#include <math.h>
 
 int vs
 (
@@ -8681,7 +8682,24 @@ VSINT VSPboundary
     }
 }
 
+static VSFLOAT VSP_Obj
+(
+    VSFLOAT *x,
+    VSFLOAT *gx,
+    VSFLOAT *y,
+    VSFLOAT *a,
+    VSINT    n
+)
+{
+    VSINT i ;
+    VSFLOAT obj ;
 
+    for(i = 0 ; i < n ; i++)
+    {
+        obj += x[i] * gx[i] + y[i] * a[i] ;
+    }
+    return obj ;
+}
 
 void VSP_Grad_Proj
 (
@@ -8689,7 +8707,7 @@ void VSP_Grad_Proj
     VSFLOAT  *gx,
     VSFLOAT  *y,
     VSFLOAT  *gy,
-    VSFLOAT  *a,
+    VSFLOAT  *a,    /* vertex costs */
     VSINT    *Ai,
     VSLINT   *Ap,
     VSINT     u,
@@ -8697,5 +8715,69 @@ void VSP_Grad_Proj
     VSINT     gamma
 )
 {
+    VSPINT i ;
+    VSFLOAT *X, *Y, obj_0, obj, s, t, *sx, *sy ;
+    int ngp ;
 
+    NAPdata *napdata ;
+    napdata = napheap_setup () ;
+    napdata->n = n ;   // problem dimension at current level
+    napdata->a = a ;   // linear constraint for napheap problem
+    napdata->blo = 0 ; // lower bound of balance constraint
+    napdata->bhi = u ; // upper bound of balance constraint
+
+    X = malloc (n*sizeof (VSPFLOAT)) ; // stores projection in x
+    Y = malloc (n*sizeof (VSPFLOAT)) ; // stores projection in y
+
+    // Compute initial objective, obj_0
+    obj_0 = VSP_Obj(x, gx, y, a, n) ;
+
+
+
+    /* Perform ngp iterations of the gradient projection algorithm
+       The new (x, y) is the solution of
+       
+              min 0.5*(x-sx)^2 + 0.5*(y-sy)%2
+      
+                   subject to 0 <= x <= u, 0 <= x <= 1, 0 <= y <= u, 0 <=
+    
+       where and sx and sy are steps along the gradient starting from the
+       iterates x and y: sx = x + s*gx and sy = y + s*gy, s = stepsize */
+    ngp = 3 ;
+    sx = malloc(n * sizeof(*sx)) ;
+    sy = malloc(n * sizeof(*sy)) ;
+
+    for(i = 0 ; i < ngp ; i++)
+    {
+        s = vs_max(gx, n) ;
+        t = vs_max(gy, n) ;
+        s = MAX(s, t) ;
+
+        // Scaling factor for gradients
+        s = 1 / s ;
+        vs_scale(gx, s, n) ;
+        vs_scale(gy, s, n) ;
+
+        /* Project gradient step onto feasible set. The projection decomposes into
+        two separate projections: sx is projected on the x-feasible set and
+                                    sy is projected on the y-feasible set */
+        // Lower bound on objective
+        obj = -gamma * n * n ;
+        while(obj < obj_0)
+        {
+            // Scale gradients by 0.5
+            vs_scale(gx, VSHALF, n) ;
+            vs_scale(gy, VSHALF, n) ;
+
+            vs_vecadd(x, gx, n) ;
+            vs_vecadd(y, gy, n) ;
+        }
+    }
+
+
+    /* Cleanup */
+    free(sx) ;
+    free(sy) ;
+    free(X) ;
+    free(Y) ;
 }
