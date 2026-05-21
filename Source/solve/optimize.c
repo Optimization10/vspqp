@@ -164,19 +164,39 @@ void Optimize
 #ifdef DEBUG
         check_states(X, Y, problem);
 #endif
-    VSPINT n_passes;
-    VSPINT l     = problem->level ;
-    VSPINT L     = problem->coarsest_level_num ;
-    VSPINT gamma = problem->graph->max_vtx_cost ;
+    VSPFLOAT *x_flt, *y_flt, *gx, *gy ;
+    VSPINT    n_passes;
+    VSPINT   *c     = problem->graph->c ;
+    VSPINT    l     = problem->level ;
+    VSPINT    L     = problem->coarsest_level_num ;
+    VSPINT    gamma = problem->graph->max_vtx_cost ;
 
+    /* ====================================================================== */
     // Phase 0: Gradient Projection
-    // Convert x, y, Ax, Ay to floats
+    /* ====================================================================== */
+    
+    /* Convert x, y, Ax, Ay to floats */
+    x_flt = Point_To_Array(X->point) ;
+    gx    = Az_To_Grad(c, gamma, Y->Az) ;
 
-    // Compute gradient projection
+    y_flt = Point_To_Array(Y->point) ;    
+    gy    = Az_To_Grad(c, gamma, X->Az) ;
 
-    // Move x_flt, y_flt to an almost binary point and compute Ax and Ay
+    /* Do gradient projection */
 
-    // Phase 1: Mountain Climbing
+    /* Move x_flt, y_flt to almost binary points */
+
+    /* Update the X and Y states with x_flt and y_flt */
+
+    /* Cleanup */
+    free(x_flt) ;
+    free(y_flt) ;
+    free(gx) ;
+    free(gy) ;
+
+    /* ====================================================================== */
+    // Phase 1: Mountain climbing
+    /* ====================================================================== */
     mountain_climbing(X, Y, problem, options, gamma, true) ;
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 

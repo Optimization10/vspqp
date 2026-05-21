@@ -433,7 +433,8 @@ long double compute_elapsed_time(struct timespec start, struct timespec end)
 }
 
 
-VSPFLOAT* Az_struct_to_array (Az *Az) {
+VSPFLOAT* Az_To_Array (Az *Az)
+{
     VSPINT    i ;
     VSPFLOAT  frac_entry ;
     VSPINT    ind_frac_z = Az->ind_frac_z ;
@@ -460,9 +461,10 @@ VSPFLOAT* Az_struct_to_array (Az *Az) {
 }
 
 
-void array_to_point(
+void array_to_point
+(
     VSPFLOAT  *z_float,
-    Point       *z
+    Point     *z
 ) {
     #ifdef DEBUG
         static long long unsigned count = 0 ;
@@ -492,7 +494,8 @@ void array_to_point(
     return ;
 }
 
-VSPFLOAT* Point_to_array(Point *z) {
+VSPFLOAT* Point_To_Array(Point *z)
+{
     VSPINT i, k ;
     VSPINT n = z->n ;
 
@@ -503,7 +506,8 @@ VSPFLOAT* Point_to_array(Point *z) {
     for(i = 0 ; i < n ; i++) z_arr[i] = z->int_part[i] ;
 
     k = z->ind_frac ;
-    if(k != EMPTY) {
+    if(k != EMPTY)
+    {
         z_arr[k] = z->val_frac ;
     }
 
@@ -1150,10 +1154,10 @@ void check_states(State *X, State *Y, Problem *problem)
     check_state(Y, problem) ;
 
     /* Check the cross term */
-    VSPFLOAT *x_f = Point_to_array(X->point) ;
-    VSPFLOAT *y_f = Point_to_array(Y->point) ;
-    VSPFLOAT *Ax_f = Az_struct_to_array(X->Az) ;
-    VSPFLOAT *Ay_f = Az_struct_to_array(Y->Az) ;
+    VSPFLOAT *x_f = Point_To_Array(X->point) ;
+    VSPFLOAT *y_f = Point_To_Array(Y->point) ;
+    VSPFLOAT *Ax_f = Az_To_Array(X->Az) ;
+    VSPFLOAT *Ay_f = Az_To_Array(Y->Az) ;
 
     VSPFLOAT xAy_1 = 0 ;
     VSPFLOAT xAy_2 = 0 ;
@@ -2635,8 +2639,8 @@ VSPFLOAT compute_objective_0(
 
 
     /* Convert X, Y to arrays of floats */
-    VSPFLOAT *x_arr = Point_to_array(X->point) ;
-    VSPFLOAT *y_arr = Point_to_array(Y->point) ;
+    VSPFLOAT *x_arr = Point_To_Array(X->point) ;
+    VSPFLOAT *y_arr = Point_To_Array(Y->point) ;
 
     /* Allocate memory for A */
     VSPINT** A = malloc( n * sizeof(VSPINT*) ) ;
@@ -2905,29 +2909,55 @@ VSPINT Get_u_Finest(Problem *P)
     return P->ubFinest ;
 }
 
-VSPFLOAT *Point_To_Float(Point *Z)
-{
-    VSPINT    i ;
-    VSPINT    n     = Z->n ;
-    VSPINT   *z     = Z->int_part ;
-    VSPFLOAT *z_flt = malloc(n * sizeof(*z_flt)) ;
-
-    for(i = 0 ; i < n ; i++) z_flt[i] = z[i] ;
-    if(Z->ind_frac != EMPTY)
-    {
-        z_flt[ Z->ind_frac ] = Z->val_frac ;
-    }
-
-    return z_flt ;
-}
-
-VSPFLOAT *Az_To_Float(Az *AZ)
+// Return c - gamma Az as an array of floats
+VSPFLOAT *Az_To_Grad(VSPINT *c, VSPINT gamma, Az *AZ)
 {
     VSPINT    i ;
     VSPINT    n      = AZ->n ;
-    VSPFLOAT *Az_flt = malloc(n * sizeof(*Az_flt)) ;
+    VSPFLOAT *g = malloc(n * sizeof(*g)) ;
 
-    for(i = 0 ; i < n ; i++) Az_flt[i] = Azi(i, AZ) ;
+    for(i = 0 ; i < n ; i++) g[i] = c[i] - Azi(i, AZ) ;
 
-    return Az_flt ;
+    return g ;
+}
+
+// Assuming z_flt is an almost binary point, convert z_flt to a state struct
+void Array_To_State(VSPFLOAT *z_flt, State *Z, Graph *graph)
+{
+
+    VSPINT    i, zi, wgt ; 
+    VSPINT   *z = Z->point->int_part ;
+    VSPINT    n = graph->n ;
+    VSPINT   *c = graph->c ;
+    VSPINT  *Ai = graph->Ai ;
+    VSPLONG *Ap = graph->Ap ;
+
+    /* ====================================================================== */
+    /* Do the point and the weight */
+    /* ====================================================================== */
+    Z->point->n        = n ;
+    Z->point->ind_frac = EMPTY ;
+    Z->point->val_frac = 0 ;
+
+    wgt = 0 ;
+    for(i = 0 ; i < n ; i++)
+    {
+        zi   = z_flt[i] ;
+        z[i] = zi ;
+        wgt += zi * c[i] ;
+
+        // Check if z_i is fractional
+        if(z_flt[i] != 0 && z_flt[i] != 1)
+        {
+            Z->point->ind_frac = i ;
+            Z->point->val_frac = z_flt[i] ;
+            wgt += lround(z_flt[i] * c[i]) ;
+        }
+    }
+    Z->weight = wgt ;
+
+    /* ====================================================================== */
+    /* Do Az */
+    /* ====================================================================== */
+    Compute_Az(Z->point, Z->Az, Ai, Ap, n) ;
 }

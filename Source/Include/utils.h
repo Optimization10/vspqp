@@ -145,7 +145,7 @@ void array_to_point(
     Point       *z
 ) ;
 
-VSPFLOAT* Az_struct_to_array (Az *Az) ;
+VSPFLOAT* Az_To_Array (Az *Az) ;
 
 
 void check_against_target_weight (
@@ -283,7 +283,7 @@ void extract_matrix_col(
     VSPLONG          *Ap
 ) ;
 
-VSPFLOAT* Point_to_array(Point *z) ;
+VSPFLOAT* Point_To_Array(Point *z) ;
 
 void copy_state
 (
@@ -564,8 +564,7 @@ VSPINT Get_Rand_Array_Entry
 
 VSPINT Get_u_Finest(Problem *P) ;
 
-VSPFLOAT *Point_To_Float(Point *Z) ;
-
-VSPFLOAT *Az_To_Float(Az *AZ) ;
+VSPFLOAT *Az_To_Grad(VSPINT *c, VSPINT gamma, Az *AZ) ;
+void Array_To_State(VSPFLOAT *z_flt, State *Z, Graph *graph) ;
 
 #endif
