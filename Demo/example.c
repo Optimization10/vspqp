@@ -183,7 +183,7 @@ void destruct_solve_result(solve_result *result)
 // Input:  a file to open (absolute or relative path. Prefer absolute)
 void Read_hager6_File
 (
-    char           *path,
+    char       *path,
     Options *options,
 
     // Output
@@ -207,8 +207,10 @@ void Read_hager6_File
     // Read n and nz
     int32_t ntemp ;
     int64_t nztemp ;
-    fread(&ntemp, sizeof(int32_t), 1, fp) ;
-    fread(&nztemp, sizeof(int64_t), 1, fp) ;
+    unsigned long tmp ;
+    tmp = fread(&ntemp, sizeof(int32_t), 1, fp) ;
+    tmp = fread(&nztemp, sizeof(int64_t), 1, fp) ;
+    (void) tmp ; // silence unused result warning
 
     int32_t *tempAi = malloc(nztemp * sizeof(int32_t)) ;
     if (!tempAi)

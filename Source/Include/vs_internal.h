@@ -1,5 +1,5 @@
-#ifndef _VS_H_
-#define _VS_H_
+#ifndef _VS_INTERNAL_H_
+#define _VS_INTERNAL_H_
 
 #include <time.h>
 #include <stdlib.h>
@@ -10,6 +10,7 @@
 #include <math.h>
 #include </usr/include/mkl/mkl.h>
 #include </usr/include/mkl/mkl_spblas.h>
+#include "vs.h"
 
 /* ========================================================================== */
 /* === macros =============================================================== */
@@ -19,7 +20,7 @@
 #define VSLINT   VSPLONG
 #define VSFLOAT  VSPFLOAT
 
-#define PRI(A) ( (long long) (A) )
+// #define PRI(A) ( (long long) (A) ) // defined in core.h
 
 #define VSFALSE  ( 0)
 #define VSTRUE   ( 1)
@@ -250,8 +251,8 @@ else /* lambda = 0 is optimal, blo <= a'x <= bhi */ \
 #define NAPINF inf
 #define NAPMAX VSMAX
 #define NAPMIN VSMIN
-#define FALSE VSFALSE
-#define TRUE VSTRUE
+// #define FALSE VSFALSE
+// #define TRUE VSTRUE
 #define napheap_malloc vs_malloc
 #define napheap_free vs_free
 #define nap_dot vs_dot
@@ -260,31 +261,6 @@ else /* lambda = 0 is optimal, blo <= a'x <= bhi */ \
 /* ========================================================================== */
 /* === vs structures ======================================================== */
 /* ========================================================================== */
-
-typedef struct VSparm      /* parameters */
-{
-    /* printing */
-    int       PrintLevel ; /* Level 0  = no print, ... , Level 2 = max print*/
-    int       PrintParms ; /* TRUE means print parameter values */
-    int      PrintStatus ; /* TRUE means print status */
-
-    int      compute_eig ; /* TRUE means use eigenvector to start bisection */
-    unsigned    int seed ; /* seed to start srand */
-    VSFLOAT          eps ; /* machine epsilon for VSFLOAT */
-    int      SmallMatrix ; /* full diagonalization of A when n <= SmallMatrix */
-    VSFLOAT basis_factor ; /* # Lanczos iter = basis_factor*log2(dimension) */
-    VSFLOAT  Lanczos_tol ; /* |u_j| <= Lanczos_tol*Amax => stop Lanc. */
-    VSFLOAT       qr_its ; /* total QR iterations <= qr_its * dimension */
-    VSFLOAT   qr_tol_rel ; /* stop QR when u_{k-1}^2 <= qr_tol_rel*|d_k| */
-    VSFLOAT   qr_tol_abs ; /* stop QR when |u_{k-1}| <= qr_abs_tol */
-    VSFLOAT     qr_lower ; /* controls rescaling */
-    int              ngp ; /* number of gradient projection iterations */
-    int  initial_project ; /* TRUE: project z onto feasible set for bisection
-                              before the gradient projection loop;
-                              FALSE: skip the initial projection */
-
-    int try_both_covers ;
-} VSparm ;
 
 typedef struct VSgivens    /* Givens rotations in diagonalization */
 {
@@ -490,10 +466,6 @@ int vs
     VSparm *Parm  /* parameter structure */
 ) ;
 
-void vs_default
-(
-    VSparm  *Parm /* pointer to parameter structure */
-) ;
 
 void vs_print_parms
 (

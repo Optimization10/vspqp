@@ -3,7 +3,7 @@
 #include "utils.h"
 #include "greedy_flips.h"
 #include "FM.h"
-#include "VS.h"
+#include "vs.h"
 #include "mc.h"
 
 // Run a strategy on a cloned point. If it beats the original, swap.

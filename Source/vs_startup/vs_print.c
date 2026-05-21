@@ -4,7 +4,7 @@
     Print the status at termination of the run
    ========================================================================== */
 
-#include "VS.h"
+#include "vs_internal.h"
 
 void VS_print_status
 (

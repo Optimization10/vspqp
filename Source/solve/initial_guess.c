@@ -4,7 +4,7 @@
 #include "mc.h"
 #include "utils.h"
 #include "coarsen.h"
-#include "VS.h"
+#include "vs.h"
 
 static void set_manual_initial_guess
 (
