@@ -549,9 +549,10 @@ void vs_copyx
 
 void vs_vecadd
 (
-    VSFLOAT       *x,
-    VSFLOAT const *b,
-    VSINT   const  n
+     VSFLOAT       *x,
+     VSFLOAT       *y,
+     VSFLOAT const *b,
+     VSINT   const  n
 ) ;
 
 void vs_scale
@@ -582,13 +583,6 @@ void vs_translate
     VSFLOAT    *new,
     VSFLOAT const t,
     VSINT   const n
-) ;
-
-void vs_vecadd
-(
-    VSFLOAT       *x,
-    VSFLOAT const *b,
-    VSINT   const  n
 ) ;
 
 void vs_boundary /* return original cost and its improvement */

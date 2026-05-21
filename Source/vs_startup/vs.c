@@ -599,7 +599,7 @@ int vs
         /* compute b = -A*z */
         vs_Amult (b, z, Ap, Ai, Ax, n) ;
         /* compute b += A12 ; */
-        vs_vecadd (b, A12, n) ;
+        vs_vecadd (b, b, A12, n) ;
 
         /* determine scaling factor for the gradient */
         s = vs_dot (b, b, n) ;
@@ -627,7 +627,7 @@ int vs
            whose length is sqrt(n)/4 */
         vs_scale (b, -s, n) ;
         /* add the negative gradient vector to the current iterate */
-        vs_vecadd (z, b, n) ;
+        vs_vecadd (z, z, b, n) ;
         /*for (i = 0; i < n; i++)
         {
             printf ("y[%i] = %25.16e ;\n", i, z [i]) ;
@@ -1337,33 +1337,52 @@ void vs_translate
     }
 }
 
-/* =========================================================================
-   === vs_vecadd ===========================================================
-   =========================================================================
-   Set x += b
-   ========================================================================= */
+/* ==========================================================================
+    === vs_vecadd ===========================================================
+    Set x = y + b 
+============================================================================= */
 void vs_vecadd
 (
-    VSFLOAT       *x,
-    VSFLOAT const *b,
-    VSINT   const  n
+     VSFLOAT       *x,
+     VSFLOAT       *y,
+     VSFLOAT const *b,
+     VSINT   const  n
 )
 {
-    VSINT j ;
-    VSINT const n5 = n%5 ;
-    for (j = 0; j < n5; j++)
-    {
-        x [j] += b [j] ;
-    }
+     VSINT j ;
+     VSINT const n5 = n%5 ;
+     if ( x == y )
+     {
+         for (j = 0; j < n5; j++)
+         {
+             x [j] += b [j] ;
+         }
 
-    for (; j < n; j += 5)
-    {
-        x [j]   += b [j] ;
-        x [j+1] += b [j+1] ;
-        x [j+2] += b [j+2] ;
-        x [j+3] += b [j+3] ;
-        x [j+4] += b [j+4] ;
-    }
+         for (; j < n; j += 5)
+         {
+             x [j]   += b [j] ;
+             x [j+1] += b [j+1] ;
+             x [j+2] += b [j+2] ;
+             x [j+3] += b [j+3] ;
+             x [j+4] += b [j+4] ;
+         }
+     }
+     else
+     {
+         for (j = 0; j < n5; j++)
+         {
+             x [j] = y [j] + b [j] ;
+         }
+
+         for (; j < n; j += 5)
+         {
+             x [j]   = y [j]   + b [j] ;
+             x [j+1] = y [j+1] + b [j+1] ;
+             x [j+2] = y [j+2] + b [j+2] ;
+             x [j+3] = y [j+3] + b [j+3] ;
+             x [j+4] = y [j+4] + b [j+4] ;
+         }
+     }
 }
 
 /* =========================================================================
@@ -1498,7 +1517,7 @@ void vs_boundary /* return original cost and its improvement */
         return ;
     }
     /* compute g += A12 ; */
-    vs_vecadd (g, A12, n) ;
+    vs_vecadd (g, g, A12, n) ;
     int const a_is_one = (a == NULL) ? VSTRUE : VSFALSE ;
     two_hit = VSFALSE ;
     dumpi = VSFALSE ;
@@ -1730,7 +1749,7 @@ void vs_boundary /* return original cost and its improvement */
         }
 
         /* vs_Amult (gnew, x, Ap, Ai, Ax, n) ;
-        vs_vecadd (gnew, A12, n) ;
+        vs_vecadd (gnew, gnew, A12, n) ;
         t = 0 ;
         for (k = 0; k < n; k++)
         {
@@ -8769,8 +8788,8 @@ void VSP_Grad_Proj
             vs_scale(gx, VSHALF, n) ;
             vs_scale(gy, VSHALF, n) ;
 
-            vs_vecadd(x, gx, n) ;
-            vs_vecadd(y, gy, n) ;
+            vs_vecadd(sx, x, gx, n) ;
+            vs_vecadd(sy, y, gy, n) ;
         }
     }
 
