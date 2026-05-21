@@ -8798,7 +8798,7 @@ void VSP_Grad_Proj
 )
 {
     VSPINT i ;
-    VSFLOAT *X, *Y, obj_0, obj, s, t, *sx, *sy ;
+    VSFLOAT *X, *Y, obj_0, obj, s, t, *sx, *sy, *gxtemp ;
     int ngp, status ;
 
     NAPdata *napdata ;
@@ -8825,9 +8825,10 @@ void VSP_Grad_Proj
     
        where and sx and sy are steps along the gradient starting from the
        iterates x and y: sx = x + s*gx and sy = y + s*gy, s = stepsize */
-    ngp = 3 ;
-    sx = malloc(n * sizeof(*sx)) ;
-    sy = malloc(n * sizeof(*sy)) ;
+    ngp    = 3 ;
+    sx     = malloc(n * sizeof(*sx)) ;
+    sy     = malloc(n * sizeof(*sy)) ;
+    gxtemp = malloc(n * sizeof(*gxtemp)) ;
 
     for(i = 0 ; i < ngp ; i++)
     {
@@ -8866,13 +8867,26 @@ void VSP_Grad_Proj
             napdata->x = Y ;
             status = napheap(napdata) ;
             if( status ) napheap_print_status (napdata) ;
+
+            VSP_Grad(gxtemp, a, Y, Ai, Ap, gamma, n) ;
+            obj = VSP_Obj(X, gxtemp, Y, a, n) ;
         }
+
+        /* Update: x <- X and y <- Y */
+        obj_0 = obj ;
+        vs_copyx(gx, gxtemp, n) ;
+        vs_copyx(x, X, n) ;
+        VSP_Grad(gy, a, x, Ai, Ap, gamma, n) ;
+        vs_copyx(y, Y, n) ;
     }
 
+    napheap_terminate(&napdata) ;
 
     /* Cleanup */
     free(sx) ;
     free(sy) ;
     free(X) ;
     free(Y) ;
+    free(gxtemp) ;
+    
 }
