@@ -315,7 +315,6 @@ void Solve_Level
     
     Optimize(X, Y, problem, options) ;
     VSPFLOAT imbal_ratio = (VSPFLOAT) abs(X->weight - Y->weight) / problem->graph->total_vtx_cost ;
-    // printf("\nImbal ratio: %f\n", imbal_ratio) ;
 
     if(   options->attempt_second_start
        && imbal_ratio > options->min_imbal_ratio_second_start

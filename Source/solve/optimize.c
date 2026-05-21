@@ -1,3 +1,4 @@
+#include "core.h"
 #include "solve_internal.h"
 #include "mc.h"
 #include "FM.h"
@@ -97,11 +98,11 @@ static void Gamma_Reduction_Loop
     State       *X,
     State       *Y,
     Problem     *problem,
-    Options     *options,
-    VSPINT       gamma_org
+    Options     *options
 )
 {
     VSPINT i, k = 0, num_gr;
+    VSPINT gamma_org = problem->graph->max_vtx_cost ;
     VSPFLOAT gamma, f_x_y, f_xstar_ystar;
 
     Determine_Num_GR(problem->graph->n, options, &num_gr);
@@ -153,47 +154,38 @@ static void Gamma_Reduction_Loop
 
 void Optimize
 (
-    State       *X,
-    State       *Y,
-    Problem     *problem,
-    Options     *options
+    State   *X,
+    State   *Y,
+    Problem *problem,
+    Options *options
 )
 {
-    static int count = 0 ;
-    count++ ;
-
-    #ifdef DEBUG
+    SET_FUNCTION_COUNTER ;
+#ifdef DEBUG
         check_states(X, Y, problem);
-    #endif
+#endif
+    VSPINT n_passes;
+    VSPINT l     = problem->level ;
+    VSPINT L     = problem->coarsest_level_num ;
+    VSPINT gamma = problem->graph->max_vtx_cost ;
 
-    VSPINT gamma_org = problem->graph->max_vtx_cost;
-
-    // Phase 1: MC vs Flips — run both on same input, keep better
-    // Phase 1: MC
-    mountain_climbing(X, Y, problem, options, problem->graph->max_vtx_cost, true);
-    
-
+    // Phase 1: Mountain Climbing
+    mountain_climbing(X, Y, problem, options, gamma, true) ;
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
     // Phase 2: Greedy flips
     Greedy_Flips(X, Y, problem, 9, (problem->level <= 2), false);
 
     // Phase 3: FM
-    VSPINT n_passes;
-    if (problem->level >= problem->coarsest_level_num / 2) n_passes = 3;
-    else n_passes = 2;
+    n_passes = (l >= L / 2) ? 3 : 2 ;
     FM_Metis(X, Y, problem, options, n_passes);
-
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
     // Phase 4: MC
-    mountain_climbing
-    (
-        X, Y, problem, options, problem->graph->max_vtx_cost, true
-    ) ;
+    mountain_climbing(X, Y, problem, options, gamma, true) ;
 
     // Phase 5: Gamma reductions
-    Gamma_Reduction_Loop(X, Y, problem, options, gamma_org);
+    Gamma_Reduction_Loop(X, Y, problem, options);
 
     // Phase 6: Final cleanup flips
     Greedy_Flips(X, Y, problem, 5, true, true);

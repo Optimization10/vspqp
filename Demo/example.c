@@ -220,7 +220,8 @@ void Read_hager6_File
         return ;
     } ;
 
-    fread(tempAi, sizeof(int32_t), nztemp, fp);
+    tmp = fread(tempAi, sizeof(int32_t), nztemp, fp);
+    (void) tmp ; // silence unused result warning
 
     int64_t *tempAp = malloc((ntemp + 1) * sizeof(int64_t));
     if (!tempAp)
@@ -231,7 +232,8 @@ void Read_hager6_File
         return ;
     }  ;
 
-    fread(tempAp, sizeof(int64_t), ntemp + 1, fp);
+    tmp = fread(tempAp, sizeof(int64_t), ntemp + 1, fp);
+    (void) tmp ; // silence unused result warning
 
     clock_gettime(CLOCK_MONOTONIC, &end) ;
     double read_time = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9 ;
