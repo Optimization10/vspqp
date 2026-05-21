@@ -554,7 +554,8 @@ void copy_state(State *from, State *to)
         VSPINT  to_one      = to->Az->one ;
 
         /* Copy all the arrays in the state struct */
-        for(i = 0 ; i < n ; i++) {
+        for(i = 0 ; i < n ; i++)
+        {
             to_z_int [i] = from_z_int[i] ;
             to_Az_int[i] = from_Az_int[i] ;
             /* TODO speed: perhaps branchless code is not the best here.      */
@@ -568,18 +569,20 @@ void copy_state(State *from, State *to)
         to->Az->val_frac_z  = from->Az->val_frac_z ;
     }
     /* If from does not have a fractional entry */
-    else {
+    else
+    {
         /* Copy all the arrays in the state struct */
-        for(i = 0 ; i < n ; i++) {
+        for(i = 0 ; i < n ; i++)
+        {
             to_z_int [i] = from_z_int[i] ;
             to_Az_int[i] = from_Az_int[i] ;
-
-            /* Copy the rest of the info about the fractional entry */
-            to->point->ind_frac = from->point->ind_frac ;
-            to->point->val_frac = from->point->val_frac ;
-            to->Az->ind_frac_z  = from->Az->ind_frac_z ;
-            to->Az->val_frac_z  = from->Az->val_frac_z ;
         }
+    
+        /* Copy the rest of the info about the fractional entry */
+        to->point->ind_frac = from->point->ind_frac ;
+        to->point->val_frac = from->point->val_frac ;
+        to->Az->ind_frac_z  = from->Az->ind_frac_z ;
+        to->Az->val_frac_z  = from->Az->val_frac_z ;
     }
     return ;
 }
@@ -2916,7 +2919,7 @@ VSPFLOAT *Az_To_Grad(VSPINT *c, VSPINT gamma, Az *AZ)
     VSPINT    n      = AZ->n ;
     VSPFLOAT *g = malloc(n * sizeof(*g)) ;
 
-    for(i = 0 ; i < n ; i++) g[i] = c[i] - Azi(i, AZ) ;
+    for(i = 0 ; i < n ; i++) g[i] = c[i] - gamma * Azi(i, AZ) ;
 
     return g ;
 }
@@ -2960,4 +2963,13 @@ void Array_To_State(VSPFLOAT *z_flt, State *Z, Graph *graph)
     /* Do Az */
     /* ====================================================================== */
     Compute_Az(Z->point, Z->Az, Ai, Ap, n) ;
+}
+
+VSPFLOAT *Array_Int_To_Flt(VSPINT *a, VSPINT n)
+{
+    VSPFLOAT *a_flt = malloc(n * sizeof(*a_flt)) ;
+
+    for(VSPINT i = 0 ; i < n ; i++) a_flt[i] = a[i] ;
+
+    return a_flt ;
 }

@@ -46,4 +46,27 @@ int vs
     VSparm *Parm  /* parameter structure */
 ) ;
 
+VSPINT VSPboundary
+(
+    VSPFLOAT           *x, /* feasible point for (GB), output described above */
+    VSPFLOAT           *a, /* vertex weights, NULL => all entries in a are 1 */
+    VSPFLOAT           *g, /* linear vector in objective */
+    VSPINT              n, /* problem dimension */
+    int const  PrintLevel
+) ;
+
+void VSP_Grad_Proj
+(
+    VSPFLOAT  *x,
+    VSPFLOAT  *gx,
+    VSPFLOAT  *y,
+    VSPFLOAT  *gy,
+    VSPFLOAT  *a,
+    VSPINT    *Ai,
+    VSPLONG   *Ap,
+    VSPINT     u,
+    VSPINT     n,
+    VSPINT     gamma
+) ;
+
 #endif

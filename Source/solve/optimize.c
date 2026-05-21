@@ -4,6 +4,7 @@
 #include "FM.h"
 #include "greedy_flips.h"
 #include "utils.h"
+#include "vs.h"
 
 
 
@@ -164,37 +165,48 @@ void Optimize
 #ifdef DEBUG
         check_states(X, Y, problem);
 #endif
-    VSPFLOAT *x_flt, *y_flt, *gx, *gy ;
+    VSPFLOAT *x_flt, *y_flt, *gx, *gy, *c_flt ;
     VSPINT    n_passes;
+    VSPINT    n     = problem->graph->n ;
     VSPINT   *c     = problem->graph->c ;
     VSPINT    l     = problem->level ;
     VSPINT    L     = problem->coarsest_level_num ;
     VSPINT    gamma = problem->graph->max_vtx_cost ;
+    VSPINT   *Ai    = problem->graph->Ai ;
+    VSPLONG  *Ap    = problem->graph->Ap ;
+    VSPINT    u     = problem->u ;
 
     /* ====================================================================== */
     // Phase 0: Gradient Projection
     /* ====================================================================== */
     
-    /* Convert x, y, Ax, Ay to floats */
+    /* Step 1: Convert x, y, c to floats, and compute gx and gy */
     x_flt = Point_To_Array(X->point) ;
     gx    = Az_To_Grad(c, gamma, Y->Az) ;
 
     y_flt = Point_To_Array(Y->point) ;    
     gy    = Az_To_Grad(c, gamma, X->Az) ;
 
-    /* Do gradient projection */
+    c_flt = Array_Int_To_Flt(c, n) ;
 
-    /* Move x_flt, y_flt to almost binary points */
+    /* Step 2: Do gradient projection */
+    VSP_Grad_Proj(x_flt, gx, y_flt, gy, c_flt, Ai, Ap, u, n, gamma) ;
 
-    /* Update the X and Y states with x_flt and y_flt */
+    /* Step 3: Move x_flt, y_flt to almost binary points */
+    int print_level = 1 ;
+    VSPboundary(x_flt, c_flt, gx, n, print_level) ;
+    VSPboundary(y_flt, c_flt, gy, n, print_level) ;
+
+    /* Step 4: Update the X and Y states with x_flt and y_flt */
     Array_To_State(x_flt, X, problem->graph) ;
     Array_To_State(y_flt, Y, problem->graph) ;
 
-    /* Cleanup */
+    /* Step 5: Cleanup */
     free(x_flt) ;
     free(y_flt) ;
     free(gx) ;
     free(gy) ;
+    free(c_flt) ;
 
     /* ====================================================================== */
     // Phase 1: Mountain climbing

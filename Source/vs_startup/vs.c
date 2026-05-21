@@ -8650,7 +8650,12 @@ VSINT VSPboundary
                 /* x has no interior components */
                 return (EMPTY) ;
             }
-            j = VSPinterior (j, x, n) ;
+
+            // Old, buggy line:
+            // j = VSPinterior (j, x, n) ;
+
+            //New, correct line:
+            j = VSPinterior (i, x, n) ;
             if ( j == VSEMPTY )
             {
                 /* done since x has at most one fractional component */
@@ -8674,3 +8679,21 @@ VSINT VSPboundary
     }
 }
 
+
+
+void VSP_Grad_Proj
+(
+    VSFLOAT  *x,
+    VSFLOAT  *gx,
+    VSFLOAT  *y,
+    VSFLOAT  *gy,
+    VSFLOAT  *a,
+    VSINT    *Ai,
+    VSLINT   *Ap,
+    VSINT     u,
+    VSINT     n,
+    VSINT     gamma
+)
+{
+
+}
