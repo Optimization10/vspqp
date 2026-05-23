@@ -3043,7 +3043,7 @@ int napheap  /* Return status of solution process. To determine the status, use
 )
 {
     int    status ;
-    NAPINT it, k, nk, nuf, nkf ;
+    VSINT it, k, nk, nuf, nkf ;
 
     status = NAPHEAP_STATUS_OK ;   /* default status */
     NAPINT const n = napdata->n ;  /* problem dimension */
@@ -3171,7 +3171,9 @@ int napheap  /* Return status of solution process. To determine the status, use
     NAPINT nfree ;              /* number of indices in free heap */
     /* use_lambda is TRUE if the user provides a starting guess for the
        multiplier associated with the constraint blo <= a'x <= bhi */
+//printf ("lambda input: %e\n", lambda) ;
     int use_lambda = ( lambda >= NAPINF ) ? FALSE : TRUE ;
+//printf("use_lambda: %i\n", use_lambda) ;
 
     /* ---------------------------------------------------------------------- */
     /*  Initialization and checks */
@@ -3427,145 +3429,300 @@ int napheap  /* Return status of solution process. To determine the status, use
         if ( !use_lambda )
         {
 
-printf("no start guess given, compute one by variable fixing\n") ;
+//printf("no start guess given, use variable fixing, do not use lambda\n");
 
             if ( (use_prior_data == TRUE) && (akakdk < NAPINF) )
             {
                 den = akakdk ;
-                num = nap_dot (y, a, n) ;
-                b = blo ;
-printf("den: %e num: %e b: %e\n") ;
-            }
-            else /* starting from scratch */
-            {
-/*printf ("start from scratch\n") ;*/
-                for (k = 0; k < n; k++)
+                if ( a_is_one )
                 {
-                    if ( a_is_one )
+                    num = 0 ;
+                    for (k = 0; k < n; k++)
                     {
-                        den += VSONE ;
                         num += y [k] ;
                     }
-                    else
+                }
+                else
+                {
+                    num = nap_dot (y, a, n) ;
+                }
+//printf("den: %e num: %e b: %e\n", den, num, b) ;
+                if ( blo == bhi )
+                {
+                    b = blo ;
+                }
+                else /* blo < bhi */
+                {
+                    for (k = 0; k < n; k++)
                     {
-                        den += a [k]*a [k] ;
-                        num +=  y [k]*a [k] ;
+                        const NAPFLOAT yk = y [k] ;
+                        if ( yk < VSZERO ) continue ;
+                        if ( a_is_one )
+                        {
+                            if ( yk > VSONE )
+                            {
+                                slope0++ ;
+                            }
+                            else
+                            {
+                                slope0 += yk ;
+                            }
+                        }
+                        else
+                        {
+                            if ( yk > VSONE )
+                            {
+                                slope0 += a [k] ;
+                            }
+                            else
+                            {
+                                slope0 += a [k]*yk ;
+                            }
+                        }
+                    }
+                    /* determine bracketting interval and b */
+                    BRACKET ;
+                }
+            }
+
+            else /* starting from scratch */
+            {
+                if ( blo == bhi )
+                {
+                    for (k = 0; k < n; k++)
+                    {
+                        if ( a_is_one )
+                        {
+                            den++ ;
+                            num +=  y [k] ;
+                        }
+                        else
+                        {
+                            const NAPFLOAT ak = a [k] ;
+                            den += ak*ak ;
+                            num +=  y [k]*ak ;
+                        }
+                    }
+                    b = blo ;
+                    if ( Parm->return_data )
+                    {
+                        napdata->akakdk = den ;
                     }
                 }
+                else /* blo < bhi */
+                {
+//printf ("start from scratch\n") ;
+                    for (k = 0; k < n; k++)
+                    {
+                        const NAPFLOAT yk = y [k] ;
+                        if ( a_is_one )
+                        {
+                            den++ ;
+                            num += yk ;
+                            if ( yk < VSZERO )
+                            {
+                                continue ;
+                            }
+                            if ( yk > VSONE )
+                            {
+                                slope0++ ;
+                            }
+                            else
+                            {
+                                slope0 += yk ;
+                            }
+                        }
+                        else /* ak = a [k] */
+                        {
+                            const NAPFLOAT ak = a [k] ;
+                            den += ak*ak ;
+                            num +=  yk*ak ;
+                            if ( yk < VSZERO )
+                            {
+                                continue ;
+                            }
+                            if ( yk > VSONE )
+                            {
+                                slope0 += ak ;
+                            }
+                            else
+                            {
+                                slope0 += ak*yk ;
+                            }
+                        }
+                    }
+                    if ( Parm->return_data )
+                    {
+                        napdata->akakdk = den ;
+                    }
+//printf ("do not use lambda\n") ;
+//printf ("slope0: %e slope: %e den: %e\n", slope0, slope, den) ;
+                    /* determine bracketting interval and b */
+                    BRACKET ;
+                }
              
-                b = blo ;
                 if ( Parm->return_data )
                 {
                     napdata->akakdk = den ;
                 }
             }
             lambda = (num - b)/den ;
-/*printf ("den: %e num: %e b: %e\n", den, num, b) ;*/
+//printf ("b: %e num: %e lambda: %e\n", b, num, lambda) ;
             numFV = num ; /* numerator for variable fixing */
             denFV = den ; /* denominator for variable fixing */
 
             /* compute slope at starting point, slope at lambda = 0,
                and den for Newton */
             den = NAPZERO ;
-            for (k = 0; k < n; k++)
+            if ( blo == bhi )
             {
-                if ( a_is_one )
-                {
-                    const NAPFLOAT u = y [k] ;
-                    const NAPFLOAT t = u - lambda ;
-                    if ( t < VSZERO )
-                    {
-                        x [k] = VSZERO ;
-                    }
-                    else if ( t > VSONE )
-                    {
-                        x [k] = VSONE ;
-                        slope += VSONE ;
-                    }
-                    else
-                    {
-                        x [k] = t ;
-                        slope += t ;
-                        den += VSONE ;
-                    }
-                    if ( u > VSONE )
-                    {
-                        slope0 += VSONE ;
-                    }
-                    else if ( u > VSZERO )
-                    {
-                        slope0 += u ;
-                    }
-                }
-                else
-                {
-                    const NAPFLOAT ak = a [k] ;
-                    const NAPFLOAT u = y [k] ;
-                    const NAPFLOAT t = u - lambda*ak ;
-                    if ( t < VSZERO )
-                    {
-                        x [k] = VSZERO ;
-                    }
-                    else if ( t > VSONE )
-                    {
-                        x [k] = VSONE ;
-                        slope += ak ;
-                    }
-                    else
-                    {
-                        x [k] = t ;
-                        slope += ak*t ;
-                        den += ak*ak ;
-                    }
-                    if ( u > VSONE )
-                    {
-                        slope0 += ak ;
-                    }
-                    else if ( u > VSZERO )
-                    {
-                        slope0 += ak*u ;
-                    }
-                }
-            }
-printf ("slope: %e slope0: %e\n", slope, slope0) ;
-            /* determine bracketting interval */
-            BRACKET ;
-        }
-        else /* use lambda, compute slope at starting guess and at lambda = 0*/
-        {
-            if ( use_prior_data == TRUE )
-            {
-                /* no need to compute slope at lambda = 0 when blo = bhi */
                 for (k = 0; k < n; k++)
                 {
+                    const NAPFLOAT yk = y [k] ;
                     if ( a_is_one )
                     {
-                        const NAPFLOAT t = y [k] - lambda ;
-                        if ( t < VSZERO)
+                        const NAPFLOAT t = yk - lambda ;
+                        if ( t < VSZERO )
                         {
                             x [k] = VSZERO ;
                         }
                         else if ( t > VSONE )
                         {
                             x [k] = VSONE ;
-                            slope += VSONE ;
+                            slope++ ;
                         }
                         else
                         {
                             x [k] = t ;
                             slope += t ;
-                            den += VSONE ;
+                            den++ ;
+                        }
+                        if ( yk > VSONE )
+                        {
+                            slope0++ ;
+                        }
+                        else if ( yk > VSZERO )
+                        {
+                            slope0 += yk ;
+                        }
+                    }
+                    else
+                    {
+                        const NAPFLOAT ak = a [k] ;
+                        const NAPFLOAT t = yk - lambda*ak ;
+                        if ( t < VSZERO )
+                        {
+                            x [k] = VSZERO ;
+                        }
+                        else if ( t > VSONE )
+                        {
+                            x [k] = VSONE ;
+                            slope += ak ;
+                        }
+                        else
+                        {
+                            x [k] = t ;
+                            slope += ak*t ;
+                            den += ak*ak ;
+                        }
+                        if ( yk > VSONE )
+                        {
+                            slope0 += ak ;
+                        }
+                        else if ( yk > VSZERO )
+                        {
+                            slope0 += ak*yk ;
+                        }
+                    }
+                }
+//printf ("slope: %e slope0: %e\n", slope, slope0) ;
+                /* determine bracketting interval */
+                BRACKET ;
+            }
+            else /* blo < bhi */
+            {
+                for (k = 0; k < n; k++)
+                {
+                    if ( a_is_one )
+                    {
+                        const NAPFLOAT t = y [k] - lambda ;
+                        if ( t < VSZERO )
+                        {
+                            x [k] = VSZERO ;
+                        }
+                        else if ( t > VSONE )
+                        {
+                            x [k] = VSONE ;
+                            slope++ ;
+                        }
+                        else
+                        {
+                            x [k] = t ;
+                            slope += t ;
+                            den++ ;
+                        }
+                    }
+                    else
+                    {
+                        const NAPFLOAT ak = a [k] ;
+                        const NAPFLOAT t = y [k] - ak*lambda ;
+                        if ( t < VSZERO )
+                        {
+                            x [k] = VSZERO ;
+                        }
+                        else if ( t > VSONE )
+                        {
+                            x [k] = VSONE ;
+                            slope += ak ;
+                        }
+                        else
+                        {
+                            x [k] = t ;
+                            slope += ak*t ;
+                            den += ak*ak ;
+                        }
+                    }
+                }
+            }
+        }
+        else /* use lambda, compute slope at starting guess and at lambda = 0*/
+        {
+//printf("use lambda: %e\n", lambda) ;
+            /* no need to compute slope at lambda = 0 when blo = bhi */
+            if ( blo == bhi )
+            {
+                for (k = 0; k < n; k++)
+                {
+                    if ( a_is_one )
+                    {
+                        const NAPFLOAT t = y [k] - lambda ;
+                        if ( t < VSZERO )
+                        {
+                            x [k] = VSZERO ;
+                            continue ;
+                        }
+                        if ( t > VSONE )
+                        {
+                            x [k] = VSONE ;
+                            slope++ ;
+                        }
+                        else
+                        {
+                            x [k] = t ;
+                            slope += t ;
+                            den++ ;
                         }
                     }
                     else
                     {
                         const NAPFLOAT ak = a [k] ;
                         const NAPFLOAT t = y [k] - lambda*ak ;
-                        if ( t < VSZERO)
+                        if ( t < VSZERO )
                         {
                             x [k] = VSZERO ;
+                            continue ;
                         }
-                        else if ( t > VSONE )
+                        if ( t > VSONE )
                         {
                             x [k] = VSONE ;
                             slope += ak ;
@@ -3584,14 +3741,14 @@ printf ("slope: %e slope0: %e\n", slope, slope0) ;
                 dL = NAPINF ;
                 dR =-NAPINF ;
             }
-            else /* use_prior_data is FALSE */
+            else /* blo < bhi, also compute slope at lambda = 0 */
             {
-                /* no need to compute slope at lambda = 0 when blo = bhi */
                 for (k = 0; k < n; k++)
                 {
+                    const NAPFLOAT yk = y [k] ;
                     if ( a_is_one )
                     {
-                        const NAPFLOAT t = y [k] - lambda ;
+                        const NAPFLOAT t = yk - lambda ;
                         if ( t < VSZERO )
                         {
                             x [k] = VSZERO ;
@@ -3601,48 +3758,69 @@ printf ("slope: %e slope0: %e\n", slope, slope0) ;
                             if ( t > VSONE )
                             {
                                 x [k] = VSONE ;
-                                slope += VSONE ;
+                                slope++ ;
                             }
                             else
                             {
                                 x [k] = t ;
                                 slope += t ;
-                                den += VSONE ;
+                                den++ ;
                             }
                         }
+                        if ( yk < VSZERO )
+                        {
+                            continue ;
+                        }
+                        if ( yk > VSONE )
+                        {
+                            slope0++ ;
+                        }
+                        else
+                        {
+                            slope0 += yk ;
+                        }
                     }
-                    else
+                    else /* ak != 1 */
                     {
                         const NAPFLOAT ak = a [k] ;
-                        const NAPFLOAT t = y [k] - lambda*ak ;
+                        const NAPFLOAT t = yk - lambda*ak ;
                         if ( t < VSZERO )
                         {
                             x [k] = VSZERO ;
                         }
+                        else if ( t > VSONE )
+                        {
+                            x [k] = VSONE ;
+                            slope += ak ;
+                        }
                         else
                         {
-                            if ( t > VSONE )
-                            {
-                                x [k] = VSONE ;
-                                slope += ak ;
-                            }
-                            else
-                            {
-                                x [k] = t ;
-                                slope += ak*t ;
-                                den += ak*ak ;
-                            }
+                            x [k] = t ;
+                            slope += ak*t ;
+                            den += ak*ak ;
+                        }
+                        if ( yk < VSZERO )
+                        {
+                            continue ;
+                        }
+                        if ( yk > VSONE )
+                        {
+                            slope0 += ak ;
+                        }
+                        else
+                        {
+                            slope0 += ak*yk ;
                         }
                     }
                 }
-                b = blo ;
-                lambdaL =-NAPINF ;
-                lambdaR = NAPINF ;
-                dL = NAPINF ;
-                dR =-NAPINF ;
+                /* determine bracketting interval and b */
+                BRACKET ;
             }
+//printf ("slope: %25.15e slope0: %25.15e den: %25.15e\n", slope, slope0, den) ;
         }
+//printf ("b: %25.15e\n", b) ;
         slope -= b ;
+//printf ("new slope: %25.15e\n", slope) ;
 
         /* update bracketting interval based on slope at starting guess */
         if ( slope > NAPZERO )
@@ -3676,10 +3854,10 @@ printf ("slope: %e slope0: %e\n", slope, slope0) ;
             status = NAPHEAP_STATUS_OK ;
             return (nap_wrapup (status, napdata, lambda)) ;
         }
-printf ("slope0: %e\n", slope0) ;
-printf ("slope: %e\n", slope) ;
-printf ("lambda: %e\n", lambda) ;
-printf ("K = %i\n", K) ;
+//printf ("slope0: %e\n", slope0) ;
+//printf ("slope: %e\n", slope) ;
+//printf ("lambda: %e\n", lambda) ;
+//printf ("K = %i\n", K) ;
 
         /* At this point, we have a starting guess that was either given
            or was computed by a variable fixing iteration. x has been
@@ -4050,10 +4228,10 @@ printf ("fix variables and evaluate next iterate\n") ;*/
             }
             else /* bracket is [0, lambda] or [lambda, 0] */
             {
-printf ("bracket is [0, lambda] or [lambda, 0]\n") ;
+//printf ("bracket is [0, lambda] or [lambda, 0]\n") ;
                 if ( prevslope > NAPZERO )
                 {
-printf ("prevslope > 0\n") ;
+//printf ("prevslope > 0\n") ;
                     for (k = 0; k < n; k++)
                     {
                         if ( x [k] == VSZERO )
@@ -4117,7 +4295,7 @@ printf ("prevslope > 0\n") ;
                         uf [nuf] = k ;
                         nuf++ ;
                     }
-printf("slope: %e den: %e\n", slope, den) ;
+//printf("slope: %e den: %e\n", slope, den) ;
                 }
                 else /* prevslope < 0 */
                 {
@@ -4661,16 +4839,15 @@ printf("slope: %e den: %e\n", slope, den) ;
                                     {
                                         if ( x [j] == VSONE )
                                         {
-                                            b -= VSONE ;
+                                            b-- ;
                                             continue;
                                         }
-                                        den += VSONE ;
+                                        den++ ;
                                         num += y [j] ;
                                     }
                                     else
                                     {
-                                        const NAPFLOAT aj = (a_is_one) ?
-                                                                 VSONE : a [j] ;
+                                        const NAPFLOAT aj = a [j] ;
                                         if ( x [j] == VSONE )
                                         {
                                             b -= aj ;
@@ -4695,19 +4872,17 @@ printf("slope: %e den: %e\n", slope, den) ;
                                         {
                                             continue ;
                                         }
-                                        const NAPFLOAT t = ad [j] ;
-                                        den += t ;
-                                        num += t*ay [j] ;
+                                        den++ ;
+                                        num += ay [j] ;
                                     }
                                     else
                                     {
-                                        const NAPFLOAT aj = (a_is_one) ?
-                                                                 VSONE : a [j] ;
+                                        const NAPFLOAT aj = a [j] ;
                                         if ( x [j] == VSZERO )
                                         {
                                             continue ;
                                         }
-                                        const NAPFLOAT t = aj*ad [j] ;
+                                        const NAPFLOAT t = aj*aj ;
                                         den += t ;
                                         num += t*ay [j] ;
                                     }
@@ -4725,20 +4900,18 @@ printf("slope: %e den: %e\n", slope, den) ;
                                             b -= VSONE ;
                                             continue;
                                         }
-                                        const NAPFLOAT t = ad [j] ;
-                                        den += t ;
-                                        num += t*ay [j] ;
+                                        den++ ;
+                                        num += ay [j] ;
                                     }
                                     else
                                     {
-                                        const NAPFLOAT aj = (a_is_one) ?
-                                                                 VSONE : a [j] ;
+                                        const NAPFLOAT aj = a [j] ;
                                         if ( x [j] == VSONE )
                                         {
                                             b -= aj ;
                                             continue;
                                         }
-                                        const NAPFLOAT t = aj*ad [j] ;
+                                        const NAPFLOAT t = aj*aj ;
                                         den += t ;
                                         num += t*ay [j] ;
                                     }
@@ -4914,7 +5087,7 @@ printf("slope: %e den: %e\n", slope, den) ;
                             LOOP_OVER_UNFIXED_NO_UF_UPDATE ;
                                 if ( a_is_one )
                                 {
-                                    const NAPFLOAT t = (ay [j] - lambda)*ad [j];
+                                    const NAPFLOAT t = ay [j] - lambda ;
                                     if ( t < VSZERO )
                                     {
                                         x [j] = VSZERO ;
@@ -4935,9 +5108,8 @@ printf("slope: %e den: %e\n", slope, den) ;
                                 }
                                 else
                                 {
-                                    const NAPFLOAT aj = (a_is_one) ?
-                                                                 VSONE : a [j] ;
-                                    const NAPFLOAT t = (ay [j] - lambda)*ad [j];
+                                    const NAPFLOAT aj = a [j] ;
+                                    const NAPFLOAT t = (ay [j] - lambda)*aj ;
                                     if ( t < VSZERO )
                                     {
                                         x [j] = VSZERO ;
@@ -5624,7 +5796,7 @@ PRIVATE int napsearch   /* return status of solution process */
 
                 /* update a2sum */
                 const NAPFLOAT aj = (a_is_one) ? VSONE : a [jfree] ;
-                a2sum -= (d_is_one) ? aj*aj : aj*ad [jfree] ;
+                a2sum -= aj*aj ;
 
                 /* store x [jfree], it must be bound */
                 if ( aj > 0 ) x [jfree] = VSZERO ;
@@ -8599,7 +8771,7 @@ VSINT VSPboundary
                 {
                     if ( PrintLevel )
                     {
-                        printf ("x [%i]: %e violates lower bound\n",
+                        printf ("x [%i]: %25.15e violates lower bound\n",
                                  j, x [j]) ;
                     }
                     two_hit = VSTRUE ;
@@ -8617,7 +8789,7 @@ VSINT VSPboundary
                 {
                     if ( PrintLevel )
                     {
-                        printf ("x [%i]: %e violates upper bound\n",
+                        printf ("x [%i]: %25.15e violates upper bound\n",
                                  i, x [i]) ;
                     }
                     two_hit = VSTRUE ;
@@ -8641,7 +8813,7 @@ VSINT VSPboundary
                 {
                     if ( PrintLevel )
                     {
-                        printf ("x [%i]: %e violates upper bound\n",
+                        printf ("x [%i]: %25.15e violates upper bound\n",
                                  j, x [j]) ;
                     }
                     two_hit = VSTRUE ;
@@ -8659,7 +8831,7 @@ VSINT VSPboundary
                 {
                     if ( PrintLevel )
                     {
-                        printf ("x [%i]: %e violates lower bound\n",
+                        printf ("x [%i]: %25.15e violates lower bound\n",
                                  i, x [i]) ;
                     }
                     two_hit = VSTRUE ;
@@ -8804,25 +8976,38 @@ void VSP_Grad_Proj
     VSFLOAT   gamma
 )
 {
-    VSPINT i ;
-    VSFLOAT *X, *Y, obj_0, obj, s, t, *sx, *sy, *gxtemp ;
+    VSPINT it ;
+    VSFLOAT eps, obj, obj_0, s, t, lambdax, lambday, *X, *Y, *sx, *sy, *gxtemp ;
     int ngp, status ;
 
     NAPdata *napdata ;
     napdata = napheap_setup () ;
     napdata->n = n ;   // problem dimension at current level
     napdata->a = a ;   // linear constraint for napheap problem
+
+#if 0
+int i ;
+napdata->a = NULL ;
+for (i = 0; i < n; i++)
+{
+    if ( a [i] != 1 )
+    {
+        napdata->a = a ;
+        break ;
+    }
+}
+#endif
     napdata->blo = 0 ; // lower bound of balance constraint
     napdata->bhi = u ; // upper bound of balance constraint
-    // napdata->lambda = INFINITY ;
+    eps = n*1.e-8 ;    // when cost does not improve by eps, exit
 
     X = malloc (n*sizeof (VSPFLOAT)) ; // stores projection in x
     Y = malloc (n*sizeof (VSPFLOAT)) ; // stores projection in y
 
-    // Compute initial objective, obj_0
-    obj_0 = VSP_Obj(x, gx, y, a, n) - n * 1e-10 ;
-
-
+    // Compute initial objective, obj
+    obj = VSP_Obj(x, gx, y, a, n) ;
+    lambdax = NAPINF ;
+    lambday = NAPINF ;
 
     /* Perform ngp iterations of the gradient projection algorithm
        The new (x, y) is the solution of
@@ -8838,8 +9023,9 @@ void VSP_Grad_Proj
     sy     = malloc(n * sizeof(*sy)) ;
     gxtemp = malloc(n * sizeof(*gxtemp)) ;
 
-    for(i = 0 ; i < ngp ; i++)
+    for(it = 1 ; it <= ngp ; it++)
     {
+        obj_0 = obj ; // save prior objective value
         s = vs_max(gx, n) ;
         t = vs_max(gy, n) ;
         s = MAX(s, t) ;
@@ -8849,15 +9035,14 @@ void VSP_Grad_Proj
         vs_scale(gx, s, n) ;
         vs_scale(gy, s, n) ;
 
-        /* Project gradient step onto feasible set. The projection decomposes into
-        two separate projections: sx is projected on the x-feasible set and
-                                    sy is projected on the y-feasible set */
-        // Lower bound on objective
-        obj = -gamma * n * n ;
-        int counter = 0 ;
-        while(obj < obj_0)
+        /* Project gradient step onto feasible set. The projection decomposes
+           into two separate projections: sx is projected on the x-feasible
+           set and sy is projected on the y-feasible set.  */
+        obj = NAPINF ; /* initialize obj to a lower bound on objective*/
+        //int counter = 0 ;
+        while(obj + eps < obj_0 )
         {
-            counter++ ; 
+            //counter++ ; 
             // Scale gradients by 0.5
             vs_scale(gx, VSHALF, n) ;
             vs_scale(gy, VSHALF, n) ;
@@ -8870,47 +9055,68 @@ void VSP_Grad_Proj
             napdata->c = sx ;
             napdata->x = X ;
 
-            printf("\nStarting NAPHEAP for x. counter: %i\n", counter) ;
-            // napdata->lambda = INFINITY ;
-            printf("lambda: %f\n", napdata->lambda) ;
+            //printf("\nStarting NAPHEAP for x. counter: %i\n", counter) ;
+            napdata->lambda = lambdax ;
             status = napheap(napdata) ;
-            if( status ) napheap_print_status (napdata) ;
-            if(counter == 2)
-            {
-                printf("Finished\n") ;
-                fflush(stdout) ;
-                exit(1) ;
-            }
+            lambdax = napdata->lambda ;
+#if 1
+            //printf ("lambdax: %e\n", lambdax) ;
+            //if( status ) napheap_print_status (napdata) ;
             VSFLOAT err, r ;            
             err = napheap_check (&r, &s, &t, napdata) ;
-            printf ("err: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
+            printf ("errx: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
+            if ( err > 1.e-6 )
+            {
+                printf ("NAPHEAP error: %e\n", err) ;
+                exit(1) ;
+            }
+#endif
 
             // Project sy to feasible set
             napdata->c = sy ;
             napdata->x = Y ;
-            printf("\nStarting NAPHEAP for y. counter: %i\n", counter) ;
-            // napdata->lambda = INFINITY ;
+            // printf("\nStarting NAPHEAP for y. counter: %i\n", counter) ;
+            napdata->lambda = lambday ;
             status = napheap(napdata) ;
-            if( status ) napheap_print_status (napdata) ;
+            lambday = napdata->lambda ;
+#if 1
+            //printf ("lambday: %e\n", lambday) ;
+            //printf ("n = %i ;\n", n) ;
+            //printf ("u = %i ;\n", u) ;
+            //printf ("l = 0 ;\n") ;
+            //printf ("lambda after = %25.15e\n", napdata->lambda) ;
+            //int i ;
+            //for (i = 0; i < n; i++)
+            //{
+            //    printf ("y[%i] = %25.15e ;\n", i, sy [i]) ;
+            //}
+            //for (i = 0; i < n; i++)
+            //{
+            //    printf ("a[%i] = %25.15e ;\n", i, a [i]) ;
+            //}
+            //if( status ) napheap_print_status (napdata) ;
 
-            // err = napheap_check (&r, &s, &t, napdata) ;
-            // printf ("err: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
+            err = napheap_check (&r, &s, &t, napdata) ;
+            printf ("erry: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
+            if ( err > 1.e-6 )
+            {
+                printf ("NAPHEAP error: %e\n", err) ;
+                exit(1) ;
+            }
+#endif
 
             VSP_Grad(gxtemp, a, Y, Ai, Ap, gamma, n) ;
             obj = VSP_Obj(X, gxtemp, Y, a, n) ;
 
-            // printf("obj: %f    obj0: %f\n", obj, obj_0) ;
-            // fflush(stdout) ;
+            // printf("it: %i obj: %f    obj0: %f\n", it, obj, obj_0) ;
         }
 
         /* Update: x <- X and y <- Y */
-        obj_0 = obj ;
-        vs_copyx(gx, gxtemp, n) ;
         vs_copyx(x, X, n) ;
-        VSP_Grad(gy, a, x, Ai, Ap, gamma, n) ;
         vs_copyx(y, Y, n) ;
-
-        if( fabs(obj - obj_0) < n * 1e-10 ) break ;
+        if ( obj < obj_0 + eps ) break ; // |obj - obj_0| < eps => stationary
+        vs_copyx(gx, gxtemp, n) ;
+        VSP_Grad(gy, a, x, Ai, Ap, gamma, n) ;
     }
 
     napheap_terminate(&napdata) ;
@@ -8921,5 +9127,4 @@ void VSP_Grad_Proj
     free(X) ;
     free(Y) ;
     free(gxtemp) ;
-    
 }
