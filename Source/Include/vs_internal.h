@@ -450,22 +450,6 @@ typedef struct
     VSLINT nz ;    // number of nonzeros
 } CSC ;
 
-/* prototypes for vs */
-
-int vs
-(
-    int       *x, /* x [i] = 0, 1, or 2 to put i in set 0, set 1, or separator
-                     respectively,  malloc'd by user */
-    VSINT    *Ei, /* row numbers */
-    VSLINT   *Ep, /* column pointers */
-    VSINT    *Ex, /* edge weights,   NULL => all entries in Ex are 1 */
-    VSINT     *a, /* vertex weights, NULL => all entries in a are 1 */
-    VSINT      n, /* problem dimension */
-    VSFLOAT    m, /* balance constraint parameter: 0.5 * original # vertices
-                     m = 0.5*sum(vw [i]) */
-    VSparm *Parm  /* parameter structure */
-) ;
-
 
 void vs_print_parms
 (

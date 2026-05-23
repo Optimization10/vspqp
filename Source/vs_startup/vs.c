@@ -77,6 +77,7 @@
 
 #include "vs_internal.h"
 #include <math.h>
+#include <stdio.h>
 
 int vs
 (
@@ -3420,14 +3421,20 @@ int napheap  /* Return status of solution process. To determine the status, use
         /* === case when (d > 0) ============================================ */
         /* ================================================================== */
 
+
+
         /* if no starting guess given, compute one by variable fixing */
         if ( !use_lambda )
         {
+
+printf("no start guess given, compute one by variable fixing\n") ;
+
             if ( (use_prior_data == TRUE) && (akakdk < NAPINF) )
             {
                 den = akakdk ;
                 num = nap_dot (y, a, n) ;
                 b = blo ;
+printf("den: %e num: %e b: %e\n") ;
             }
             else /* starting from scratch */
             {
@@ -3520,7 +3527,7 @@ int napheap  /* Return status of solution process. To determine the status, use
                     }
                 }
             }
-/* printf ("slope: %e slope0: %e\n", slope, slope0) ;*/
+printf ("slope: %e slope0: %e\n", slope, slope0) ;
             /* determine bracketting interval */
             BRACKET ;
         }
@@ -3669,10 +3676,10 @@ int napheap  /* Return status of solution process. To determine the status, use
             status = NAPHEAP_STATUS_OK ;
             return (nap_wrapup (status, napdata, lambda)) ;
         }
-/*printf ("slope0: %e\n", slope0) ;
+printf ("slope0: %e\n", slope0) ;
 printf ("slope: %e\n", slope) ;
 printf ("lambda: %e\n", lambda) ;
-printf ("K = %i\n", K) ;*/
+printf ("K = %i\n", K) ;
 
         /* At this point, we have a starting guess that was either given
            or was computed by a variable fixing iteration. x has been
@@ -4043,10 +4050,10 @@ printf ("fix variables and evaluate next iterate\n") ;*/
             }
             else /* bracket is [0, lambda] or [lambda, 0] */
             {
-/* printf ("bracket is [0, lambda] or [lambda, 0]\n") ;*/
+printf ("bracket is [0, lambda] or [lambda, 0]\n") ;
                 if ( prevslope > NAPZERO )
                 {
-/*printf ("prevslope > 0\n") ;*/
+printf ("prevslope > 0\n") ;
                     for (k = 0; k < n; k++)
                     {
                         if ( x [k] == VSZERO )
@@ -4110,7 +4117,7 @@ printf ("fix variables and evaluate next iterate\n") ;*/
                         uf [nuf] = k ;
                         nuf++ ;
                     }
-/*printf("slope: %e den: %e\n", slope, den) ;*/
+printf("slope: %e den: %e\n", slope, den) ;
                 }
                 else /* prevslope < 0 */
                 {
@@ -8807,6 +8814,7 @@ void VSP_Grad_Proj
     napdata->a = a ;   // linear constraint for napheap problem
     napdata->blo = 0 ; // lower bound of balance constraint
     napdata->bhi = u ; // upper bound of balance constraint
+    // napdata->lambda = INFINITY ;
 
     X = malloc (n*sizeof (VSPFLOAT)) ; // stores projection in x
     Y = malloc (n*sizeof (VSPFLOAT)) ; // stores projection in y
@@ -8849,7 +8857,7 @@ void VSP_Grad_Proj
         int counter = 0 ;
         while(obj < obj_0)
         {
-            counter++ ;
+            counter++ ; 
             // Scale gradients by 0.5
             vs_scale(gx, VSHALF, n) ;
             vs_scale(gy, VSHALF, n) ;
@@ -8861,18 +8869,27 @@ void VSP_Grad_Proj
             // Project sx to feasible set
             napdata->c = sx ;
             napdata->x = X ;
+
+            printf("\nStarting NAPHEAP for x. counter: %i\n", counter) ;
+            // napdata->lambda = INFINITY ;
+            printf("lambda: %f\n", napdata->lambda) ;
             status = napheap(napdata) ;
             if( status ) napheap_print_status (napdata) ;
-
+            if(counter == 2)
+            {
+                printf("Finished\n") ;
+                fflush(stdout) ;
+                exit(1) ;
+            }
             VSFLOAT err, r ;            
             err = napheap_check (&r, &s, &t, napdata) ;
             printf ("err: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
 
-            // if(counter == 2) exit(1) ; 
-
             // Project sy to feasible set
             napdata->c = sy ;
             napdata->x = Y ;
+            printf("\nStarting NAPHEAP for y. counter: %i\n", counter) ;
+            // napdata->lambda = INFINITY ;
             status = napheap(napdata) ;
             if( status ) napheap_print_status (napdata) ;
 
