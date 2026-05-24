@@ -66,7 +66,8 @@ void VSP_Grad_Proj
     VSPLONG   *Ap,
     VSPINT     u,
     VSPINT     n,
-    VSPFLOAT   gamma
+    VSPFLOAT   gamma,
+    VSPINT     ngp
 ) ;
 
 #endif

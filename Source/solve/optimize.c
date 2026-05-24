@@ -180,35 +180,42 @@ void Optimize
     // Phase 0: Gradient Projection
     /* ====================================================================== */
     
-// #if( 0 )
-    /* Step 1: Convert x, y, c to floats, and compute gx and gy */
-    x_flt = Point_To_Array(X->point) ;
-    gx    = Az_To_Grad(c, gamma, Y->Az) ;
+    if(options->vsp_grad_proj)
+    {
+        /* Step 1: Convert x, y, c to floats, and compute gx and gy */
+        x_flt = Point_To_Array(X->point) ;
+        gx    = Az_To_Grad(c, gamma, Y->Az) ;
 
-    y_flt = Point_To_Array(Y->point) ;    
-    gy    = Az_To_Grad(c, gamma, X->Az) ;
+        y_flt = Point_To_Array(Y->point) ;    
+        gy    = Az_To_Grad(c, gamma, X->Az) ;
 
-    c_flt = Array_Int_To_Flt(c, n) ;
+        c_flt = Array_Int_To_Flt(c, n) ;
 
-    /* Step 2: Do gradient projection */
-    VSP_Grad_Proj(x_flt, gx, y_flt, gy, c_flt, Ai, Ap, u, n, gamma) ;
+        /* Step 2: Do gradient projection */
+        VSP_Grad_Proj
+        (
+            x_flt, gx, y_flt, gy, c_flt, Ai, Ap, u, n, gamma, options->vsp_ngp
+        ) ;
 
-    /* Step 3: Move x_flt, y_flt to almost binary points */
-    int print_level = 1 ;
-    VSPboundary(x_flt, c_flt, gx, n, print_level) ;
-    VSPboundary(y_flt, c_flt, gy, n, print_level) ;
+        /* Step 3: Move x_flt, y_flt to almost binary points */
+        int print_level = 0 ;
+        VSPboundary(x_flt, c_flt, gx, n, print_level) ;
+        VSPboundary(y_flt, c_flt, gy, n, print_level) ;
 
-    /* Step 4: Update the X and Y states with x_flt and y_flt */
-    Array_To_State(x_flt, X, problem) ;
-    Array_To_State(y_flt, Y, problem) ;
+        /* Step 4: Update the X and Y states with x_flt and y_flt */
+        Move_To_Vertex(x_flt, y_flt, Ai, Ap, c_flt, u, gamma, n) ;
+        Move_To_Vertex(y_flt, x_flt, Ai, Ap, c_flt, u, gamma, n) ;
 
-    /* Step 5: Cleanup */
-    free(x_flt) ;
-    free(y_flt) ;
-    free(gx) ;
-    free(gy) ;
-    free(c_flt) ;
-// #endif
+        Array_To_State(x_flt, X, problem) ;
+        Array_To_State(y_flt, Y, problem) ;
+
+        /* Step 5: Cleanup */
+        free(x_flt) ;
+        free(y_flt) ;
+        free(gx) ;
+        free(gy) ;
+        free(c_flt) ;
+    }
 
     /* ====================================================================== */
     // Phase 1: Mountain climbing

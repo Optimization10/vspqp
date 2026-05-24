@@ -26,8 +26,8 @@ void mountain_climbing
 
     #ifdef DEBUG
         /* Check input */
-        check_state(Y, problem);
         check_state(X, problem);
+        check_state(Y, problem);
 
         VSPFLOAT obj_dbg ;
         obj_dbg = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;

@@ -1296,7 +1296,7 @@ void check_state(State *Z, Problem *problem)
     check_weight(Z, problem->graph->c) ;
     if(Z->weight > problem->u)
     {
-        Error("Upper balance violated ", DBG_INFO);
+        Error("Upper balance violated ", DBG_INFO) ;
     }
 
     return ;
@@ -2925,16 +2925,46 @@ VSPFLOAT *Az_To_Grad(VSPINT *c, VSPINT gamma, Az *AZ)
     return g ;
 }
 
+void Check_Almost_Binary_Point(VSPFLOAT *z, VSPINT n)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+    WARN_IF_NOT_DEBUG_MODE ;
+
+    VSPINT num_bin = 0 ;
+    VSPINT i ;
+    VSPFLOAT zi ;
+
+    for(i = 0 ; i < n ; i++)
+    {
+        zi = z[i] ;
+        VSP_ASSERT( 0 <= zi && zi <= 1 ) ;
+        
+        if( 0 < zi && zi < 1 ) num_bin++ ;
+    }
+
+    if(num_bin > 1)
+    {
+        Error("More than one fractional component", DBG_INFO) ;
+    }
+}
+
 // Assuming z_flt is an almost binary point, convert z_flt to a state struct
 void Array_To_State(VSPFLOAT *z_flt, State *Z, Problem *P)
 {
-
-    VSPINT    i, zi, wgt ; 
+    VSPFLOAT zi, wgt ;
+    VSPINT    i ; 
     VSPINT   *z = Z->point->int_part ;
     VSPINT    n = P->graph->n ;
     VSPINT   *c = P->graph->c ;
     VSPINT  *Ai = P->graph->Ai ;
     VSPLONG *Ap = P->graph->Ap ;
+
+    SET_FUNCTION_COUNTER ;
+
+#ifdef DEBUG
+    Check_Almost_Binary_Point(z_flt, n) ;
+#endif
 
     /* ====================================================================== */
     /* Do the point and the weight */
@@ -2948,24 +2978,23 @@ void Array_To_State(VSPFLOAT *z_flt, State *Z, Problem *P)
     {
         zi   = z_flt[i] ;
         z[i] = zi ;
-        wgt += zi * c[i] ;
+        wgt += z_flt[i] * c[i]  ;
 
         // Check if z_i is fractional
         if(z_flt[i] != 0 && z_flt[i] != 1)
         {
             Z->point->ind_frac = i ;
             Z->point->val_frac = z_flt[i] ;
-            wgt += lround(z_flt[i] * c[i]) ;
         }
     }
-    Z->weight = wgt ;
+    Z->weight = lround(wgt) ;
 
     /* ====================================================================== */
     /* Do Az */
     /* ====================================================================== */
     Compute_Az(Z->point, Z->Az, Ai, Ap, n) ;
 
-#ifdef VSP_DEBUG
+#ifdef DEBUG
     check_state(Z, P) ;
 #endif
 }
@@ -2977,4 +3006,210 @@ VSPFLOAT *Array_Int_To_Flt(VSPINT *a, VSPINT n)
     for(VSPINT i = 0 ; i < n ; i++) a_flt[i] = a[i] ;
 
     return a_flt ;
+}
+
+void VSP_Mat_Vec_Mult_Float
+(
+    const VSPFLOAT *const z,
+    VSPFLOAT       *const Az,
+    const VSPINT   *const Ai,
+    const VSPLONG  *const Ap,
+    const VSPINT          n
+)
+{
+    VSPINT col = 0 ;
+    VSPLONG p, start, end ;
+
+    /* Initialize Az to all 0's */
+    for(col = 0; col < n; col++) Az[col] = 0 ;
+
+    for (col = 0; col < n; col++)
+    {
+        VSPFLOAT const zcol = z[col] ;
+        if ( zcol )
+        {
+            start = Ap[col] ;
+            end   = Ap[col + 1] ;
+            for (p = start ; p < end ; p++) Az[ Ai[p] ] += zcol ;
+            
+            /* Take identity into account */
+            Az[col] += zcol ;
+        }
+    }
+}
+
+/* Compute gz = c - gamma * Aw */
+void Grad
+(
+    VSPFLOAT       *const gz,
+    const VSPFLOAT *const a,
+    const VSPFLOAT *const w,
+    const VSPINT   *const Ai,
+    const VSPLONG  *const Ap,
+    const VSPFLOAT        gamma,
+    const VSPINT          n
+)
+{
+    VSPINT col = 0 ;
+    VSPLONG p, start, end ;
+
+    /* Initialize Az to all 0's */
+    for(col = 0; col < n; col++) gz[col] = a[col] ;
+
+    for (col = 0; col < n; col++)
+    {
+        VSPFLOAT const zcol = -gamma * w[col] ;
+        if ( zcol )
+        {
+            start = Ap[col] ;
+            end   = Ap[col + 1] ;
+            for (p = start ; p < end ; p++) gz[ Ai[p] ] += zcol ;
+            
+            /* Take identity into account */
+            gz[col] += zcol ;
+        }
+    }
+}
+
+VSPFLOAT obj_flt
+(
+    VSPFLOAT *x,
+    VSPFLOAT *y,
+    VSPFLOAT *c,
+    VSPFLOAT  gamma,
+    VSPINT   *Ai,
+    VSPLONG  *Ap,
+    VSPINT    n
+)
+{
+    VSPFLOAT *gx = malloc(n * sizeof(*gx)) ;
+    Grad(gx, c, y, Ai, Ap, gamma, n) ;
+
+    VSPINT i ;
+    VSPFLOAT obj = 0 ;
+
+    for(i = 0 ; i < n ; i++)
+    {
+        obj += x[i] * gx[i] + y[i] * c[i] ;
+    }
+
+    free(gx) ;
+    return obj ;
+}
+
+// Let z be x or y. If z is fully binary, or an almost binary point with the
+// balance constraint being tight, then it is a vertex of the associated
+// polyhedron P_z, and its weight is an integer
+
+
+// Problem:
+// The State struct can only store almost binary points with an integral weight,
+// since the member "wgt" of the struct is a VSPINT. Hence, not almost binary
+// points can be stored in a state struct
+// 
+// Solution:
+// It is always possible to move
+// Let z be an almost binary feasible point whose ith entry is fractional.
+// Since the objective function is linear in z_i, the value of z_i can be moved
+// in one direction (increased or decreased based on the sign of its
+// coefficient, gz_i) without damaging the objective. Here, gz = c - gamma Aw
+// is the gradient of the objective with respect to z, and w is the opposite
+// variable of z.
+
+// If gz_i is <= 0, then z_i can be moved down to 0 without damaging the
+// objective, resulting in a binary point with integral weight
+
+// If gz_i > 0, then z_i can be moved up until it becomes 1, or until the
+// balance constraint becomes active. In either case, the weight of the
+// resulting point is integral. Of course, if the balance constaint is already
+// active at z, then no increase is possible, and the weight of z is already
+// integral because u is integral
+
+// Note: by undergoing this process, we are moving from z to a vertex of the
+// associated polyhedron P_z
+
+// Input: an almost binary point
+// Output: a vertex whose objective is at least as good as the input (all
+//         vertices have integral weight). And return the weight of the point
+
+// Note: If the original point has a fractional component, even if it has
+//        integral weight, its fractional component is still adjusted if it is
+//        possible to do so without damaging the objective
+VSPINT Move_To_Vertex
+(
+    VSPFLOAT *z,
+    VSPFLOAT *w,
+    VSPINT   *Ai,
+    VSPLONG  *Ap,
+    VSPFLOAT *c,
+    VSPINT    u,
+    VSPFLOAT  gamma,
+    VSPINT    n
+)
+{
+    SET_FUNCTION_COUNTER ;
+
+    VSPINT i, j, int_wgt ;
+    VSPLONG p, end ;
+    VSPFLOAT wgt, zi, ci, gz_j, delta ;
+
+// #ifdef DEBUG
+    VSPFLOAT objStart = obj_flt(z, w, c, gamma, Ai, Ap, n) ;
+// #endif
+
+    // Do a pass to determine if z has a fractional component and the balance
+    // constraint is not tight
+    wgt = 0 ;
+    j   = EMPTY ;
+    for(i = 0 ; i < n ; i++)
+    {
+        zi = z[i] ;
+        ci = c[i] ;
+        wgt += zi * ci ;
+
+        if(1E-10 < zi && zi < 1 - 1E-10) j = i ;
+    }
+    if(j == EMPTY || equal(wgt, u)) return lround(wgt) ;
+
+
+    // Determine gz_j
+    gz_j = c[j] ;
+    end = Ap[j+1] ;
+    for(p = Ap[j] ; p < end ; p++)gz_j -= gamma * w[ Ai[p] ] ;
+    gz_j -= gamma * w[j] ; // Take identity into account
+
+    // If gz_j is non-negative, set z_j to 0. Else, if gz_j is positive,
+    // increase z_j as long as z remains feasible
+    if(gz_j <= 0)
+    {
+        wgt -= z[j] * c[j] ;
+        z[j] = 0 ;
+    }
+    else
+    {
+        // Ammount by which z_j needs to be increased to activate the
+        // balance constraint
+        delta = (u - wgt) / c[j] ;
+
+        if(z[j] + delta < 1)
+        {
+            wgt = u ;
+            z[j] += delta ;
+        }
+        else
+        {
+            wgt += (1 - z[j]) * c[j] ;
+            z[j] = 1 ;
+        }
+    }
+
+#ifdef DEBUG
+    VSPFLOAT objEnd = obj_flt(z, w, c, gamma, Ai, Ap, n) ;
+    if( Is_Less_Than(objEnd, objStart, 1E-8) )
+    {
+        Error("Objective decreased when trying to move to vertex", DBG_INFO) ;
+    }
+#endif
+
+    return lround(wgt) ;
 }

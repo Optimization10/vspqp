@@ -512,6 +512,12 @@ void set_default_options(Options *options)
     options->min_imbal_ratio_second_start = 0.07 ;
     options->min_level_second_start = 4 ;
 
+    /* ====================================================================== */
+    // Gradient projection applied to vsp
+    /* ====================================================================== */
+    options->vsp_grad_proj = false ;
+    options->vsp_ngp = 3 ;
+
     return ;
 }
 
@@ -585,7 +591,9 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  min_imbal_ratio_second_start   = %g\n",   opts->min_imbal_ratio_second_start);
     fprintf(f, "  min_level_second_start         = %lld\n", PRI(opts->min_level_second_start));
 
-
+    /* VSP gradient projection options */
+    fprintf(f, "  vsp_grad_proj                  = %s\n",   (opts->vsp_grad_proj) ? "yes" : "no") ;
+    fprintf(f, "  vsp_ngp                        = %i\n",   opts->vsp_ngp ) ;
 
     fclose(f);
 }

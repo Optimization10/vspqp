@@ -568,4 +568,16 @@ VSPFLOAT *Az_To_Grad(VSPINT *c, VSPINT gamma, Az *AZ) ;
 void Array_To_State(VSPFLOAT *z_flt, State *Z, Problem *P) ;
 VSPFLOAT *Array_Int_To_Flt(VSPINT *a, VSPINT n) ;
 
+VSPINT Move_To_Vertex
+(
+    VSPFLOAT *z,
+    VSPFLOAT *w,
+    VSPINT   *Ai,
+    VSPLONG  *Ap,
+    VSPFLOAT *c,
+    VSPINT    u,
+    VSPFLOAT  gamma,
+    VSPINT    n
+) ;
+
 #endif

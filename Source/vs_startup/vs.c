@@ -7656,9 +7656,6 @@ void MinHeap_Heapify_v0
     {
         MinHeap_Bubble_Down_v0(heap, lookup, numNodes, c, p);
     }
-    #ifdef VSP_DEBUG
-        MinHeap_Check_v0(heap, lookup, numNodes, c) ;
-    #endif
 }
 
 void MinHeap_Insert_v0
@@ -7691,10 +7688,6 @@ void MinHeap_Insert_v0
 
     heap[node_child]   = toInsert;
     lookup[toInsert]   = node_child;
-
-    #ifdef VSP_DEBUG
-        MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
-    #endif
 }
 
 // ASSUMED: toDel is in the heap
@@ -7707,18 +7700,11 @@ void MinHeap_Delete_v0
     VSINT   toDel
 )
 {
-    #ifdef VSP_DEBUG
-        MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
-    #endif
-
     VSINT address = lookup[toDel];
     if (address == VSEMPTY) return;
     if (address == *numNodes)
     {
         (*numNodes)--;
-        #ifdef VSP_DEBUG
-            MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
-        #endif
         return;
     }
 
@@ -7750,9 +7736,6 @@ void MinHeap_Delete_v0
         heap[address]     = replacement;
         lookup[replacement] = address;
     }
-    #ifdef VSP_DEBUG
-        MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
-    #endif
 }
 
 void MinHeap_See_Top_Val_v0
@@ -8448,7 +8431,7 @@ void vs_separator
         }
     }
 
-    #ifdef SVP_DEBUG
+    #ifdef DEBUG
         Check_Bip_Vertex_Cover(B, cover) ;
         Check_Matching_Size_Against_Cover_Size(B, matching, cover) ;
         Separator_Check(part, &A) ;
@@ -8629,7 +8612,7 @@ void vs_separator_approx
         }
     }
 
-    #ifdef SVP_DEBUG
+    #ifdef DEBUG
         // Check_Bip_Vertex_Cover(B, cover) ;
         Check_Its_A_Cover(B,cover) ;
         Separator_Check(part, &A) ;
@@ -8899,37 +8882,9 @@ static VSFLOAT VSP_Obj
     return obj ;
 }
 
-void VSP_Mat_Vec_Mult_Float
-(
-    const VSFLOAT *const z,
-    VSFLOAT       *const Az,
-    const VSPINT  *const Ai,
-    const VSPLONG *const Ap,
-    const VSPINT         n
-)
-{
-    VSPINT col = 0 ;
-    VSPLONG p, start, end ;
 
-    /* Initialize Az to all 0's */
-    for(col = 0; col < n; col++) Az[col] = 0 ;
 
-    for (col = 0; col < n; col++)
-    {
-        VSFLOAT const zcol = z[col] ;
-        if ( zcol )
-        {
-            start = Ap[col] ;
-            end   = Ap[col + 1] ;
-            for (p = start ; p < end ; p++) Az[ Ai[p] ] += zcol ;
-            
-            /* Take identity into account */
-            Az[col] += zcol ;
-        }
-    }
-}
-
-/* Compute gz = a - gamma * Az */
+/* Compute gz = a - gamma * Aw */
 void VSP_Grad
 (
     VSFLOAT       *const gz,
@@ -8973,12 +8928,13 @@ void VSP_Grad_Proj
     VSLINT   *Ap,
     VSINT     u,
     VSINT     n,
-    VSFLOAT   gamma
+    VSFLOAT   gamma,
+    int       ngp
 )
 {
     VSPINT it ;
     VSFLOAT eps, obj, obj_0, s, t, lambdax, lambday, *X, *Y, *sx, *sy, *gxtemp ;
-    int ngp, status ;
+    int status ;
 
     NAPdata *napdata ;
     napdata = napheap_setup () ;
@@ -9018,7 +8974,6 @@ for (i = 0; i < n; i++)
     
        where and sx and sy are steps along the gradient starting from the
        iterates x and y: sx = x + s*gx and sy = y + s*gy, s = stepsize */
-    ngp    = 3 ;
     sx     = malloc(n * sizeof(*sx)) ;
     sy     = malloc(n * sizeof(*sy)) ;
     gxtemp = malloc(n * sizeof(*gxtemp)) ;
@@ -9059,7 +9014,7 @@ for (i = 0; i < n; i++)
             napdata->lambda = lambdax ;
             status = napheap(napdata) ;
             lambdax = napdata->lambda ;
-#if 1
+#if 0
             //printf ("lambdax: %e\n", lambdax) ;
             //if( status ) napheap_print_status (napdata) ;
             VSFLOAT err, r ;            
@@ -9079,7 +9034,7 @@ for (i = 0; i < n; i++)
             napdata->lambda = lambday ;
             status = napheap(napdata) ;
             lambday = napdata->lambda ;
-#if 1
+#if 0
             //printf ("lambday: %e\n", lambday) ;
             //printf ("n = %i ;\n", n) ;
             //printf ("u = %i ;\n", u) ;
@@ -9118,6 +9073,29 @@ for (i = 0; i < n; i++)
         if ( obj < obj_0 + eps ) break ; // |obj - obj_0| < eps => stationary
         vs_copyx(gx, gxtemp, n) ;
         VSP_Grad(gy, a, x, Ai, Ap, gamma, n) ;
+
+        VSFLOAT wgt_x = 0, wgt_y = 0 ;
+        for(VSINT ii = 0 ; ii < n ; ii++)
+        {
+            wgt_x += x[ii] * a[ii] ;
+            wgt_y += y[ii] * a[ii] ;
+        }
+
+#if (0)
+        for(VSINT ii = 0 ; ii < n ; ii++)
+        {
+            if(x[ii] < 1 - 1E-8 && gx[ii] > 1E-8 && wgt_x < u - 1E-8)
+            {
+                printf("x can be improved\n") ;
+            }
+
+            if(y[ii] == 1 - 1E-8 && gy[ii] > 1E-8 && wgt_y < u - 1E-8)
+            {
+                printf("x can be improved\n") ;
+            }
+        }
+#endif
+        
     }
 
     napheap_terminate(&napdata) ;

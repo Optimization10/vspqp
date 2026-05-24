@@ -117,6 +117,15 @@ typedef struct Options_struct
     // min level required to trigger second start
     VSPINT   min_level_second_start ;
 
+    /* ====================================================================== */
+    // Gradient projection applied to vsp
+    /* ====================================================================== */
+    // Flag to control if we do vsp_grad_proj
+    bool vsp_grad_proj ;
+    
+    // Number of gradient projection steps applied to vsp
+    int  vsp_ngp ; 
+
 } Options ;
 
 
