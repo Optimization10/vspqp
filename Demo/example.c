@@ -420,8 +420,9 @@ int main(int argc, char** argv)
     
     
     /*------------------------------------------------------------------------*/
-    // Reset progress file
+    // Reset progress file and error log
     reset_file("./output/progress.txt") ;
+    reset_file("./output/errors.txt") ;
     unsigned int seed ;
 
     // seed = (unsigned VSPINT) time(NULL) ;

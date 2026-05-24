@@ -352,20 +352,6 @@ void z0Aw1_List_Check
     VSPINT                 n
 ) ;
 
-void FeasibleStrictlyBeneficialFlipSelector_Check
-(
-    VSPINT                          *x,
-    VSPINT                         *Ax,
-    VSPINT                        wgtx,
-    VSPINT                          *y,
-    VSPINT                         *Ay,
-    VSPINT                        wgty,
-    char                  givenVarFlip,
-    VSPINT                givenIndFlip,
-    Problem                   *problem,
-    Expected_Flip_Effect expFlipEffect
-) ;
-
 void Check_All_Data
 (
     VSPINT                          *x,

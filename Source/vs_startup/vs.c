@@ -9038,7 +9038,7 @@ for (i = 0; i < n; i++)
         /* Project gradient step onto feasible set. The projection decomposes
            into two separate projections: sx is projected on the x-feasible
            set and sy is projected on the y-feasible set.  */
-        obj = NAPINF ; /* initialize obj to a lower bound on objective*/
+        obj = -NAPINF ; /* initialize obj to a lower bound on objective*/
         //int counter = 0 ;
         while(obj + eps < obj_0 )
         {
@@ -9110,6 +9110,7 @@ for (i = 0; i < n; i++)
 
             // printf("it: %i obj: %f    obj0: %f\n", it, obj, obj_0) ;
         }
+        
 
         /* Update: x <- X and y <- Y */
         vs_copyx(x, X, n) ;

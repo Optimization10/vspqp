@@ -7,9 +7,9 @@
 #------------------------------------------------------------------------------
 # Choose debug or release version
 #------------------------------------------------------------------------------
-VERSION = release
+# VERSION = release
 # VERSION = dev
-# VERSION = debug
+VERSION = debug
 
 
 #------------------------------------------------------------------------------
@@ -62,4 +62,4 @@ CC = gcc
 # Additional Compiler Flags
 #------------------------------------------------------------------------------
 # Add any other compiler flags, such as as -DLOG
-# USER_FLAGS = -fsanitize=address
+USER_FLAGS =

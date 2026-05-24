@@ -180,7 +180,7 @@ void Optimize
     // Phase 0: Gradient Projection
     /* ====================================================================== */
     
-#if( 0 )
+// #if( 0 )
     /* Step 1: Convert x, y, c to floats, and compute gx and gy */
     x_flt = Point_To_Array(X->point) ;
     gx    = Az_To_Grad(c, gamma, Y->Az) ;
@@ -199,8 +199,8 @@ void Optimize
     VSPboundary(y_flt, c_flt, gy, n, print_level) ;
 
     /* Step 4: Update the X and Y states with x_flt and y_flt */
-    Array_To_State(x_flt, X, problem->graph) ;
-    Array_To_State(y_flt, Y, problem->graph) ;
+    Array_To_State(x_flt, X, problem) ;
+    Array_To_State(y_flt, Y, problem) ;
 
     /* Step 5: Cleanup */
     free(x_flt) ;
@@ -208,7 +208,7 @@ void Optimize
     free(gx) ;
     free(gy) ;
     free(c_flt) ;
-#endif
+// #endif
 
     /* ====================================================================== */
     // Phase 1: Mountain climbing

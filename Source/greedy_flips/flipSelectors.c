@@ -485,14 +485,6 @@ void SelectRandomOptimalBeneficialFlip
                     x, Ax, wgtx, y, Ay, wgty,
                     *retFlipVar, *retIndFlip, problem
                 ) ;
-
-                FeasibleStrictlyBeneficialFlipSelector_Check
-                (
-                    x, Ax, wgtx,
-                    y, Ay, wgty,
-                    *retFlipVar, *retIndFlip,
-                    problem, IMPROVE_OBJ_ONLY
-                ) ;
             }
         }
         else
@@ -640,14 +632,7 @@ void SelectRandomOptimalBeneficialFlip
         }
         else
         {
-            FeasibleStrictlyBeneficialFlipSelector_Check
-            (
-                x, Ax, wgtx,
-                y, Ay, wgty,
-                *retFlipVar, *retIndFlip,
-                problem,
-                strict ? IMPROVE_OBJ_ONLY : IMPROVE_OBJ_OR_NEUTRAL_DOWNFLIP
-            ) ;
+
         }
     #endif
 
@@ -1147,14 +1132,6 @@ void SelectRandomOptimalBeneficialFlip_v2
                     x, Ax, wgtx, y, Ay, wgty,
                     *retFlipVar, *retIndFlip, problem
                 ) ;
-
-                FeasibleStrictlyBeneficialFlipSelector_Check
-                (
-                    x, Ax, wgtx,
-                    y, Ay, wgty,
-                    *retFlipVar, *retIndFlip,
-                    problem, IMPROVE_OBJ_ONLY
-                ) ;
             }
         }
         else
@@ -1331,14 +1308,7 @@ void SelectRandomOptimalBeneficialFlip_v2
         }
         else
         {
-            FeasibleStrictlyBeneficialFlipSelector_Check
-            (
-                x, Ax, wgtx,
-                y, Ay, wgty,
-                *retFlipVar, *retIndFlip,
-                problem,
-                strict ? IMPROVE_OBJ_ONLY : IMPROVE_OBJ_OR_NEUTRAL_DOWNFLIP
-            ) ;
+
         }
     #endif
 

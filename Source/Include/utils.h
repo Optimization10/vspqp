@@ -565,7 +565,7 @@ VSPINT Get_Rand_Array_Entry
 VSPINT Get_u_Finest(Problem *P) ;
 
 VSPFLOAT *Az_To_Grad(VSPINT *c, VSPINT gamma, Az *AZ) ;
-void Array_To_State(VSPFLOAT *z_flt, State *Z, Graph *graph) ;
+void Array_To_State(VSPFLOAT *z_flt, State *Z, Problem *P) ;
 VSPFLOAT *Array_Int_To_Flt(VSPINT *a, VSPINT n) ;
 
 #endif

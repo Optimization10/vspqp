@@ -2130,13 +2130,14 @@ void check_point(Point *z) {
     VSPINT  n     = z->n ;
 
     /* Check that the integer part is binary */
-    bool binary = true ;
-    for(VSPINT i = 0 ; i < n ; i++) {
-        if (z_int[i] != 0 && z_int[i] != 1) {
-            binary = false ;
+    for(VSPINT i = 0 ; i < n ; i++)
+    {
+        if (z_int[i] != 0 && z_int[i] != 1)
+        {
+            Error("Not binary", DBG_INFO) ;
+            break ;
         }
     }
-    if( binary == false ) Error("Not binary", DBG_INFO) ;
 
 
     /* Check that the integer part of the fractional entry is 0 */
@@ -2925,15 +2926,15 @@ VSPFLOAT *Az_To_Grad(VSPINT *c, VSPINT gamma, Az *AZ)
 }
 
 // Assuming z_flt is an almost binary point, convert z_flt to a state struct
-void Array_To_State(VSPFLOAT *z_flt, State *Z, Graph *graph)
+void Array_To_State(VSPFLOAT *z_flt, State *Z, Problem *P)
 {
 
     VSPINT    i, zi, wgt ; 
     VSPINT   *z = Z->point->int_part ;
-    VSPINT    n = graph->n ;
-    VSPINT   *c = graph->c ;
-    VSPINT  *Ai = graph->Ai ;
-    VSPLONG *Ap = graph->Ap ;
+    VSPINT    n = P->graph->n ;
+    VSPINT   *c = P->graph->c ;
+    VSPINT  *Ai = P->graph->Ai ;
+    VSPLONG *Ap = P->graph->Ap ;
 
     /* ====================================================================== */
     /* Do the point and the weight */
@@ -2963,6 +2964,10 @@ void Array_To_State(VSPFLOAT *z_flt, State *Z, Graph *graph)
     /* Do Az */
     /* ====================================================================== */
     Compute_Az(Z->point, Z->Az, Ai, Ap, n) ;
+
+#ifdef VSP_DEBUG
+    check_state(Z, P) ;
+#endif
 }
 
 VSPFLOAT *Array_Int_To_Flt(VSPINT *a, VSPINT n)

@@ -264,6 +264,8 @@ void Part_To_States
     bool        empty_sep
 )
 {
+    SET_FUNCTION_COUNTER ;
+
     VSPINT   i ;
     VSPINT   side ;
     VSPINT   u_finest ;
@@ -339,13 +341,11 @@ void Part_To_States
         // Set Ax and Ay
         Compute_Az(X->point, X->Az, Ai, Ap, n) ;
         Compute_Az(Y->point, Y->Az, Ai, Ap, n) ;
+
+        #ifdef DEBUG
+            check_states(X, Y, problem) ;
+        #endif
     }
-
-
-#ifdef DEBUG
-    check_states(X, Y, problem) ;
-#endif
-
 }
 
 static void set_bisection_initial_guess
