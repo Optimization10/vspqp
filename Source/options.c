@@ -508,6 +508,12 @@ void set_default_options(Options *options)
     options->initial_project       = FALSE ;
     options->try_both_covers       = TRUE ;
 
+    /* ====================================================================== */
+    // Bisection ngp options
+    /* ====================================================================== */
+    options->bisection_ngp = 3 ;
+
+
     options->attempt_second_start = TRUE ;
     options->min_imbal_ratio_second_start = 0.07 ;
     options->min_level_second_start = 4 ;
@@ -585,6 +591,7 @@ void Print_Options(const Options *opts, const char *path)
     /* vs options */
     fprintf(f, "  initial_projection             = %s\n",   (opts->initial_project) ? "yes" : "no") ;
     fprintf(f, "  try_both_covers                = %s\n",   (opts->try_both_covers) ? "yes" : "no") ;
+    fprintf(f, "  bisection_ngp                  = %i\n",   opts->bisection_ngp) ;
 
     /* Second start options */
     fprintf(f, "  attempt_second_start           = %s\n",   opts->attempt_second_start ? "true" : "false");

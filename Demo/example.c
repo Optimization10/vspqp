@@ -457,7 +457,7 @@ int main(int argc, char** argv)
     // options->initial_project = TRUE ;
     options->FM_Limit = 320 ;
     options->try_both_covers = FALSE ;
-    // options->vsp_grad_proj = TRUE ;
+    options->bisection_ngp = 3 ;
     options->vsp_grad_proj = FALSE ;
     options->vsp_ngp = 3 ;
 

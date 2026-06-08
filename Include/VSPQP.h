@@ -100,6 +100,12 @@ typedef struct Options_struct
     int try_both_covers ;
 
     /* ====================================================================== */
+    // Bisection ngp options
+    /* ====================================================================== */
+
+    int bisection_ngp ;
+
+    /* ====================================================================== */
     // Second start options
     /* ====================================================================== */
     // In the second start, if the imbalance is sufficiently large after

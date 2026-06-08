@@ -179,7 +179,6 @@ void Optimize
     /* ====================================================================== */
     // Phase 0: Gradient Projection
     /* ====================================================================== */
-    
     if(options->vsp_grad_proj)
     {
         /* Step 1: Convert x, y, c to floats, and compute gx and gy */
