@@ -24,3 +24,18 @@ void Get_Hubs
         }
     }
 }
+
+void Remove_Hubs
+(
+    VSPINT    n_input,
+    VSPINT   *Ai_input,
+    VSPLONG  *Ap_input,
+    VSPINT   *hubs,
+    VSPINT    num_hubs,
+    VSPINT   *n,   // output
+    VSPINT  **Ai,  // output
+    VSPLONG **Ap   // output
+)
+{
+    *n = n_input - num_hubs ;
+}
