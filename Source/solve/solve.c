@@ -7,6 +7,7 @@
 #include <string.h>
 #include <threads.h>
 #include "profiler.h"
+#include "hubs.h"
 
 const char *G_Current_Problem_Name ;
 
@@ -126,15 +127,12 @@ void Destroy_All_Problems(Problem *problemFinest)
 // Output: 
 solve_result *Solve_Null_Graph
 (
-    Problem *probFinest
+    VSPINT n,
+    VSPINT u
 )
 {
-    VSPINT i,
-    n    = probFinest->graph->n,
-    u    = probFinest->u ;
-
+    VSPINT i ;
     VSPINT M    = MIN(u, n / 2) ;
-
 
     solve_result *result = malloc( sizeof(*result) ) ;
     result->x = calloc(n, sizeof(VSPINT)) ;
@@ -167,7 +165,6 @@ solve_result *Solve_Null_Graph
         }
     }
     result->obj_val  = result->weight_x + result->weight_y ;
-    Destroy_All_Problems(probFinest) ;
     return result ;
 }
 
@@ -369,21 +366,64 @@ void Uncoarsen_Point_NoSep
 
 solve_result *VSP_Solve
 (
-    VSPINT    n,
-    VSPLONG  *Ap,
-    VSPINT   *Ai,
+    VSPINT    n_input,
+    VSPLONG  *Ap_input,
+    VSPINT   *Ai_input,
     Options  *options,
-    char     *name     // Optional. Problem name
+    char     *name       // Optional. Problem name
 )
 {
     SET_FUNCTION_COUNTER ;
     G_Current_Problem_Name = name ;
-    check_for_complete_graph(n, Ap[n]) ;
+
+
+    /*--------------------------------------------------------------------*/
+    // Check for trivial inputs (no edges, or complete graphs)
+    /*--------------------------------------------------------------------*/
+    // Short-circuit if input graph is complete
+    check_for_complete_graph(n_input, Ap_input[n_input]) ;
+
+    // Short-circuit if input problem has no edges
+    if(Ap_input[n_input] == 0)
+    {
+        return Solve_Null_Graph (n_input, n_input * options->u_ratio_finest) ;
+    }
 
     /*--------------------------------------------------------------------*/
     // Remove hubs
     /*--------------------------------------------------------------------*/
+    VSPINT   num_hubs ;
+    VSPINT  *hubs ;
+    VSPINT   n ;
+    VSPINT  *Ai ;
+    VSPLONG *Ap ;
+    
+    // Get hubs
+    Get_Hubs(n_input, Ap_input, 0.88, &hubs, &num_hubs) ;
 
+    if(num_hubs)
+    {
+        // Ai and Ap are allocated inside remove_hubs
+        // Remove_Hubs(Ai_input, &Ai) ;
+    }
+    else
+    {
+        Ai = Ai_input ;
+        Ap = Ap_input ;
+        n  = n_input ;
+    }
+
+    if(Ap[n] == 0)
+    {
+        printf("No edges after removing hubs. Unsupported case.\n") ;
+        printf("Coarsening expects at least one edge I think. Exiting...\n") ;
+        fflush(stdout) ;
+        exit(1) ;
+    }
+
+    /*--------------------------------------------------------------------*/
+    // Load problem into Problem struct
+    /*--------------------------------------------------------------------*/
     bool have_global_optimum = false ;
     Problem *probFinest, *probCoarsest, *P ;
 
@@ -397,10 +437,9 @@ solve_result *VSP_Solve
         check_problem(probFinest, options) ;
     #endif
 
-    if(probFinest->graph->nz == 0)
+    if(Ap[n] == 0)
     {
-        solve_result *ret = Solve_Null_Graph(probFinest) ;
-        Destroy_All_Problems(probFinest) ;
+        solve_result *ret = Solve_Null_Graph(n, n * options->u_ratio_finest) ;
         return ret ;
     }
 
@@ -487,6 +526,13 @@ solve_result *VSP_Solve
     // X_0, Y_0 is the solution at the finest, uncompressed level
     X_0 = X_lp1 ;
     Y_0 = Y_lp1 ;
+
+    if(num_hubs)
+    {
+        // Replace arrays internal to the states
+        // Restore_Hubs()
+    }
+
     solve_result *result = Package_Result(X_0, Y_0, probFinest) ;
     Destroy_State(X_0) ;
     Destroy_State(Y_0) ;
@@ -494,6 +540,13 @@ solve_result *VSP_Solve
 
     Print_Stats(probFinest) ;
     Destroy_All_Problems(probFinest) ;
+
+    free(hubs) ;
+    if(num_hubs)
+    {
+        free(Ai) ;
+        free(Ap) ;
+    }
 
     return result ;
 }
