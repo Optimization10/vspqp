@@ -275,12 +275,10 @@ void preprocess_finest_problem
 }
 
 
-void check_for_complete_graph(Problem *problem)
+void check_for_complete_graph(VSPINT n, VSPLONG nz)
 {
-    long long n_long  = (long long) problem->graph->n ;
-    long long nz_long = (long long) problem->graph->nz ;
-    long long upper_bnd_nz = n_long * n_long - n_long ;
-    if( nz_long == upper_bnd_nz )
+    long long upper_bnd_nz = n * n - n ;
+    if( nz == upper_bnd_nz )
     {
         fprintf
         (
@@ -288,7 +286,7 @@ void check_for_complete_graph(Problem *problem)
         ) ;
         exit(1) ;
     }
-    else if(nz_long > upper_bnd_nz)
+    else if(nz > upper_bnd_nz)
     {
         fprintf(stderr, "ERROR: nz > n^2 - n\n") ;
         exit(1) ;
@@ -380,6 +378,11 @@ solve_result *VSP_Solve
 {
     SET_FUNCTION_COUNTER ;
     G_Current_Problem_Name = name ;
+    check_for_complete_graph(n, Ap[n]) ;
+
+    /*--------------------------------------------------------------------*/
+    // Remove hubs
+    /*--------------------------------------------------------------------*/
 
     bool have_global_optimum = false ;
     Problem *probFinest, *probCoarsest, *P ;
@@ -388,7 +391,6 @@ solve_result *VSP_Solve
     set_default_problem_data(probFinest, options) ;
 
     /* Preprocessing */
-    check_for_complete_graph(probFinest) ;
     preprocess_finest_problem(probFinest, options) ;
 
     #ifdef DEBUG
