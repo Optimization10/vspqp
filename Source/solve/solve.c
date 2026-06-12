@@ -190,10 +190,15 @@ solve_result *Package_Result(State *X, State *Y)
 
 /* Set the cost of each vector to 1, each edge weight to 1, and
    the balance constraints as 60% of the total number of vertices             */
-static void set_default_problem_data(Problem* problem, Options *opts)
+static void set_default_problem_data
+(
+    Problem* problem,
+    Options *opts,
+    VSPINT n_input
+)
 {
     VSPLONG i ;
-    VSPINT n = problem->graph->n ;
+    VSPINT   n = problem->graph->n ;
     VSPLONG nz = problem->graph->nz ;
 
     /* Set cost of each vertex to 1 */
@@ -201,7 +206,7 @@ static void set_default_problem_data(Problem* problem, Options *opts)
     for(i = 0 ; i < n ; i++) c[i] = 1 ;
 
     /* Set the upper balance constraint to 60%, and lower constraint to 1 */
-    problem->u        = problem->graph->n * opts->u_ratio_finest ;
+    problem->u        = n_input * opts->u_ratio_finest ;
     problem->ubFinest = problem->u ;
     return ;
 }
@@ -427,7 +432,7 @@ solve_result *VSP_Solve
     Problem *probFinest, *probCoarsest, *P ;
 
     probFinest = Construct_Problem(n, Ap[n], Ai, Ap, false, options) ;
-    set_default_problem_data(probFinest, options) ;
+    set_default_problem_data(probFinest, options, n_input) ;
 
     /* Preprocessing */
     preprocess_finest_problem(probFinest, options) ;
