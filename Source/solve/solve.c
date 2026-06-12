@@ -169,9 +169,9 @@ solve_result *Solve_Null_Graph
 }
 
 
-solve_result *Package_Result(State *X, State *Y, Problem *P)
+solve_result *Package_Result(State *X, State *Y)
 {
-    VSPINT n = P->graph->n;
+    VSPINT n = X->point->n ;
     solve_result *result = malloc(sizeof(*result));
 
     result->x = malloc(n * sizeof(VSPINT));
@@ -403,8 +403,7 @@ solve_result *VSP_Solve
 
     if(num_hubs)
     {
-        // Ai and Ap are allocated inside remove_hubs
-        // Remove_Hubs(Ai_input, &Ai) ;
+        Remove_Hubs(n_input, Ai_input, Ap_input, hubs, num_hubs, &n, &Ai, &Ap) ;
     }
     else
     {
@@ -529,11 +528,11 @@ solve_result *VSP_Solve
 
     if(num_hubs)
     {
-        // Replace arrays internal to the states
-        // Restore_Hubs()
+        Restore_Hubs(X_0, hubs, num_hubs) ;
+        Restore_Hubs(Y_0, hubs, num_hubs) ;
     }
 
-    solve_result *result = Package_Result(X_0, Y_0, probFinest) ;
+    solve_result *result = Package_Result(X_0, Y_0) ;
     Destroy_State(X_0) ;
     Destroy_State(Y_0) ;
     free(sol_sings) ;
