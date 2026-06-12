@@ -30,4 +30,12 @@ void Restore_Hubs
     VSPINT    num_hubs
 ) ;
 
+void Place_Hubs_In_Shores
+(
+    State *X, State *Y,
+    VSPINT *hubs, VSPINT num_hubs,
+    VSPINT *Ai_input, VSPLONG *Ap_input,   // ORIGINAL graph
+    VSPINT u                               // balance bound
+) ;
+
 #endif

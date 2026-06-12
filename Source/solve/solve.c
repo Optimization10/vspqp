@@ -279,7 +279,7 @@ void preprocess_finest_problem
 
 void check_for_complete_graph(VSPINT n, VSPLONG nz)
 {
-    long long upper_bnd_nz = n * n - n ;
+    long long upper_bnd_nz = (long long) n * n - n ;
     if( nz == upper_bnd_nz )
     {
         fprintf
@@ -404,9 +404,14 @@ solve_result *VSP_Solve
     VSPLONG *Ap ;
     
     // Get hubs
-    Get_Hubs(n_input, Ap_input, 0.88, &hubs, &num_hubs) ;
+    Get_Hubs(n_input, Ap_input, 0.6, &hubs, &num_hubs) ;
 
-    if(num_hubs)
+    // Every hub goes into the separator, so they only help if they're a small
+    // minority. If they're a large fraction (or there are none), the premise has
+    // failed -- skip removal and solve the original graph.
+    bool use_hubs = (num_hubs > 0) && (num_hubs <= 0.3 * n_input) ;
+
+    if(use_hubs)
     {
         Remove_Hubs(n_input, Ai_input, Ap_input, hubs, num_hubs, &n, &Ai, &Ap) ;
     }
@@ -415,14 +420,40 @@ solve_result *VSP_Solve
         Ai = Ai_input ;
         Ap = Ap_input ;
         n  = n_input ;
+        num_hubs = 0 ;
     }
 
     if(Ap[n] == 0)
     {
-        printf("No edges after removing hubs. Unsupported case.\n") ;
-        printf("Coarsening expects at least one edge I think. Exiting...\n") ;
-        fflush(stdout) ;
-        exit(1) ;
+        // No edges survive hub removal (this also covers n == 0). Every original
+        // edge touched a hub, so with all hubs in the separator there's nothing
+        // left to cut: split the surviving vertices across the two shores. For a
+        // star this puts the center in the separator and bisects the leaves.
+        solve_result *result = malloc(sizeof(*result)) ;
+        result->x = calloc(n_input, sizeof(VSPINT)) ;   // 0 everywhere = separator
+        result->y = calloc(n_input, sizeof(VSPINT)) ;
+
+        VSPINT u = n_input * options->u_ratio_finest ;
+        VSPINT x_count, y_count ;
+        if(u < n / 2) { x_count = u ;     y_count = u ;         }  // shores capped at u
+        else          { x_count = n / 2 ; y_count = n - n / 2 ; }  // all of n into shores
+
+        VSPINT h = 0, placed = 0 ;
+        for(VSPINT v = 0 ; v < n_input ; v++)
+        {
+            if(h < num_hubs && hubs[h] == v) { h++ ; continue ; }      // hub -> separator
+            if      (placed < x_count)           result->x[v] = 1 ;
+            else if (placed < x_count + y_count) result->y[v] = 1 ;
+            placed++ ;
+        }
+        result->weight_x = x_count ;
+        result->weight_y = y_count ;
+        result->obj_val  = x_count + y_count ;
+
+        free(hubs) ;
+        free(Ai) ;
+        free(Ap) ;
+        return result ;
     }
 
     /*--------------------------------------------------------------------*/
@@ -535,6 +566,13 @@ solve_result *VSP_Solve
     {
         Restore_Hubs(X_0, hubs, num_hubs) ;
         Restore_Hubs(Y_0, hubs, num_hubs) ;
+        Place_Hubs_In_Shores
+        (
+            X_0, Y_0,
+            hubs, num_hubs,
+            Ai_input, Ap_input,
+            probFinest->u
+        ) ;
     }
 
     solve_result *result = Package_Result(X_0, Y_0) ;

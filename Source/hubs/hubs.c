@@ -141,3 +141,48 @@ void Restore_Hubs
     // point->val_frac is unchanged.
     // state->weight and state->Az are left untouched.
 }
+
+void Place_Hubs_In_Shores
+(
+    State *X, State *Y,
+    VSPINT *hubs, VSPINT num_hubs,
+    VSPINT *Ai_input, VSPLONG *Ap_input,   // ORIGINAL graph
+    VSPINT u                               // balance bound
+)
+{
+    VSPINT *x = X->point->int_part ;
+    VSPINT *y = Y->point->int_part ;
+
+    for(VSPINT k = 0 ; k < num_hubs ; k++)
+    {
+        VSPINT h = hubs[k] ;
+
+        bool seen_x = false, seen_y = false ;
+        for(VSPLONG p = Ap_input[h] ; p < Ap_input[h + 1] ; p++)
+        {
+            VSPINT w = Ai_input[p] ;
+            if(x[w]) seen_x = true ;
+            if(y[w]) seen_y = true ;
+            if(seen_x && seen_y) break ;     // touches both shores -> stuck
+        }
+
+        if(seen_x && seen_y) continue ;      // stays in the separator
+
+        if(seen_x)                           // X-side (and/or separator) only
+        {
+            if(X->weight + 1 <= u) { x[h] = 1 ; X->weight += 1 ; }
+        }
+        else if(seen_y)                      // Y-side (and/or separator) only
+        {
+            if(Y->weight + 1 <= u) { y[h] = 1 ; Y->weight += 1 ; }
+        }
+        else                                 // no shore neighbors -> free choice
+        {
+            bool x_ok = (X->weight + 1 <= u) ;
+            bool y_ok = (Y->weight + 1 <= u) ;
+            if(x_ok && (!y_ok || X->weight <= Y->weight)) { x[h] = 1 ; X->weight += 1 ; }
+            else if(y_ok)                                 { y[h] = 1 ; Y->weight += 1 ; }
+            // neither fits -> stays in the separator
+        }
+    }
+}
