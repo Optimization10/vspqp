@@ -417,7 +417,7 @@ int main(int argc, char** argv)
     }
 
     strcpy(matricesDir, "/home/onechita/network-repository/") ;
-    // strcpy(matricesDir, "/home/ovi/data/network-repository/") ;
+    // strcpy(matricesDir, "/home/ovi/data/network-repository/networks/") ;
 
     char *name ;
     

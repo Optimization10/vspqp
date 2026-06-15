@@ -400,7 +400,7 @@ solve_result *VSP_Solve
     VSPLONG *Ap ;
     
     // Get hubs
-    Get_Hubs(n_input, Ap_input, 1.1, &hubs, &num_hubs) ;
+    Get_Hubs(n_input, Ap_input, options->hub_treshold, &hubs, &num_hubs) ;
 
     // Every hub goes into the separator, so they only help if they're a small
     // minority. If there's a significant fraction of them, skip removal and

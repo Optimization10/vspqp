@@ -524,6 +524,11 @@ void set_default_options(Options *options)
     options->vsp_grad_proj = false ;
     options->vsp_ngp = 3 ;
 
+    /* ====================================================================== */
+    // Hub removal
+    /* ====================================================================== */
+    options-> hub_treshold = 0.5 ;
+
     return ;
 }
 
@@ -601,6 +606,9 @@ void Print_Options(const Options *opts, const char *path)
     /* VSP gradient projection options */
     fprintf(f, "  vsp_grad_proj                  = %s\n",   (opts->vsp_grad_proj) ? "yes" : "no") ;
     fprintf(f, "  vsp_ngp                        = %i\n",   opts->vsp_ngp ) ;
+
+    /* hub removal */
+    fprintf(f, "  hub_treshold                   = %f\n",   opts->hub_treshold ) ;
 
     fclose(f);
 }

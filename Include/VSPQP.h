@@ -132,6 +132,12 @@ typedef struct Options_struct
     // Number of gradient projection steps applied to vsp
     int  vsp_ngp ; 
 
+
+    /* ====================================================================== */
+    // Hub removal
+    /* ====================================================================== */
+    double hub_treshold ;
+
 } Options ;
 
 
