@@ -42,15 +42,14 @@ void Remove_Hubs
     *n = new_n ;
 
     // Build a map from old vertex index to new vertex index.  Hubs are
-    // flagged with -1; every surviving vertex is renumbered 0, 1, 2, ...
-    // in its original relative order.
+    // flagged with EMPTY. Every surviving vertex is renumbered 0, 1, 2, ...
     VSPINT *old_to_new = (VSPINT *) malloc (n_input * sizeof (VSPINT)) ;
     for (VSPINT v = 0 ; v < n_input ; v++) old_to_new [v] = 0 ;
-    for (VSPINT k = 0 ; k < num_hubs ; k++) old_to_new [hubs [k]] = -1 ;
+    for (VSPINT k = 0 ; k < num_hubs ; k++) old_to_new [hubs [k]] = EMPTY ;
     VSPINT count = 0 ;
     for (VSPINT v = 0 ; v < n_input ; v++)
     {
-        if (old_to_new [v] != -1) old_to_new [v] = count++ ;
+        if (old_to_new [v] != EMPTY) old_to_new [v] = count++ ;
     }
 
     // Allocate the new column-pointer array.
@@ -61,11 +60,11 @@ void Remove_Hubs
     for (VSPINT j = 0 ; j <= new_n ; j++) Ap_new [j] = 0 ;
     for (VSPINT j = 0 ; j < n_input ; j++)
     {
-        if (old_to_new [j] == -1) continue ;            // skip hub columns
+        if (old_to_new [j] == EMPTY) continue ;            // skip hub columns
         VSPLONG nz = 0 ;
         for (VSPLONG p = Ap_input [j] ; p < Ap_input [j+1] ; p++)
         {
-            if (old_to_new [Ai_input [p]] != -1) nz++ ;  // keep non-hub rows
+            if (old_to_new [Ai_input [p]] != EMPTY) nz++ ;  // keep non-hub rows
         }
         Ap_new [old_to_new [j] + 1] = nz ;
     }
@@ -80,12 +79,12 @@ void Remove_Hubs
     // Second pass: fill in the renumbered row indices.
     for (VSPINT j = 0 ; j < n_input ; j++)
     {
-        if (old_to_new [j] == -1) continue ;
+        if (old_to_new [j] == EMPTY) continue ;
         VSPLONG p_out = Ap_new [old_to_new [j]] ;
         for (VSPLONG p = Ap_input [j] ; p < Ap_input [j+1] ; p++)
         {
             VSPINT i = Ai_input [p] ;
-            if (old_to_new [i] != -1) Ai_new [p_out++] = old_to_new [i] ;
+            if (old_to_new [i] != EMPTY) Ai_new [p_out++] = old_to_new [i] ;
         }
     }
 
@@ -111,10 +110,10 @@ void Restore_Hubs
     VSPINT *int_small = point->int_part ;
     VSPINT *int_large = (VSPINT *) malloc (n_large * sizeof (VSPINT)) ;
 
-    // Walk the original index space.  At each original vertex, either it is
-    // the next hub (insert a 0 and advance the hub pointer) or it is the next
-    // surviving vertex (copy its value from the reduced point).  Hubs are
-    // sorted in increasing order, so a single merge walk suffices.
+    // Iterate through the original index space.  At each original vertex,
+    // either it is the next hub (insert a 0 and advance the hub pointer) or it
+    // is the next surviving vertex (copy its value from the reduced point).
+    // Hubs are sorted in increasing order, so a single merge walk is sufficient
     VSPINT new_frac = EMPTY ;   // fractional index in the original numbering
     VSPINT h = 0 ;              // pointer into hubs
     VSPINT s = 0 ;              // pointer into the reduced point
@@ -122,7 +121,7 @@ void Restore_Hubs
     {
         if (h < num_hubs && hubs [h] == v)
         {
-            int_large [v] = 0 ;                        // hub: outside the subset
+            int_large [v] = 0 ; // hub: outside the subset
             h++ ;
         }
         else
@@ -163,25 +162,32 @@ void Place_Hubs_In_Shores
             VSPINT w = Ai_input[p] ;
             if(x[w]) seen_x = true ;
             if(y[w]) seen_y = true ;
-            if(seen_x && seen_y) break ;     // touches both shores -> stuck
+            if(seen_x && seen_y) break ; // touches both shores -> stuck
         }
 
-        if(seen_x && seen_y) continue ;      // stays in the separator
+        if(seen_x && seen_y) continue ; // stays in the separator
 
-        if(seen_x)                           // X-side (and/or separator) only
+        if(seen_x) // X-side (and/or separator) only
         {
             if(X->weight + 1 <= u) { x[h] = 1 ; X->weight += 1 ; }
         }
-        else if(seen_y)                      // Y-side (and/or separator) only
+        else if(seen_y) // Y-side (and/or separator) only
         {
             if(Y->weight + 1 <= u) { y[h] = 1 ; Y->weight += 1 ; }
         }
-        else                                 // no shore neighbors -> free choice
+        else // no shore neighbors
         {
             bool x_ok = (X->weight + 1 <= u) ;
             bool y_ok = (Y->weight + 1 <= u) ;
-            if(x_ok && (!y_ok || X->weight <= Y->weight)) { x[h] = 1 ; X->weight += 1 ; }
-            else if(y_ok)                                 { y[h] = 1 ; Y->weight += 1 ; }
+            if(x_ok && (!y_ok || X->weight <= Y->weight))
+            {
+                x[h] = 1 ;
+                X->weight += 1 ;
+            }
+            else if(y_ok)
+            {
+                y[h] = 1 ; Y->weight += 1 ;
+            }
             // neither fits -> stays in the separator
         }
     }

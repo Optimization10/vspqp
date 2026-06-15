@@ -350,8 +350,7 @@ void Uncoarsen_Point_NoSep
     VSPINT *cxInt = coarse_X->point->int_part ;
     VSPINT *cyInt = coarse_Y->point->int_part ;
 
-    // Propagate int_part. Each fine vertex inherits the assignment of its
-    // image in the coarse graph.
+
     for(VSPINT fv = 0 ; fv < fn ; fv++)
     {
         VSPINT cv = matchmap[fv] ;
@@ -359,9 +358,6 @@ void Uncoarsen_Point_NoSep
         fyInt[fv] = cyInt[cv] ;
     }
 
-    // Weights are preserved through coarsening (c_coarse[k] = sum of c_fine
-    // over preimage(k)), so the coarse weights are already the correct fine
-    // weights. No iteration needed to recompute.
     fine_X->weight = coarse_X->weight ;
     fine_Y->weight = coarse_Y->weight ;
 
@@ -404,11 +400,11 @@ solve_result *VSP_Solve
     VSPLONG *Ap ;
     
     // Get hubs
-    Get_Hubs(n_input, Ap_input, 0.6, &hubs, &num_hubs) ;
+    Get_Hubs(n_input, Ap_input, 1.1, &hubs, &num_hubs) ;
 
     // Every hub goes into the separator, so they only help if they're a small
-    // minority. If they're a large fraction (or there are none), the premise has
-    // failed -- skip removal and solve the original graph.
+    // minority. If there's a significant fraction of them, skip removal and
+    // solve the original graph.
     bool use_hubs = (num_hubs > 0) && (num_hubs <= 0.3 * n_input) ;
 
     if(use_hubs)
@@ -425,23 +421,19 @@ solve_result *VSP_Solve
 
     if(Ap[n] == 0)
     {
-        // No edges survive hub removal (this also covers n == 0). Every original
-        // edge touched a hub, so with all hubs in the separator there's nothing
-        // left to cut: split the surviving vertices across the two shores. For a
-        // star this puts the center in the separator and bisects the leaves.
         solve_result *result = malloc(sizeof(*result)) ;
-        result->x = calloc(n_input, sizeof(VSPINT)) ;   // 0 everywhere = separator
+        result->x = calloc(n_input, sizeof(VSPINT)) ;
         result->y = calloc(n_input, sizeof(VSPINT)) ;
 
         VSPINT u = n_input * options->u_ratio_finest ;
         VSPINT x_count, y_count ;
-        if(u < n / 2) { x_count = u ;     y_count = u ;         }  // shores capped at u
-        else          { x_count = n / 2 ; y_count = n - n / 2 ; }  // all of n into shores
+        if(u < n / 2) { x_count = u ;     y_count = u ;         }
+        else          { x_count = n / 2 ; y_count = n - n / 2 ; }
 
         VSPINT h = 0, placed = 0 ;
         for(VSPINT v = 0 ; v < n_input ; v++)
         {
-            if(h < num_hubs && hubs[h] == v) { h++ ; continue ; }      // hub -> separator
+            if(h < num_hubs && hubs[h] == v) { h++ ; continue ; }
             if      (placed < x_count)           result->x[v] = 1 ;
             else if (placed < x_count + y_count) result->y[v] = 1 ;
             placed++ ;
@@ -472,12 +464,6 @@ solve_result *VSP_Solve
         check_problem(probFinest, options) ;
     #endif
 
-    if(Ap[n] == 0)
-    {
-        solve_result *ret = Solve_Null_Graph(n, n * options->u_ratio_finest) ;
-        return ret ;
-    }
-
     /*--------------------------------------------------------------------*/
     // Coarsen
     /*--------------------------------------------------------------------*/
@@ -501,11 +487,6 @@ solve_result *VSP_Solve
     {
         have_global_optimum = true ;
 
-        // Singleton short-circuit: the coarse vertices listed in sol_sings
-        // (and their finest-level preimages) go in shore X, everything else
-        // in shore Y, with no separator. Since c is preserved through
-        // coarsening, the weights set here are the correct finest-level
-        // weights too.
         VSPINT *c        = P->graph->c ;
         VSPINT  n_coarse = P->graph->n ;
         VSPINT  weight_x = 0 ;
@@ -537,7 +518,7 @@ solve_result *VSP_Solve
 
     // Invariant: X_l, Y_l holds the solution at level l.
     // On the singleton path the coarse solution has empty separator, so we
-    // use the cheaper Uncoarsen_Point_NoSep (no Az, no frac, no Solve_Level).
+    // use the cheaper Uncoarsen_Point_NoSep (no Az computation).
     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
     {
 
