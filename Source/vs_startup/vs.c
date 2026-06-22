@@ -8932,7 +8932,8 @@ void VSP_Grad_Proj
     int       ngp
 )
 {
-    VSPINT it ;
+    int it, skip_napheapx, skip_napheapy ;
+    VSPINT i ;
     VSFLOAT eps, obj, obj_0, s, t, lambdax, lambday, *X, *Y, *sx, *sy, *gxtemp ;
     int status ;
 
@@ -8942,16 +8943,15 @@ void VSP_Grad_Proj
     napdata->a = a ;   // linear constraint for napheap problem
 
 #if 0
-int i ;
-napdata->a = NULL ;
-for (i = 0; i < n; i++)
-{
-    if ( a [i] != 1 )
+    napdata->a = NULL ;
+    for (i = 0; i < n; i++)
     {
-        napdata->a = a ;
-        break ;
+        if ( a [i] != 1 )
+        {
+            napdata->a = a ;
+            break ;
+        }
     }
-}
 #endif
     napdata->blo = 0 ; // lower bound of balance constraint
     napdata->bhi = u ; // upper bound of balance constraint
@@ -8961,9 +8961,10 @@ for (i = 0; i < n; i++)
     Y = malloc (n*sizeof (VSPFLOAT)) ; // stores projection in y
 
     // Compute initial objective, obj
+
     obj = VSP_Obj(x, gx, y, a, n) ;
-    lambdax = NAPINF ;
-    lambday = NAPINF ;
+    lambdax = VSZERO ;
+    lambday = VSZERO ;
 
     /* Perform ngp iterations of the gradient projection algorithm
        The new (x, y) is the solution of
@@ -8987,115 +8988,208 @@ for (i = 0; i < n; i++)
 
         // Scaling factor for gradients
         s = 1 / s ;
-        vs_scale(gx, s, n) ;
-        vs_scale(gy, s, n) ;
 
         /* Project gradient step onto feasible set. The projection decomposes
            into two separate projections: sx is projected on the x-feasible
            set and sy is projected on the y-feasible set.  */
         obj = -NAPINF ; /* initialize obj to a lower bound on objective*/
-        //int counter = 0 ;
+        int subit = 0 ;
         while(obj + eps < obj_0 )
         {
-            //counter++ ; 
+            subit++ ; 
             // Scale gradients by 0.5
-            vs_scale(gx, VSHALF, n) ;
-            vs_scale(gy, VSHALF, n) ;
+            if ( subit == 1 )
+            {
+                vs_scale(gx, VSHALF*s, n) ;
+                vs_scale(gy, VSHALF*s, n) ;
+            }
+            else
+            {
+                vs_scale(gx, VSHALF, n) ;
+                vs_scale(gy, VSHALF, n) ;
+            }
 
             // Compute new point (sx, sy)
             vs_vecadd(sx, x, gx, n) ;
             vs_vecadd(sy, y, gy, n) ;
 
-            // Project sx to feasible set
-            napdata->c = sx ;
-            napdata->x = X ;
-
-            //printf("\nStarting NAPHEAP for x. counter: %i\n", counter) ;
-            napdata->lambda = lambdax ;
-            status = napheap(napdata) ;
-            lambdax = napdata->lambda ;
-#if 0
-            //printf ("lambdax: %e\n", lambdax) ;
-            //if( status ) napheap_print_status (napdata) ;
-            VSFLOAT err, r ;            
-            err = napheap_check (&r, &s, &t, napdata) ;
-            printf ("errx: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
-            if ( err > 1.e-6 )
+            // Project sx to feasible set, see if lambda = 0 works
+            skip_napheapx = VSFALSE ;
+            if ( !lambdax )
             {
-                printf ("NAPHEAP error: %e\n", err) ;
-                exit(1) ;
+                t = VSZERO ;
+                for (i = 0; i < n; i++)
+                {
+                    if ( sx [i] > VSONE )
+                    {
+                        sx [i] = VSONE ;
+                        t += a [i] ;
+                    }
+                    else if ( sx [i] < VSZERO )
+                    {
+                        sx [i] = VSZERO ;
+                    }
+                    else
+                    {
+                        t += a [i]*sx [i] ;
+                    }
+                }
+                if ( t <= u )
+                {
+                    skip_napheapx = VSTRUE ;
+                }
+                else
+                {
+                    vs_vecadd(sx, x, gx, n) ; /* sx restored to correct value*/
+                }
             }
-#endif
-
-            // Project sy to feasible set
-            napdata->c = sy ;
-            napdata->x = Y ;
-            // printf("\nStarting NAPHEAP for y. counter: %i\n", counter) ;
-            napdata->lambda = lambday ;
-            status = napheap(napdata) ;
-            lambday = napdata->lambda ;
-#if 0
-            //printf ("lambday: %e\n", lambday) ;
-            //printf ("n = %i ;\n", n) ;
-            //printf ("u = %i ;\n", u) ;
-            //printf ("l = 0 ;\n") ;
-            //printf ("lambda after = %25.15e\n", napdata->lambda) ;
-            //int i ;
-            //for (i = 0; i < n; i++)
-            //{
-            //    printf ("y[%i] = %25.15e ;\n", i, sy [i]) ;
-            //}
-            //for (i = 0; i < n; i++)
-            //{
-            //    printf ("a[%i] = %25.15e ;\n", i, a [i]) ;
-            //}
-            //if( status ) napheap_print_status (napdata) ;
-
-            err = napheap_check (&r, &s, &t, napdata) ;
-            printf ("erry: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
-            if ( err > 1.e-6 )
+            if ( !skip_napheapx )
             {
-                printf ("NAPHEAP error: %e\n", err) ;
-                exit(1) ;
-            }
-#endif
+                napdata->c = sx ;
+                napdata->x = X ;
 
-            VSP_Grad(gxtemp, a, Y, Ai, Ap, gamma, n) ;
-            obj = VSP_Obj(X, gxtemp, Y, a, n) ;
+                napdata->lambda = lambdax ;
+                status = napheap(napdata) ;
+                lambdax = napdata->lambda ;
+#if 0
+                //printf ("lambdax: %e\n", lambdax) ;
+                //if( status ) napheap_print_status (napdata) ;
+                VSFLOAT err, r ;            
+                err = napheap_check (&r, &s, &t, napdata) ;
+                printf ("errx: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
+                if ( err > 1.e-6 )
+                {
+                    printf ("NAPHEAP error: %e\n", err) ;
+                    exit(1) ;
+                }
+#endif
+            }
+
+            // Project sy to feasible set, see if lambda = 0 works
+            skip_napheapy = VSFALSE ;
+            if ( !lambday )
+            {
+                t = VSZERO ;
+                for (i = 0; i < n; i++)
+                {
+                    if ( sy [i] > VSONE )
+                    {
+                        sy [i] = VSONE ;
+                        t += a [i] ;
+                    }
+                    else if ( sy [i] < VSZERO )
+                    {
+                        sy [i] = VSZERO ;
+                    }
+                    else
+                    {
+                        t += a [i]*sy [i] ;
+                    }
+                }
+                if ( t <= u )
+                {
+                    skip_napheapy = VSTRUE ;
+                }
+                else
+                {
+                    vs_vecadd(sy, y, gy, n) ; /* sy restored to correct value*/
+                }
+            }
+            if ( !skip_napheapy )
+            {
+                napdata->c = sy ;
+                napdata->x = Y ;
+                napdata->lambda = lambday ;
+                status = napheap(napdata) ;
+                lambday = napdata->lambda ;
+#if 0
+                //printf ("lambday: %e\n", lambday) ;
+                //printf ("n = %i ;\n", n) ;
+                //printf ("u = %i ;\n", u) ;
+                //printf ("l = 0 ;\n") ;
+                //printf ("lambda after = %25.15e\n", napdata->lambda) ;
+                //int i ;
+                //for (i = 0; i < n; i++)
+                //{
+                    //    printf ("y[%i] = %25.15e ;\n", i, sy [i]) ;
+                //}
+                //for (i = 0; i < n; i++)
+                //{
+                //    printf ("a[%i] = %25.15e ;\n", i, a [i]) ;
+                //}
+                //if( status ) napheap_print_status (napdata) ;
+
+                err = napheap_check (&r, &s, &t, napdata) ;
+                printf ("erry: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
+                if ( err > 1.e-6 )
+                {
+                    printf ("NAPHEAP error: %e\n", err) ;
+                    exit(1) ;
+                }
+#endif
+            }
+
+            // compute gxtemp
+            if ( skip_napheapy )
+            {
+                // solution stored in sy
+                VSP_Grad(gxtemp, a, sy, Ai, Ap, gamma, n) ;
+                if ( skip_napheapx )
+                {
+                    // solution stored in sx
+                    obj = VSP_Obj(sx, gxtemp, sy, a, n) ;
+                }
+                else
+                {
+                    // solution stored in X
+                    obj = VSP_Obj(X, gxtemp, sy, a, n) ;
+                }
+            }
+            else
+            {
+                // solution stored in Y
+                VSP_Grad(gxtemp, a, Y, Ai, Ap, gamma, n) ;
+                if ( skip_napheapx )
+                {
+                    // solution stored in sx
+                    obj = VSP_Obj(sx, gxtemp, Y, a, n) ;
+                }
+                else
+                {
+                    // solution stored in X
+                    obj = VSP_Obj(X, gxtemp, Y, a, n) ;
+                }
+            }
 
             // printf("it: %i obj: %f    obj0: %f\n", it, obj, obj_0) ;
         }
         
 
         /* Update: x <- X and y <- Y */
-        vs_copyx(x, X, n) ;
-        vs_copyx(y, Y, n) ;
+        if ( skip_napheapx )
+        {
+            // solution stored in sx
+            vs_copyx(x, sx, n) ;
+        }
+        else
+        {
+            // solution stored in X
+            vs_copyx(x, X, n) ;
+        }
+        if ( skip_napheapy )
+        {
+            // solution stored in sy
+            vs_copyx(y, sy, n) ;
+        }
+        else
+        {
+            // solution stored in Y
+            vs_copyx(y, Y, n) ;
+        }
         if ( obj < obj_0 + eps ) break ; // |obj - obj_0| < eps => stationary
-        vs_copyx(gx, gxtemp, n) ;
+        vs_copyx(gx, gxtemp, n) ;        // grad at x stored above in gxtemp
+        // evaluate gradient at y
         VSP_Grad(gy, a, x, Ai, Ap, gamma, n) ;
-
-        VSFLOAT wgt_x = 0, wgt_y = 0 ;
-        for(VSINT ii = 0 ; ii < n ; ii++)
-        {
-            wgt_x += x[ii] * a[ii] ;
-            wgt_y += y[ii] * a[ii] ;
-        }
-
-#if (0)
-        for(VSINT ii = 0 ; ii < n ; ii++)
-        {
-            if(x[ii] < 1 - 1E-8 && gx[ii] > 1E-8 && wgt_x < u - 1E-8)
-            {
-                printf("x can be improved\n") ;
-            }
-
-            if(y[ii] == 1 - 1E-8 && gy[ii] > 1E-8 && wgt_y < u - 1E-8)
-            {
-                printf("x can be improved\n") ;
-            }
-        }
-#endif
-        
     }
 
     napheap_terminate(&napdata) ;
@@ -9107,3 +9201,4 @@ for (i = 0; i < n; i++)
     free(Y) ;
     free(gxtemp) ;
 }
+
