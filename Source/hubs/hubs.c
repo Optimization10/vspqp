@@ -113,10 +113,13 @@ void Restore_Hubs
     // Iterate through the original index space.  At each original vertex,
     // either it is the next hub (insert a 0 and advance the hub pointer) or it
     // is the next surviving vertex (copy its value from the reduced point).
-    // Hubs are sorted in increasing order, so a single merge walk is sufficient
+    // Hubs are sorted in increasing order
     VSPINT new_frac = EMPTY ;   // fractional index in the original numbering
     VSPINT h = 0 ;              // pointer into hubs
     VSPINT s = 0 ;              // pointer into the reduced point
+
+    // Each entry in the large point corresponds either to a hub, or to
+    // an entry in the small point
     for (VSPINT v = 0 ; v < n_large ; v++)
     {
         if (h < num_hubs && hubs [h] == v)
