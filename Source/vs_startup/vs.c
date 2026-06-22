@@ -8863,6 +8863,28 @@ VSINT VSPboundary
     }
 }
 
+
+// VSINT VSPboundary_2
+// (
+//     VSFLOAT           *x,
+//     VSFLOAT           *y,
+//     VSFLOAT           *gx, 
+//     VSFLOAT           *gy,
+//     VSINT              n,
+//     VSINT              u,
+//     int const          PrintLevel
+// )
+// {
+//     VSINT i ;
+
+//     // Go through components of z, setting them to 0 if and only if it's
+//     // beneficial
+//     for(i = 0 ; i < n ; i++)
+//     {
+
+//     }
+// }
+
 static VSFLOAT VSP_Obj
 (
     VSFLOAT *x,

@@ -3153,9 +3153,9 @@ VSPINT Move_To_Vertex
     VSPLONG p, end ;
     VSPFLOAT wgt, zi, ci, gz_j, delta ;
 
-// #ifdef DEBUG
+#ifdef DEBUG
     VSPFLOAT objStart = obj_flt(z, w, c, gamma, Ai, Ap, n) ;
-// #endif
+#endif
 
     // Do a pass to determine if z has a fractional component and the balance
     // constraint is not tight
