@@ -8624,17 +8624,57 @@ void vs_separator_approx
     CSC_Destroy(B) ;
 }
 
-static VSINT VSPinterior
+// Update gy, the gradient with respect to y, as a result of x_i changing by
+// delta_xi:
+// new_gy = old_gy + (delta_xi) * gamma * A_i,
+// where A_i is column of A corresponding to index i
+static void Update_Gradient
+(
+    VSFLOAT   delta_xi,
+    VSINT     i,
+    VSFLOAT  *gy,
+    VSINT    *Ai,
+    VSLINT   *Ap,
+    VSFLOAT   gamma
+)
+{
+    VSLINT p, end = Ap[i+1] ;
+    VSFLOAT const coeff = delta_xi * gamma ;
+    for(p = Ap[i] ; p < end ; p++)
+    {
+        gy[ Ai[p] ] += coeff ;
+    }
+    gy[i] += coeff ;
+}
+
+static VSINT VSP_interior_and_penalty_reduction
 (
    VSINT    ilower, /* search x for indices > ilower and < n */
    VSFLOAT      *x, /* search for 0 < x [i] < 1 */
-   VSINT         n  /* dimension of x */
+   VSFLOAT     *gx,
+   VSFLOAT     *gy,
+   VSINT         n, /* dimension of x */
+   VSINT       *Ai,
+   VSLINT      *Ap,
+   VSFLOAT   gamma
 )
 {
     VSINT i ;
+    VSFLOAT xi ;
+
     for (i = ilower+1; i < n; i++)
     {
-        if ( (x [i] > VSZERO) && (x [i] < VSONE) ) break ;
+        xi = x[i] ;
+
+        // Set x_i to 0 if doing so doesn't damage the objective
+        if(xi > 0 && gx[i] <= VSZERO_PLUS)
+        {
+            x[i] = 0 ;
+            Update_Gradient(-xi, i, gy, Ai, Ap, gamma) ;
+        }
+
+        // 
+        if ( (xi > VSZERO) && (xi < VSONE) ) break ;
     }
     if ( i < n ) return (i) ;
     else         return (VSEMPTY) ;
@@ -8701,8 +8741,12 @@ VSINT VSPboundary
 (
     VSFLOAT           *x, /* feasible point for (GB), output described above */
     VSFLOAT           *a, /* vertex weights, NULL => all entries in a are 1 */
-    VSFLOAT           *g, /* linear vector in objective */
+    VSFLOAT          *gx, /* linear vector in objective */
+    VSFLOAT          *gy,
     VSINT              n, /* problem dimension */
+    VSINT            *Ai,
+    VSLINT           *Ap,
+    VSFLOAT        gamma,
     int const PrintLevel
 )
 {
@@ -8711,13 +8755,13 @@ VSINT VSPboundary
     VSINT i, j ;
 
     /* find index > -1 */
-    i = VSPinterior (-1, x, n) ;
+    i = VSP_interior_and_penalty_reduction(-1, x, gx, gy, n, Ai, Ap, gamma) ;
     if ( i == VSEMPTY )
     {
         /* x has no interior components */
         return (EMPTY) ;
     }
-    j = VSPinterior (i, x, n) ;
+    j = VSP_interior_and_penalty_reduction(i, x, gx, gy, n, Ai, Ap, gamma) ;
     if ( j == VSEMPTY )
     {
         /* done since x has at most one fractional component */
@@ -8735,7 +8779,7 @@ VSINT VSPboundary
         VSFLOAT const xi = x [i] ;
         VSFLOAT const xj = x [j] ;
         /* pi = aj, pj = -ai */
-        tlinear = g [i]*aj - g [j]*ai ;
+        tlinear = gx [i]*aj - gx [j]*ai ;
 
         /* if tlinear = 0, then determine whether a positive or a negative s
            step is larger in absolute value, and take the larger step */
@@ -8828,18 +8872,16 @@ VSINT VSPboundary
         if ( two_hit )
         {
             /* find first index > j */
-            i = VSPinterior (j, x, n) ;
+            i = VSP_interior_and_penalty_reduction
+                                            (j, x, gx, gy, n, Ai, Ap, gamma) ;
             if ( i == VSEMPTY )
             {
                 /* x has no interior components */
                 return (EMPTY) ;
             }
 
-            // Old, buggy line:
-            // j = VSPinterior (j, x, n) ;
-
-            //New, correct line:
-            j = VSPinterior (i, x, n) ;
+            j = VSP_interior_and_penalty_reduction
+                                            (i, x, gx, gy, n, Ai, Ap, gamma) ;
             if ( j == VSEMPTY )
             {
                 /* done since x has at most one fractional component */
@@ -8850,40 +8892,20 @@ VSINT VSPboundary
         else if ( dumpi )
         {
             i = j ;
-            j = VSPinterior (j, x, n) ;
+            j = VSP_interior_and_penalty_reduction
+                                            (j, x, gx, gy, n, Ai, Ap, gamma) ;
             if ( j == VSEMPTY ) return (i) ;
             dumpi = VSFALSE ;
         }
         else /* dumpj */
         {
-            j = VSPinterior (j, x, n) ;
+            j = VSP_interior_and_penalty_reduction
+                                            (j, x, gx, gy, n, Ai, Ap, gamma) ;
             if ( j == VSEMPTY ) return (i) ;
             dumpj = VSFALSE ;
         }
     }
 }
-
-
-// VSINT VSPboundary_2
-// (
-//     VSFLOAT           *x,
-//     VSFLOAT           *y,
-//     VSFLOAT           *gx, 
-//     VSFLOAT           *gy,
-//     VSINT              n,
-//     VSINT              u,
-//     int const          PrintLevel
-// )
-// {
-//     VSINT i ;
-
-//     // Go through components of z, setting them to 0 if and only if it's
-//     // beneficial
-//     for(i = 0 ; i < n ; i++)
-//     {
-
-//     }
-// }
 
 static VSFLOAT VSP_Obj
 (

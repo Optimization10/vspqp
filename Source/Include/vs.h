@@ -50,8 +50,12 @@ VSPINT VSPboundary
 (
     VSPFLOAT           *x, /* feasible point for (GB), output described above */
     VSPFLOAT           *a, /* vertex weights, NULL => all entries in a are 1 */
-    VSPFLOAT           *g, /* linear vector in objective */
+    VSPFLOAT          *gx, /* linear vector in objective */
+    VSPFLOAT          *gy,
     VSPINT              n, /* problem dimension */
+    VSPINT            *Ai,
+    VSPLONG           *Ap,
+    VSPFLOAT        gamma,
     int const  PrintLevel
 ) ;
 

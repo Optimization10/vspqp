@@ -198,8 +198,9 @@ void Optimize
 
         /* Step 3: Move x_flt, y_flt to almost binary points */
         int print_level = 0 ;
-        VSPboundary(x_flt, c_flt, gx, n, print_level) ;
-        VSPboundary(y_flt, c_flt, gy, n, print_level) ;
+
+        VSPboundary(x_flt, c_flt, gx, gy, n, Ai, Ap, gamma, print_level) ;
+        VSPboundary(y_flt, c_flt, gy, gx, n, Ai, Ap, gamma, print_level) ;
 
         /* Step 4: Update the X and Y states with x_flt and y_flt */
         Move_To_Vertex(x_flt, y_flt, Ai, Ap, c_flt, u, gamma, n) ;

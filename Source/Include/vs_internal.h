@@ -30,6 +30,9 @@
 #define VSZERO ((VSFLOAT) 0)
 #define VSHALF ((VSFLOAT) .5)
 #define RE_SCALAR ((VSFLOAT) 5.85498315243191680e-02)
+#define VSZERO_PLUS   ( ((VSFLOAT) 1E-8) )
+#define VSZERO_MINUS  (-VSZERO_PLUS)
+
 
 #define VSMAX(a,b) ( ((a) > (b)) ? (a) : (b) )
 #define VSMIN(a,b) ( ((a) < (b)) ? (a) : (b) )
