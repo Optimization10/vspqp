@@ -2950,9 +2950,9 @@ void Check_Almost_Binary_Point(VSPFLOAT *z, VSPINT n)
 }
 
 // Assuming z_flt is an almost binary point, convert z_flt to a state struct
-void Array_To_State(VSPFLOAT *z_flt, State *Z, Problem *P)
+void Array_To_State(VSPFLOAT *z_flt, VSPINT wgt, VSPFLOAT *gw, State *Z, Problem *P)
 {
-    VSPFLOAT zi, wgt ;
+    VSPFLOAT zi ;
     VSPINT    i ; 
     VSPINT   *z = Z->point->int_part ;
     VSPINT    n = P->graph->n ;
@@ -2972,13 +2972,12 @@ void Array_To_State(VSPFLOAT *z_flt, State *Z, Problem *P)
     Z->point->n        = n ;
     Z->point->ind_frac = EMPTY ;
     Z->point->val_frac = 0 ;
+    Z->weight = wgt ;
 
-    wgt = 0 ;
     for(i = 0 ; i < n ; i++)
     {
         zi   = z_flt[i] ;
         z[i] = zi ;
-        wgt += z_flt[i] * c[i]  ;
 
         // Check if z_i is fractional
         if(z_flt[i] != 0 && z_flt[i] != 1)
@@ -2987,12 +2986,12 @@ void Array_To_State(VSPFLOAT *z_flt, State *Z, Problem *P)
             Z->point->val_frac = z_flt[i] ;
         }
     }
-    Z->weight = lround(wgt) ;
 
     /* ====================================================================== */
     /* Do Az */
     /* ====================================================================== */
-    Compute_Az(Z->point, Z->Az, Ai, Ap, n) ;
+    // gw = c - gamma Az, so Az = (c - gw) / 
+
 
 #ifdef DEBUG
     check_state(Z, P) ;
@@ -3172,7 +3171,7 @@ VSPINT Move_To_Vertex
     VSPINT    u,
     VSPFLOAT  gamma,
     VSPINT    n,
-    VSPINT    j  // Index of fractional entry in z
+    VSPINT   *j  // Index of fractional entry in z
 )
 {
 SET_FUNCTION_COUNTER ;
@@ -3189,36 +3188,38 @@ SET_FUNCTION_COUNTER ;
     wgt = 0 ;
     for(i = 0 ; i < n ; i++) wgt += z[i] * c[i] ;
     
-    if(j == EMPTY)    return lround(wgt) ;
+    if(*j == EMPTY)    return lround(wgt) ;
     if(equal(wgt, u)) return u ;
 
 
     // Determine gz_j
-    gz_j = gz[j] ;
+    gz_j = gz[*j] ;
 
     // If gz_j is non-negative, set z_j to 0. Else, if gz_j is positive,
     // increase z_j as long as z remains feasible
     if(gz_j <= 0)
     {
-        wgt -= z[j] * c[j] ;
-        z[j] = 0 ;
+        wgt -= z[*j] * c[*j] ;
+        z[*j] = 0 ;
+        *j = EMPTY ;
     }
     else
     {
         // Ammount by which z_j needs to be increased to activate the
         // balance constraint
-        delta = (u - wgt) / c[j] ;
-        Update_Gradient(delta, j, gw, Ai, Ap, gamma) ;
+        delta = (u - wgt) / c[*j] ;
+        Update_Gradient(delta, *j, gw, Ai, Ap, gamma) ;
 
-        if(z[j] + delta < 1)
+        if(z[*j] + delta < 1)
         {
             wgt = u ;
-            z[j] += delta ;
+            z[*j] += delta ;
         }
         else
         {
-            wgt += (1 - z[j]) * c[j] ;
-            z[j] = 1 ;
+            wgt += (1 - z[*j]) * c[*j] ;
+            z[*j] = 1 ;
+            *j = EMPTY ;
         }
     }
 

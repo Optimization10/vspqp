@@ -578,7 +578,7 @@ VSPINT Move_To_Vertex
     VSPINT    u,
     VSPFLOAT  gamma,
     VSPINT    n,
-    VSPINT    j  // Index of fractional entry in z
+    VSPINT   *j  // Index of fractional entry in z
 ) ;
 
 #endif
