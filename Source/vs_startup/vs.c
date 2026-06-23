@@ -8626,7 +8626,7 @@ void vs_separator_approx
 
 // Update gy, the gradient with respect to y, as a result of x_i changing by
 // delta_xi:
-// new_gy = old_gy + (delta_xi) * gamma * A_i,
+// new_gy = old_gy - (delta_xi) * gamma * A_i,
 // where A_i is column of A corresponding to index i
 static void Update_Gradient
 (
@@ -8644,7 +8644,7 @@ static void Update_Gradient
     {
         gy[ Ai[p] ] += coeff ;
     }
-    gy[i] += coeff ;
+    gy[i] -= coeff ;
 }
 
 static VSINT VSP_interior_and_penalty_reduction
@@ -9230,10 +9230,15 @@ void VSP_Grad_Proj
             // solution stored in Y
             vs_copyx(y, Y, n) ;
         }
-        if ( obj < obj_0 + eps ) break ; // |obj - obj_0| < eps => stationary
-        vs_copyx(gx, gxtemp, n) ;        // grad at x stored above in gxtemp
+
+        // grad at x stored above in gxtemp
+        vs_copyx(gx, gxtemp, n) ;
+        
         // evaluate gradient at y
         VSP_Grad(gy, a, x, Ai, Ap, gamma, n) ;
+
+        if ( obj < obj_0 + eps ) break ; // |obj - obj_0| < eps => stationary
+
     }
 
     napheap_terminate(&napdata) ;
