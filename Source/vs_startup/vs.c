@@ -8642,7 +8642,7 @@ static void Update_Gradient
     VSFLOAT const coeff = delta_xi * gamma ;
     for(p = Ap[i] ; p < end ; p++)
     {
-        gy[ Ai[p] ] += coeff ;
+        gy[ Ai[p] ] -= coeff ;
     }
     gy[i] -= coeff ;
 }
