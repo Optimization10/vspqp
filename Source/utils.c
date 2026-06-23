@@ -3097,6 +3097,31 @@ VSPFLOAT obj_flt
     return obj ;
 }
 
+
+
+// Update gy, the gradient with respect to y, as a result of x_i changing by
+// delta_xi:
+// new_gy = old_gy - (delta_xi) * gamma * A_i,
+// where A_i is column of A corresponding to index i
+static void Update_Gradient
+(
+    VSPFLOAT   delta_xi,
+    VSPINT     i,
+    VSPFLOAT  *gy,
+    VSPINT    *Ai,
+    VSPLONG   *Ap,
+    VSPFLOAT   gamma
+)
+{
+    VSPLONG p, end = Ap[i+1] ;
+    VSPFLOAT const coeff = delta_xi * gamma ;
+    for(p = Ap[i] ; p < end ; p++)
+    {
+        gy[ Ai[p] ] -= coeff ;
+    }
+    gy[i] -= coeff ;
+}
+
 // Let z be x or y. If z is fully binary, or an almost binary point with the
 // balance constraint being tight, then it is a vertex of the associated
 // polyhedron P_z, and its weight is an integer
@@ -3139,44 +3164,37 @@ VSPINT Move_To_Vertex
 (
     VSPFLOAT *z,
     VSPFLOAT *w,
+    VSPFLOAT *gz,
+    VSPFLOAT *gw,
     VSPINT   *Ai,
     VSPLONG  *Ap,
     VSPFLOAT *c,
     VSPINT    u,
     VSPFLOAT  gamma,
-    VSPINT    n
+    VSPINT    n,
+    VSPINT    j  // Index of fractional entry in z
 )
 {
-    SET_FUNCTION_COUNTER ;
-
-    VSPINT i, j, int_wgt ;
-    VSPLONG p, end ;
-    VSPFLOAT wgt, zi, ci, gz_j, delta ;
-
+SET_FUNCTION_COUNTER ;
 #ifdef DEBUG
     VSPFLOAT objStart = obj_flt(z, w, c, gamma, Ai, Ap, n) ;
 #endif
 
+    VSPINT i, int_wgt ;
+    VSPLONG p, end ;
+    VSPFLOAT wgt, zi, ci, gz_j, delta ;
+
     // Do a pass to determine if z has a fractional component and the balance
     // constraint is not tight
     wgt = 0 ;
-    j   = EMPTY ;
-    for(i = 0 ; i < n ; i++)
-    {
-        zi = z[i] ;
-        ci = c[i] ;
-        wgt += zi * ci ;
-
-        if(1E-10 < zi && zi < 1 - 1E-10) j = i ;
-    }
-    if(j == EMPTY || equal(wgt, u)) return lround(wgt) ;
+    for(i = 0 ; i < n ; i++) wgt += z[i] * c[i] ;
+    
+    if(j == EMPTY)    return lround(wgt) ;
+    if(equal(wgt, u)) return u ;
 
 
     // Determine gz_j
-    gz_j = c[j] ;
-    end = Ap[j+1] ;
-    for(p = Ap[j] ; p < end ; p++)gz_j -= gamma * w[ Ai[p] ] ;
-    gz_j -= gamma * w[j] ; // Take identity into account
+    gz_j = gz[j] ;
 
     // If gz_j is non-negative, set z_j to 0. Else, if gz_j is positive,
     // increase z_j as long as z remains feasible
@@ -3190,6 +3208,7 @@ VSPINT Move_To_Vertex
         // Ammount by which z_j needs to be increased to activate the
         // balance constraint
         delta = (u - wgt) / c[j] ;
+        Update_Gradient(delta, j, gw, Ai, Ap, gamma) ;
 
         if(z[j] + delta < 1)
         {
