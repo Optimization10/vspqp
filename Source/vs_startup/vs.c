@@ -8792,8 +8792,10 @@ VSINT VSPboundary
             {
                 pi = VSONE - xi ;
                 x [i] = VSONE ;
+                Update_Gradient(pi, i, gy, Ai, Ap, gamma) ;
                 pj = -s1*ai ;
                 x [j] += pj ;
+                Update_Gradient(pj, j, gy, Ai, Ap, gamma) ;
                 if ( x [j] <= VSZERO )
                 {
                     if ( PrintLevel )
@@ -8810,8 +8812,10 @@ VSINT VSPboundary
             {
                 pj = -xj ;
                 x [j] = VSZERO ;
+                Update_Gradient(pj, j, gy, Ai, Ap, gamma) ;
                 pi = s2*aj ;
                 x [i] += pi ;
+                Update_Gradient(pi, i, gy, Ai, Ap, gamma) ;
                 if ( x [i] >= VSONE )
                 {
                     if ( PrintLevel )
@@ -8834,8 +8838,10 @@ VSINT VSPboundary
             {
                 pi = -xi ;
                 x [i] = VSZERO ;
+                Update_Gradient(pi, i, gy, Ai, Ap, gamma) ;
                 pj = s3*ai ;
                 x [j] += pj ;
+                Update_Gradient(pj, j, gy, Ai, Ap, gamma) ;
                 if ( x [j] >= VSONE )
                 {
                     if ( PrintLevel )
@@ -8852,8 +8858,10 @@ VSINT VSPboundary
             {
                 pj = VSONE - xj ;
                 x [j] = VSONE ;
+                Update_Gradient(pj, j, gy, Ai, Ap, gamma) ;
                 pi = -s4*aj ;
                 x [i] += pi ;
+                Update_Gradient(pi, i, gy, Ai, Ap, gamma) ;
                 if ( x [i] <= VSZERO )
                 {
                     if ( PrintLevel )
