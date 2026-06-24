@@ -165,7 +165,7 @@ void Optimize
 #ifdef DEBUG
         check_states(X, Y, problem);
 #endif
-    VSPFLOAT *x_flt, *y_flt, *gx, *gy, *c_flt ;
+    VSPFLOAT *x_flt, *y_flt, *gx, *gy, *c_flt, xcost, ycost ;
     VSPINT    n_passes;
     VSPINT    n     = problem->graph->n ;
     VSPINT   *c     = problem->graph->c ;
@@ -204,11 +204,11 @@ void Optimize
         j2 = VSPboundary(y_flt, c_flt, gy, gx, n, Ai, Ap, gamma, print_level) ;
 
         /* Step 4: Update the X and Y states with x_flt and y_flt */
-        Move_To_Vertex(x_flt, y_flt, Ai, Ap, c_flt, u, gamma, n, &j1) ;
-        Move_To_Vertex(y_flt, x_flt, Ai, Ap, c_flt, u, gamma, n, &j2) ;
+        xcost = Move_To_Vertex(x_flt, y_flt, Ai, Ap, c_flt, u, gamma, n, &j1) ;
+        ycost = Move_To_Vertex(y_flt, x_flt, Ai, Ap, c_flt, u, gamma, n, &j2) ;
 
-        Array_To_State(x_flt, X, problem) ;
-        Array_To_State(y_flt, Y, problem) ;
+        Array_To_State(x_flt, xcost, gy, X, problem, j1) ;
+        Array_To_State(y_flt, ycost, gx, Y, problem, j2) ;
 
         /* Step 5: Cleanup */
         free(x_flt) ;

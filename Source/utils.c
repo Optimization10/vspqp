@@ -2950,9 +2950,17 @@ void Check_Almost_Binary_Point(VSPFLOAT *z, VSPINT n)
 }
 
 // Assuming z_flt is an almost binary point, convert z_flt to a state struct
-void Array_To_State(VSPFLOAT *z_flt, VSPINT wgt, VSPFLOAT *gw, State *Z, Problem *P)
+void Array_To_State
+(
+    VSPFLOAT *z_flt,
+    VSPINT    wgt,
+    VSPFLOAT *gw,
+    State    *Z,
+    Problem  *P,
+    VSPINT    k        // fractioanl entry
+)
 {
-    VSPFLOAT zi ;
+    VSPFLOAT zi, zk, entry ;
     VSPINT    i ; 
     VSPINT   *z = Z->point->int_part ;
     VSPINT    n = P->graph->n ;
@@ -2969,28 +2977,45 @@ void Array_To_State(VSPFLOAT *z_flt, VSPINT wgt, VSPFLOAT *gw, State *Z, Problem
     /* ====================================================================== */
     /* Do the point and the weight */
     /* ====================================================================== */
+    zk = z[k] ;
     Z->point->n        = n ;
-    Z->point->ind_frac = EMPTY ;
-    Z->point->val_frac = 0 ;
+    Z->point->ind_frac = k ;
+    Z->point->val_frac = (k == EMPTY) ? 0 : zk ;
     Z->weight = wgt ;
 
-    for(i = 0 ; i < n ; i++)
-    {
-        zi   = z_flt[i] ;
-        z[i] = zi ;
-
-        // Check if z_i is fractional
-        if(z_flt[i] != 0 && z_flt[i] != 1)
-        {
-            Z->point->ind_frac = i ;
-            Z->point->val_frac = z_flt[i] ;
-        }
-    }
+    for(i = 0 ; i < n ; i++) z[i] = z_flt[i] ;
 
     /* ====================================================================== */
     /* Do Az */
     /* ====================================================================== */
-    // gw = c - gamma Az, so Az = (c - gw) / 
+    // gw = c - gamma Az, so Az = (c - gw), and
+    // Az_int = (1/gamma) (c - gw) - z_k A_k. So flatten A_k first, and
+    // then compute Az_int
+    Z->Az->ind_frac_z = Z->point->ind_frac ;
+    Z->Az->val_frac_z = Z->point->val_frac ;
+
+    VSPINT *Ak = Z->Az->col_frac_z ;
+    VSPINT *Az_int = Z->Az->int_part ;
+    VSPINT one = (++Z->Az->one) ;
+    VSPFLOAT one_over_gamma = 1 / (VSPFLOAT) P->graph->max_vtx_cost ;
+
+    if(k != EMPTY)
+    {
+        extract_matrix_col(Ak, k, one, Ai, Ap) ;
+        for(i = 0 ; i < n ; i++)
+        {
+            entry = one_over_gamma * c[i] - gw[i]-zk *(Ak[i] == one) ;
+            Az_int[i] = lroundf(entry) ;
+        }
+    }
+    else
+    {
+        for(i = 0 ; i < n ; i++)
+        {
+            entry = one_over_gamma * c[i] - gw[i] ;
+            Az_int[i] = lroundf(entry) ;
+        }
+    }
 
 
 #ifdef DEBUG
