@@ -580,6 +580,8 @@ VSPINT Move_To_Vertex
 (
     VSPFLOAT *z,
     VSPFLOAT *w,
+    VSPFLOAT *gz,
+    VSPFLOAT *gw,
     VSPINT   *Ai,
     VSPLONG  *Ap,
     VSPFLOAT *c,

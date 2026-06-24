@@ -2977,10 +2977,10 @@ void Array_To_State
     /* ====================================================================== */
     /* Do the point and the weight */
     /* ====================================================================== */
-    zk = z[k] ;
+    zk = (k == EMPTY) ? 0 : z_flt[k] ;
     Z->point->n        = n ;
     Z->point->ind_frac = k ;
-    Z->point->val_frac = (k == EMPTY) ? 0 : zk ;
+    Z->point->val_frac = zk ;
     Z->weight = wgt ;
 
     for(i = 0 ; i < n ; i++) z[i] = z_flt[i] ;
@@ -2988,8 +2988,8 @@ void Array_To_State
     /* ====================================================================== */
     /* Do Az */
     /* ====================================================================== */
-    // gw = c - gamma Az, so Az = (c - gw), and
-    // Az_int = (1/gamma) (c - gw) - z_k A_k. So flatten A_k first, and
+    // gw = c - gamma * Az, so Az = (c - gw) / gamma, and
+    // Az_int = (c - gw) / gamma - z_k A_k. So flatten A_k first, and
     // then compute Az_int
     Z->Az->ind_frac_z = Z->point->ind_frac ;
     Z->Az->val_frac_z = Z->point->val_frac ;
@@ -3004,7 +3004,7 @@ void Array_To_State
         extract_matrix_col(Ak, k, one, Ai, Ap) ;
         for(i = 0 ; i < n ; i++)
         {
-            entry = one_over_gamma * c[i] - gw[i]-zk *(Ak[i] == one) ;
+            entry = one_over_gamma * (c[i] - gw[i]) - zk * (Ak[i] == one) ;
             Az_int[i] = lroundf(entry) ;
         }
     }
@@ -3012,7 +3012,7 @@ void Array_To_State
     {
         for(i = 0 ; i < n ; i++)
         {
-            entry = one_over_gamma * c[i] - gw[i] ;
+            entry = one_over_gamma * (c[i] - gw[i]) ;
             Az_int[i] = lroundf(entry) ;
         }
     }
@@ -3224,6 +3224,7 @@ SET_FUNCTION_COUNTER ;
     // increase z_j as long as z remains feasible
     if(gz_j <= 0)
     {
+        Update_Gradient(-z[*j], *j, gw, Ai, Ap, gamma) ;
         wgt -= z[*j] * c[*j] ;
         z[*j] = 0 ;
         *j = EMPTY ;
@@ -3233,16 +3234,18 @@ SET_FUNCTION_COUNTER ;
         // Ammount by which z_j needs to be increased to activate the
         // balance constraint
         delta = (u - wgt) / c[*j] ;
-        Update_Gradient(delta, *j, gw, Ai, Ap, gamma) ;
 
         if(z[*j] + delta < 1)
         {
+            Update_Gradient(delta, *j, gw, Ai, Ap, gamma) ;
             wgt = u ;
             z[*j] += delta ;
         }
         else
         {
-            wgt += (1 - z[*j]) * c[*j] ;
+            VSPFLOAT actual_delta = 1 - z[*j] ;
+            Update_Gradient(actual_delta, *j, gw, Ai, Ap, gamma) ;
+            wgt += actual_delta * c[*j] ;
             z[*j] = 1 ;
             *j = EMPTY ;
         }
