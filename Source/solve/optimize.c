@@ -122,6 +122,7 @@ static void Gamma_Reduction_Loop
 
         mountain_climbing(Xc, Yc, problem, options, gamma, false);
         mountain_climbing(Xc, Yc, problem, options, gamma_org, true);
+        Round_Down_Fractions(Xc, Yc, problem) ;
         Greedy_Flips(Xc, Yc, problem, 9, (problem->level <= 2), false);
 
         VSPINT np;
@@ -225,6 +226,7 @@ void Optimize
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
     // Phase 2: Greedy flips
+    Round_Down_Fractions(X, Y, problem) ;
     Greedy_Flips(X, Y, problem, 9, (problem->level <= 2), false);
 
     // Phase 3: FM
@@ -239,6 +241,7 @@ void Optimize
     Gamma_Reduction_Loop(X, Y, problem, options);
 
     // Phase 6: Final cleanup flips
+    Round_Down_Fractions(X, Y, problem) ;
     Greedy_Flips(X, Y, problem, 5, true, true);
 
     CLEANUP:
