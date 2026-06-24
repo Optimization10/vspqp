@@ -207,8 +207,8 @@ void Optimize
         j2 = VSPboundary(y_flt, c_flt, gy, gx, n, Ai, Ap, gamma, print_level) ;
 
         /* Step 4: Update the X and Y states with x_flt and y_flt */
-        xcost = Move_To_Vertex(x_flt, y_flt, gx, gy, Ai, Ap, c_flt, u, gamma, n, &j1) ;
-        ycost = Move_To_Vertex(y_flt, x_flt, gy, gx, Ai, Ap, c_flt, u, gamma, n, &j2) ;
+        xcost = Move_To_Vertex(x_flt, y_flt, gx, gy, Ai,Ap,c_flt,u,gamma,n,&j1);
+        ycost = Move_To_Vertex(y_flt, x_flt, gy, gx, Ai,Ap,c_flt,u,gamma,n,&j2);
 
         Array_To_State(x_flt, xcost, gy, X, problem, j1) ;
         Array_To_State(y_flt, ycost, gx, Y, problem, j2) ;
@@ -227,24 +227,76 @@ void Optimize
     mountain_climbing(X, Y, problem, options, gamma, true) ;
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
+
+    /* ====================================================================== */
     // Phase 2: Greedy flips
+    /* ====================================================================== */
     Round_Down_Fractions(X, Y, problem) ;
     Greedy_Flips(X, Y, problem, 9, (problem->level <= 2), false);
 
-    // Phase 3: FM
-    n_passes = (l >= L / 2) ? 3 : 2 ;
 
+    /* ====================================================================== */
+    // Phase 3: FM subspace gradient projection
+    /* ====================================================================== */
+
+#if 0
+
+    /* Step 1: Convert x, y, c to floats, and compute gx and gy */
+    x_flt = Point_To_Array(X->point) ;
+    gx    = Az_To_Grad(c, gamma, Y->Az) ;
+
+    y_flt = Point_To_Array(Y->point) ;    
+    gy    = Az_To_Grad(c, gamma, X->Az) ;
+
+    c_flt = Array_Int_To_Flt(c, n) ;
+
+    /* Step 2: Do FM subspace method */
+    // FM_Subspace()
+
+    /* Step 3: Move x_flt, y_flt to almost binary points */
+    int print_level = 0 ;
+
+    VSPINT j1, j2 ;
+    j1 = VSPboundary(x_flt, c_flt, gx, gy, n, Ai, Ap, gamma, print_level) ;
+    j2 = VSPboundary(y_flt, c_flt, gy, gx, n, Ai, Ap, gamma, print_level) ;
+
+    /* Step 4: Update the X and Y states with x_flt and y_flt */
+    xcost = Move_To_Vertex(x_flt, y_flt, gx, gy, Ai, Ap, c_flt, u, gamma,n,&j1);
+    ycost = Move_To_Vertex(y_flt, x_flt, gy, gx, Ai, Ap, c_flt, u, gamma,n,&j2);
+
+    Array_To_State(x_flt, xcost, gy, X, problem, j1) ;
+    Array_To_State(y_flt, ycost, gx, Y, problem, j2) ;
+
+    /* Step 5: Cleanup */
+    free(x_flt) ;
+    free(y_flt) ;
+    free(gx) ;
+    free(gy) ;
+    free(c_flt) ;
+#endif
+
+    /* ====================================================================== */
+    // Phase 4: FM METIS
+    /* ====================================================================== */
+    n_passes = (l >= L / 2) ? 3 : 2 ;
     Round_Down_Fractions(X, Y, problem) ;
+
     FM_Metis(X, Y, problem, options, n_passes);
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
-    // Phase 4: MC
+    /* ====================================================================== */
+    // Phase 5: Mountain climbing
+    /* ====================================================================== */
     mountain_climbing(X, Y, problem, options, gamma, true) ;
 
-    // Phase 5: Gamma reductions
+    /* ====================================================================== */
+    // Phase 6: Gamma reduction
+    /* ====================================================================== */
     Gamma_Reduction_Loop(X, Y, problem, options);
 
-    // Phase 6: Final cleanup flips
+    /* ====================================================================== */
+    // Phase 7: Greedy flips
+    /* ====================================================================== */
     Round_Down_Fractions(X, Y, problem) ;
     Greedy_Flips(X, Y, problem, 5, true, true);
 
