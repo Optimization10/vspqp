@@ -128,6 +128,8 @@ static void Gamma_Reduction_Loop
         VSPINT np;
         if (problem->level >= problem->coarsest_level_num / 2) np = 3;
         else np = 2;
+
+        Round_Down_Fractions(Xc, Yc, problem) ;
         FM_Metis(Xc, Yc, problem, options, np);
 
         f_x_y         = compute_obj(X,  Y,  problem, gamma_org);
@@ -231,6 +233,8 @@ void Optimize
 
     // Phase 3: FM
     n_passes = (l >= L / 2) ? 3 : 2 ;
+
+    Round_Down_Fractions(X, Y, problem) ;
     FM_Metis(X, Y, problem, options, n_passes);
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
