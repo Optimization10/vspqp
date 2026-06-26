@@ -8671,6 +8671,7 @@ static VSINT VSP_interior_and_penalty_reduction
         {
             x[i] = 0 ;
             Update_Gradient(-xi, i, gy, Ai, Ap, gamma) ;
+            xi = 0 ;
         }
 
         // 
