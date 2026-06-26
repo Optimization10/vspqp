@@ -8658,6 +8658,10 @@ static VSINT VSP_interior_and_penalty_reduction
    VSLINT      *Ap,
    VSFLOAT   gamma
 )
+
+x[i] = 1 -----> Ay[i] = 0 // FM METIS
+x[i] = 1 -----> Ay[i] <= 2 // Flips
+
 {
     VSINT i ;
     VSFLOAT xi ;
