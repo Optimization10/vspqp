@@ -8982,10 +8982,9 @@ void VSP_Grad_Proj
     int       ngp
 )
 {
-    int it, skip_napheapx, skip_napheapy ;
-    VSPINT i ;
+    int it, skip_napheapx, skip_napheapy, status ;
+    VSINT i ;
     VSFLOAT eps, obj, obj_0, s, t, lambdax, lambday, *X, *Y, *sx, *sy, *gxtemp ;
-    int status ;
 
     NAPdata *napdata ;
     napdata = napheap_setup () ;
@@ -9010,9 +9009,18 @@ void VSP_Grad_Proj
     X = malloc (n*sizeof (VSPFLOAT)) ; // stores projection in x
     Y = malloc (n*sizeof (VSPFLOAT)) ; // stores projection in y
 
-    // Compute initial objective, obj
-
+    // initial objective, obj
     obj = VSP_Obj(x, gx, y, a, n) ;
+#if 0
+printf ("n: %i\n", n) ;
+vs_printxMATLAB(x, n, "x") ;
+vs_printxMATLAB(y, n, "y") ;
+vs_printxMATLAB(a, n, "a") ;
+vs_printxMATLAB(gx, n, "gx") ;
+#endif
+    VSFLOAT start_obj = obj ;
+
+    // starting guess for lambda
     lambdax = VSZERO ;
     lambday = VSZERO ;
 
@@ -9021,7 +9029,8 @@ void VSP_Grad_Proj
        
               min 0.5*(x-sx)^2 + 0.5*(y-sy)%2
       
-                   subject to 0 <= x <= u, 0 <= x <= 1, 0 <= y <= u, 0 <=
+                   subject to 0 <= a'x <= u, 0 <= x <= 1,
+                              0 <= a'y <= u, 0 <= y <= 1,
     
        where and sx and sy are steps along the gradient starting from the
        iterates x and y: sx = x + s*gx and sy = y + s*gy, s = stepsize */
@@ -9029,15 +9038,23 @@ void VSP_Grad_Proj
     sy     = malloc(n * sizeof(*sy)) ;
     gxtemp = malloc(n * sizeof(*gxtemp)) ;
 
-    for(it = 1 ; it <= ngp ; it++)
+    // start of the gradient projection algorithm loop
+    it = 0 ;
+    while ( 1 )
     {
         obj_0 = obj ; // save prior objective value
         s = vs_max(gx, n) ;
         t = vs_max(gy, n) ;
         s = MAX(s, t) ;
+        // if gradient vanishes, then current point is optimal
+        if ( s == VSZERO ) break ;
+        it++ ;
+
 
         // Scaling factor for gradients
-        s = 1 / s ;
+        s = 0.8909725/s ;
+        // sfac = factor by which stepsize decreases to improve obj
+        VSFLOAT sfac = 0.2 ;
 
         /* Project gradient step onto feasible set. The projection decomposes
            into two separate projections: sx is projected on the x-feasible
@@ -9047,24 +9064,38 @@ void VSP_Grad_Proj
         while(obj + eps < obj_0 )
         {
             subit++ ; 
-            // Scale gradients by 0.5
             if ( subit == 1 )
             {
-                vs_scale(gx, VSHALF*s, n) ;
-                vs_scale(gy, VSHALF*s, n) ;
+                // scale gradient by optimal stepsize 0.891/length
+                vs_scale(gx, s, n) ;
+                vs_scale(gy, s, n) ;
             }
             else
             {
-                vs_scale(gx, VSHALF, n) ;
-                vs_scale(gy, VSHALF, n) ;
+                vs_scale(gx, sfac, n) ;
+                vs_scale(gy, sfac, n) ;
             }
 
             // Compute new point (sx, sy)
             vs_vecadd(sx, x, gx, n) ;
             vs_vecadd(sy, y, gy, n) ;
+#if 0
+vs_printxMATLAB (x, n, "x0") ;
+vs_printxMATLAB (gx, n, "gx0") ;
+vs_printxMATLAB (sx, n, "sx0") ;
+vs_printxMATLAB (y, n, "y0") ;
+vs_printxMATLAB (gy, n, "gy0") ;
+vs_printxMATLAB (sy, n, "sy0") ;
+#endif
 
             // Project sx to feasible set, see if lambda = 0 works
             skip_napheapx = VSFALSE ;
+#if 0
+printf ("new point:\n") ;
+vs_printxMATLAB (sx, n, "sx") ;
+vs_printxMATLAB (sy, n, "sy") ;
+printf ("lambdax: %e\n", lambdax) ;
+#endif
             if ( !lambdax )
             {
                 t = VSZERO ;
@@ -9095,6 +9126,7 @@ void VSP_Grad_Proj
             }
             if ( !skip_napheapx )
             {
+printf ("use napheap x\n") ;
                 napdata->c = sx ;
                 napdata->x = X ;
 
@@ -9117,6 +9149,7 @@ void VSP_Grad_Proj
 
             // Project sy to feasible set, see if lambda = 0 works
             skip_napheapy = VSFALSE ;
+//printf ("lambday: %e\n", lambday) ;
             if ( !lambday )
             {
                 t = VSZERO ;
@@ -9147,6 +9180,7 @@ void VSP_Grad_Proj
             }
             if ( !skip_napheapy )
             {
+printf ("use napheap y\n") ;
                 napdata->c = sy ;
                 napdata->x = Y ;
                 napdata->lambda = lambday ;
@@ -9183,7 +9217,7 @@ void VSP_Grad_Proj
             if ( skip_napheapy )
             {
                 // solution stored in sy
-                VSP_Grad(gxtemp, a, sy, Ai, Ap, gamma, n) ;
+                VSP_Grad(gxtemp, a, sy, n, Ai, Ap, gamma, 1) ;
                 if ( skip_napheapx )
                 {
                     // solution stored in sx
@@ -9198,7 +9232,7 @@ void VSP_Grad_Proj
             else
             {
                 // solution stored in Y
-                VSP_Grad(gxtemp, a, Y, Ai, Ap, gamma, n) ;
+                VSP_Grad(gxtemp, a, Y, n, Ai, Ap, gamma, 1) ;
                 if ( skip_napheapx )
                 {
                     // solution stored in sx
@@ -9211,9 +9245,10 @@ void VSP_Grad_Proj
                 }
             }
 
-            // printf("it: %i obj: %f    obj0: %f\n", it, obj, obj_0) ;
+            //printf("it: %i obj: %f    obj0: %f\n", it, obj, obj_0) ;
+            printf ("it: %i obj0: %f obj: %f +: %f n: %i\n",
+                       it, obj_0, obj, obj-obj_0, n);
         }
-        
 
         /* Update: x <- X and y <- Y */
         if ( skip_napheapx )
@@ -9236,16 +9271,15 @@ void VSP_Grad_Proj
             // solution stored in Y
             vs_copyx(y, Y, n) ;
         }
-
-        // grad at x stored above in gxtemp
-        vs_copyx(gx, gxtemp, n) ;
-        
-        // evaluate gradient at y
-        VSP_Grad(gy, a, x, Ai, Ap, gamma, n) ;
-
         if ( obj < obj_0 + eps ) break ; // |obj - obj_0| < eps => stationary
+        vs_copyx(gx, gxtemp, n) ;        // grad at x stored above in gxtemp
+        // evaluate gradient at y
+        VSP_Grad(gy, a, x, n, Ai, Ap, gamma, 1) ;
 
+        if ( obj - obj_0 <= 0.005*VSMAX(obj, 1) ) break ;
     }
+    printf ("start: %f  end: %f +: %f\n",
+             start_obj, obj, obj - start_obj) ;
 
     napheap_terminate(&napdata) ;
 
