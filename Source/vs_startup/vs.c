@@ -9321,13 +9321,6 @@ void VSP_FMsubspace
     wi = malloc (sizeof (VSINT)*Ap [n] + n*sizeof(VSINT)*3) ;
     wL = malloc ( ((VSLINT) n + 1)*sizeof(VSLINT)) ;
 
-    ux = u ; // Initially, upper bound on x-balance constraint is u.
-    uy = u ; /* Initially, upper bound on y-balance constraint is u.
-                After the free variables are determined, the fixed variables
-                (complement of the free variables) are removed from the
-                problem and from u. Therefore ux and uy may be different,
-                and both are generally smaller than u. */
-
     X  = wx     ; // X in subspace
     Sx = wx+1*n ; // free x variables forming subspace
     sx = wx+2*n ; // projection point in x
@@ -9380,16 +9373,16 @@ free (GGX) ;
                 }
             }
         }
-// !!! for testing, make all variables free !!!
-//printf ("before printing matrix\n") ;
-//fflush(stdout) ;
-//for (i = 0; i < n; i++) F [i] = 0 ;
-//vs_printAMATLAB (n, Ap, Ai, NULL, "A") ;
-// printf ("after printing matrix\n") ;
-//fflush(stdout) ;
 
         // nF counts number of free vertices
         nF = 0 ;
+
+        ux = u ; // Initially, upper bound on x-balance constraint is u.
+        uy = u ; /* Initially, upper bound on y-balance constraint is u.
+                    After the free variables are determined, the fixed variables
+                    (complement of the free variables) are removed from the
+                    problem and from u. Therefore ux and uy may be different,
+                    and both are generally smaller than u. */
         // map from original vertices to subspace vertices
         for (i = 0; i < n; i++)
         {
@@ -9408,16 +9401,13 @@ free (GGX) ;
                 uy -= y [i]*a [i] ;
             }
         }
-//printf ("nF: %i n: %i\n", nF, n) ;
-//vs_printiMATLAB (F, n, "F") ;
-//fflush(stdout) ;
      
         // build the subspace matrix and the gradients
         vs_initx (gx, VSZERO, nF) ;
         vs_initx (gy, VSZERO, nF) ;
         p = q = 0 ;
         Sp [p] = 0 ;
-printf ("gamma: %e Sx [2] = %e\n", gamma, Sx [2]) ;
+
         for (j = 0; j < nF;)
         {
             s = t = VSZERO ; // obj deriv wrt yj or xj
@@ -10031,17 +10021,17 @@ exit(1) ;
 #endif
 
         // convert Sx to almost binary
-        VSPboundary (Sx, Sa, gx, nF, 0) ;
+        VSPboundary (Sx, Sa, gx, gy, nF, Si, Sp, gamma, 0) ;
         // convert Sy to almost binary after updating y's gradient
         VSP_Grad (gy, Gy, Sx, nF, Si, Sp, gamma, 0) ;
-        VSPboundary (Sy, Sa, gy, nF, 0) ;
+        // VSPboundary (Sy, Sa, gy, nF, 0) ;
  
         // copy Sx and Sy back into original solution x
         for (j = 0; j < nF; j++)
         {
             i = v [j] ; // column for x or y
-            x [i] = Sx [i] ;
-            y [i] = Sy [i] ;
+            x [i] = Sx [j] ;
+            y [i] = Sy [j] ;
             F [i] = EMPTY ;
         }
         

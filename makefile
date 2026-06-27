@@ -41,12 +41,13 @@ run_example: example
 valgrind: example
 	@mkdir -p $(VSPATH)/output
 	@valgrind \
-  --tool=memcheck \
-  --leak-check=full \
-  --show-leak-kinds=all \
-  --track-origins=yes \
-  --suppressions=$(VSPATH)/Config/mkl.supp \
-	./Demo/example > output/valgrind.txt 2>&1
+	--tool=memcheck \
+	--leak-check=full \
+	--show-leak-kinds=all \
+	--track-origins=yes \
+	--suppressions=$(VSPATH)/Config/mkl.supp \
+	--log-file=$(VSPATH)/output/valgrind.txt \
+	./Demo/example
 
 callgrind: example
 	@mkdir -p $(VSPATH)/output/callgrind
