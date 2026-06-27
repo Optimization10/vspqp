@@ -416,8 +416,8 @@ int main(int argc, char** argv)
         strcpy(matricesDir, "/media/hager/datafile/symmetric/") ;
     }
 
-    strcpy(matricesDir, "/home/onechita/network-repository/") ;
-    // strcpy(matricesDir, "/home/ovi/data/network-repository/networks/") ;
+    // strcpy(matricesDir, "/home/onechita/network-repository/") ;
+    strcpy(matricesDir, "/home/ovi/data/network-repository/networks/") ;
 
     char *name ;
     

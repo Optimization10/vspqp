@@ -2949,6 +2949,40 @@ void Check_Almost_Binary_Point(VSPFLOAT *z, VSPINT n)
     }
 }
 
+// Compute gz = c - gamma Aw
+void Gradient
+(
+    VSPFLOAT             *gz,
+    VSPINT               *c,
+    const VSPFLOAT *const w,
+    const VSPINT   *const Ai,
+    const VSPLONG  *const Ap,
+    const VSPFLOAT        gamma,
+    VSPINT                n
+)
+{
+    VSPINT j ;
+    VSPLONG p, end ;
+    VSPFLOAT t ;
+
+    for(j = 0 ; j < n ; j++) gz[j] = c[j] ;
+
+    for (j = 0 ; j < n ; j++)
+    {
+        // Add - gamma * w[j] * column j to gz by adding t = -gamma * w[j] to
+        // gz_i for all i with A_ij = 1
+        if ( w[j] )
+        {
+            t = -gamma * w [j] ;
+            end = Ap [j+1] ;
+            for (p = Ap [j]; p < end; p++) gz [Ai [p]] += t ;
+            
+            // Account for diagonal
+            gz [j] += t ;
+        }
+    }
+}
+
 // Assuming z_flt is an almost binary point, convert z_flt to a state struct
 void Array_To_State
 (
@@ -2957,7 +2991,7 @@ void Array_To_State
     VSPFLOAT *gw,
     State    *Z,
     Problem  *P,
-    VSPINT    k        // fractioanl entry
+    VSPINT    k        // fractional entry
 )
 {
     VSPFLOAT zi, zk, entry ;
@@ -2970,9 +3004,13 @@ void Array_To_State
 
     SET_FUNCTION_COUNTER ;
 
-#ifdef DEBUG
+// #ifdef DEBUG
     Check_Almost_Binary_Point(z_flt, n) ;
-#endif
+
+    // Check that gw is correct
+    VSP_Grad
+
+// #endif
 
     /* ====================================================================== */
     /* Do the point and the weight */

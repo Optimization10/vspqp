@@ -251,7 +251,7 @@ void Optimize
     c_flt = Array_Int_To_Flt(c, n) ;
 
     /* Step 2: Do FM subspace method */
-    // FM_Subspace()
+    VSP_FMsubspace(x_flt, y_flt, c_flt, Ai, Ap, u, n, gamma) ;
 
     /* Step 3: Move x_flt, y_flt to almost binary points */
     int print_level = 0 ;

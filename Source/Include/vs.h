@@ -74,4 +74,20 @@ void VSP_Grad_Proj
     VSPINT     ngp
 ) ;
 
+// Only use this when the subproblem is much smaller than original problem
+void VSP_FMsubspace
+(
+    VSPFLOAT  *x,    // variable in the bilinear objective
+    VSPFLOAT  *y,    // variable in the bilinear objective
+    VSPFLOAT  *a,    // vertex costs
+    VSPINT    *Ai,   // array of graph neighbors
+    VSPLONG   *Ap,   // column pointer for Ai
+    VSPINT     u,    // upper bound for balance constraint
+    VSPINT     n,    // number of vertices
+    VSPFLOAT   gamma /*, max vertex cost
+    VSPFLOAT   wx,      VSFLOAT workspace of size 7n
+    VSPINT     wi,      VSINT workspace of size 3n + [nnz(A) +n]
+    VSPLONG    wL       VSLINT workspace of size n+1 */
+) ;
+
 #endif

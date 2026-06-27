@@ -591,4 +591,15 @@ VSPINT Move_To_Vertex
     VSPINT   *j  // Index of fractional entry in z
 ) ;
 
+void Gradient
+(
+    VSPFLOAT             *gz,
+    VSPINT               *c,
+    const VSPFLOAT *const w,
+    const VSPINT   *const Ai,
+    const VSPLONG  *const Ap,
+    const VSPFLOAT        gamma,
+    VSPINT                n
+) ;
+
 #endif
