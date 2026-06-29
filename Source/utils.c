@@ -3004,13 +3004,25 @@ void Array_To_State
 
     SET_FUNCTION_COUNTER ;
 
-// #ifdef DEBUG
+#ifdef DEBUG
     Check_Almost_Binary_Point(z_flt, n) ;
 
     // Check that gw is correct
-    VSP_Grad
+    VSPFLOAT *gw_dbg = malloc(n * sizeof(*gw_dbg)) ;
+    Gradient(gw_dbg, P->graph->c, z_flt, Ai, Ap, P->graph->max_vtx_cost, n) ;
 
-// #endif
+    for(VSPINT ii = 0 ; ii < n ; ii++)
+    {
+        if(gw[ii] != gw_dbg[ii])
+        {
+            ERR("Input gradient incorrect") ;
+            break ;
+        }
+    }
+
+    free(gw_dbg) ;
+
+#endif
 
     /* ====================================================================== */
     /* Do the point and the weight */
