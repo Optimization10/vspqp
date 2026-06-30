@@ -239,7 +239,7 @@ void Optimize
     // Phase 3: FM subspace gradient projection
     /* ====================================================================== */
 
-#if 1
+#if 0
 
     /* Step 1: Convert x, y, c to floats, and compute gx and gy */
     x_flt = Point_To_Array(X->point) ;

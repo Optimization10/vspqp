@@ -407,9 +407,9 @@ int main(int argc, char** argv)
 
     // Set data directory
     char matricesDir[256];
-    if (Directory_Exists("/home/ovi/data/symmetric/") )
+    if (Directory_Exists("/home/ovi/data/suitesparse/symmetric/") )
     {
-        strcpy(matricesDir, "/home/ovi/data/symmetric/") ;
+        strcpy(matricesDir, "/home/ovi/data/suitesparse/symmetric/") ;
     }
     else
     {
@@ -417,7 +417,7 @@ int main(int argc, char** argv)
     }
 
     // strcpy(matricesDir, "/home/onechita/network-repository/") ;
-    strcpy(matricesDir, "/home/ovi/data/network-repository/networks/") ;
+    // strcpy(matricesDir, "/home/ovi/data/network-repository/networks/") ;
 
     char *name ;
     
