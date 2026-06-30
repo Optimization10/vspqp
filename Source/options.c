@@ -513,6 +513,11 @@ void set_default_options(Options *options)
     /* ====================================================================== */
     options->bisection_ngp = 3 ;
 
+    /* ====================================================================== */
+    // FM subspace options
+    /* ====================================================================== */
+    options->noFM = 0.2 ;
+
 
     options->attempt_second_start = TRUE ;
     options->min_imbal_ratio_second_start = 0.07 ;

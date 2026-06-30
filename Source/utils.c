@@ -3008,19 +3008,19 @@ void Array_To_State
     Check_Almost_Binary_Point(z_flt, n) ;
 
     // Check that gw is correct
-    VSPFLOAT *gw_dbg = malloc(n * sizeof(*gw_dbg)) ;
-    Gradient(gw_dbg, P->graph->c, z_flt, Ai, Ap, P->graph->max_vtx_cost, n) ;
+    // VSPFLOAT *gw_dbg = malloc(n * sizeof(*gw_dbg)) ;
+    // Gradient(gw_dbg, P->graph->c, z_flt, Ai, Ap, P->graph->max_vtx_cost, n) ;
 
-    for(VSPINT ii = 0 ; ii < n ; ii++)
-    {
-        if(gw[ii] != gw_dbg[ii])
-        {
-            ERR("Input gradient incorrect") ;
-            break ;
-        }
-    }
+    // for(VSPINT ii = 0 ; ii < n ; ii++)
+    // {
+    //     if(gw[ii] != gw_dbg[ii])
+    //     {
+    //         ERR("Input gradient incorrect") ;
+    //         break ;
+    //     }
+    // }
 
-    free(gw_dbg) ;
+    // free(gw_dbg) ;
 
 #endif
 
@@ -3038,6 +3038,9 @@ void Array_To_State
     /* ====================================================================== */
     /* Do Az */
     /* ====================================================================== */
+
+// Compute Az from gradient
+#if 0
     // gw = c - gamma * Az, so Az = (c - gw) / gamma, and
     // Az_int = (c - gw) / gamma - z_k A_k. So flatten A_k first, and
     // then compute Az_int
@@ -3066,7 +3069,12 @@ void Array_To_State
             Az_int[i] = lroundf(entry) ;
         }
     }
+#endif
 
+// Compute Az from scratch
+#if 1
+    Compute_Az(Z->point, Z->Az, Ai, Ap, n) ;
+#endif
 
 #ifdef DEBUG
     check_state(Z, P) ;

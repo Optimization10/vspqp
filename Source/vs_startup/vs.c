@@ -5539,6 +5539,7 @@ void napheap_terminate
     napheap_free (Data->Stat) ;
     napheap_free (Data->Parm) ;
     napheap_free (Data) ;
+    *DataHandle = NULL ;
 }
 
 /* ========================================================================== */
