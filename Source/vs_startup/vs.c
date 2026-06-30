@@ -8647,16 +8647,40 @@ static void Update_Gradient
     gy[i] -= coeff ;
 }
 
+// Update gy, the gradient with respect to y, as a result of x_i changing by
+// delta_xi:
+// new_gy = old_gy - (delta_xi) * gamma * S_i,
+// where S_i is column of S corresponding to index i
+static void vs_Update_Gradient
+(
+    VSFLOAT   delta_xi,
+    VSINT     i,
+    VSFLOAT  *gy,
+    VSINT    *Si,
+    VSLINT   *Sp,
+    VSFLOAT   gamma
+)
+{
+    VSLINT p ;
+    VSLINT const end = Sp [i+1] ;
+    VSFLOAT const coeff = delta_xi * gamma ;
+    for(p = Sp[i] ; p < end ; p++)
+    {
+        gy [Si [p]] -= coeff ;
+    }
+}
+
 static VSINT VSP_interior_and_penalty_reduction
 (
-   VSINT    ilower, /* search x for indices > ilower and < n */
-   VSFLOAT      *x, /* search for 0 < x [i] < 1 */
-   VSFLOAT     *gx,
-   VSFLOAT     *gy,
-   VSINT         n, /* dimension of x */
-   VSINT       *Ai,
-   VSLINT      *Ap,
-   VSFLOAT   gamma
+   VSINT     ilower, /* search x for indices > ilower and < n */
+   VSFLOAT       *x, /* search for 0 < x [i] < 1 */
+   VSFLOAT      *gx,
+   VSFLOAT      *gy,
+   VSINT          n, /* dimension of x */
+   VSINT        *Si, /* row indices for subspace */
+   VSLINT       *Sp, /* col pointer for subspace */
+   VSFLOAT    gamma,
+   int const update
 )
 {
     VSINT i ;
@@ -8669,12 +8693,11 @@ static VSINT VSP_interior_and_penalty_reduction
         // Set x_i to 0 if doing so doesn't damage the objective
         if(xi > 0 && gx[i] <= VSZERO_PLUS)
         {
-            x[i] = 0 ;
-            Update_Gradient(-xi, i, gy, Ai, Ap, gamma) ;
+            x [i] = 0 ;
+            if ( update ) vs_Update_Gradient(-xi, i, gy, Si, Sp, gamma) ;
             xi = 0 ;
         }
 
-        // 
         if ( (xi > VSZERO) && (xi < VSONE) ) break ;
     }
     if ( i < n ) return (i) ;
@@ -8742,12 +8765,13 @@ VSINT VSPboundary
 (
     VSFLOAT           *x, /* feasible point for (GB), output described above */
     VSFLOAT           *a, /* vertex weights, NULL => all entries in a are 1 */
-    VSFLOAT          *gx, /* linear vector in objective */
-    VSFLOAT          *gy,
+    VSFLOAT          *gx, /* objective gradient in subspace */
+    VSFLOAT          *gy, /* complementary objective gradient */
     VSINT              n, /* problem dimension */
-    VSINT            *Ai,
-    VSLINT           *Ap,
-    VSFLOAT        gamma,
+    VSINT            *Si, /* row indices in subspace */
+    VSLINT           *Sp, /* col pointer in subspace */
+    VSFLOAT        gamma, /* penalty used in gradient */
+    int const     update, /* = 1 if gy updated whenever x is updated, else 0 */
     int const PrintLevel
 )
 {
@@ -8756,13 +8780,15 @@ VSINT VSPboundary
     VSINT i, j ;
 
     /* find index > -1 */
-    i = VSP_interior_and_penalty_reduction(-1, x, gx, gy, n, Ai, Ap, gamma) ;
+    i = VSP_interior_and_penalty_reduction
+                                     (-1, x, gx, gy, n, Si, Sp, gamma, update) ;
     if ( i == VSEMPTY )
     {
         /* x has no interior components */
         return (EMPTY) ;
     }
-    j = VSP_interior_and_penalty_reduction(i, x, gx, gy, n, Ai, Ap, gamma) ;
+    j = VSP_interior_and_penalty_reduction
+                                      (i, x, gx, gy, n, Si, Sp, gamma, update) ;
     if ( j == VSEMPTY )
     {
         /* done since x has at most one fractional component */
@@ -8793,10 +8819,10 @@ VSINT VSPboundary
             {
                 pi = VSONE - xi ;
                 x [i] = VSONE ;
-                Update_Gradient(pi, i, gy, Ai, Ap, gamma) ;
+                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma) ;
                 pj = -s1*ai ;
                 x [j] += pj ;
-                Update_Gradient(pj, j, gy, Ai, Ap, gamma) ;
+                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma) ;
                 if ( x [j] <= VSZERO )
                 {
                     if ( PrintLevel )
@@ -8813,10 +8839,10 @@ VSINT VSPboundary
             {
                 pj = -xj ;
                 x [j] = VSZERO ;
-                Update_Gradient(pj, j, gy, Ai, Ap, gamma) ;
+                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma) ;
                 pi = s2*aj ;
                 x [i] += pi ;
-                Update_Gradient(pi, i, gy, Ai, Ap, gamma) ;
+                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma) ;
                 if ( x [i] >= VSONE )
                 {
                     if ( PrintLevel )
@@ -8839,10 +8865,10 @@ VSINT VSPboundary
             {
                 pi = -xi ;
                 x [i] = VSZERO ;
-                Update_Gradient(pi, i, gy, Ai, Ap, gamma) ;
+                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma) ;
                 pj = s3*ai ;
                 x [j] += pj ;
-                Update_Gradient(pj, j, gy, Ai, Ap, gamma) ;
+                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma) ;
                 if ( x [j] >= VSONE )
                 {
                     if ( PrintLevel )
@@ -8859,10 +8885,10 @@ VSINT VSPboundary
             {
                 pj = VSONE - xj ;
                 x [j] = VSONE ;
-                Update_Gradient(pj, j, gy, Ai, Ap, gamma) ;
+                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma) ;
                 pi = -s4*aj ;
                 x [i] += pi ;
-                Update_Gradient(pi, i, gy, Ai, Ap, gamma) ;
+                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma) ;
                 if ( x [i] <= VSZERO )
                 {
                     if ( PrintLevel )
@@ -8882,7 +8908,7 @@ VSINT VSPboundary
         {
             /* find first index > j */
             i = VSP_interior_and_penalty_reduction
-                                            (j, x, gx, gy, n, Ai, Ap, gamma) ;
+                                      (j, x, gx, gy, n, Si, Sp, gamma, update) ;
             if ( i == VSEMPTY )
             {
                 /* x has no interior components */
@@ -8890,7 +8916,7 @@ VSINT VSPboundary
             }
 
             j = VSP_interior_and_penalty_reduction
-                                            (i, x, gx, gy, n, Ai, Ap, gamma) ;
+                                      (i, x, gx, gy, n, Si, Sp, gamma, update) ;
             if ( j == VSEMPTY )
             {
                 /* done since x has at most one fractional component */
@@ -8902,14 +8928,14 @@ VSINT VSPboundary
         {
             i = j ;
             j = VSP_interior_and_penalty_reduction
-                                            (j, x, gx, gy, n, Ai, Ap, gamma) ;
+                                      (j, x, gx, gy, n, Si, Sp, gamma, update) ;
             if ( j == VSEMPTY ) return (i) ;
             dumpi = VSFALSE ;
         }
         else /* dumpj */
         {
             j = VSP_interior_and_penalty_reduction
-                                            (j, x, gx, gy, n, Ai, Ap, gamma) ;
+                                      (j, x, gx, gy, n, Si, Sp, gamma, update) ;
             if ( j == VSEMPTY ) return (i) ;
             dumpj = VSFALSE ;
         }
@@ -9296,24 +9322,29 @@ printf ("use napheap y\n") ;
 void VSP_FMsubspace
 (
     VSPFLOAT  *x,    // variable in the bilinear objective
+    VSINT     fx,    // index of fractional component of x if one exists
     VSPFLOAT  *y,    // variable in the bilinear objective
+    VSPINT    fy,    // index of fractional component of y if one exists
     VSPFLOAT  *a,    // vertex costs
-    VSPINT    *Ai,   // array of graph neighbors
-    VSPLONG   *Ap,   // column pointer for Ai
+    VSPINT    *Ai,   // row indices for full space
+    VSPLONG   *Ap,   // col pointer for full space
     VSPINT     u,    // upper bound for balance constraint
     VSPINT     n,    // number of vertices
-    VSPFLOAT   gamma /*, max vertex cost
+    VSPFLOAT   gamma,// max vertex cost
+    VSPFLOAT   noFM  /*, skip FMsubspace when nF >= noFM*n
     VSPFLOAT   wx,      VSFLOAT workspace of size 7n
     VSPINT     wi,      VSINT workspace of size 3n + [nnz(A) +n]
     VSPLONG    wL       VSLINT workspace of size n+1 */
 )
 {
-    int it, BigLoop, skip_napheapx, skip_napheapy, status ;
-    VSINT Aip, i, j, k, improvement, nF, *F, *Si, *v, *wi ;
+    int it, skip_napheapx, skip_napheapy, status ;
+    VSINT Aip, i, j, k, improvement, nF, nS, *F, *Si, *v, *wi ;
     VSLINT q, p, *Sp, *wL ;
     VSFLOAT eps, obj, obj_0, s, t, lambdax, lambday, ux, uy,
-           *X, *Sx, *sx, *gx, *Gx, *Y, *Sy, *sy, *gy, *Gy, *gxtemp, *Sa, *wx ;
+           *X, *Sx, *sx, *Gx, *gx, *Y, *Sy, *sy, *Gy, *gy, *gxtemp, *Sa, *wx ;
+    NAPdata *napdata ;
 
+    napdata = NULL ;
     /* The malloc's and their associated free's need to be moved to
        the main code. One malloc at the start of the code and one free
        at the completion. */
@@ -9324,66 +9355,60 @@ void VSP_FMsubspace
     X  = wx     ; // X in subspace
     Sx = wx+1*n ; // free x variables forming subspace
     sx = wx+2*n ; // projection point in x
-    gx = wx+3*n ; // total gradient wrt x in subspace
-    Gx = wx+4*n ; // linear part of gradient wrt x in subspace
+    Gx = wx+3*n ; // linear part of gradient wrt x in subspace
+    gx = wx+4*n ; // gradient of subspace problem with respect to x
     Y  = wx+5*n ; // Y in subspace
     Sy = wx+6*n ; // free y variables forming subspace
     sy = wx+7*n ; // projection point in y
-    gy = wx+8*n ; // total gradient wrt y in subspace
-    Gy = wx+9*n ; // linear part of gradient wrt y in subspace
+    Gy = wx+8*n ; // linear part of gradient wrt y in subspace
+    gy = wx+9*n ; // gradient of subspace problem with respect to y
     gxtemp=wx+10*n;// gradient in x
-    Sa = wx+11*n ; // a in subspace
+    Sa = wx+11*n; // a in subspace
     v = wi      ; // indices of free components
     F  = wi+1*n ; // F [i] >= 0 for free variables, F [i] = EMPTY for bound
     Si = wi+2*n ; // indices of free variables
     Sp = wL     ; // column pointers for Si
 
-#if 1
-VSFLOAT *GGX ;
-GGX = malloc ( sizeof (VSFLOAT)*n ) ;
-VSP_Grad (GGX, a, y, n, Ai, Ap, gamma, 1) ;
-obj = VSP_Obj (x, GGX, y, a, n) ;
-printf ("presubspace objective %e\n", obj) ;
-free (GGX) ;
-#endif
-
-    BigLoop = 0 ;
     improvement = 1 ;
     vs_initi (F, EMPTY, n) ;
-    //while ( improvement >= 1 )
+    while ( improvement >= 1 )
     {
-        BigLoop++ ;
-        NAPdata *napdata ;
-        napdata = napheap_setup () ;
-    
+        // count the number of vertices in the separator
+        nS = 0 ;
+        for (i = 0; i < n; i++) if ( (x [i] == 0) && (y [i] == 0) ) nS++ ;
+       
+        // if nS too big relative to n, then skip FMsubspace
+        if ( nS >= noFM*n ) break ;
+
         /* create subspace problem: vertices in separator and vertices directly
-           connected to separator, includes fractional vertices */
-        for (i = 0; i < n; i++)
+           connected to separator, separator includes fractional vertices */
+        if ( fx != EMPTY ) F [fx] = 0 ;
+        if ( fy != EMPTY ) F [fy] = 0 ;
+        for (j = 0; j < n; j++)
         {
-            // find vertices in separator
-            if ( (x [i] == 0) && (y [i] == 0) )
+            // find vertices in separator and fractional vertices
+            if ( (x [j] == 0) && (y [j] == 0) )
             {
-                F [i] = 0 ; // initialized as empty (diagonal is free)
-                VSLINT const l = Ap [i+1] ;
-                for (p = Ap [i]; p < l; p++)
+                F [j] = 0 ; // initialized as empty
+                VSLINT const l = Ap [j+1] ;
+                for (p = Ap [j]; p < l; p++)
                 {
-                    j = Ai [p] ;
+                    i = Ai [p] ;
                     // add to free set if not already free
-                    if ( F [j] == EMPTY ) F [j] = 0 ;
+                    if ( F [i] == EMPTY ) F [i] = 0 ;
                 }
             }
         }
 
         // nF counts number of free vertices
         nF = 0 ;
-
-        ux = u ; // Initially, upper bound on x-balance constraint is u.
-        uy = u ; /* Initially, upper bound on y-balance constraint is u.
+        ux = u ; // Initial upper bound on x-balance constraint is u.
+        uy = u ; /* Initial upper bound on y-balance constraint is u.
                     After the free variables are determined, the fixed variables
                     (complement of the free variables) are removed from the
                     problem and from u. Therefore ux and uy may be different,
                     and both are generally smaller than u. */
-        // map from original vertices to subspace vertices
+        // create maps between original vertices and subspace vertices
         for (i = 0; i < n; i++)
         {
             if ( F [i] != EMPTY ) // variable is free
@@ -9395,26 +9420,24 @@ free (GGX) ;
                 Sy [nF] = y [i] ;
                 nF++ ;
             }
-            else // variable is fixed
+            else // variable is fixed and removed from problem
             {
                 ux -= x [i]*a [i] ;
                 uy -= y [i]*a [i] ;
             }
         }
+        if ( nF >= noFM*n ) break ;
      
         // build the subspace matrix and the gradients
         vs_initx (gx, VSZERO, nF) ;
         vs_initx (gy, VSZERO, nF) ;
         p = q = 0 ;
         Sp [p] = 0 ;
-
         for (j = 0; j < nF;)
         {
             s = t = VSZERO ; // obj deriv wrt yj or xj
             VSFLOAT const Sxj = -gamma*Sx [j] ; // xj in subspace times -gamma
             VSFLOAT const Syj = -gamma*Sy [j] ; // yj in subspace times -gamma
-//printf ("Sxj: %e Syj: %e\n", Sxj, Syj) ;
-//fflush(stdout) ;
             i = v [j] ;      // column of x or y in subspace matrix S
             VSLINT const l = Ap [i+1] ;
     
@@ -9423,13 +9446,11 @@ free (GGX) ;
                 for (; p < l; p++)
                 {
                     Aip = Ai [p] ;
-//printf ("Aip: %i i: %i\n", Aip, i) ;
-//fflush(stdout) ;
                     if ( Aip > i ) // add diagonal since not included in A
                     {
 //printf ("add diagonal\n") ;
 //fflush(stdout) ;
-                        VSINT const k1 = F [i] ;
+                        VSINT const k1 = F [i] ; // subspace variable
                         Si [q++] = k1 ;
                         if ( Syj != VSZERO ) gx [k1] += Syj ;
                         if ( Sxj != VSZERO ) gy [k1] += Sxj ;
@@ -9444,7 +9465,6 @@ free (GGX) ;
                         {
                             t += y [Aip] ; // fixed part of x-gradient
                             s += x [Aip] ; // fixed part of y-gradient
-if ( j == 2 ) printf ("add diagonal: Sxj = %e\n", gamma*x [Aip]) ;
                         }
                         p++ ;
                         break ;
@@ -9460,7 +9480,6 @@ if ( j == 2 ) printf ("add diagonal: Sxj = %e\n", gamma*x [Aip]) ;
                     {
                         t += y [Aip] ; // fixed part of x-gradient
                         s += x [Aip] ; // fixed part of y-gradient
-if ( j == 2 ) printf ("not free1: Sxj = %e\n", gamma*x [Aip]) ;
                     }
                 }
                 for (; p < l; p++)
@@ -9477,7 +9496,6 @@ if ( j == 2 ) printf ("not free1: Sxj = %e\n", gamma*x [Aip]) ;
                     {
                         t += y [Aip] ; // fixed part of x-gradient
                         s += x [Aip] ; // fixed part of y-gradient
-if ( j == 2 ) printf ("not free2: Sxj = %e\n", gamma*x [Aip]) ;
                     }
                 }
                 if ( Aip < i ) // add diagonal
@@ -9500,55 +9518,12 @@ if ( j == 2 ) printf ("not free2: Sxj = %e\n", gamma*x [Aip]) ;
             Gx [j] = t ;
             gx [j] += t ;
             s = Sa [j] - gamma*s ;
-if ( j == 2 ) printf ("Sa [2] = %e\n", Sa [j]) ;
             Gy [j] = s ;
             gy [j] += s ;
             j++ ;
             Sp [j] = q ;
         }
 #if 0
-if ( Sp [n] != Ap [n]+n )
-{
-    printf ("error Sp [%i] = %i != Ap [%i] = %i\n", n, Sp [n], n, Ap [n]) ;
-    fflush(stdout) ;
-    exit(1) ;
-}
-q = p = 0 ;
-for (i = 0; i < n; i++)
-{
-    VSLINT const l = Sp [i+1] ;
-    for (; p < l; p++)
-    {
-        if ( Si [p] == i ) continue ;
-        if ( Si [p] != Ai [q] )
-        {
-            printf ("error at row: %i Si [%i] = %i != Ai [%i] = %i\n",
-                     i, p, Si [p], q, Ai [q]) ;
-            exit(1) ;
-        }
-        q++ ;
-    }
-}
-for (i = 0; i <= n; i++)
-{
-    if ( Ap [i]+i != Sp [i] )
-    {
-        printf ("error at row: %i Ap [%i] + %i = %i != Sp [%i] = %i\n",
-                 i, i, i, Ap [i], i, Sp [i]) ;
-        exit(1) ;
-    }
-}
-        napdata->a = NULL ;
-        for (i = 0; i < n; i++)
-        {
-            if ( a [i] != 1 )
-            {
-                napdata->a = a ;
-                break ;
-            }
-        }
-#endif
-#if 1
 // check that Si and Sp includes the diagonal; indices in column increasing
 p = 0 ;
 for (j = 0; j < nF; j++)
@@ -9667,6 +9642,7 @@ if (t/s >= 1.e-10 )
 free (GGx) ;
 free (GGy) ;
 #endif
+        napdata = napheap_setup () ;
         napdata->n = nF ;   // problem dimension at current level
         napdata->a = Sa ;   // linear constraint for subspace
         napdata->blo = 0 ;  // lower bound of balance constraint
@@ -9675,17 +9651,6 @@ free (GGy) ;
         /* initial objective, obj. This is the objective for the subproblem
            with the constant term in the original objective dropped */
         obj = VSP_Obj (Sx, gx, Sy, Gy, nF) ;
-printf ("gamma = %e\n", gamma) ;
-#if 0
-printf ("nF: %i gamma: %e obj: %e\n", nF, gamma, obj) ;
-vs_printxMATLAB(Sx, nF, "x") ;
-vs_printxMATLAB(Sy, nF, "y") ;
-vs_printxMATLAB(Sa, nF, "a") ;
-vs_printxMATLAB(gx, nF, "gx") ;
-for (i = 0; i < n; i++) printf ("F[%i] = %i\n", i, F [i]) ;
-for (i = 0; i < n; i++) printf ("v[%i] = %i\n", i, v [i]) ;
-fflush(stdout) ;
-#endif
         VSFLOAT start_obj = obj ;
     
         // starting guess for lambda
@@ -9705,6 +9670,7 @@ fflush(stdout) ;
            s = stepsize */
 
         // check that gx and gy are gradients in the subspace
+#if 0
 GGx = malloc ( sizeof (VSFLOAT)*nF ) ;
 GGy = malloc ( sizeof (VSFLOAT)*nF ) ;
 VSP_Grad (GGx, Gx, Sy, nF, Si, Sp, gamma, 0) ;
@@ -9737,6 +9703,7 @@ if (t/s >= 1.e-10 )
 }
 free (GGx) ;
 free (GGy) ;
+#endif
     
         // start of the gradient projection algorithm loop
         it = 0 ;
@@ -9800,8 +9767,8 @@ vs_printxMATLAB (sy, n, "sy1") ;
 printf ("new point:\n") ;
 vs_printxMATLAB (sx, nF, "sx") ;
 vs_printxMATLAB (sy, nF, "sy") ;
-printf ("lambdax: %e\n", lambdax) ;
 #endif
+//printf ("lambdax: %e\n", lambdax) ;
                 // Project sx to feasible set, see if lambda = 0 works
                 skip_napheapx = VSFALSE ;
                 if ( !lambdax )
@@ -9962,11 +9929,6 @@ printf ("lambdax: %e\n", lambdax) ;
                 //printf("it: %i obj: %f    obj0: %f\n", it, obj, obj_0) ;
                 printf ("it: %i obj0: %f obj: %f +: %f n: %i nF: %i\n",
                            it, obj_0, obj, obj-obj_0, n, nF);
-//if ( obj < obj_0 )
-//{
-    //fflush(stdout) ;
-    //exit(1) ;
-//}
             }
     
             /* Update: x <- X and y <- Y */
@@ -10002,31 +9964,12 @@ printf ("lambdax: %e\n", lambdax) ;
         printf ("start: %f  end: %f +: %f\n",
                  start_obj, obj, obj - start_obj) ;
         improvement = obj - start_obj ;
-#if 0
-        for (j = 0; j < nF; j++)
-        {
-            i = v [j] ; // column for x or y
-            x [i] = Sx [i] ;
-            y [i] = Sy [i] ;
-            F [i] = EMPTY ;
-        }
-        
-GGx = malloc ( sizeof (VSFLOAT)*n ) ;
-VSP_Grad (GGx, a, y, n, Ai, Ap, gamma, 1) ;
-obj = VSP_Obj (x, GGx, y, a, n) ;
-free (GGx) ;
-printf ("postsubspace objective %e\n", obj) ;
-fflush(stdout) ;
-exit(1) ;
-#endif
 
-        // convert Sx to almost binary
-        VSPboundary (Sx, Sa, gx, gy, nF, Si, Sp, gamma, 0) ;
-        // convert Sy to almost binary after updating y's gradient
-        VSP_Grad (gy, Gy, Sx, nF, Si, Sp, gamma, 0) ;
-        // VSPboundary (Sy, Sa, gy, nF, 0) ;
+        // convert Sx and Sy to almost binary, first call also updates gy
+        fx = VSPboundary (Sx, Sa, gx, gy, nF, Si, Sp, gamma, 1, 0) ;
+        fy = VSPboundary (Sy, Sa, gy, gx, nF, Si, Sp, gamma, 0, 0) ;
  
-        // copy Sx and Sy back into original solution x
+        // copy subspace Sx and Sy back into full space x and y
         for (j = 0; j < nF; j++)
         {
             i = v [j] ; // column for x or y
@@ -10034,12 +9977,22 @@ exit(1) ;
             y [i] = Sy [j] ;
             F [i] = EMPTY ;
         }
-        
     
         napheap_terminate(&napdata) ;
     }
-//printf ("end of routine\n") ;
-//fflush(stdout) ;
+
+#if 0
+    /* compute gx gradient for full space */
+    VSP_Grad (gx, a, y, n, Ai, Ap, gamma, 1/*full space*/) ;
+    /* move x to boundary in full space, no gy update since no gy present */
+    VSPboundary (x, a, gx, gy, n, Ai, Ap, gamma, 0/*no gy update*/, 0) ;
+    /* compute gy gradient for full space */
+    VSP_Grad (gy, a, x, n, Ai, Ap, gamma, 1/*full space*/) ;
+    /* move y to boundary in full space, update gx gradient, no change in gy */
+    VSPboundary (y, a, gy, gx, n, Ai, Ap, gamma, 1/*gx update*/, 0) ;
+    // printf("exit FMsubspace with obj = %e\n", VSP_Obj (x, gx, y, a, n)) ;
+#endif
+    if ( napdata != NULL ) napheap_terminate (&napdata) ;
     free (wx) ;
     free (wi) ;
     free (wL) ;

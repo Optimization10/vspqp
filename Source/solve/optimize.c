@@ -203,8 +203,8 @@ void Optimize
         int print_level = 0 ;
 
         VSPINT j1, j2 ;
-        j1 = VSPboundary(x_flt, c_flt, gx, gy, n, Ai, Ap, gamma, print_level) ;
-        j2 = VSPboundary(y_flt, c_flt, gy, gx, n, Ai, Ap, gamma, print_level) ;
+        j1 = VSPboundary(x_flt, c_flt, gx, gy, n, Ai, Ap, gamma, 1, print_level) ;
+        j2 = VSPboundary(y_flt, c_flt, gy, gx, n, Ai, Ap, gamma, 1, print_level) ;
 
         /* Step 4: Update the X and Y states with x_flt and y_flt */
         xcost = Move_To_Vertex(x_flt, y_flt, gx, gy, Ai,Ap,c_flt,u,gamma,n,&j1);

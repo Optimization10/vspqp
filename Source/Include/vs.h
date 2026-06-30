@@ -50,13 +50,14 @@ VSPINT VSPboundary
 (
     VSPFLOAT           *x, /* feasible point for (GB), output described above */
     VSPFLOAT           *a, /* vertex weights, NULL => all entries in a are 1 */
-    VSPFLOAT          *gx, /* linear vector in objective */
-    VSPFLOAT          *gy,
+    VSPFLOAT          *gx, /* objective gradient in subspace */
+    VSPFLOAT          *gy, /* complementary objective gradient */
     VSPINT              n, /* problem dimension */
-    VSPINT            *Ai,
-    VSPLONG           *Ap,
-    VSPFLOAT        gamma,
-    int const  PrintLevel
+    VSPINT            *Si, /* row indices in subspace */
+    VSPLONG           *Sp, /* col pointer in subspace */
+    VSPFLOAT        gamma, /* penalty used in gradient */
+    int const     update, /* = 1 if gy updated whenever x is updated, else 0 */
+    int const PrintLevel
 ) ;
 
 void VSP_Grad_Proj
@@ -78,13 +79,16 @@ void VSP_Grad_Proj
 void VSP_FMsubspace
 (
     VSPFLOAT  *x,    // variable in the bilinear objective
+    VSPINT     fx,    // index of fractional component of x if one exists
     VSPFLOAT  *y,    // variable in the bilinear objective
+    VSPINT    fy,    // index of fractional component of y if one exists
     VSPFLOAT  *a,    // vertex costs
-    VSPINT    *Ai,   // array of graph neighbors
-    VSPLONG   *Ap,   // column pointer for Ai
+    VSPINT    *Ai,   // row indices for full space
+    VSPLONG   *Ap,   // col pointer for full space
     VSPINT     u,    // upper bound for balance constraint
     VSPINT     n,    // number of vertices
-    VSPFLOAT   gamma /*, max vertex cost
+    VSPFLOAT   gamma,// max vertex cost
+    VSPFLOAT   noFM  /*, skip FMsubspace when nF >= noFM*n
     VSPFLOAT   wx,      VSFLOAT workspace of size 7n
     VSPINT     wi,      VSINT workspace of size 3n + [nnz(A) +n]
     VSPLONG    wL       VSLINT workspace of size n+1 */
