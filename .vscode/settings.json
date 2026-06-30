@@ -102,5 +102,8 @@
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
         "clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling"
     ],
-    "C_Cpp.intelliSenseEngine": "disabled"
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "compareFolders.excludeFilter": [
+        "/Source/Include/utils.h"
+    ]
 }

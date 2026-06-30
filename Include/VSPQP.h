@@ -106,6 +106,11 @@ typedef struct Options_struct
     int bisection_ngp ;
 
     /* ====================================================================== */
+    // FMsubspace options   
+    /* ====================================================================== */
+    VSPFLOAT noFM ;
+
+    /* ====================================================================== */
     // Second start options
     /* ====================================================================== */
     // In the second start, if the imbalance is sufficiently large after
