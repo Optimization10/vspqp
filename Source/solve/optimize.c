@@ -121,6 +121,73 @@ static void Gamma_Reduction_Loop
         State *Yc = Clone_State(Y);
 
         mountain_climbing(Xc, Yc, problem, options, gamma, false);
+
+    /* ====================================================================== */
+    // FM subspace gradient projection
+    /* ====================================================================== */
+
+#if 1
+    VSPFLOAT xcost, ycost, *c_flt, *x, *y, *gx, *gy ;
+    VSPINT *c = problem->graph->c ;
+    VSPINT *Ai = problem->graph->Ai ;
+    VSPLONG *Ap = problem->graph->Ap ;
+    VSPINT n = problem->graph->n ;
+    VSPINT u = problem->u ;
+
+    /* Step 1: Convert x, y, c to floats, and compute gx and gy */
+    x = Point_To_Array(Xc->point) ;
+
+    // extract index of a fractional component if one exists
+    VSPINT fx = X->point->ind_frac ;
+
+    // gx    = Az_To_Grad(c, gamma, Y->Az) ;
+
+    y = Point_To_Array(Yc->point) ;    
+
+    // extract index of a fractional component if one exists
+    VSPINT fy = Yc->point->ind_frac ;
+
+    //gy    = Az_To_Grad(c, gamma, X->Az) ;
+
+    c_flt = Array_Int_To_Flt(c, n) ;
+
+    /* Step 2: Do FM subspace method */
+    VSPFLOAT noFM = options->noFM ;
+    VSP_FMsubspace (x, fx, y, fy, c_flt, Ai, Ap, u, n, gamma_org, noFM) ;
+
+    /* Step 3: Move x and y to almost binary points */
+
+    /* compute gx gradient for full space */
+    gx = malloc ( sizeof (VSPFLOAT)*n ) ;
+    VSP_Grad (gx, c_flt, y, n, Ai, Ap, gamma_org, 1/*full space*/) ;
+
+    /* move x to boundary in full space, gy not yet evaluated */
+    fx = VSPboundary (x, c_flt, gx, gy, n, Ai, Ap, gamma_org,
+                      0/*no gy*/, 0/*PrintLevel*/);
+
+    /* compute gy gradient for full space */
+    gy = malloc ( sizeof (VSPFLOAT)*n ) ;
+    VSP_Grad (gy, c_flt, x, n, Ai, Ap, gamma, 1/*full space*/) ;
+
+    /* move y to boundary in full space, update gx gradient, no change in gy */
+    fy = VSPboundary (y, c_flt, gy, gx, n, Ai, Ap, gamma_org,
+                      1/*gx update*/, 0/*PrintLevel*/) ;
+
+    /* Step 4: Update the X and Y states with x and y */
+    xcost = Move_To_Vertex(x, y, gx, gy, Ai, Ap, c_flt, u, gamma_org, n, &fx);
+    ycost = Move_To_Vertex(y, x, gy, gx, Ai, Ap, c_flt, u, gamma_org, n, &fy);
+
+    Array_To_State(x, xcost, gy, Xc, problem, fx) ;
+    Array_To_State(y, ycost, gx, Yc, problem, fy) ;
+
+    /* Step 5: Cleanup */
+    free(x) ;
+    free(y) ;
+    free(gx) ;
+    free(gy) ;
+    free(c_flt) ;
+#endif
+
         mountain_climbing(Xc, Yc, problem, options, gamma_org, true);
         Round_Down_Fractions(Xc, Yc, problem) ;
         Greedy_Flips(Xc, Yc, problem, 9, (problem->level <= 2), false);

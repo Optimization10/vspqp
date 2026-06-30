@@ -8964,7 +8964,7 @@ static VSFLOAT VSP_Obj
 
 
 /* Compute gx = Gx - gamma * Sy */
-static void VSP_Grad
+void VSP_Grad
 (
     VSPFLOAT             *gx,
     VSPFLOAT       *const Gx,

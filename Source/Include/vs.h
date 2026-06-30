@@ -94,4 +94,16 @@ void VSP_FMsubspace
     VSPLONG    wL       VSLINT workspace of size n+1 */
 ) ;
 
+void VSP_Grad
+(
+    VSPFLOAT             *gx,
+    VSPFLOAT       *const Gx,
+    const VSPFLOAT *const y,
+    const VSPINT          n,
+    const VSPINT   *const Si,
+    const VSPLONG  *const Sp,
+    const VSPFLOAT        gamma,
+    const int             FullSpace // TRUE if n for Full Space (not Subspace)
+) ;
+
 #endif
