@@ -106,4 +106,6 @@ void VSP_Grad
     const int             FullSpace // TRUE if n for Full Space (not Subspace)
 ) ;
 
+void FM_subspace_grad_proj(State *X, State *Y, Problem *P, Options *opts) ;
+
 #endif

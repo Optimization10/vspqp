@@ -76,6 +76,8 @@
       |________________________________________________________________|*/
 
 #include "vs_internal.h"
+#include "core.h"
+#include "utils.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -9997,4 +9999,75 @@ vs_printxMATLAB (sy, nF, "sy") ;
     free (wx) ;
     free (wi) ;
     free (wL) ;
+}
+
+
+
+// Wrapper for VSP_FMsubspace using state structs
+void FM_subspace_grad_proj(State *X, State *Y, Problem *P, Options *opts)
+{
+    /* ====================================================================== */
+    // Step 0: Declarations and initializations
+    /* ====================================================================== */
+    VSPFLOAT xcost, ycost, *c_flt, *x, *y, *gx, *gy, noFM ;
+    VSPINT fx, fy ;
+    VSPINT   *c     = P->graph->c ;
+    VSPINT   *Ai    = P->graph->Ai ;
+    VSPLONG  *Ap    = P->graph->Ap ;
+    VSPINT    n     = P->graph->n ;
+    VSPINT    u     = P->u ;
+    VSPFLOAT  gamma = P->graph->max_vtx_cost ;
+
+    int update_grad ;
+    int is_full_space = TRUE ;
+    int print_lvl  = 0 ;
+    /* ====================================================================== */
+    // Step 1: Convert x, y, c to floats
+    /* ====================================================================== */
+    x     = Point_To_Array(X->point) ;
+    y     = Point_To_Array(Y->point) ;
+    c_flt = Array_Int_To_Flt(c, n) ;
+    
+    /* ====================================================================== */
+    /* Step 2: Do FM subspace method */
+    /* ====================================================================== */
+    noFM = opts->noFM ;
+    VSP_FMsubspace (x, fx, y, fy, c_flt, Ai, Ap, u, n, gamma, noFM) ;
+
+
+    /* ====================================================================== */
+    // Step 3: Move x and y to vertices of the feasible set
+    /* ====================================================================== */
+    // Compute gx = gradient for full space
+    gx = malloc ( n * sizeof(*gx) ) ;
+    VSP_Grad (gx, c_flt, y, n, Ai, Ap, gamma, is_full_space) ;
+
+    // Move x to boundary. gx doesn't change. gy not yet evaluated
+    update_grad = FALSE ;
+    fx = VSPboundary(x, c_flt, gx, gy, n, Ai, Ap, gamma, update_grad,print_lvl);
+
+    // Compute gy = gradient for full space
+    gy = malloc ( n * sizeof(*gy) ) ;
+    VSP_Grad (gy, c_flt, x, n, Ai, Ap, gamma, is_full_space) ;
+
+    // Move y to boundary in full space. gy doesn't changes. Update gx
+    update_grad = TRUE ;
+    fy = VSPboundary (y, c_flt, gy, gx, n, Ai, Ap, gamma,update_grad,print_lvl);
+
+    // Move x and y to vertices
+    xcost = Move_To_Vertex(x, y, gx, gy, Ai, Ap, c_flt, u, gamma, n, &fx);
+    ycost = Move_To_Vertex(y, x, gy, gx, Ai, Ap, c_flt, u, gamma, n, &fy);
+
+
+    /* ====================================================================== */
+    // Step 4: Switch back to states and clean up
+    /* ====================================================================== */
+    Array_To_State(x, xcost, gy, X, P, fx) ;
+    Array_To_State(y, ycost, gx, Y, P, fy) ;
+
+    free(x) ;
+    free(y) ;
+    free(gx) ;
+    free(gy) ;
+    free(c_flt) ;
 }
