@@ -517,6 +517,7 @@ void set_default_options(Options *options)
     /* ====================================================================== */
     // FM subspace options
     /* ====================================================================== */
+    options->use_FM_subspace_grad_proj = FALSE ;
     options->noFM = 0.2 ;
 
 
@@ -570,18 +571,19 @@ void Print_Options(const Options *opts, const char *path)
         return;
     }
 
-    fprintf(f, "Options:\n");
-
+    fprintf(f, "Initial guess\n") ;
     fprintf(f, "  initial_guess                  = %s\n",   initial_guess_to_str(opts->initial_guess));
     fprintf(f, "  random_point_weight_proportion = %g\n",   opts->random_point_weight_proportion);
     fprintf(f, "  centroidVal                    = %g\n",   opts->centroidVal);
 
     /* Gamma reduction */
+    fprintf(f, "Gamma reduction\n") ;
     fprintf(f, "  num_gr_for_small_graphs        = %lld\n", PRI(opts->num_gr_for_small_graphs));
     fprintf(f, "  num_gr_for_large_graphs        = %lld\n", PRI(opts->num_gr_for_large_graphs));
     fprintf(f, "  max_num_vert_small_graph       = %lld\n", PRI(opts->max_num_vert_small_graph));
 
     /* Miscellaneous */
+    fprintf(f, "Miscellaneous\n") ;
     fprintf(f, "  tighten_u                      = %s\n",   opts->tighten_u ? "true" : "false");
     fprintf(f, "  u_ratio_finest                 = %f\n",   opts->u_ratio_finest);
     fprintf(f, "  u_ratio_coarsest               = %f\n",   opts->u_ratio_coarsest);
@@ -590,10 +592,12 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  FM_Limit                       = %lld\n", PRI(opts->FM_Limit));
 
     /* Mountain Climbing Options */
+    fprintf(f, "Mountain climbing\n") ;
     fprintf(f, "  tol_LP_opt_checker             = %g\n",   opts->tol_LP_opt_checker);
     fprintf(f, "  Initial mc var strategy        = %s\n",   opts->start_mc_both_vars ? "try_both_vars" : "use_lower_cost_var");
 
     /* Simple Coarsening Options */
+    fprintf(f, "Coarsening\n") ;
     fprintf(f, "  compression_threshold          = %g\n",   opts->compression_threshold);
     fprintf(f, "  sort_cols                      = %i\n",   opts->sort_cols || opts->initial_guess == bisection_initial_guess);
     fprintf(f, "  node_cutoff                    = %i\n",   opts->node_cutoff);
@@ -601,20 +605,30 @@ void Print_Options(const Options *opts, const char *path)
 
 
     /* vs options */
+    fprintf(f, "VS startup\n") ;
     fprintf(f, "  initial_projection             = %s\n",   (opts->initial_project) ? "yes" : "no") ;
     fprintf(f, "  try_both_covers                = %s\n",   (opts->try_both_covers) ? "yes" : "no") ;
     fprintf(f, "  bisection_ngp                  = %i\n",   opts->bisection_ngp) ;
 
+    /* FM subspace gradient projection */
+    fprintf(f, "FM Subspace\n") ;
+    fprintf(f, "  Use FM subpsace grad proj      = %s\n",   (opts->use_FM_subspace_grad_proj) ? "yes" : "no") ;
+    fprintf(f, "  Max subspace size              = %f\n",   opts->noFM) ;
+
+
     /* Second start options */
+    fprintf(f, "Second start\n") ;
     fprintf(f, "  attempt_second_start           = %s\n",   opts->attempt_second_start ? "true" : "false");
     fprintf(f, "  min_imbal_ratio_second_start   = %g\n",   opts->min_imbal_ratio_second_start);
     fprintf(f, "  min_level_second_start         = %lld\n", PRI(opts->min_level_second_start));
 
     /* VSP gradient projection options */
+    fprintf(f, "VSP gradient projection\n") ;
     fprintf(f, "  vsp_grad_proj                  = %s\n",   (opts->vsp_grad_proj) ? "yes" : "no") ;
     fprintf(f, "  vsp_ngp                        = %i\n",   opts->vsp_ngp ) ;
 
     /* hub removal */
+    fprintf(f, "Hub removal\n") ;
     fprintf(f, "  hub_treshold                   = %f\n",   opts->hub_treshold ) ;
 
     fclose(f);

@@ -125,7 +125,10 @@ static void Gamma_Reduction_Loop
         /* ================================================================== */
         // FM subspace gradient projection
         /* ================================================================== */
-
+        if(options->use_FM_subspace_grad_proj)
+        {
+            FM_subspace_grad_proj(Xc, Yc, problem, options) ;
+        }
 
         mountain_climbing(Xc, Yc, problem, options, gamma_org, true);
         Round_Down_Fractions(Xc, Yc, problem) ;
