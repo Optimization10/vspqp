@@ -416,7 +416,7 @@ int main(int argc, char** argv)
         strcpy(matricesDir, "/media/hager/datafile/symmetric/") ;
     }
 
-    // strcpy(matricesDir, "/home/onechita/network-repository/") ;
+    strcpy(matricesDir, "/home/onechita/network-repository/") ;
     // strcpy(matricesDir, "/home/ovi/data/network-repository/networks/") ;
 
     char *name ;
@@ -463,6 +463,8 @@ int main(int argc, char** argv)
     options->bisection_ngp = 3 ;
     options->vsp_grad_proj = FALSE ;
     options->vsp_ngp = 3 ;
+    options->use_FM_subspace_grad_proj = FALSE ;
+    options->noFM = 0.2 ;
 
     Print_Options(options, "output/opts.txt") ;
     /*** I/O ******************************************************************/
