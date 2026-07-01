@@ -496,6 +496,7 @@ void set_default_options(Options *options)
     /* Mountain Climbing Options                                              */
     /*------------------------------------------------------------------------*/
     options->tol_LP_opt_checker = 1E-10 ;
+    options->start_mc_both_vars = TRUE ;
 
     /*------------------------------------------------------------------------*/
     /* Simple Coarsening Options                                              */
@@ -590,6 +591,7 @@ void Print_Options(const Options *opts, const char *path)
 
     /* Mountain Climbing Options */
     fprintf(f, "  tol_LP_opt_checker             = %g\n",   opts->tol_LP_opt_checker);
+    fprintf(f, "  Initial mc var strategy        = %s\n",   opts->start_mc_both_vars ? "try_both_vars" : "use_lower_cost_var");
 
     /* Simple Coarsening Options */
     fprintf(f, "  compression_threshold          = %g\n",   opts->compression_threshold);

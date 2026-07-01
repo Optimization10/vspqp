@@ -79,6 +79,7 @@ typedef struct Options_struct
     /* ====================================================================== */
     // Tolerance for LP optimality checker
     VSPFLOAT tol_LP_opt_checker ;
+    int start_mc_both_vars ;
 
 
     /* ====================================================================== */

@@ -122,71 +122,10 @@ static void Gamma_Reduction_Loop
 
         mountain_climbing(Xc, Yc, problem, options, gamma, false);
 
-    /* ====================================================================== */
-    // FM subspace gradient projection
-    /* ====================================================================== */
+        /* ================================================================== */
+        // FM subspace gradient projection
+        /* ================================================================== */
 
-#if 1
-    VSPFLOAT xcost, ycost, *c_flt, *x, *y, *gx, *gy ;
-    VSPINT *c = problem->graph->c ;
-    VSPINT *Ai = problem->graph->Ai ;
-    VSPLONG *Ap = problem->graph->Ap ;
-    VSPINT n = problem->graph->n ;
-    VSPINT u = problem->u ;
-
-    /* Step 1: Convert x, y, c to floats, and compute gx and gy */
-    x = Point_To_Array(Xc->point) ;
-
-    // extract index of a fractional component if one exists
-    VSPINT fx = X->point->ind_frac ;
-
-    // gx    = Az_To_Grad(c, gamma, Y->Az) ;
-
-    y = Point_To_Array(Yc->point) ;    
-
-    // extract index of a fractional component if one exists
-    VSPINT fy = Yc->point->ind_frac ;
-
-    //gy    = Az_To_Grad(c, gamma, X->Az) ;
-
-    c_flt = Array_Int_To_Flt(c, n) ;
-
-    /* Step 2: Do FM subspace method */
-    VSPFLOAT noFM = options->noFM ;
-    VSP_FMsubspace (x, fx, y, fy, c_flt, Ai, Ap, u, n, gamma_org, noFM) ;
-
-    /* Step 3: Move x and y to almost binary points */
-
-    /* compute gx gradient for full space */
-    gx = malloc ( sizeof (VSPFLOAT)*n ) ;
-    VSP_Grad (gx, c_flt, y, n, Ai, Ap, gamma_org, 1/*full space*/) ;
-
-    /* move x to boundary in full space, gy not yet evaluated */
-    fx = VSPboundary (x, c_flt, gx, gy, n, Ai, Ap, gamma_org,
-                      0/*no gy*/, 0/*PrintLevel*/);
-
-    /* compute gy gradient for full space */
-    gy = malloc ( sizeof (VSPFLOAT)*n ) ;
-    VSP_Grad (gy, c_flt, x, n, Ai, Ap, gamma, 1/*full space*/) ;
-
-    /* move y to boundary in full space, update gx gradient, no change in gy */
-    fy = VSPboundary (y, c_flt, gy, gx, n, Ai, Ap, gamma_org,
-                      1/*gx update*/, 0/*PrintLevel*/) ;
-
-    /* Step 4: Update the X and Y states with x and y */
-    xcost = Move_To_Vertex(x, y, gx, gy, Ai, Ap, c_flt, u, gamma_org, n, &fx);
-    ycost = Move_To_Vertex(y, x, gy, gx, Ai, Ap, c_flt, u, gamma_org, n, &fy);
-
-    Array_To_State(x, xcost, gy, Xc, problem, fx) ;
-    Array_To_State(y, ycost, gx, Yc, problem, fy) ;
-
-    /* Step 5: Cleanup */
-    free(x) ;
-    free(y) ;
-    free(gx) ;
-    free(gy) ;
-    free(c_flt) ;
-#endif
 
         mountain_climbing(Xc, Yc, problem, options, gamma_org, true);
         Round_Down_Fractions(Xc, Yc, problem) ;
@@ -306,41 +245,7 @@ void Optimize
     // Phase 3: FM subspace gradient projection
     /* ====================================================================== */
 
-#if 0
 
-    /* Step 1: Convert x, y, c to floats, and compute gx and gy */
-    x_flt = Point_To_Array(X->point) ;
-    gx    = Az_To_Grad(c, gamma, Y->Az) ;
-
-    y_flt = Point_To_Array(Y->point) ;    
-    gy    = Az_To_Grad(c, gamma, X->Az) ;
-
-    c_flt = Array_Int_To_Flt(c, n) ;
-
-    /* Step 2: Do FM subspace method */
-    VSP_FMsubspace(x_flt, y_flt, c_flt, Ai, Ap, u, n, gamma) ;
-
-    /* Step 3: Move x_flt, y_flt to almost binary points */
-    int print_level = 0 ;
-
-    VSPINT j1, j2 ;
-    j1 = VSPboundary(x_flt, c_flt, gx, gy, n, Ai, Ap, gamma, print_level) ;
-    j2 = VSPboundary(y_flt, c_flt, gy, gx, n, Ai, Ap, gamma, print_level) ;
-
-    /* Step 4: Update the X and Y states with x_flt and y_flt */
-    xcost = Move_To_Vertex(x_flt, y_flt, gx, gy, Ai, Ap, c_flt, u, gamma,n,&j1);
-    ycost = Move_To_Vertex(y_flt, x_flt, gy, gx, Ai, Ap, c_flt, u, gamma,n,&j2);
-
-    Array_To_State(x_flt, xcost, gy, X, problem, j1) ;
-    Array_To_State(y_flt, ycost, gx, Y, problem, j2) ;
-
-    /* Step 5: Cleanup */
-    free(x_flt) ;
-    free(y_flt) ;
-    free(gx) ;
-    free(gy) ;
-    free(c_flt) ;
-#endif
 
     /* ====================================================================== */
     // Phase 4: FM METIS
