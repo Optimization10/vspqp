@@ -7,8 +7,7 @@
 #include "time.h"
 #include <sys/stat.h>
 
-#define MAX_MATRIX_PATH_LENGTH 1000
-#define MAX_LEN_GRAPH_NAME 1000
+#define MAX_PROBLEM_ABSOLUTE_PATH_LEN 150
 
 #define ABS_DIFF(a, b) ( ((a) > (b)) ? ( (a) - (b) ) : ( (b) - (a) ) )
 #define CAST(arg, type) ( ((type) (arg)) )
@@ -174,17 +173,42 @@ void destruct_solve_result(solve_result *result)
     return ;
 }
 
+static FILE *Open_Problem_File
+(
+    char  *problem,
+    char **search_dirs,
+    int    num_search_dirs
+)
+{
+    int i ;
+    char *dir, path[MAX_PROBLEM_ABSOLUTE_PATH_LEN] ;
+    FILE *fp ;
 
+    for(i = 0 ; i < num_search_dirs ; i++)
+    {
+        dir = search_dirs[i] ;
+        snprintf(path, MAX_PROBLEM_ABSOLUTE_PATH_LEN, "%s%s", dir, problem) ;
+        fp = fopen(path, "rb") ;
+        if(fp != NULL)
+        {
+            return fp ;
+        }
+    }
+    printf("\n\nERROR: Could not open problem %s\n\n", problem) ;
+    fflush(stdout) ;
+    exit(1) ;
+}
 
 
 /******************************************************************************/
 // Read Hager6 File
 /******************************************************************************/
 // Input:  a file to open (absolute or relative path. Prefer absolute)
-void Read_hager6_File
+static void Read_hager6_File
 (
-    char       *path,
-    Options *options,
+    char     *problem,
+    char    **search_dirs,
+    int       num_search_dirs,
 
     // Output
     VSPINT    *n,
@@ -192,14 +216,8 @@ void Read_hager6_File
     VSPLONG **Ap
 )
 {
-
-    FILE *fp = fopen(path, "rb") ;
-    if (!fp)
-    {
-        printf("\nERROR: Could not open file: %s", path) ;
-        fflush(stdout) ;
-        // return NULL ;
-    }
+    FILE *fp ;
+    fp = Open_Problem_File(problem, search_dirs, num_search_dirs) ;
 
     struct timespec start, end;
     clock_gettime(CLOCK_MONOTONIC, &start);
@@ -367,7 +385,7 @@ void Write_Results
     static long long unsigned count = 0 ;
     count++ ;
 
-    char cpy_graph_name[MAX_LEN_GRAPH_NAME] ;
+    char cpy_graph_name[MAX_PROBLEM_ABSOLUTE_PATH_LEN] ;
     strcpy(cpy_graph_name, graph_name) ;
     cleanupGraphName(cpy_graph_name) ;
 
@@ -405,20 +423,17 @@ int main(int argc, char** argv)
     // Text file from which to read matrix names, one per line
     char matricesList[] = "data/to-solve" ;
 
-    // Set data directory
-    char matricesDir[256];
-    if (Directory_Exists("/home/ovi/data/suitesparse/symmetric/") )
+    char *search_dirs[] =
     {
-        strcpy(matricesDir, "/home/ovi/data/suitesparse/symmetric/") ;
-    }
-    else
-    {
-        strcpy(matricesDir, "/media/hager/datafile/symmetric/") ;
-    }
+        // Ovi's computer folders
+        "/home/ovi/data/suitesparse/symmetric/",
+        "/home/ovi/data/network-repository/networks/",
 
-    strcpy(matricesDir, "/home/onechita/network-repository/") ;
-    // strcpy(matricesDir, "/home/ovi/data/network-repository/networks/") ;
-
+        // hager6 folders
+        "/media/hager/datafile/symmetric/",
+        "/home/onechita/network-repository/"
+    } ;
+    int num_search_dirs = sizeof(search_dirs) / sizeof(search_dirs[0]);
     char *name ;
     
     
@@ -469,7 +484,7 @@ int main(int argc, char** argv)
     Print_Options(options, "output/opts.txt") ;
     /*** I/O ******************************************************************/
     /* 1. Set column title for results.csv */
-    char filePath[MAX_MATRIX_PATH_LENGTH] = "" ;
+    char name_problem[MAX_PROBLEM_ABSOLUTE_PATH_LEN] = "" ;
 
     VSPINT num_graphs = 0 ;
     double total_time = 0 ;
@@ -483,25 +498,23 @@ int main(int argc, char** argv)
 
     VSPINT n, *Ai ;
     VSPLONG *Ap ;
-    while(GetNextLine(matricesList, filePath, MAX_MATRIX_PATH_LENGTH))
+    while(GetNextLine(matricesList, name_problem,MAX_PROBLEM_ABSOLUTE_PATH_LEN))
     {
         num_graphs++ ;
         srand(seed) ;
 
         // Read the problem
-        Prepend(matricesDir, filePath, MAX_MATRIX_PATH_LENGTH) ;
-        Read_hager6_File(filePath, options, &n, &Ai, &Ap) ;
+        Read_hager6_File(name_problem, search_dirs, num_search_dirs,&n,&Ai,&Ap);
 
         // Log the current problem name
-        name = strrchr(filePath, '/') + 1 ;
         FILE *f = fopen("./output/progress.txt", "a") ;
-        fprintf(f, "Starting problem: %s\n", name) ;
+        fprintf(f, "Starting problem: %s\n", name_problem) ;
         fclose(f) ;
 
         // Solve the problem
         restart_decide_reset(options->restart_decision) ;
         clock_gettime(CLOCK_REALTIME, &start) ;
-        result = VSP_Solve(n, Ap, Ai, options, name) ;
+        result = VSP_Solve(n, Ap, Ai, options, name_problem) ;
         clock_gettime(CLOCK_REALTIME, &end);
 
 
@@ -518,7 +531,7 @@ int main(int argc, char** argv)
         sum_time += elapsed_time ;
 
         // Write to output/results.csv
-        Write_Results(filePath, sltn_stats, options) ;
+        Write_Results(name_problem, sltn_stats, options) ;
 
         // Free memory
         free(Ai) ;
