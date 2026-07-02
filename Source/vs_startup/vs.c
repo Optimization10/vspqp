@@ -8661,26 +8661,8 @@ static void vs_Update_Gradient
     VSFLOAT  *gy,
     VSINT    *Si,
     VSLINT   *Sp,
-    VSFLOAT   gamma
-)
-{
-    VSLINT p ;
-    VSLINT const end = Sp [i+1] ;
-    VSFLOAT const coeff = delta_xi * gamma ;
-    for(p = Sp[i] ; p < end ; p++)
-    {
-        gy [Si [p]] -= coeff ;
-    }
-}
-
-static void vs_Update_Gradient_Full_Space
-(
-    VSFLOAT   delta_xi,
-    VSINT     i,
-    VSFLOAT  *gy,
-    VSINT    *Si,
-    VSLINT   *Sp,
-    VSFLOAT   gamma
+    VSFLOAT   gamma,
+    int       full_space
 )
 {
     VSLINT p ;
@@ -8691,8 +8673,7 @@ static void vs_Update_Gradient_Full_Space
         gy [Si [p]] -= coeff ;
     }
 
-    // Take identity into account
-    gy[i] -= coeff ;
+    if(full_space) gy[i] -= coeff ;
 }
 
 static VSINT VSP_interior_and_penalty_reduction
@@ -8705,7 +8686,8 @@ static VSINT VSP_interior_and_penalty_reduction
    VSINT        *Si, /* row indices for subspace */
    VSLINT       *Sp, /* col pointer for subspace */
    VSFLOAT    gamma,
-   int const update
+   int const update,
+   int const full_space
 )
 {
     VSINT i ;
@@ -8719,7 +8701,7 @@ static VSINT VSP_interior_and_penalty_reduction
         if(xi > 0 && gx[i] <= VSZERO_PLUS)
         {
             x [i] = 0 ;
-            if ( update ) vs_Update_Gradient(-xi, i, gy, Si, Sp, gamma) ;
+            if ( update ) vs_Update_Gradient(-xi, i, gy, Si, Sp, gamma, full_space) ;
             xi = 0 ;
         }
 
@@ -8807,14 +8789,14 @@ VSINT VSPboundary
 
     /* find index > -1 */
     i = VSP_interior_and_penalty_reduction
-                                     (-1, x, gx, gy, n, Si, Sp, gamma, update) ;
+                                     (-1, x, gx, gy, n, Si, Sp, gamma, update, full_space) ;
     if ( i == VSEMPTY )
     {
         /* x has no interior components */
         return (EMPTY) ;
     }
     j = VSP_interior_and_penalty_reduction
-                                      (i, x, gx, gy, n, Si, Sp, gamma, update) ;
+                                      (i, x, gx, gy, n, Si, Sp, gamma, update, full_space) ;
     if ( j == VSEMPTY )
     {
         /* done since x has at most one fractional component */
@@ -8845,10 +8827,10 @@ VSINT VSPboundary
             {
                 pi = VSONE - xi ;
                 x [i] = VSONE ;
-                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma) ;
+                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma, full_space) ;
                 pj = -s1*ai ;
                 x [j] += pj ;
-                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma) ;
+                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma, full_space) ;
                 if ( x [j] <= VSZERO )
                 {
                     if ( PrintLevel )
@@ -8865,10 +8847,10 @@ VSINT VSPboundary
             {
                 pj = -xj ;
                 x [j] = VSZERO ;
-                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma) ;
+                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma, full_space) ;
                 pi = s2*aj ;
                 x [i] += pi ;
-                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma) ;
+                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma, full_space) ;
                 if ( x [i] >= VSONE )
                 {
                     if ( PrintLevel )
@@ -8891,10 +8873,10 @@ VSINT VSPboundary
             {
                 pi = -xi ;
                 x [i] = VSZERO ;
-                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma) ;
+                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma, full_space) ;
                 pj = s3*ai ;
                 x [j] += pj ;
-                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma) ;
+                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma, full_space) ;
                 if ( x [j] >= VSONE )
                 {
                     if ( PrintLevel )
@@ -8911,10 +8893,10 @@ VSINT VSPboundary
             {
                 pj = VSONE - xj ;
                 x [j] = VSONE ;
-                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma) ;
+                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma, full_space) ;
                 pi = -s4*aj ;
                 x [i] += pi ;
-                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma) ;
+                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma, full_space) ;
                 if ( x [i] <= VSZERO )
                 {
                     if ( PrintLevel )
@@ -8934,7 +8916,7 @@ VSINT VSPboundary
         {
             /* find first index > j */
             i = VSP_interior_and_penalty_reduction
-                                      (j, x, gx, gy, n, Si, Sp, gamma, update) ;
+                                      (j, x, gx, gy, n, Si, Sp, gamma, update, full_space) ;
             if ( i == VSEMPTY )
             {
                 /* x has no interior components */
@@ -8942,7 +8924,7 @@ VSINT VSPboundary
             }
 
             j = VSP_interior_and_penalty_reduction
-                                      (i, x, gx, gy, n, Si, Sp, gamma, update) ;
+                                      (i, x, gx, gy, n, Si, Sp, gamma, update, full_space) ;
             if ( j == VSEMPTY )
             {
                 /* done since x has at most one fractional component */
@@ -8954,14 +8936,14 @@ VSINT VSPboundary
         {
             i = j ;
             j = VSP_interior_and_penalty_reduction
-                                      (j, x, gx, gy, n, Si, Sp, gamma, update) ;
+                                      (j, x, gx, gy, n, Si, Sp, gamma, update, full_space) ;
             if ( j == VSEMPTY ) return (i) ;
             dumpi = VSFALSE ;
         }
         else /* dumpj */
         {
             j = VSP_interior_and_penalty_reduction
-                                      (j, x, gx, gy, n, Si, Sp, gamma, update) ;
+                                      (j, x, gx, gy, n, Si, Sp, gamma, update, full_space) ;
             if ( j == VSEMPTY ) return (i) ;
             dumpj = VSFALSE ;
         }
