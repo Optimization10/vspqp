@@ -56,8 +56,9 @@ VSPINT VSPboundary
     VSPINT            *Si, /* row indices in subspace */
     VSPLONG           *Sp, /* col pointer in subspace */
     VSPFLOAT        gamma, /* penalty used in gradient */
-    int const     update, /* = 1 if gy updated whenever x is updated, else 0 */
-    int const PrintLevel
+    int const      update, /* = 1 if gy updated whenever x is updated, else 0 */
+    int const  full_space,
+    int const  PrintLevel
 ) ;
 
 void VSP_Grad_Proj

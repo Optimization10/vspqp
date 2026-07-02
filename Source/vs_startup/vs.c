@@ -8673,6 +8673,28 @@ static void vs_Update_Gradient
     }
 }
 
+static void vs_Update_Gradient_Full_Space
+(
+    VSFLOAT   delta_xi,
+    VSINT     i,
+    VSFLOAT  *gy,
+    VSINT    *Si,
+    VSLINT   *Sp,
+    VSFLOAT   gamma
+)
+{
+    VSLINT p ;
+    VSLINT const end = Sp [i+1] ;
+    VSFLOAT const coeff = delta_xi * gamma ;
+    for(p = Sp[i] ; p < end ; p++)
+    {
+        gy [Si [p]] -= coeff ;
+    }
+
+    // Take identity into account
+    gy[i] -= coeff ;
+}
+
 static VSINT VSP_interior_and_penalty_reduction
 (
    VSINT     ilower, /* search x for indices > ilower and < n */
@@ -8775,6 +8797,7 @@ VSINT VSPboundary
     VSLINT           *Sp, /* col pointer in subspace */
     VSFLOAT        gamma, /* penalty used in gradient */
     int const     update, /* = 1 if gy updated whenever x is updated, else 0 */
+    int const full_space,
     int const PrintLevel
 )
 {
@@ -9969,8 +9992,8 @@ vs_printxMATLAB (sy, nF, "sy") ;
         improvement = obj - start_obj ;
 
         // convert Sx and Sy to almost binary, first call also updates gy
-        fx = VSPboundary (Sx, Sa, gx, gy, nF, Si, Sp, gamma, 1, 0) ;
-        fy = VSPboundary (Sy, Sa, gy, gx, nF, Si, Sp, gamma, 0, 0) ;
+        fx = VSPboundary (Sx, Sa, gx, gy, nF, Si, Sp, gamma, 1, 0, 0) ;
+        fy = VSPboundary (Sy, Sa, gy, gx, nF, Si, Sp, gamma, 0, 0, 0) ;
  
         // copy subspace Sx and Sy back into full space x and y
         for (j = 0; j < nF; j++)
@@ -10047,7 +10070,7 @@ void FM_subspace_grad_proj(State *X, State *Y, Problem *P, Options *opts)
 
     // Move x to boundary. gx doesn't change. gy not yet evaluated
     update_grad = FALSE ;
-    fx = VSPboundary(x, c_flt, gx, gy, n, Ai, Ap, gamma, update_grad,print_lvl);
+    fx = VSPboundary(x, c_flt, gx, gy, n, Ai, Ap,gamma,update_grad,1,print_lvl);
 
     // Compute gy = gradient for full space
     gy = malloc ( n * sizeof(*gy) ) ;
@@ -10055,7 +10078,7 @@ void FM_subspace_grad_proj(State *X, State *Y, Problem *P, Options *opts)
 
     // Move y to boundary in full space. gy doesn't changes. Update gx
     update_grad = TRUE ;
-    fy = VSPboundary (y, c_flt, gy, gx, n, Ai, Ap, gamma,update_grad,print_lvl);
+    fy = VSPboundary (y, c_flt, gy, gx, n, Ai,Ap,gamma,update_grad,1,print_lvl);
 
     // Move x and y to vertices
     xcost = Move_To_Vertex(x, y, gx, gy, Ai, Ap, c_flt, u, gamma, n, &fx);
