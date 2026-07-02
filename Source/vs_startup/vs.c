@@ -9930,8 +9930,8 @@ vs_printxMATLAB (sy, nF, "sy") ;
                 }
     
                 //printf("it: %i obj: %f    obj0: %f\n", it, obj, obj_0) ;
-                printf ("it: %i obj0: %f obj: %f +: %f n: %i nF: %i\n",
-                           it, obj_0, obj, obj-obj_0, n, nF);
+                //printf ("it: %i obj0: %f obj: %f +: %f n: %i nF: %i\n",
+                //           it, obj_0, obj, obj-obj_0, n, nF);
             }
     
             /* Update: x <- X and y <- Y */
@@ -9964,8 +9964,8 @@ vs_printxMATLAB (sy, nF, "sy") ;
             if ( obj < obj_0 + eps ) break ;
             if ( obj - obj_0 <= 0.005*VSMAX(obj, 1) ) break ;
         }
-        printf ("start: %f  end: %f +: %f\n",
-                 start_obj, obj, obj - start_obj) ;
+        //printf ("start: %f  end: %f +: %f\n",
+        //         start_obj, obj, obj - start_obj) ;
         improvement = obj - start_obj ;
 
         // convert Sx and Sy to almost binary, first call also updates gy
