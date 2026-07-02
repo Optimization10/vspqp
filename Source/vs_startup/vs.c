@@ -9305,10 +9305,12 @@ printf ("use napheap y\n") ;
             // solution stored in Y
             vs_copyx(y, Y, n) ;
         }
-        if ( obj < obj_0 + eps ) break ; // |obj - obj_0| < eps => stationary
+
         vs_copyx(gx, gxtemp, n) ;        // grad at x stored above in gxtemp
         // evaluate gradient at y
         VSP_Grad(gy, a, x, n, Ai, Ap, gamma, 1) ;
+
+        if ( obj < obj_0 + eps ) break ; // |obj - obj_0| < eps => stationary
 
         if ( obj - obj_0 <= 0.005*VSMAX(obj, 1) ) break ;
     }

@@ -3040,7 +3040,7 @@ void Array_To_State
     /* ====================================================================== */
 
 // Compute Az from gradient
-#if 0
+#if 1
     // gw = c - gamma * Az, so Az = (c - gw) / gamma, and
     // Az_int = (c - gw) / gamma - z_k A_k. So flatten A_k first, and
     // then compute Az_int
@@ -3072,7 +3072,7 @@ void Array_To_State
 #endif
 
 // Compute Az from scratch
-#if 1
+#if 0
     Compute_Az(Z->point, Z->Az, Ai, Ap, n) ;
 #endif
 
