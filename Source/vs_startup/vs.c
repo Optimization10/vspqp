@@ -10022,11 +10022,14 @@ void FM_subspace_grad_proj(State *X, State *Y, Problem *P, Options *opts)
     int is_full_space = TRUE ;
     int print_lvl  = 0 ;
     /* ====================================================================== */
-    // Step 1: Convert x, y, c to floats
+    // Step 1: Convert x, y, c to floats. Get index of fractional entries
     /* ====================================================================== */
     x     = Point_To_Array(X->point) ;
     y     = Point_To_Array(Y->point) ;
     c_flt = Array_Int_To_Flt(c, n) ;
+
+    fx = X->point->ind_frac ;
+    fy = Y->point->ind_frac ;
     
     /* ====================================================================== */
     /* Step 2: Do FM subspace method */
