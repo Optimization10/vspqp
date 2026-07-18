@@ -7,6 +7,72 @@
 #include <stdlib.h>
 #include <assert.h>
 
+/* Dump a graph as Gephi-ready CSVs: output/nodes_<count>.csv and
+   output/edges_<count>.csv. Indexing is 1-based. */
+void dump_graph_gephi(Problem *problem)
+{
+    static long long unsigned count = 0 ;
+    count++ ;
+
+    VSPINT col, row, i ;
+    VSPLONG p ;
+
+    /* Unpack graph */
+    VSPINT *Ai = problem->graph->Ai ;
+    VSPLONG *Ap = problem->graph->Ap ;
+    VSPINT  *Ae = problem->graph->Ae ;
+    VSPINT  *c  = problem->graph->c ;
+    VSPINT  n   = problem->graph->n ;
+
+    char path[1000] ;
+    FILE *file ;
+
+    /* ---------------- Nodes ---------------- */
+    sprintf(path, "output/nodes_%llu.csv", count) ;
+
+    file = fopen(path, "w") ;
+    if(file == NULL) return ;
+
+    fprintf(file, "Id,Label,Cost\n") ;
+    for(i = 0 ; i < n ; i++)
+    {
+        fprintf(file, "%lld,%lld,%lld\n",
+                (long long) i + 1,
+                (long long) i + 1,
+                (long long) c[i]) ;
+    }
+
+    fclose(file) ;
+
+    /* ---------------- Edges ---------------- */
+    sprintf(path, "output/edges_%llu.csv", count) ;
+
+    file = fopen(path, "w") ;
+    if(file == NULL) return ;
+
+    fprintf(file, "Source,Target,Type,Weight\n") ;
+    for(col = 0 ; col < n ; col++)
+    {
+        for(p = Ap[col] ; p < Ap[col + 1] ; p++)
+        {
+            row = Ai[p] ;
+
+            /* Only the lower triangle, so each edge appears once */
+            if(row > col)
+            {
+                fprintf(file, "%lld,%lld,Undirected,%lld\n",
+                        (long long) col + 1,
+                        (long long) row + 1,
+                        (long long) Ae[p]) ;
+            }
+        }
+    }
+
+    fclose(file) ;
+
+    return ;
+}
+
 /* Dump a graph in coordinate form. Make the indexing 1-based */
 void dump_graph
 (
