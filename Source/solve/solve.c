@@ -297,31 +297,42 @@ void check_for_complete_graph(VSPINT n, VSPLONG nz)
     return ;
 }
 
-// If possible, move the singletop at the top of heap h (if it exists) into Z
-// Return 1 if move was succesful, 0 otherwise
-static int Move_Singleton
+// Attempt to move the root of the source heap (source = 0, 1, or 2) to the
+// to state (to = 0 or 1)
+static bool Move_Singleton
 (
-    State *Z, min_heap_v2 *h, int *num_moves, int max_num_moves, VSPINT u
+    int to, int source, State *states[2], min_heap_v2 *heaps[3], int *num_moves,
+    int max_num_moves, VSPINT u
 )
 {
     VSPINT cval, i ;
  
     // Check for empty heap
-    MinHeap_See_Top_Key_v2(h, &cval) ;
-    if(cval == EMPTY) return 0 ;
+    MinHeap_See_Top_Key_v2(heaps[source], &cval) ;
+    if(cval == EMPTY) return false ;
 
     // Check for infeasibility
-    if(Z->weight + cval > u) return 0 ;
- 
-    MinHeap_Get_Top_Val_v2(h, &i) ;
-    Z->point->int_part[i] = 1 ;
-    Z->weight += cval ;
+    if(states[to]->weight + cval > u) return false ;
+
+    // Insert i into to
+    MinHeap_Get_Top_Val_v2(heaps[source], &i) ;
+    states[to]->point->int_part[i] = 1 ;
+    states[to]->weight += cval ;
+
+    if(source < 2)
+    {
+        // Remove i from other
+        states[source]->point->int_part[i] = 0 ;
+        states[source]->weight -= cval ;
+    }
+
     num_moves[i]++ ;
     if(num_moves[i] < max_num_moves)
     {
-        MinHeap_Insert_v2(h, i) ;
+        MinHeap_Insert_v2(heaps[to], i) ;
     }
-    return 1 ;
+
+    return true ;
 }
 
 // Note: ignores fractional components, for an easier implementation
@@ -342,7 +353,7 @@ void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
     /* ====================================================================== */
     // Variable declarations
     /* ====================================================================== */
-    VSPINT i, j, to, other ;
+    VSPINT i, j, to, source ;
     VSPINT  u = P->u ;
     VSPINT *c = P->graph->c ;
     VSPINT  n = P->graph->n ;
@@ -375,7 +386,7 @@ void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
             printf("WARNING: Singleton in intersection\n") ;
 
             // Remove the singleton from the bigger shore
-            to = (X->weight > Y->weight) ? 1 : 0 ;
+            to = (states[0]->weight > states[1]->weight) ? 0 : 1 ;
             states[to]->point->int_part[i] = 0 ;
             states[to]->weight -= c[i] ;
         }
@@ -410,14 +421,16 @@ void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
     {
         // Identify the smallest state
         to    = (states[0]->weight < states[1]->weight) ? 0 : 1 ;
-        other = 1 - to ;
 
         // Move a singleton from separator if possible
-        moved = Move_Singleton(states[to], heaps[2], num_moves,max_num_moves,u);
+        moved = Move_Singleton(to, 2, states, heaps, num_moves,max_num_moves,u);
+        
+        // If no move from separator, attempt to move from the other shore
         if(!moved)
         {
+            source = 1 - to ;
             moved = Move_Singleton
-                    (states[to], heaps[other], num_moves,max_num_moves, u) ;
+                    (to, source, states, heaps, num_moves, max_num_moves, u);
         }
 
         // Stop if there was no move, or if balance is nearly perfect
