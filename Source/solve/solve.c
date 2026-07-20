@@ -337,7 +337,7 @@ static int Move_Singleton
 //
 // Implementation detail: the third criterion is implicit. After a singleton
 // has moved its maximum number of times, it is simply not added to the heap
-void Balance_Using_Singletons(State *X, State *Y, Problem* P)
+void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
 {
     /* ====================================================================== */
     // Variable declarations
@@ -348,10 +348,9 @@ void Balance_Using_Singletons(State *X, State *Y, Problem* P)
     VSPINT  n = P->graph->n ;
     VSPINT  max_num_moves = 2 ;
     VSPLONG *Ap = P->graph->Ap ;
-
-    State *states[2] = {X, Y} ;
-    
+    State *states[2] = {X, Y} ;  
     bool stop, moved ; 
+    int *num_moves = NULL ;
 
     /* ====================================================================== */
     // Quit early if partition is already near-perfectly balanced
@@ -387,7 +386,7 @@ void Balance_Using_Singletons(State *X, State *Y, Problem* P)
         {
             if( states[j]->point->int_part[i] ) to = j ;
         }
-        MinHeap_Insert_v2(heaps[j], i) ;
+        MinHeap_Insert_v2(heaps[to], i) ;
     }
 
     /* ====================================================================== */
@@ -395,12 +394,12 @@ void Balance_Using_Singletons(State *X, State *Y, Problem* P)
     /* ====================================================================== */
     // to is the bigger shore
     to = (states[0]->weight < states[1]->weight ? 1 : 0) ;
-    if(heaps[2]->numNodes == 0 && heaps[to]->numNodes == 0) return ;
+    if(heaps[2]->numNodes == 0 && heaps[to]->numNodes == 0) goto CLEANUP ;
 
     /* ====================================================================== */
     // Create an array recording how many times a node is moved
     /* ====================================================================== */
-    int *num_moves = calloc(n, sizeof(*num_moves)) ;
+    num_moves = calloc(n, sizeof(*num_moves)) ;
 
     /* ====================================================================== */
     // Perform iterations
@@ -421,13 +420,15 @@ void Balance_Using_Singletons(State *X, State *Y, Problem* P)
                     (states[to], heaps[other], num_moves,max_num_moves, u) ;
         }
 
-        // Stop if there was no move
-        stop = !moved ;
+        // Stop if there was no move, or if balance is nearly perfect
+        if(!moved || imbalance(states[0], states[1]) <= 1) stop = true ;
     }
     
     /* ====================================================================== */
     // Free memory
     /* ====================================================================== */
+
+CLEANUP:
     for(i = 0 ; i < 3 ; i++) MinHeap_Free_v2(heaps[i]) ;
     free(num_moves) ;
 }
