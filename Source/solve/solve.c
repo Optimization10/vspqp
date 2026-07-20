@@ -301,8 +301,7 @@ void check_for_complete_graph(VSPINT n, VSPLONG nz)
 // to state (to = 0 or 1)
 static bool Move_Singleton
 (
-    int to, int source, State *states[2], min_heap_v2 *heaps[3], int *num_moves,
-    int max_num_moves, VSPINT u
+    int to, int source, State *states[2], min_heap_v2 *heaps[3], VSPINT u
 )
 {
     VSPINT cval, i ;
@@ -327,20 +326,18 @@ static bool Move_Singleton
     // Insert i into to
     MinHeap_Get_Top_Val_v2(heaps[source], &i) ;
     states[to]->point->int_part[i] = 1 ;
+    states[to]->Az->int_part[i]++ ;
     states[to]->weight += cval ;
 
     if(source < 2)
     {
         // Remove i from other
         states[source]->point->int_part[i] = 0 ;
+        states[source]->Az->int_part[i]-- ;
         states[source]->weight -= cval ;
     }
 
-    num_moves[i]++ ;
-    if(num_moves[i] < max_num_moves)
-    {
-        MinHeap_Insert_v2(heaps[to], i) ;
-    }
+    MinHeap_Insert_v2(heaps[to], i) ;
 
     return true ;
 }
@@ -372,11 +369,9 @@ void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
     VSPINT  u = P->u ;
     VSPINT *c = P->graph->c ;
     VSPINT  n = P->graph->n ;
-    VSPINT  max_num_moves = 2 ;
     VSPLONG *Ap = P->graph->Ap ;
     State *states[2] = {X, Y} ;  
     bool stop, moved ; 
-    int *num_moves = NULL ;
 
     /* ====================================================================== */
     // Quit early if partition is already near-perfectly balanced
@@ -395,9 +390,6 @@ void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
         // Skip non-singletons
         if(Ap[i+1] - Ap[i] > 0) continue ;
 
-        // Skip singletons that have a fractional value
-        if(i == X->point->ind_frac || i == Y->point->ind_frac) continue ;
-
         // Check if singleton is in intersection. Really shouldn't happen
         if(X->point->int_part[i] + Y->point->int_part[i] >= 2)
         {
@@ -408,6 +400,9 @@ void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
             states[to]->point->int_part[i] = 0 ;
             states[to]->weight -= c[i] ;
         }
+
+        // Skip singletons that have a fractional value
+        if(i == X->point->ind_frac || i == Y->point->ind_frac) continue ;
 
         // Place i into the appropriate heap
         to = 2 ;
@@ -426,11 +421,6 @@ void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
     if(heaps[2]->numNodes == 0 && heaps[to]->numNodes == 0) goto CLEANUP ;
 
     /* ====================================================================== */
-    // Create an array recording how many times a node is moved
-    /* ====================================================================== */
-    num_moves = calloc(n, sizeof(*num_moves)) ;
-
-    /* ====================================================================== */
     // Perform iterations
     /* ====================================================================== */
     stop = false ;
@@ -443,14 +433,13 @@ int loop = 0 ;
         to    = (states[0]->weight < states[1]->weight) ? 0 : 1 ;
 
         // Move a singleton from separator if possible
-        moved = Move_Singleton(to, 2, states, heaps, num_moves,max_num_moves,u);
+        moved = Move_Singleton(to, 2, states, heaps, u) ;
         
         // If no move from separator, attempt to move from the other shore
         if(!moved)
         {
             source = 1 - to ;
-            moved = Move_Singleton
-                    (to, source, states, heaps, num_moves, max_num_moves, u);
+            moved = Move_Singleton(to, source, states, heaps, u) ;
         }
 
         // Stop if there was no move, or if balance is nearly perfect
@@ -466,7 +455,6 @@ int loop = 0 ;
 
 CLEANUP:
     for(i = 0 ; i < 3 ; i++) MinHeap_Free_v2(heaps[i]) ;
-    free(num_moves) ;
 
 #ifdef DEBUG
     check_states(X, Y, P) ;
