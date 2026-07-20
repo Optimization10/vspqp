@@ -602,4 +602,6 @@ void Gradient
     VSPINT                n
 ) ;
 
+VSPINT imbalance(State *X, State *Y) ;
+
 #endif

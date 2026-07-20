@@ -3319,3 +3319,8 @@ SET_FUNCTION_COUNTER ;
 
     return lround(wgt) ;
 }
+
+VSPINT imbalance(State *X, State *Y)
+{
+    return ABS_VAL(X->weight - Y->weight) ;
+}

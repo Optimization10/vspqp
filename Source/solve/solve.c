@@ -8,6 +8,7 @@
 #include <threads.h>
 #include "profiler.h"
 #include "hubs.h"
+#include "data_structures.h"
 
 const char *G_Current_Problem_Name ;
 
@@ -294,6 +295,40 @@ void check_for_complete_graph(VSPINT n, VSPLONG nz)
         exit(1) ;
     }
     return ;
+}
+
+
+
+// An iteration of the algorithm consts of moving a singleton
+// from the separator or heavier shore (separator preferred)
+// The iterations stop when one of the following stopping conditions are met:
+// Stopping conditions:
+// 1) Difference in weight is at most 1
+// 2) No singletons in separator or heavier variable
+// 3) Each singleton has moved N number of times (N = something like 2)
+void Balance_Using_Singletons(State *X, State *Y, Problem* P)
+{
+    // Variable declarations
+    VSPINT i, to ;
+    VSPLONG *Ap = P->graph->Ap ;
+    State *states[2] = {X, Y} ;
+
+    // Quit early if partition is already near-perfectly balanced
+    if( imbalance(X, Y) <= 1 ) return ;
+
+    // Build the 3 min heaps
+
+    // Quit early if no singleton in separator or heavier variable
+
+    to = (states[0]->weight < states[1]->weight ? 0 : 1) ;
+    
+
+    // Place singletons in three heaps. Those in X, those in Y, and those
+    // in the separator
+    // Also make an array of the number of times a singleton is moved
+    
+
+
 }
 
 

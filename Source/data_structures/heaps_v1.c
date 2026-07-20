@@ -1,12 +1,7 @@
 /******************************************************************************
-VERSION 0 (lookup-free)
+VERSION 1 (lookup-free)
 Simple min/max heap functions. The heap stores indices into the c array;
 heap keys are the c values at those indices.
-
-API CHANGE FROM ORIGINAL:
-    *_Delete_v1 now takes a heap position (address) rather than an element
-    value, because without the lookup array there is no O(1) way to translate
-    a value to its heap position. The Get_Top_* helpers always pass address=1.
 *******************************************************************************/
 
 #include "core.h"
