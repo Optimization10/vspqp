@@ -21,24 +21,29 @@ VERSION 2 (struct-based, with lookup)
 // Max heap
 /*----------------------------------------------------------------------------*/
 
-// Allocates internal arrays. Returns TRUE on success, FALSE on alloc failure.
+// Allocates the heap object and its internal arrays.
+// Returns NULL on allocation failure.
 // c must have length n and must outlive the heap.
-VSPINT MaxHeap_Init_v2
+max_heap_v2 *MaxHeap_Init_v2
 (
-    max_heap_v2 *h,
-    VSPINT      *c,
-    VSPINT       n
+    VSPINT *c,
+    VSPINT  n
 )
 {
+    max_heap_v2 *h = malloc(sizeof(max_heap_v2)) ;
+    if (h == NULL)
+    {
+        return NULL ;
+    }
+
     h->heap   = malloc((size_t)(n + 1) * sizeof(VSPINT)) ;
     h->lookup = malloc((size_t) n      * sizeof(VSPINT)) ;
     if (h->heap == NULL || h->lookup == NULL)
     {
         free(h->heap) ;
         free(h->lookup) ;
-        h->heap = h->lookup = h->c = NULL ;
-        h->n = h->numNodes = 0 ;
-        return FALSE ;
+        free(h) ;
+        return NULL ;
     }
 
     h->c        = c ;
@@ -49,18 +54,23 @@ VSPINT MaxHeap_Init_v2
     {
         h->lookup[i] = EMPTY ;
     }
-    return TRUE ;
+    return h ;
 }
 
+// Frees the internal arrays AND the heap object itself.
+// Safe to call with NULL. The pointer is invalid after this call.
 void MaxHeap_Free_v2
 (
     max_heap_v2 *h
 )
 {
+    if (h == NULL)
+    {
+        return ;
+    }
     free(h->heap) ;
     free(h->lookup) ;
-    h->heap = h->lookup = h->c = NULL ;
-    h->n = h->numNodes = 0 ;
+    free(h) ;
     return ;
 }
 
@@ -462,22 +472,26 @@ void MaxHeap_Check_v2
 // Min heap
 /*---------------------------------------------------------------------------*/
 
-VSPINT MinHeap_Init_v2
+min_heap_v2 *MinHeap_Init_v2
 (
-    min_heap_v2 *h,
-    VSPINT      *c,
-    VSPINT       n
+    VSPINT *c,
+    VSPINT  n
 )
 {
+    min_heap_v2 *h = malloc(sizeof(min_heap_v2)) ;
+    if (h == NULL)
+    {
+        return NULL ;
+    }
+
     h->heap   = malloc((size_t)(n + 1) * sizeof(VSPINT)) ;
     h->lookup = malloc((size_t) n      * sizeof(VSPINT)) ;
     if (h->heap == NULL || h->lookup == NULL)
     {
         free(h->heap) ;
         free(h->lookup) ;
-        h->heap = h->lookup = h->c = NULL ;
-        h->n = h->numNodes = 0 ;
-        return FALSE ;
+        free(h) ;
+        return NULL ;
     }
 
     h->c        = c ;
@@ -488,7 +502,7 @@ VSPINT MinHeap_Init_v2
     {
         h->lookup[i] = EMPTY ;
     }
-    return TRUE ;
+    return h ;
 }
 
 void MinHeap_Free_v2
@@ -496,10 +510,13 @@ void MinHeap_Free_v2
     min_heap_v2 *h
 )
 {
+    if (h == NULL)
+    {
+        return ;
+    }
     free(h->heap) ;
     free(h->lookup) ;
-    h->heap = h->lookup = h->c = NULL ;
-    h->n = h->numNodes = 0 ;
+    free(h) ;
     return ;
 }
 

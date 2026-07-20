@@ -385,8 +385,8 @@ typedef struct
 } min_heap_v2 ;
 
 /* Max heap */
-VSPINT MaxHeap_Init_v2        (max_heap_v2 *h, VSPINT *c, VSPINT n) ;
-void   MaxHeap_Free_v2        (max_heap_v2 *h) ;
+max_heap_v2 *MaxHeap_Init_v2 (VSPINT *c, VSPINT n) ;
+void         MaxHeap_Free_v2 (max_heap_v2 *h) ;
 void   MaxHeap_Reset_v2       (max_heap_v2 *h) ;
 VSPINT MaxHeap_Contains_v2    (const max_heap_v2 *h, VSPINT i) ;
 void   MaxHeap_Heapify_v2     (max_heap_v2 *h) ;
@@ -401,8 +401,8 @@ void   MaxHeap_Get_Top_Key_v2 (max_heap_v2 *h, VSPINT *topKey) ;
 void   MaxHeap_Check_v2       (const max_heap_v2 *h) ;
 
 /* Min heap */
-VSPINT MinHeap_Init_v2        (min_heap_v2 *h, VSPINT *c, VSPINT n) ;
-void   MinHeap_Free_v2        (min_heap_v2 *h) ;
+min_heap_v2 *MinHeap_Init_v2 (VSPINT *c, VSPINT n) ;
+void         MinHeap_Free_v2 (min_heap_v2 *h) ;
 void   MinHeap_Reset_v2       (min_heap_v2 *h) ;
 VSPINT MinHeap_Contains_v2    (const min_heap_v2 *h, VSPINT i) ;
 void   MinHeap_Heapify_v2     (min_heap_v2 *h) ;

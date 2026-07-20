@@ -297,8 +297,34 @@ void check_for_complete_graph(VSPINT n, VSPLONG nz)
     return ;
 }
 
+// If possible, move the singletop at the top of heap h (if it exists) into Z
+// Return 1 if move was succesful, 0 otherwise
+static int Move_Singleton
+(
+    State *Z, min_heap_v2 *h, int *num_moves, int max_num_moves, VSPINT u
+)
+{
+    VSPINT cval, i ;
+ 
+    // Check for empty heap
+    MinHeap_See_Top_Key_v2(h, &cval) ;
+    if(cval == EMPTY) return 0 ;
 
+    // Check for infeasibility
+    if(Z->weight + cval > u) return 0 ;
+ 
+    MinHeap_Get_Top_Val_v2(h, &i) ;
+    Z->point->int_part[i] = 1 ;
+    Z->weight += cval ;
+    num_moves[i]++ ;
+    if(num_moves[i] < max_num_moves)
+    {
+        MinHeap_Insert_v2(h, i) ;
+    }
+    return 1 ;
+}
 
+// Note: ignores fractional components, for an easier implementation
 // An iteration of the algorithm consts of moving a singleton
 // from the separator or heavier shore (separator preferred)
 // The iterations stop when one of the following stopping conditions are met:
@@ -306,29 +332,104 @@ void check_for_complete_graph(VSPINT n, VSPLONG nz)
 // 1) Difference in weight is at most 1
 // 2) No singletons in separator or heavier variable
 // 3) Each singleton has moved N number of times (N = something like 2)
+// 4) Moving any singleton from separator or heavier shore to lighter one is
+//    infeasible
+//
+// Implementation detail: the third criterion is implicit. After a singleton
+// has moved its maximum number of times, it is simply not added to the heap
 void Balance_Using_Singletons(State *X, State *Y, Problem* P)
 {
+    /* ====================================================================== */
     // Variable declarations
-    VSPINT i, to ;
+    /* ====================================================================== */
+    VSPINT i, j, to, other ;
+    VSPINT  u = P->u ;
+    VSPINT *c = P->graph->c ;
+    VSPINT  n = P->graph->n ;
+    VSPINT  max_num_moves = 2 ;
     VSPLONG *Ap = P->graph->Ap ;
-    State *states[2] = {X, Y} ;
 
+    State *states[2] = {X, Y} ;
+    
+    bool stop, moved ; 
+
+    /* ====================================================================== */
     // Quit early if partition is already near-perfectly balanced
+    /* ====================================================================== */
     if( imbalance(X, Y) <= 1 ) return ;
 
-    // Build the 3 min heaps
+    /* ====================================================================== */
+    // Build the 3 min heaps. 0 is for x, 1 for y, 2 for separator
+    /* ====================================================================== */
+    min_heap_v2 *heaps[3] ;
+    for(i = 0 ; i < 3 ; i++) heaps[i] = MinHeap_Init_v2(c, n) ;
 
-    // Quit early if no singleton in separator or heavier variable
+    // Insert singletons into the x heap, y heap, and singleton heap
+    for(i = 0 ; i < n ; i++)
+    {
+        // Skip non-singletons
+        if(Ap[i+1] - Ap[i] > 0) continue ;
 
-    to = (states[0]->weight < states[1]->weight ? 0 : 1) ;
+        // Check if singleton is in intersection. Really shouldn't happen
+        if(X->point->int_part[i] + Y->point->int_part[i] >= 2)
+        {
+            printf("WARNING: Singleton in intersection\n") ;
+
+            // Remove the singleton from the bigger shore
+            to = (X->weight > Y->weight) ? 1 : 0 ;
+            states[to]->point->int_part[i] = 0 ;
+            states[to]->weight -= c[i] ;
+        }
+
+        // Place i into the appropriate heap
+        to = 2 ;
+        for(j = 0 ; j < 2 ; j++)
+        {
+            if( states[j]->point->int_part[i] ) to = j ;
+        }
+        MinHeap_Insert_v2(heaps[j], i) ;
+    }
+
+    /* ====================================================================== */
+    // Quit early if no singleton in separator or heavier shore
+    /* ====================================================================== */
+    // to is the bigger shore
+    to = (states[0]->weight < states[1]->weight ? 1 : 0) ;
+    if(heaps[2]->numNodes == 0 && heaps[to]->numNodes == 0) return ;
+
+    /* ====================================================================== */
+    // Create an array recording how many times a node is moved
+    /* ====================================================================== */
+    int *num_moves = calloc(n, sizeof(*num_moves)) ;
+
+    /* ====================================================================== */
+    // Perform iterations
+    /* ====================================================================== */
+    stop = false ;
+
+    while( !stop )
+    {
+        // Identify the smallest state
+        to    = (states[0]->weight < states[1]->weight) ? 0 : 1 ;
+        other = 1 - to ;
+
+        // Move a singleton from separator if possible
+        moved = Move_Singleton(states[to], heaps[2], num_moves,max_num_moves,u);
+        if(!moved)
+        {
+            moved = Move_Singleton
+                    (states[to], heaps[other], num_moves,max_num_moves, u) ;
+        }
+
+        // Stop if there was no move
+        stop = !moved ;
+    }
     
-
-    // Place singletons in three heaps. Those in X, those in Y, and those
-    // in the separator
-    // Also make an array of the number of times a singleton is moved
-    
-
-
+    /* ====================================================================== */
+    // Free memory
+    /* ====================================================================== */
+    for(i = 0 ; i < 3 ; i++) MinHeap_Free_v2(heaps[i]) ;
+    free(num_moves) ;
 }
 
 
