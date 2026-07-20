@@ -314,6 +314,16 @@ static bool Move_Singleton
     // Check for infeasibility
     if(states[to]->weight + cval > u) return false ;
 
+    // If transferring between shores, check if new move improces the imbalance
+    if(source < 2)
+    {
+        VSPINT wto  = states[to]->weight;
+        VSPINT woth = states[1 - to]->weight;    // the other shore
+        VSPINT old_imb = ABS_VAL(wto - woth) ;
+        VSPINT new_imb = ABS_VAL((wto + cval) - (woth - cval)) ;
+        if (new_imb >= old_imb) return false ; // don't take a non-improving move
+    }
+
     // Insert i into to
     MinHeap_Get_Top_Val_v2(heaps[source], &i) ;
     states[to]->point->int_part[i] = 1 ;
@@ -350,6 +360,11 @@ static bool Move_Singleton
 // has moved its maximum number of times, it is simply not added to the heap
 void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
 {
+    SET_FUNCTION_COUNTER ;
+#ifdef DEBUG
+
+    check_states(X, Y, P) ;
+#endif
     /* ====================================================================== */
     // Variable declarations
     /* ====================================================================== */
@@ -379,6 +394,9 @@ void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
     {
         // Skip non-singletons
         if(Ap[i+1] - Ap[i] > 0) continue ;
+
+        // Skip singletons that have a fractional value
+        if(i == X->point->ind_frac || i == Y->point->ind_frac) continue ;
 
         // Check if singleton is in intersection. Really shouldn't happen
         if(X->point->int_part[i] + Y->point->int_part[i] >= 2)
@@ -417,8 +435,10 @@ void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
     /* ====================================================================== */
     stop = false ;
 
+int loop = 0 ;
     while( !stop )
     {
+        loop++ ;
         // Identify the smallest state
         to    = (states[0]->weight < states[1]->weight) ? 0 : 1 ;
 
@@ -435,6 +455,9 @@ void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
 
         // Stop if there was no move, or if balance is nearly perfect
         if(!moved || imbalance(states[0], states[1]) <= 1) stop = true ;
+#ifdef DEBUG
+    check_states(X, Y, P) ;
+#endif
     }
     
     /* ====================================================================== */
@@ -444,6 +467,10 @@ void static Balance_Using_Singletons(State *X, State *Y, Problem* P)
 CLEANUP:
     for(i = 0 ; i < 3 ; i++) MinHeap_Free_v2(heaps[i]) ;
     free(num_moves) ;
+
+#ifdef DEBUG
+    check_states(X, Y, P) ;
+#endif
 }
 
 
@@ -472,6 +499,8 @@ void Solve_Level
     {
         Try_And_Keep_If_Better(X, Y, problem, strategy_explore_bisection, options, NULL) ;
     }
+
+    Balance_Using_Singletons(X, Y, problem) ;
 
     TIMER_STOP(T_TOTAL) ;
     Timer_Flush(problem->level) ;
