@@ -77,4 +77,6 @@ void strategy_explore_bisection
 (
     State *X, State *Y, Problem *problem, Options *options
 ) ;
+
+void Rebalance_Singletons(State *X, State *Y, Problem *P) ;
 #endif
