@@ -1302,7 +1302,51 @@ void check_state(State *Z, Problem *problem)
     return ;
 }
 
+void check_point(Point *z) {
 
+    static long long unsigned count = 0 ;
+    count++ ;
+
+    VSPINT *z_int = z->int_part ;
+    VSPINT  n     = z->n ;
+
+    /* Check that the integer part is binary */
+    for(VSPINT i = 0 ; i < n ; i++)
+    {
+        if (z_int[i] != 0 && z_int[i] != 1)
+        {
+            Error("Not binary", DBG_INFO) ;
+            break ;
+        }
+    }
+
+
+    /* Check that the integer part of the fractional entry is 0 */
+    VSPINT ind_frac = z->ind_frac ;
+    if(ind_frac != EMPTY && z_int[ind_frac] != 0) {
+        Error("Problem with integer part", DBG_INFO) ;
+    }
+
+    /* Check that the fractional index is empty or in the valid range */
+
+    if( ind_frac != EMPTY && !(0 <= ind_frac && ind_frac <= n-1) ) {
+        Error("Fractional index out of bounds", DBG_INFO) ;
+    }
+
+    /* Check that the fractional value is in [0, 1] */
+    VSPFLOAT val_frac = z->val_frac ;
+    if(val_frac < 0 || val_frac > 1) {
+        Error("Issue with fractional value", DBG_INFO) ;
+    }
+
+    /* If frac index exists, check that the frac value is in (0, 1)*/
+    if(ind_frac != EMPTY) {
+        if(val_frac <= 0 || val_frac >= 1 ) {
+            Error("Issue with fractional value", DBG_INFO) ;
+        }
+    }
+    return ;
+}
 
 void check_weight(State *Z, VSPINT *c) {
 
@@ -2118,53 +2162,6 @@ void light_check_Az(
             Error("Matrix column wrong", DBG_INFO) ;
         }
     }
-}
-
-
-void check_point(Point *z) {
-
-    static long long unsigned count = 0 ;
-    count++ ;
-
-    VSPINT *z_int = z->int_part ;
-    VSPINT  n     = z->n ;
-
-    /* Check that the integer part is binary */
-    for(VSPINT i = 0 ; i < n ; i++)
-    {
-        if (z_int[i] != 0 && z_int[i] != 1)
-        {
-            Error("Not binary", DBG_INFO) ;
-            break ;
-        }
-    }
-
-
-    /* Check that the integer part of the fractional entry is 0 */
-    VSPINT ind_frac = z->ind_frac ;
-    if(ind_frac != EMPTY && z_int[ind_frac] != 0) {
-        Error("Problem with integer part", DBG_INFO) ;
-    }
-
-    /* Check that the fractional index is empty or in the valid range */
-
-    if( ind_frac != EMPTY && !(0 <= ind_frac && ind_frac <= n-1) ) {
-        Error("Fractional index out of bounds", DBG_INFO) ;
-    }
-
-    /* Check that the fractional value is in [0, 1] */
-    VSPFLOAT val_frac = z->val_frac ;
-    if(val_frac < 0 || val_frac > 1) {
-        Error("Issue with fractional value", DBG_INFO) ;
-    }
-
-    /* If frac index exists, check that the frac value is in (0, 1)*/
-    if(ind_frac != EMPTY) {
-        if(val_frac <= 0 || val_frac >= 1 ) {
-            Error("Issue with fractional value", DBG_INFO) ;
-        }
-    }
-    return ;
 }
 
 
