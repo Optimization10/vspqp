@@ -838,7 +838,11 @@ void Graph_Simple_Match
                 if(Is_Matched(k, matching)) continue ;
 
                 ck = c[k] ;
-                if(ck < c_lightest) lightest = k ;
+                if(ck < c_lightest)
+                {
+                    lightest = k ;
+                    c_lightest = ck ;
+                }
 
                 if(ck == pow2l)
                 {
@@ -898,7 +902,11 @@ void Graph_Simple_Match
                 if(k == perfect || k == light) continue ;
 
                 ck = c[k] ;
-                if(ck < c_lightest) lightest = k ;
+                if(ck < c_lightest)
+                {
+                    lightest = k ;
+                    c_lightest = ck ;
+                }
 
                 if(ck == pow2l)
                 {
