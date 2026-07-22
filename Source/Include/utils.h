@@ -140,12 +140,12 @@ Problem* transpose(
 
 
 
-void array_to_point(
+void Array_To_Point(
     VSPFLOAT  *z_float,
     Point       *z
 ) ;
 
-VSPFLOAT* Az_struct_to_array (Az *Az) ;
+VSPFLOAT* Az_To_Array (Az *Az) ;
 
 
 void check_against_target_weight (
@@ -283,7 +283,7 @@ void extract_matrix_col(
     VSPLONG          *Ap
 ) ;
 
-VSPFLOAT* Point_to_array(Point *z) ;
+VSPFLOAT* Point_To_Array(Point *z) ;
 
 void copy_state
 (
@@ -563,5 +563,45 @@ VSPINT Get_Rand_Array_Entry
 ) ;
 
 VSPINT Get_u_Finest(Problem *P) ;
+
+VSPFLOAT *Az_To_Grad(VSPINT *c, VSPINT gamma, Az *AZ) ;
+void Array_To_State
+(
+    VSPFLOAT *z_flt,
+    VSPINT    wgt,
+    VSPFLOAT *gw,
+    State    *Z,
+    Problem  *P,
+    VSPINT    k        // fractioanl entry
+) ;
+VSPFLOAT *Array_Int_To_Flt(VSPINT *a, VSPINT n) ;
+
+VSPINT Move_To_Vertex
+(
+    VSPFLOAT *z,
+    VSPFLOAT *w,
+    VSPFLOAT *gz,
+    VSPFLOAT *gw,
+    VSPINT   *Ai,
+    VSPLONG  *Ap,
+    VSPFLOAT *c,
+    VSPINT    u,
+    VSPFLOAT  gamma,
+    VSPINT    n,
+    VSPINT   *j  // Index of fractional entry in z
+) ;
+
+void Gradient
+(
+    VSPFLOAT             *gz,
+    VSPINT               *c,
+    const VSPFLOAT *const w,
+    const VSPINT   *const Ai,
+    const VSPLONG  *const Ap,
+    const VSPFLOAT        gamma,
+    VSPINT                n
+) ;
+
+VSPINT imbalance(State *X, State *Y) ;
 
 #endif

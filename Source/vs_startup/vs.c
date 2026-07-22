@@ -75,7 +75,11 @@
       |MA  02110-1301  USA                                             |
       |________________________________________________________________|*/
 
-#include "VS.h"
+#include "vs_internal.h"
+#include "core.h"
+#include "utils.h"
+#include <math.h>
+#include <stdio.h>
 
 int vs
 (
@@ -94,16 +98,17 @@ int vs
     VSparm *Parm  /* parameter structure */
 )
 {
-    int PrintLevel, qr_its ;
+    int qr_its ;
     VScom Com ;
     Com.Parm = Parm ;
 
+    VSINT n0, n1, ns, cutedge ;
     VSINT i, j, j0, *Ai ;
     VSLINT nz, nzA, p, q, *Ap ;
     VSFLOAT Amax, r, s, t, *a, *A12, *Ax, *b, *z ;
 
     int status = 0 ;
-    PrintLevel = Parm->PrintLevel ;
+    int const PrintLevel = Parm->PrintLevel ;
     if ( (PrintLevel > 0) && Parm->PrintParms ) vs_print_parms (Parm) ;
 
     int const vw_is_one = (vw  == NULL) ? VSTRUE : VSFALSE ;
@@ -252,22 +257,19 @@ int vs
 
        The next block of code is used to compute the eigenvector-based
        starting guess for the bisection problem. */
+    b = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
+    Com.wx = b ;
+    Com.wi = (VSINT *)   vs_malloc (&status, n, sizeof (VSINT)) ;
     if ( Parm->compute_eig )
     {
         VSINT LO, nO, nOmax, nQR, nRot, SmallMatrix ;
         VSFLOAT ab, ba, Lanczos_tol,
                *A, *AP, *d, *u, *V, *vnew, *vprior, *vpprior ;
-        
-        // Ovi: move here
-        b = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
-        Com.wx = b ;
+    
 
         VSgivens Gstruc ;
         VSgivens *G = &Gstruc ;
         Com.G = G ;
-
-        // Ovi: move here
-        Com.wi = (VSINT *)   vs_malloc (&status, n, sizeof (VSINT)) ;
 
         /* qr_its times matrix dimension = max # QR iter */
         qr_its = Parm->qr_its ;
@@ -566,9 +568,12 @@ int vs
     napdata = napheap_setup () ;
     napdata->c = z ; /* z is projected onto feasible set for (GB) */
     napdata->n = n ;
-    /*printf ("n = %i\n", n) ;
-    printf ("m = %i\n", (int) m) ;
-    for (i = 0; i < n; i++)
+    if ( PrintLevel )
+    {
+        printf ("n = %i\n", n) ;
+        printf ("m = %i\n", (int) m) ;
+    }
+    /* for (i = 0; i < n; i++)
     {
         printf ("a[%i] = %i ;\n", i, (int) a [i]) ;
     }*/
@@ -580,7 +585,6 @@ int vs
     int const ngp = Parm->ngp ;
 
     /* evaluate the linear term = A*(1/2) in the objective of (GB). */
-    // Ovi: make this initial projection optional
     A12 = (VSFLOAT *) vs_malloc (&status, n, sizeof (VSFLOAT)) ;
     if ( status ) return (status) ;
     vs_A1mult (A12, Ap, Ax, n, E_is_one) ;
@@ -598,14 +602,11 @@ int vs
         /* compute b = -A*z */
         vs_Amult (b, z, Ap, Ai, Ax, n) ;
         /* compute b += A12 ; */
-        vs_vecadd (b, A12, n) ;
+        vs_vecadd (b, b, A12, n) ;
+
         /* determine scaling factor for the gradient */
-        /* if ( i == 0 )*/
-        {
-            /* compute square of length of b */
-            s = vs_dot (b, b, n) ;
-            s = sqrt(0.125*m/s) ; /* sqrt((n/16)/(b'*b)) */
-        }
+        s = vs_dot (b, b, n) ;
+        s = sqrt(0.125*m/s) ; /* sqrt((n/16)/(b'*b)) */
 #if 0
         /* Decreasing the step size based on the distance to the surface of
            the sphere with center c and radius sqrt(n)/2 did not work as
@@ -629,7 +630,7 @@ int vs
            whose length is sqrt(n)/4 */
         vs_scale (b, -s, n) ;
         /* add the negative gradient vector to the current iterate */
-        vs_vecadd (z, b, n) ;
+        vs_vecadd (z, z, b, n) ;
         /*for (i = 0; i < n; i++)
         {
             printf ("y[%i] = %25.16e ;\n", i, z [i]) ;
@@ -639,14 +640,17 @@ int vs
         /* project z onto feasible set for (GB) */
         status = napheap (napdata) ;
 
-        /* VSFLOAT err ;
-        err = napheap_check (&r, &s, &t, napdata) ;
-        printf ("err: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
-        if ( err > 1.e-6 )
+        if ( PrintLevel )
         {
-            printf ("NAPHEAP error: %e\n", err) ;
-            exit(1) ;
-        } */
+            VSFLOAT err ;
+            err = napheap_check (&r, &s, &t, napdata) ;
+            printf ("err: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
+            if ( err > 1.e-6 )
+            {
+                printf ("NAPHEAP error: %e\n", err) ;
+                exit(1) ;
+            }
+        }
 
         /* move projection from X back to z */
         vs_copyx (z, X, n) ;
@@ -657,73 +661,89 @@ int vs
        of the feasible set, where z [i] = 0 or 1 for n-1 choices of i in
       [0, n). The objective value for the boundary point <= objective value
       at the initial feasible point. */
-    vs_boundary (z, Ai, Ap, Ax, a, n, A12, b) ;
+    vs_boundary (z, Ai, Ap, Ax, a, n, A12, b, PrintLevel) ;
 
-    VSINT n0, n1, ns, cutedge ;
-    n0 = n1 = ns = cutedge = 0 ;
+    if ( PrintLevel ) n0 = n1 = ns = cutedge = 0 ;
     p = 0 ;
     for (j = 0; j < n; j++)
     {
         if ( z [j] == 0 )
         {
             x [j] = 0 ;
-            if ( vw_is_one ) n0++ ;
-            else             n0 += vw [j] ;
-            /* look for z [j] = 1 */
-            VSLINT const l = Ap [j+1] ;
-            for (; p < l; p++)
+            if ( PrintLevel )
             {
-                if ( Ai [p] == j ) continue ;
-                if ( z [Ai [p]] == 1 ) cutedge++ ;
+                if ( vw_is_one ) n0++ ;
+                else             n0 += vw [j] ;
+                VSLINT const l = Ap [j+1] ;
+                for (; p < l; p++)
+                {
+                    if ( Ai [p] == j ) continue ;
+                    if ( z [Ai [p]] == 1 ) cutedge++ ;
+                }
             }
         }
         else if ( z [j] == 1 )
         {
             x [j] = 1 ;
-            if ( vw_is_one ) n1++ ;
-            else             n1 += vw [j] ;
-            /* look for z [j] = 0 */
-            VSLINT const l = Ap [j+1] ;
-            for (; p < l; p++)
+            if ( PrintLevel )
             {
-                if ( Ai [p] == j ) continue ;
-                if ( z [Ai [p]] == 0 ) cutedge++ ;
+                if ( vw_is_one ) n1++ ;
+                else             n1 += vw [j] ;
+                /* look for z [j] = 0 */
+                VSLINT const l = Ap [j+1] ;
+                for (; p < l; p++)
+                {
+                    if ( Ai [p] == j ) continue ;
+                    if ( z [Ai [p]] == 0 ) cutedge++ ;
+                }
             }
         }
         else
         {
-            if ( vw_is_one ) ns++ ;
-            else             ns += vw [j] ;
+            if ( PrintLevel )
+            {
+                if ( vw_is_one ) ns++ ;
+                else             ns += vw [j] ;
+            }
             x [j] = 2 ;
         }
     }
-    cutedge /= 2 ;
-    // printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
-    
-    vs_separator (x, Ei, Ep, n, vw, 0, NULL, NULL, NULL, NULL, NULL) ;
-
-    n0 = n1 = ns = 0 ;
-    for (j = 0; j < n; j++)
+    if ( PrintLevel )
     {
-        if      ( x [j] == 0 )
-        {
-            if ( vw_is_one ) n0++ ;
-            else             n0 += vw [j] ;
-        }
-        else if ( x [j] == 1 )
-        {
-            if ( vw_is_one ) n1++ ;
-            else             n1 += vw [j] ;
-        }
-        else
-        {
-            if ( vw_is_one ) ns++ ;
-            else             ns += vw [j] ;
-        }
+        cutedge /= 2 ;
+        printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
     }
-    // printf ("n0: %i n1: %i ns: %i\n", n0, n1, ns) ;
+    
+    vs_separator
+    (
+        x, Ei, Ep, n, vw,
+        Parm->try_both_covers, 0,
+        NULL, NULL, NULL, NULL, NULL
+    ) ;
 
-    /* project z onto constraints of the graph partitioning problem (GB) */
+    if ( PrintLevel )
+    {
+        n0 = n1 = ns = 0 ;
+        for (j = 0; j < n; j++)
+        {
+            if      ( x [j] == 0 )
+            {
+                if ( vw_is_one ) n0++ ;
+                else             n0 += vw [j] ;
+            }
+            else if ( x [j] == 1 )
+            {
+                if ( vw_is_one ) n1++ ;
+                else             n1 += vw [j] ;
+            }
+            else
+            {
+                if ( vw_is_one ) ns++ ;
+                else             ns += vw [j] ;
+            }
+        }
+        printf ("n0: %i n1: %i ns: %i\n", n0, n1, ns) ;
+    }
 
     if ( a != NULL ) vs_free (a) ;
     if ( Ax != NULL ) vs_free (Ax) ;
@@ -1320,33 +1340,52 @@ void vs_translate
     }
 }
 
-/* =========================================================================
-   === vs_vecadd ===========================================================
-   =========================================================================
-   Set x += b
-   ========================================================================= */
+/* ==========================================================================
+    === vs_vecadd ===========================================================
+    Set x = y + b 
+============================================================================= */
 void vs_vecadd
 (
-    VSFLOAT       *x,
-    VSFLOAT const *b,
-    VSINT   const  n
+     VSFLOAT       *x,
+     VSFLOAT       *y,
+     VSFLOAT const *b,
+     VSINT   const  n
 )
 {
-    VSINT j ;
-    VSINT const n5 = n%5 ;
-    for (j = 0; j < n5; j++)
-    {
-        x [j] += b [j] ;
-    }
+     VSINT j ;
+     VSINT const n5 = n%5 ;
+     if ( x == y )
+     {
+         for (j = 0; j < n5; j++)
+         {
+             x [j] += b [j] ;
+         }
 
-    for (; j < n; j += 5)
-    {
-        x [j]   += b [j] ;
-        x [j+1] += b [j+1] ;
-        x [j+2] += b [j+2] ;
-        x [j+3] += b [j+3] ;
-        x [j+4] += b [j+4] ;
-    }
+         for (; j < n; j += 5)
+         {
+             x [j]   += b [j] ;
+             x [j+1] += b [j+1] ;
+             x [j+2] += b [j+2] ;
+             x [j+3] += b [j+3] ;
+             x [j+4] += b [j+4] ;
+         }
+     }
+     else
+     {
+         for (j = 0; j < n5; j++)
+         {
+             x [j] = y [j] + b [j] ;
+         }
+
+         for (; j < n; j += 5)
+         {
+             x [j]   = y [j]   + b [j] ;
+             x [j+1] = y [j+1] + b [j+1] ;
+             x [j+2] = y [j+2] + b [j+2] ;
+             x [j+3] = y [j+3] + b [j+3] ;
+             x [j+4] = y [j+4] + b [j+4] ;
+         }
+     }
 }
 
 /* =========================================================================
@@ -1431,14 +1470,15 @@ void vs_vecadd
 
 void vs_boundary /* return original cost and its improvement */
 (
-    VSFLOAT   *x, /* feasible point for (GB), output described above */
-    VSINT    *Ai, /* row numbers */
-    VSLINT   *Ap, /* column pointers */
-    VSFLOAT  *Ax, /* edge weights,   NULL => all entries in Ax are 1 */
-    VSFLOAT   *a, /* vertex weights, NULL => all entries in a are 1 */
-    VSINT      n, /* problem dimension */
-    VSFLOAT *A12, /* linear term in objective of (GB) */
-    VSFLOAT   *g  /* work array for storing gradient vector */
+    VSFLOAT           *x, /* feasible point for (GB), output described above */
+    VSINT            *Ai, /* row numbers */
+    VSLINT           *Ap, /* column pointers */
+    VSFLOAT          *Ax, /* edge weights,   NULL => all entries in Ax are 1 */
+    VSFLOAT           *a, /* vertex weights, NULL => all entries in a are 1 */
+    VSINT              n, /* problem dimension */
+    VSFLOAT         *A12, /* linear term in objective of (GB) */
+    VSFLOAT           *g, /* work array for storing gradient vector */
+    int const PrintLevel
 )
 {
     int dumpi, dumpj, two_hit ;
@@ -1480,7 +1520,7 @@ void vs_boundary /* return original cost and its improvement */
         return ;
     }
     /* compute g += A12 ; */
-    vs_vecadd (g, A12, n) ;
+    vs_vecadd (g, g, A12, n) ;
     int const a_is_one = (a == NULL) ? VSTRUE : VSFALSE ;
     two_hit = VSFALSE ;
     dumpi = VSFALSE ;
@@ -1525,7 +1565,11 @@ void vs_boundary /* return original cost and its improvement */
                     x [j] += pj ;
                     if ( x [j] <= VSZERO )
                     {
-                        // printf ("x [%i]: %e violates lower bound\n", j, x [j]) ;
+                        if ( PrintLevel )
+                        {
+                            printf ("x [%i]: %e violates lower bound\n",
+                                     j, x [j]) ;
+                        }
                         two_hit = VSTRUE ;
                         x [j] = VSZERO ;
                     }
@@ -1540,7 +1584,11 @@ void vs_boundary /* return original cost and its improvement */
                     x [i] += pi ;
                     if ( x [i] >= VSONE )
                     {
-                        // printf ("x [%i]: %e violates upper bound\n", i, x [i]) ;
+                        if ( PrintLevel )
+                        {
+                            printf ("x [%i]: %e violates upper bound\n",
+                                     i, x [i]) ;
+                        }
                         two_hit = VSTRUE ;
                         x [i] = VSONE ;
                     }
@@ -1558,7 +1606,11 @@ void vs_boundary /* return original cost and its improvement */
                     x [j] += pj ;
                     if ( x [j] >= VSONE )
                     {
-                        // printf ("x [%i]: %e violates upper bound\n", j, x [j]) ;
+                        if ( PrintLevel )
+                        {
+                            printf ("x [%i]: %e violates upper bound\n",
+                                     j, x [j]) ;
+                        }
                         two_hit = VSTRUE ;
                         x [j] = VSONE ;
                     }
@@ -1572,7 +1624,11 @@ void vs_boundary /* return original cost and its improvement */
                     x [i] += pi ;
                     if ( x [i] <= VSZERO )
                     {
-                    // printf ("x [%i]: %e violates lower bound\n", i, x [i]) ;
+                        if ( PrintLevel )
+                        {
+                            printf ("x [%i]: %e violates lower bound\n",
+                                     i, x [i]) ;
+                        }
                         two_hit = VSTRUE ;
                         x [i] = VSZERO ;
                     }
@@ -1593,7 +1649,10 @@ void vs_boundary /* return original cost and its improvement */
                 x [j] += pj ;
                 if ( x [j] >= VSONE )
                 {
-                    // printf ("x [%i]: %e violates upper bound\n", j, x [j]) ;
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %e violates upper bound\n", j, x [j]) ;
+                    }
                     two_hit = VSTRUE ;
                     x [j] = VSONE ;
                 }
@@ -1607,7 +1666,10 @@ void vs_boundary /* return original cost and its improvement */
                 x [i] += pi ;
                 if ( x [i] <= VSZERO )
                 {
-                    // printf ("x [%i]: %e violates lower bound\n", i, x [i]) ;
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %e violates lower bound\n", i, x [i]) ;
+                    }
                     two_hit = VSTRUE ;
                     x [i] = VSZERO ;
                 }
@@ -1627,7 +1689,10 @@ void vs_boundary /* return original cost and its improvement */
                 x [j] += pj ;
                 if ( x [j] <= VSZERO )
                 {
-                    // printf ("x [%i]: %e violates lower bound\n", j, x [j]) ;
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %e violates lower bound\n", j, x [j]) ;
+                    }
                     two_hit = VSTRUE ;
                     x [j] = VSZERO ;
                 }
@@ -1641,7 +1706,10 @@ void vs_boundary /* return original cost and its improvement */
                 x [i] += pi ;
                 if ( x [i] >= VSONE )
                 {
-                    // printf ("x [%i]: %e violates upper bound\n", i, x [i]) ;
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %e violates upper bound\n", i, x [i]) ;
+                    }
                     two_hit = VSTRUE ;
                     x [i] = VSONE ;
                 }
@@ -1684,7 +1752,7 @@ void vs_boundary /* return original cost and its improvement */
         }
 
         /* vs_Amult (gnew, x, Ap, Ai, Ax, n) ;
-        vs_vecadd (gnew, A12, n) ;
+        vs_vecadd (gnew, gnew, A12, n) ;
         t = 0 ;
         for (k = 0; k < n; k++)
         {
@@ -1702,7 +1770,9 @@ void vs_boundary /* return original cost and its improvement */
                 /* x has no interior components */
                 break ;
             }
-            j = vs_interior (j, x, n) ;
+            // Buggy
+            // j = vs_interior (j, x, n) ;
+            j = vs_interior (i, x, n) ;
             if ( j == VSEMPTY )
             {
                 /* done since x has at most one fractional component */
@@ -2975,7 +3045,7 @@ int napheap  /* Return status of solution process. To determine the status, use
 )
 {
     int    status ;
-    NAPINT it, k, nk, nuf, nkf ;
+    VSINT it, k, nk, nuf, nkf ;
 
     status = NAPHEAP_STATUS_OK ;   /* default status */
     NAPINT const n = napdata->n ;  /* problem dimension */
@@ -3103,7 +3173,9 @@ int napheap  /* Return status of solution process. To determine the status, use
     NAPINT nfree ;              /* number of indices in free heap */
     /* use_lambda is TRUE if the user provides a starting guess for the
        multiplier associated with the constraint blo <= a'x <= bhi */
+//printf ("lambda input: %e\n", lambda) ;
     int use_lambda = ( lambda >= NAPINF ) ? FALSE : TRUE ;
+//printf("use_lambda: %i\n", use_lambda) ;
 
     /* ---------------------------------------------------------------------- */
     /*  Initialization and checks */
@@ -3353,145 +3425,306 @@ int napheap  /* Return status of solution process. To determine the status, use
         /* === case when (d > 0) ============================================ */
         /* ================================================================== */
 
+
+
         /* if no starting guess given, compute one by variable fixing */
         if ( !use_lambda )
         {
+
+//printf("no start guess given, use variable fixing, do not use lambda\n");
+
             if ( (use_prior_data == TRUE) && (akakdk < NAPINF) )
             {
                 den = akakdk ;
-                num = nap_dot (y, a, n) ;
-                b = blo ;
-            }
-            else /* starting from scratch */
-            {
-/*printf ("start from scratch\n") ;*/
-                for (k = 0; k < n; k++)
+                if ( a_is_one )
                 {
-                    if ( a_is_one )
+                    num = 0 ;
+                    for (k = 0; k < n; k++)
                     {
-                        den += VSONE ;
                         num += y [k] ;
                     }
-                    else
+                }
+                else
+                {
+                    num = nap_dot (y, a, n) ;
+                }
+//printf("den: %e num: %e b: %e\n", den, num, b) ;
+                if ( blo == bhi )
+                {
+                    b = blo ;
+                }
+                else /* blo < bhi */
+                {
+                    for (k = 0; k < n; k++)
                     {
-                        den += a [k]*a [k] ;
-                        num +=  y [k]*a [k] ;
+                        const NAPFLOAT yk = y [k] ;
+                        if ( yk < VSZERO ) continue ;
+                        if ( a_is_one )
+                        {
+                            if ( yk > VSONE )
+                            {
+                                slope0++ ;
+                            }
+                            else
+                            {
+                                slope0 += yk ;
+                            }
+                        }
+                        else
+                        {
+                            if ( yk > VSONE )
+                            {
+                                slope0 += a [k] ;
+                            }
+                            else
+                            {
+                                slope0 += a [k]*yk ;
+                            }
+                        }
+                    }
+                    /* determine bracketting interval and b */
+                    BRACKET ;
+                }
+            }
+
+            else /* starting from scratch */
+            {
+                if ( blo == bhi )
+                {
+                    for (k = 0; k < n; k++)
+                    {
+                        if ( a_is_one )
+                        {
+                            den++ ;
+                            num +=  y [k] ;
+                        }
+                        else
+                        {
+                            const NAPFLOAT ak = a [k] ;
+                            den += ak*ak ;
+                            num +=  y [k]*ak ;
+                        }
+                    }
+                    b = blo ;
+                    if ( Parm->return_data )
+                    {
+                        napdata->akakdk = den ;
                     }
                 }
+                else /* blo < bhi */
+                {
+//printf ("start from scratch\n") ;
+                    for (k = 0; k < n; k++)
+                    {
+                        const NAPFLOAT yk = y [k] ;
+                        if ( a_is_one )
+                        {
+                            den++ ;
+                            num += yk ;
+                            if ( yk < VSZERO )
+                            {
+                                continue ;
+                            }
+                            if ( yk > VSONE )
+                            {
+                                slope0++ ;
+                            }
+                            else
+                            {
+                                slope0 += yk ;
+                            }
+                        }
+                        else /* ak = a [k] */
+                        {
+                            const NAPFLOAT ak = a [k] ;
+                            den += ak*ak ;
+                            num +=  yk*ak ;
+                            if ( yk < VSZERO )
+                            {
+                                continue ;
+                            }
+                            if ( yk > VSONE )
+                            {
+                                slope0 += ak ;
+                            }
+                            else
+                            {
+                                slope0 += ak*yk ;
+                            }
+                        }
+                    }
+                    if ( Parm->return_data )
+                    {
+                        napdata->akakdk = den ;
+                    }
+//printf ("do not use lambda\n") ;
+//printf ("slope0: %e slope: %e den: %e\n", slope0, slope, den) ;
+                    /* determine bracketting interval and b */
+                    BRACKET ;
+                }
              
-                b = blo ;
                 if ( Parm->return_data )
                 {
                     napdata->akakdk = den ;
                 }
             }
             lambda = (num - b)/den ;
-/*printf ("den: %e num: %e b: %e\n", den, num, b) ;*/
+//printf ("b: %e num: %e lambda: %e\n", b, num, lambda) ;
             numFV = num ; /* numerator for variable fixing */
             denFV = den ; /* denominator for variable fixing */
 
             /* compute slope at starting point, slope at lambda = 0,
                and den for Newton */
             den = NAPZERO ;
-            for (k = 0; k < n; k++)
+            if ( blo == bhi )
             {
-                if ( a_is_one )
-                {
-                    const NAPFLOAT u = y [k] ;
-                    const NAPFLOAT t = u - lambda ;
-                    if ( t < VSZERO )
-                    {
-                        x [k] = VSZERO ;
-                    }
-                    else if ( t > VSONE )
-                    {
-                        x [k] = VSONE ;
-                        slope += VSONE ;
-                    }
-                    else
-                    {
-                        x [k] = t ;
-                        slope += t ;
-                        den += VSONE ;
-                    }
-                    if ( u > VSONE )
-                    {
-                        slope0 += VSONE ;
-                    }
-                    else if ( u > VSZERO )
-                    {
-                        slope0 += u ;
-                    }
-                }
-                else
-                {
-                    const NAPFLOAT ak = a [k] ;
-                    const NAPFLOAT u = y [k] ;
-                    const NAPFLOAT t = u - lambda*ak ;
-                    if ( t < VSZERO )
-                    {
-                        x [k] = VSZERO ;
-                    }
-                    else if ( t > VSONE )
-                    {
-                        x [k] = VSONE ;
-                        slope += ak ;
-                    }
-                    else
-                    {
-                        x [k] = t ;
-                        slope += ak*t ;
-                        den += ak*ak ;
-                    }
-                    if ( u > VSONE )
-                    {
-                        slope0 += ak ;
-                    }
-                    else if ( u > VSZERO )
-                    {
-                        slope0 += ak*u ;
-                    }
-                }
-            }
-/* printf ("slope: %e slope0: %e\n", slope, slope0) ;*/
-            /* determine bracketting interval */
-            BRACKET ;
-        }
-        else /* use lambda, compute slope at starting guess and at lambda = 0*/
-        {
-            if ( use_prior_data == TRUE )
-            {
-                /* no need to compute slope at lambda = 0 when blo = bhi */
                 for (k = 0; k < n; k++)
                 {
+                    const NAPFLOAT yk = y [k] ;
                     if ( a_is_one )
                     {
-                        const NAPFLOAT t = y [k] - lambda ;
-                        if ( t < VSZERO)
+                        const NAPFLOAT t = yk - lambda ;
+                        if ( t < VSZERO )
                         {
                             x [k] = VSZERO ;
                         }
                         else if ( t > VSONE )
                         {
                             x [k] = VSONE ;
-                            slope += VSONE ;
+                            slope++ ;
                         }
                         else
                         {
                             x [k] = t ;
                             slope += t ;
-                            den += VSONE ;
+                            den++ ;
+                        }
+                        if ( yk > VSONE )
+                        {
+                            slope0++ ;
+                        }
+                        else if ( yk > VSZERO )
+                        {
+                            slope0 += yk ;
+                        }
+                    }
+                    else
+                    {
+                        const NAPFLOAT ak = a [k] ;
+                        const NAPFLOAT t = yk - lambda*ak ;
+                        if ( t < VSZERO )
+                        {
+                            x [k] = VSZERO ;
+                        }
+                        else if ( t > VSONE )
+                        {
+                            x [k] = VSONE ;
+                            slope += ak ;
+                        }
+                        else
+                        {
+                            x [k] = t ;
+                            slope += ak*t ;
+                            den += ak*ak ;
+                        }
+                        if ( yk > VSONE )
+                        {
+                            slope0 += ak ;
+                        }
+                        else if ( yk > VSZERO )
+                        {
+                            slope0 += ak*yk ;
+                        }
+                    }
+                }
+//printf ("slope: %e slope0: %e\n", slope, slope0) ;
+                /* determine bracketting interval */
+                BRACKET ;
+            }
+            else /* blo < bhi */
+            {
+                for (k = 0; k < n; k++)
+                {
+                    if ( a_is_one )
+                    {
+                        const NAPFLOAT t = y [k] - lambda ;
+                        if ( t < VSZERO )
+                        {
+                            x [k] = VSZERO ;
+                        }
+                        else if ( t > VSONE )
+                        {
+                            x [k] = VSONE ;
+                            slope++ ;
+                        }
+                        else
+                        {
+                            x [k] = t ;
+                            slope += t ;
+                            den++ ;
+                        }
+                    }
+                    else
+                    {
+                        const NAPFLOAT ak = a [k] ;
+                        const NAPFLOAT t = y [k] - ak*lambda ;
+                        if ( t < VSZERO )
+                        {
+                            x [k] = VSZERO ;
+                        }
+                        else if ( t > VSONE )
+                        {
+                            x [k] = VSONE ;
+                            slope += ak ;
+                        }
+                        else
+                        {
+                            x [k] = t ;
+                            slope += ak*t ;
+                            den += ak*ak ;
+                        }
+                    }
+                }
+            }
+        }
+        else /* use lambda, compute slope at starting guess and at lambda = 0*/
+        {
+//printf("use lambda: %e\n", lambda) ;
+            /* no need to compute slope at lambda = 0 when blo = bhi */
+            if ( blo == bhi )
+            {
+                for (k = 0; k < n; k++)
+                {
+                    if ( a_is_one )
+                    {
+                        const NAPFLOAT t = y [k] - lambda ;
+                        if ( t < VSZERO )
+                        {
+                            x [k] = VSZERO ;
+                            continue ;
+                        }
+                        if ( t > VSONE )
+                        {
+                            x [k] = VSONE ;
+                            slope++ ;
+                        }
+                        else
+                        {
+                            x [k] = t ;
+                            slope += t ;
+                            den++ ;
                         }
                     }
                     else
                     {
                         const NAPFLOAT ak = a [k] ;
                         const NAPFLOAT t = y [k] - lambda*ak ;
-                        if ( t < VSZERO)
+                        if ( t < VSZERO )
                         {
                             x [k] = VSZERO ;
+                            continue ;
                         }
-                        else if ( t > VSONE )
+                        if ( t > VSONE )
                         {
                             x [k] = VSONE ;
                             slope += ak ;
@@ -3510,14 +3743,14 @@ int napheap  /* Return status of solution process. To determine the status, use
                 dL = NAPINF ;
                 dR =-NAPINF ;
             }
-            else /* use_prior_data is FALSE */
+            else /* blo < bhi, also compute slope at lambda = 0 */
             {
-                /* no need to compute slope at lambda = 0 when blo = bhi */
                 for (k = 0; k < n; k++)
                 {
+                    const NAPFLOAT yk = y [k] ;
                     if ( a_is_one )
                     {
-                        const NAPFLOAT t = y [k] - lambda ;
+                        const NAPFLOAT t = yk - lambda ;
                         if ( t < VSZERO )
                         {
                             x [k] = VSZERO ;
@@ -3527,48 +3760,69 @@ int napheap  /* Return status of solution process. To determine the status, use
                             if ( t > VSONE )
                             {
                                 x [k] = VSONE ;
-                                slope += VSONE ;
+                                slope++ ;
                             }
                             else
                             {
                                 x [k] = t ;
                                 slope += t ;
-                                den += VSONE ;
+                                den++ ;
                             }
                         }
+                        if ( yk < VSZERO )
+                        {
+                            continue ;
+                        }
+                        if ( yk > VSONE )
+                        {
+                            slope0++ ;
+                        }
+                        else
+                        {
+                            slope0 += yk ;
+                        }
                     }
-                    else
+                    else /* ak != 1 */
                     {
                         const NAPFLOAT ak = a [k] ;
-                        const NAPFLOAT t = y [k] - lambda*ak ;
+                        const NAPFLOAT t = yk - lambda*ak ;
                         if ( t < VSZERO )
                         {
                             x [k] = VSZERO ;
                         }
+                        else if ( t > VSONE )
+                        {
+                            x [k] = VSONE ;
+                            slope += ak ;
+                        }
                         else
                         {
-                            if ( t > VSONE )
-                            {
-                                x [k] = VSONE ;
-                                slope += ak ;
-                            }
-                            else
-                            {
-                                x [k] = t ;
-                                slope += ak*t ;
-                                den += ak*ak ;
-                            }
+                            x [k] = t ;
+                            slope += ak*t ;
+                            den += ak*ak ;
+                        }
+                        if ( yk < VSZERO )
+                        {
+                            continue ;
+                        }
+                        if ( yk > VSONE )
+                        {
+                            slope0 += ak ;
+                        }
+                        else
+                        {
+                            slope0 += ak*yk ;
                         }
                     }
                 }
-                b = blo ;
-                lambdaL =-NAPINF ;
-                lambdaR = NAPINF ;
-                dL = NAPINF ;
-                dR =-NAPINF ;
+                /* determine bracketting interval and b */
+                BRACKET ;
             }
+//printf ("slope: %25.15e slope0: %25.15e den: %25.15e\n", slope, slope0, den) ;
         }
+//printf ("b: %25.15e\n", b) ;
         slope -= b ;
+//printf ("new slope: %25.15e\n", slope) ;
 
         /* update bracketting interval based on slope at starting guess */
         if ( slope > NAPZERO )
@@ -3602,10 +3856,10 @@ int napheap  /* Return status of solution process. To determine the status, use
             status = NAPHEAP_STATUS_OK ;
             return (nap_wrapup (status, napdata, lambda)) ;
         }
-/*printf ("slope0: %e\n", slope0) ;
-printf ("slope: %e\n", slope) ;
-printf ("lambda: %e\n", lambda) ;
-printf ("K = %i\n", K) ;*/
+//printf ("slope0: %e\n", slope0) ;
+//printf ("slope: %e\n", slope) ;
+//printf ("lambda: %e\n", lambda) ;
+//printf ("K = %i\n", K) ;
 
         /* At this point, we have a starting guess that was either given
            or was computed by a variable fixing iteration. x has been
@@ -3976,10 +4230,10 @@ printf ("fix variables and evaluate next iterate\n") ;*/
             }
             else /* bracket is [0, lambda] or [lambda, 0] */
             {
-/* printf ("bracket is [0, lambda] or [lambda, 0]\n") ;*/
+//printf ("bracket is [0, lambda] or [lambda, 0]\n") ;
                 if ( prevslope > NAPZERO )
                 {
-/*printf ("prevslope > 0\n") ;*/
+//printf ("prevslope > 0\n") ;
                     for (k = 0; k < n; k++)
                     {
                         if ( x [k] == VSZERO )
@@ -4043,7 +4297,7 @@ printf ("fix variables and evaluate next iterate\n") ;*/
                         uf [nuf] = k ;
                         nuf++ ;
                     }
-/*printf("slope: %e den: %e\n", slope, den) ;*/
+//printf("slope: %e den: %e\n", slope, den) ;
                 }
                 else /* prevslope < 0 */
                 {
@@ -4587,16 +4841,15 @@ printf ("fix variables and evaluate next iterate\n") ;*/
                                     {
                                         if ( x [j] == VSONE )
                                         {
-                                            b -= VSONE ;
+                                            b-- ;
                                             continue;
                                         }
-                                        den += VSONE ;
+                                        den++ ;
                                         num += y [j] ;
                                     }
                                     else
                                     {
-                                        const NAPFLOAT aj = (a_is_one) ?
-                                                                 VSONE : a [j] ;
+                                        const NAPFLOAT aj = a [j] ;
                                         if ( x [j] == VSONE )
                                         {
                                             b -= aj ;
@@ -4621,19 +4874,17 @@ printf ("fix variables and evaluate next iterate\n") ;*/
                                         {
                                             continue ;
                                         }
-                                        const NAPFLOAT t = ad [j] ;
-                                        den += t ;
-                                        num += t*ay [j] ;
+                                        den++ ;
+                                        num += ay [j] ;
                                     }
                                     else
                                     {
-                                        const NAPFLOAT aj = (a_is_one) ?
-                                                                 VSONE : a [j] ;
+                                        const NAPFLOAT aj = a [j] ;
                                         if ( x [j] == VSZERO )
                                         {
                                             continue ;
                                         }
-                                        const NAPFLOAT t = aj*ad [j] ;
+                                        const NAPFLOAT t = aj*aj ;
                                         den += t ;
                                         num += t*ay [j] ;
                                     }
@@ -4651,20 +4902,18 @@ printf ("fix variables and evaluate next iterate\n") ;*/
                                             b -= VSONE ;
                                             continue;
                                         }
-                                        const NAPFLOAT t = ad [j] ;
-                                        den += t ;
-                                        num += t*ay [j] ;
+                                        den++ ;
+                                        num += ay [j] ;
                                     }
                                     else
                                     {
-                                        const NAPFLOAT aj = (a_is_one) ?
-                                                                 VSONE : a [j] ;
+                                        const NAPFLOAT aj = a [j] ;
                                         if ( x [j] == VSONE )
                                         {
                                             b -= aj ;
                                             continue;
                                         }
-                                        const NAPFLOAT t = aj*ad [j] ;
+                                        const NAPFLOAT t = aj*aj ;
                                         den += t ;
                                         num += t*ay [j] ;
                                     }
@@ -4840,7 +5089,7 @@ printf ("fix variables and evaluate next iterate\n") ;*/
                             LOOP_OVER_UNFIXED_NO_UF_UPDATE ;
                                 if ( a_is_one )
                                 {
-                                    const NAPFLOAT t = (ay [j] - lambda)*ad [j];
+                                    const NAPFLOAT t = ay [j] - lambda ;
                                     if ( t < VSZERO )
                                     {
                                         x [j] = VSZERO ;
@@ -4861,9 +5110,8 @@ printf ("fix variables and evaluate next iterate\n") ;*/
                                 }
                                 else
                                 {
-                                    const NAPFLOAT aj = (a_is_one) ?
-                                                                 VSONE : a [j] ;
-                                    const NAPFLOAT t = (ay [j] - lambda)*ad [j];
+                                    const NAPFLOAT aj = a [j] ;
+                                    const NAPFLOAT t = (ay [j] - lambda)*aj ;
                                     if ( t < VSZERO )
                                     {
                                         x [j] = VSZERO ;
@@ -5293,6 +5541,7 @@ void napheap_terminate
     napheap_free (Data->Stat) ;
     napheap_free (Data->Parm) ;
     napheap_free (Data) ;
+    *DataHandle = NULL ;
 }
 
 /* ========================================================================== */
@@ -5550,7 +5799,7 @@ PRIVATE int napsearch   /* return status of solution process */
 
                 /* update a2sum */
                 const NAPFLOAT aj = (a_is_one) ? VSONE : a [jfree] ;
-                a2sum -= (d_is_one) ? aj*aj : aj*ad [jfree] ;
+                a2sum -= aj*aj ;
 
                 /* store x [jfree], it must be bound */
                 if ( aj > 0 ) x [jfree] = VSZERO ;
@@ -7410,9 +7659,6 @@ void MinHeap_Heapify_v0
     {
         MinHeap_Bubble_Down_v0(heap, lookup, numNodes, c, p);
     }
-    #ifdef VSP_DEBUG
-        MinHeap_Check_v0(heap, lookup, numNodes, c) ;
-    #endif
 }
 
 void MinHeap_Insert_v0
@@ -7445,10 +7691,6 @@ void MinHeap_Insert_v0
 
     heap[node_child]   = toInsert;
     lookup[toInsert]   = node_child;
-
-    #ifdef VSP_DEBUG
-        MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
-    #endif
 }
 
 // ASSUMED: toDel is in the heap
@@ -7461,18 +7703,11 @@ void MinHeap_Delete_v0
     VSINT   toDel
 )
 {
-    #ifdef VSP_DEBUG
-        MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
-    #endif
-
     VSINT address = lookup[toDel];
     if (address == VSEMPTY) return;
     if (address == *numNodes)
     {
         (*numNodes)--;
-        #ifdef VSP_DEBUG
-            MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
-        #endif
         return;
     }
 
@@ -7504,9 +7739,6 @@ void MinHeap_Delete_v0
         heap[address]     = replacement;
         lookup[replacement] = address;
     }
-    #ifdef VSP_DEBUG
-        MinHeap_Check_v0(heap, lookup, *numNodes, c) ;
-    #endif
 }
 
 void MinHeap_See_Top_Val_v0
@@ -7696,89 +7928,81 @@ static VSINT *Maximum_Matching_Get(const CSC *A, VSINT seed)
 static void Vtx_Cover_From_Max_Matching_Get
 (
     CSC            *B,
-    VSINT  *matching,
-    VSINT     **cover
+    VSINT   *matching,
+    VSINT     **cover,
+    int    start_from_rows,   // NEW
+    CSC            *Bt        // NEW: required iff start_from_rows
 )
 {
-    VSINT m = B->m, n = B->n ;
-    VSLINT *Bp = B->p ;
-    VSINT  *Bi = B->i ;
-    VSINT i, j, k ;
-    VSLINT p, end ;
+    VSINT m = B->m, n = B->n, i, j, k;
+    VSLINT p, end, *Sp;
+    VSINT  *Si;
+    VSINT  *matchingStart, *matchingOther;
+    VSINT  *coverStart,    *coverOther;
+    VSINT  n_start, n_other;
 
-    VSINT *matchingRows = matching ;
-    VSINT *matchingCols = matching + m ;
-
-    *cover = malloc((B->m + B->n) * sizeof(**cover) ) ;
-    VSINT *coverRows = *cover ;
-    VSINT *coverCols = (*cover) + m ;
-
-    // A node being visited just means it was discovered. That is, it's
-    // in the queue and unprocessed, or it was in the queue in the past
-    // and it was processed
-    VSINT *visited = calloc(m+n, sizeof(*visited)) ;
-
-    // Initially, cover contains all the columns and none of the rows
-    // As we do BFS, remove reacheable column vertices from the cover, and add
-    // reacheable row vertices to the cover
-    for(i = 0 ; i < m ; i++) coverRows[i] = 0 ;
-    for(i = 0 ; i < n ; i++) coverCols[i] = 1 ;
-
-    // Initialize a queue with all unmatched nodes in col set
-    Queue *Q = Queue_Init(m + n) ;
-    for(i = 0 ; i < n ; i++)
-    {
-        if(matchingCols[i] != VSEMPTY) continue ;
-
-        coverCols[i] = 0 ;
-        visited[m+i]   = 1 ;
-        Queue_Push(Q, m + i) ;
+    if (!start_from_rows) {
+        Sp = B->p;  Si = B->i;
+        n_start = n;  n_other = m;
+        matchingStart = matching + m;   // col matches
+        matchingOther = matching;        // row matches
+    } else {
+        Sp = Bt->p; Si = Bt->i;
+        n_start = m;  n_other = n;
+        matchingStart = matching;        // row matches
+        matchingOther = matching + m;    // col matches
     }
 
-    while( (j = Queue_Pop(Q)) != VSEMPTY)
-    {
-        if(j < m) // j is a row
-        {
-            // Add it to the cover
-            coverRows[j] = 1 ;
+    *cover = malloc((m + n) * sizeof(**cover));
+    if (!start_from_rows) {
+        coverStart = (*cover) + m;       // col cover slot
+        coverOther = *cover;              // row cover slot
+    } else {
+        coverStart = *cover;              // row cover slot
+        coverOther = (*cover) + m;       // col cover slot
+    }
 
-            // Add its match to the queue if it wasn't visited already
-            k = matchingRows[j] ;
-            if(k != VSEMPTY && !visited[m + k])
-            {
-                Queue_Push(Q, m + k) ;
-                visited[m + k] = 1 ;
+    for (i = 0; i < n_other; i++) coverOther[i] = 0;
+    for (i = 0; i < n_start; i++) coverStart[i] = 1;
+
+    VSINT *visited = calloc(m + n, sizeof(*visited));
+    Queue *Q = Queue_Init(m + n);
+
+    // Seed the queue with unmatched vertices on the starting side.
+    // Queue convention: [0, n_other) are "other" verts,
+    //                   [n_other, n_other + n_start) are "starting" verts.
+    for (i = 0; i < n_start; i++) {
+        if (matchingStart[i] != VSEMPTY) continue;
+        coverStart[i] = 0;
+        visited[n_other + i] = 1;
+        Queue_Push(Q, n_other + i);
+    }
+
+    while ((j = Queue_Pop(Q)) != VSEMPTY) {
+        if (j < n_other) {
+            coverOther[j] = 1;
+            k = matchingOther[j];
+            if (k != VSEMPTY && !visited[n_other + k]) {
+                Queue_Push(Q, n_other + k);
+                visited[n_other + k] = 1;
             }
-        }
-        else // j is a column
-        {
-            j = j - m ; // Convert j to local index
-
-            // Kick j out of the cover, look at all the unmatched edges
-            // emanating from j, and add their endpoints to the queue
-            coverCols[j] = 0 ;
-            end = Bp[j+1] ;
-            for(p = Bp[j] ; p < end ; p++)
-            {
-                i = Bi[p] ;
-
-                // Do not add visited neighbors to the queue
-                if(visited[i]) continue ;
-
-                // Add j if the edge (i, j) is unmatched
-                if(matchingCols[j] != i)
-                {
-                    Queue_Push(Q, i) ;
-                    visited[i] = 1 ;
+        } else {
+            j = j - n_other;
+            coverStart[j] = 0;
+            end = Sp[j+1];
+            for (p = Sp[j]; p < end; p++) {
+                i = Si[p];
+                if (visited[i]) continue;
+                if (matchingStart[j] != i) {
+                    Queue_Push(Q, i);
+                    visited[i] = 1;
                 }
             }
         }
-
     }
 
-    // Cleanup
-    Queue_Destroy(Q) ;
-    free(visited) ;
+    Queue_Destroy(Q);
+    free(visited);
 }
 
 // Check if all neighbors of vtx_col are in the cover. It is 
@@ -7999,6 +8223,12 @@ void vs_separator
     VSLINT               *Ap, // Original graph
     VSINT                  n, // Original graph n
     VSINT          *vtx_wgts,
+    int      try_both_covers, // If nonzero: compute both Konig covers (BFS
+                              // from unmatched cols and from unmatched rows)
+                              // and pick the one with smallest weight,
+                              // tiebreaking on smallest imbalance.
+                              // If zero: original logic, single cover from
+                              // BFS on unmatched columns.
     int            get_stats,  // Binary flag to determine if (somewhat
                                // expensive) stats should be computed
 
@@ -8010,10 +8240,12 @@ void vs_separator
     VSFLOAT *time_entire_ret
 )
 {
-    // When getting stats, make a copy of partition array
-    // We are intentionally not timing this part in time_entire_ret
-    VSINT *part_org_cpy ;
-    if(get_stats)
+    // The original (single-cover) stats path computes its stats from a
+    // bipartite weight array w[] AFTER part[] has been overwritten with
+    // separators, so it needs a copy of the original partition. The
+    // two-cover path doesn't (it computes everything before modifying part[]).
+    VSINT *part_org_cpy = NULL ;
+    if(get_stats && !try_both_covers)
     {
         part_org_cpy = malloc(n * sizeof(*part_org_cpy)) ;
         for(VSINT i = 0 ; i < n ; i++)
@@ -8036,18 +8268,77 @@ void vs_separator
     TIME(end) ;
     Elapsed_Time(start, end, &time_generate) ;
 
+    VSINT nrows = B->m ;
 
     // Get maximum matching
     TIME(start) ;
     matching = Maximum_Matching_Get(B, 1) ;
 
-    // Since the rows of T are the 0 vertices and the columns are the 
-    // 1-vertices, on output, cover[0...n0) contains the cover status of the
-    // 0-vertices and cover[n0...n0+n1) contains the cover status of the
-    // 1-vertices 
     VSINT *cover ;
-    VSINT nrows = B->m ;
-    Vtx_Cover_From_Max_Matching_Get(B, matching, &cover) ;
+    VSINT chosen_wgt = 0, chosen_imbal = 0 ;  // only used in try_both_covers
+
+    if(try_both_covers)
+    {
+        // Two candidate Konig covers (same cardinality, possibly different
+        // weight and balance). Heuristic for min-weight vertex cover: pick
+        // the cheaper of the two; break ties on partition balance.
+        //   cover_col_start: BFS from unmatched columns (standard)
+        //   cover_row_start: BFS from unmatched rows (needs B^T)
+        CSC *Bt = CSC_Transpose(B) ;
+        VSINT *cover_col_start, *cover_row_start ;
+        Vtx_Cover_From_Max_Matching_Get(B, matching, &cover_col_start, 0, NULL);
+        Vtx_Cover_From_Max_Matching_Get(B, matching, &cover_row_start, 1, Bt)  ;
+        CSC_Destroy(Bt) ;
+
+        // For each cover: cover weight (primary, minimize) and imbalance
+        // (tiebreak, minimize). part[] still holds original 0/1 values here.
+        VSINT wgt_cov_a = 0, wgt0_a = 0, wgt1_a = 0 ;
+        VSINT wgt_cov_b = 0, wgt0_b = 0, wgt1_b = 0 ;
+        for(i = 0 ; i < n ; i++)
+        {
+            j = localBipLabel[i] ;
+            if(j == VSEMPTY) continue ;
+            VSINT g  = (part[i] == 0) ? j : nrows + j ;
+            VSINT wi = vtx_wgts[i] ;
+
+            if(cover_col_start[g])      wgt_cov_a += wi ;
+            else if(part[i] == 0)       wgt0_a    += wi ;
+            else                        wgt1_a    += wi ;
+
+            if(cover_row_start[g])      wgt_cov_b += wi ;
+            else if(part[i] == 0)       wgt0_b    += wi ;
+            else                        wgt1_b    += wi ;
+        }
+        VSINT imbal_a = VSABS(wgt0_a - wgt1_a) ;
+        VSINT imbal_b = VSABS(wgt0_b - wgt1_b) ;
+
+        int pick_a ;
+        if      (wgt_cov_a < wgt_cov_b) pick_a = 1 ;
+        else if (wgt_cov_a > wgt_cov_b) pick_a = 0 ;
+        else                            pick_a = (imbal_a <= imbal_b) ;
+
+        if(pick_a)
+        {
+            cover        = cover_col_start ;
+            chosen_wgt   = wgt_cov_a ;
+            chosen_imbal = imbal_a ;
+            free(cover_row_start) ;
+        }
+        else
+        {
+            cover        = cover_row_start ;
+            chosen_wgt   = wgt_cov_b ;
+            chosen_imbal = imbal_b ;
+            free(cover_col_start) ;
+        }
+        // printf("%s,%i,%i,%i,%i\n", G_Current_Problem_Name, wgt_cov_a, wgt_cov_b, imbal_a, imbal_b) ;
+        fflush(stdout) ;
+    }
+    else
+    {
+        // Original logic: single Konig cover from BFS on unmatched columns.
+        Vtx_Cover_From_Max_Matching_Get(B, matching, &cover, 0, NULL) ;
+    }
     TIME(end) ;
     Elapsed_Time(start, end, &time_cover) ;
 
@@ -8073,62 +8364,77 @@ void vs_separator
     // Compute stats
     if(get_stats)
     {
-        // Generate vertex weights for bipartite cover
-        VSINT *w = malloc( (B->m + B->n) * sizeof(*w) ) ;
-        for(i = 0 ; i < n ; i++)
+        if(try_both_covers)
         {
-            j = localBipLabel[i] ;
-            if(j == VSEMPTY) continue ;
+            // Values already computed during cover selection
+            TIME(end_entire) ;
+            Elapsed_Time(start_entire, end_entire, time_entire_ret) ;
 
-            if(part_org_cpy[i] == 0) // i is a row vertex
+            *n_bip     = B->m + B->n ;
+            *nz_bip    = B->nz ;
+            *wgt_cover = chosen_wgt ;
+            *imbal     = chosen_imbal ;
+        }
+        else
+        {
+            // Original stats path: build bipartite vertex weights, then
+            // compute cover weight and imbalance from them.
+            VSINT *w = malloc( (B->m + B->n) * sizeof(*w) ) ;
+            for(i = 0 ; i < n ; i++)
             {
-                w[j] = vtx_wgts[i] ;
+                j = localBipLabel[i] ;
+                if(j == VSEMPTY) continue ;
+
+                if(part_org_cpy[i] == 0) // i is a row vertex
+                {
+                    w[j] = vtx_wgts[i] ;
+                }
+                else if(part_org_cpy[i] == 1) // i is a column vertex
+                {
+                    w[nrows+j] = vtx_wgts[i] ;
+                }
             }
-            else if(part_org_cpy[i] == 1) // i is a column vertex
+
+            // Get the time
+            TIME(end_entire) ;
+            Elapsed_Time(start_entire, end_entire, time_entire_ret) ;
+
+            TIME(start) ;
+
+            *n_bip  = B->m + B->n ;
+            *nz_bip = B->nz ;
+
+            // Return weight of cover. Loop through all vertices of the graph
+            *wgt_cover = 0 ;
+            for(i = 0 ; i < B->m + B->n ; i++)
             {
-                w[nrows+j] = vtx_wgts[i] ; 
+                *wgt_cover += cover[i] * w[i] ;
             }
+
+
+            // Return imbalance of cover
+            // Compute weight of rows vertices not in cover
+            VSINT wgt_row = 0, wgt_col = 0 ;
+            for(i = 0 ; i < B->m + B->n ; i++)
+            {
+                if(cover[i]) continue ;
+
+                if(i < B->m) wgt_row += w[i] ;
+                else         wgt_col += w[i] ;
+            }
+
+            *imbal = VSABS(wgt_row - wgt_col) ;
+            free(w) ;
+            free(part_org_cpy) ;
+
+            TIME(end) ;
+            VSFLOAT time_stats ;
+            Elapsed_Time(start, end, &time_stats) ;
+            // printf("\nStats time: %f\n", time_stats) ;
         }
-
-        // Get the time 
-        TIME(end_entire) ;
-        Elapsed_Time(start_entire, end_entire, time_entire_ret) ;
-
-        TIME(start) ;
-
-        *n_bip  = B->m + B->n ;
-        *nz_bip = B->nz ;
-
-        // Return weight of cover. Loop through all vertices of the graph
-        *wgt_cover = 0 ;
-        for(i = 0 ; i < B->m + B->n ; i++)
-        {
-            *wgt_cover += cover[i] * w[i] ;
-        }
-
-
-        // Return imbalance of cover
-        // Compute weight of rows vertices not in cover
-        VSINT wgt_row = 0, wgt_col = 0 ;
-        for(i = 0 ; i < B->m + B->n ; i++)
-        {
-            if(cover[i]) continue ;
-
-            if(i < B->m) wgt_row += w[i] ;
-            else         wgt_col += w[i] ;
-        }
-
-        *imbal = VSABS(wgt_row - wgt_col) ;
-        free(w) ;
-        free(part_org_cpy) ;
-
-        TIME(end) ;
-        VSFLOAT time_stats ;
-        Elapsed_Time(start, end, &time_stats) ;
-        // printf("\nStats time: %f\n", time_stats) ;
     }
 
-    #ifdef SVP_DEBUG
+    #ifdef DEBUG
         Check_Bip_Vertex_Cover(B, cover) ;
         Check_Matching_Size_Against_Cover_Size(B, matching, cover) ;
         Separator_Check(part, &A) ;
@@ -8309,7 +8615,7 @@ void vs_separator_approx
         }
     }
 
-    #ifdef SVP_DEBUG
+    #ifdef DEBUG
         // Check_Bip_Vertex_Cover(B, cover) ;
         Check_Its_A_Cover(B,cover) ;
         Separator_Check(part, &A) ;
@@ -8319,4 +8625,1459 @@ void vs_separator_approx
     free(localBipLabel) ;
     free(w) ;
     CSC_Destroy(B) ;
+}
+
+// Update gy, the gradient with respect to y, as a result of x_i changing by
+// delta_xi:
+// new_gy = old_gy - (delta_xi) * gamma * A_i,
+// where A_i is column of A corresponding to index i
+static void Update_Gradient
+(
+    VSFLOAT   delta_xi,
+    VSINT     i,
+    VSFLOAT  *gy,
+    VSINT    *Ai,
+    VSLINT   *Ap,
+    VSFLOAT   gamma
+)
+{
+    VSLINT p, end = Ap[i+1] ;
+    VSFLOAT const coeff = delta_xi * gamma ;
+    for(p = Ap[i] ; p < end ; p++)
+    {
+        gy[ Ai[p] ] -= coeff ;
+    }
+    gy[i] -= coeff ;
+}
+
+// Update gy, the gradient with respect to y, as a result of x_i changing by
+// delta_xi:
+// new_gy = old_gy - (delta_xi) * gamma * S_i,
+// where S_i is column of S corresponding to index i
+static void vs_Update_Gradient
+(
+    VSFLOAT   delta_xi,
+    VSINT     i,
+    VSFLOAT  *gy,
+    VSINT    *Si,
+    VSLINT   *Sp,
+    VSFLOAT   gamma,
+    int       full_space
+)
+{
+    VSLINT p ;
+    VSLINT const end = Sp [i+1] ;
+    VSFLOAT const coeff = delta_xi * gamma ;
+    for(p = Sp[i] ; p < end ; p++)
+    {
+        gy [Si [p]] -= coeff ;
+    }
+
+    if(full_space) gy[i] -= coeff ;
+}
+
+static VSINT VSP_interior_and_penalty_reduction
+(
+   VSINT     ilower, /* search x for indices > ilower and < n */
+   VSFLOAT       *x, /* search for 0 < x [i] < 1 */
+   VSFLOAT      *gx,
+   VSFLOAT      *gy,
+   VSINT          n, /* dimension of x */
+   VSINT        *Si, /* row indices for subspace */
+   VSLINT       *Sp, /* col pointer for subspace */
+   VSFLOAT    gamma,
+   int const update,
+   int const full_space
+)
+{
+    VSINT i ;
+    VSFLOAT xi ;
+
+    for (i = ilower+1; i < n; i++)
+    {
+        xi = x[i] ;
+
+        // Set x_i to 0 if doing so doesn't damage the objective
+        if(xi > 0 && gx[i] <= VSZERO_PLUS)
+        {
+            x [i] = 0 ;
+            if ( update ) vs_Update_Gradient(-xi, i, gy, Si, Sp, gamma, full_space) ;
+            xi = 0 ;
+        }
+
+        if ( (xi > VSZERO) && (xi < VSONE) ) break ;
+    }
+    if ( i < n ) return (i) ;
+    else         return (VSEMPTY) ;
+}
+
+/* =========================================================================
+   ============================= VSPboundary ===============================
+   =========================================================================
+       ________________________________________________________________
+      |    Consider the following problem:                             |
+      |                                                                |
+      |    (P)        max f(x) := x'g                                  |
+      |                                                                |
+      |               subject to a'x = m, 0 <= x <= 1                  |
+      |                                                                |
+      |    n = number of vertices in an undirected graph, a > 0, m     |
+      |    arbitrary integer in [0, a'*1]. Given a feasible point x,   |
+      |    the code replaces x with a new feasible point x* satisfying |
+      |    f(x*) >= f(x).  Moreover, x [i] = 0 or 1 for at least n-1   |
+      |    distinct i in [0, n). If x* is binary, then the code returns|
+      |    -1. If x* is fractional, then the code returns the index of |
+      |    the fractional components of x*.                            | 
+      |                                                                |
+      |    Algorithm:                                                  |
+      |                                                                |
+      |    First search for i and then search for j such that          |
+      |                                                                |
+      |        0 < x [i] < 1, 0 < x [j] < 1, and i < j.                |
+      |                                                                |
+      |    If i does not exist, then return -1. If j does not exist,   |
+      |    then return j. Assuming both i and j exist, then let        |
+      |    p denote a vector with all components zero except for       |
+      |    p [i] = a [j] and p [j] = -a [i]. For this choice of p,     |
+      |    we have a'p = 0. Hence, x(s) := x + s*p satisfies the linear|
+      |    constraint of (P) for any choice of s. By the structure of  |
+      |    the objective, we have                                      |
+      |                                                                |
+      |        f(x + s*p) = f(x) + s*b  where  b := g_i p_i + g_j p_j. |
+      |                                                                |
+      |    If b >= 0, then let s > 0 be the first value of s > 0 where |
+      |    either x_i (s) = 1  or x_j (s) = 0. If b < 0, then let s < 0|
+      |    be the first value of s < 0 where either x_i (s) = 0 or     |
+      |    x_j (x) = 1. If s is choosen in this way, the objective     | 
+      |    value cannot decrease and the new x remains feasible.       |
+      |________________________________________________________________|
+
+       ________________________________________________________________
+      |This program is free software; you can redistribute it and/or   |
+      |modify it under the terms of the GNU General Public License as  |
+      |published by the Free Software Foundation; either version 2 of  |
+      |the License, or (at your option) any later version.             |
+      |This program is distributed in the hope that it will be useful, |
+      |but WITHOUT ANY WARRANTY; without even the implied warranty of  |
+      |MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   |
+      |GNU General Public License for more details.                    |
+      |                                                                |
+      |You should have received a copy of the GNU General Public       |
+      |License along with this program; if not, write to the Free      |
+      |Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, |
+      |MA  02110-1301  USA                                             |
+      |________________________________________________________________|*/
+
+VSINT VSPboundary
+(
+    VSFLOAT           *x, /* feasible point for (GB), output described above */
+    VSFLOAT           *a, /* vertex weights, NULL => all entries in a are 1 */
+    VSFLOAT          *gx, /* objective gradient in subspace */
+    VSFLOAT          *gy, /* complementary objective gradient */
+    VSINT              n, /* problem dimension */
+    VSINT            *Si, /* row indices in subspace */
+    VSLINT           *Sp, /* col pointer in subspace */
+    VSFLOAT        gamma, /* penalty used in gradient */
+    int const     update, /* = 1 if gy updated whenever x is updated, else 0 */
+    int const full_space,
+    int const PrintLevel
+)
+{
+    int dumpi, dumpj, two_hit ;
+    VSFLOAT pi, pj, s1, s2, s3, s4, xi, xj, tlinear ;
+    VSINT i, j ;
+
+    /* find index > -1 */
+    i = VSP_interior_and_penalty_reduction
+                                     (-1, x, gx, gy, n, Si, Sp, gamma, update, full_space) ;
+    if ( i == VSEMPTY )
+    {
+        /* x has no interior components */
+        return (EMPTY) ;
+    }
+    j = VSP_interior_and_penalty_reduction
+                                      (i, x, gx, gy, n, Si, Sp, gamma, update, full_space) ;
+    if ( j == VSEMPTY )
+    {
+        /* done since x has at most one fractional component */
+        return (i) ;
+    }
+    int const a_is_one = (a == NULL) ? VSTRUE : VSFALSE ;
+    two_hit = VSFALSE ;
+    dumpi = VSFALSE ;
+    dumpj = VSFALSE ;
+    while ( 1 )
+    {
+        /* components i and j of x are fractional */
+        VSFLOAT const ai = (a_is_one) ? VSONE : a [i] ;
+        VSFLOAT const aj = (a_is_one) ? VSONE : a [j] ;
+        VSFLOAT const xi = x [i] ;
+        VSFLOAT const xj = x [j] ;
+        /* pi = aj, pj = -ai */
+        tlinear = gx [i]*aj - gx [j]*ai ;
+
+        /* if tlinear = 0, then determine whether a positive or a negative s
+           step is larger in absolute value, and take the larger step */
+        if ( tlinear >= VSZERO )
+        {
+            /* pos s step */
+            s1 = (1-xi)/aj ; /* xi hits upper bound */
+            s2 = xj/ai ;     /* xj hits lower bound */
+            if ( s1 < s2 ) /* s is positive and xi hits upper bound */
+            {
+                pi = VSONE - xi ;
+                x [i] = VSONE ;
+                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma, full_space) ;
+                pj = -s1*ai ;
+                x [j] += pj ;
+                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma, full_space) ;
+                if ( x [j] <= VSZERO )
+                {
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %25.15e violates lower bound\n",
+                                 j, x [j]) ;
+                    }
+                    two_hit = VSTRUE ;
+                    x [j] = VSZERO ;
+                }
+                else dumpi = VSTRUE ;
+            }
+            else /* xj hits lower bound */
+            {
+                pj = -xj ;
+                x [j] = VSZERO ;
+                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma, full_space) ;
+                pi = s2*aj ;
+                x [i] += pi ;
+                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma, full_space) ;
+                if ( x [i] >= VSONE )
+                {
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %25.15e violates upper bound\n",
+                                 i, x [i]) ;
+                    }
+                    two_hit = VSTRUE ;
+                    x [i] = VSONE ;
+                }
+                else dumpj = VSTRUE ;
+            }
+        }
+        else     /* tlinear < 0 */
+        {
+            /* neg s step */
+            s3 = xi/aj ;       /* xi hits lower bound */
+            s4 = (1-xj)/ai ;   /* xj hits upper bound */
+            if ( s3 < s4 ) /* s is negative and xi hits lower bound */
+            {
+                pi = -xi ;
+                x [i] = VSZERO ;
+                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma, full_space) ;
+                pj = s3*ai ;
+                x [j] += pj ;
+                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma, full_space) ;
+                if ( x [j] >= VSONE )
+                {
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %25.15e violates upper bound\n",
+                                 j, x [j]) ;
+                    }
+                    two_hit = VSTRUE ;
+                    x [j] = VSONE ;
+                }
+                else dumpi = VSTRUE ;
+            }
+            else /* s is negative and xj hits upper bound */
+            {
+                pj = VSONE - xj ;
+                x [j] = VSONE ;
+                if ( update ) vs_Update_Gradient(pj, j, gy, Si, Sp, gamma, full_space) ;
+                pi = -s4*aj ;
+                x [i] += pi ;
+                if ( update ) vs_Update_Gradient(pi, i, gy, Si, Sp, gamma, full_space) ;
+                if ( x [i] <= VSZERO )
+                {
+                    if ( PrintLevel )
+                    {
+                        printf ("x [%i]: %25.15e violates lower bound\n",
+                                 i, x [i]) ;
+                    }
+                    two_hit = VSTRUE ;
+                    x [i] = VSZERO ;
+                }
+                else dumpj = VSTRUE ;
+            }
+        }
+
+        /* update i and j if two_hit is TRUE */
+        if ( two_hit )
+        {
+            /* find first index > j */
+            i = VSP_interior_and_penalty_reduction
+                                      (j, x, gx, gy, n, Si, Sp, gamma, update, full_space) ;
+            if ( i == VSEMPTY )
+            {
+                /* x has no interior components */
+                return (EMPTY) ;
+            }
+
+            j = VSP_interior_and_penalty_reduction
+                                      (i, x, gx, gy, n, Si, Sp, gamma, update, full_space) ;
+            if ( j == VSEMPTY )
+            {
+                /* done since x has at most one fractional component */
+                return (i) ;
+            }
+            two_hit = VSFALSE ;
+        }
+        else if ( dumpi )
+        {
+            i = j ;
+            j = VSP_interior_and_penalty_reduction
+                                      (j, x, gx, gy, n, Si, Sp, gamma, update, full_space) ;
+            if ( j == VSEMPTY ) return (i) ;
+            dumpi = VSFALSE ;
+        }
+        else /* dumpj */
+        {
+            j = VSP_interior_and_penalty_reduction
+                                      (j, x, gx, gy, n, Si, Sp, gamma, update, full_space) ;
+            if ( j == VSEMPTY ) return (i) ;
+            dumpj = VSFALSE ;
+        }
+    }
+}
+
+static VSFLOAT VSP_Obj
+(
+    VSFLOAT *x,
+    VSFLOAT *gx,
+    VSFLOAT *y,
+    VSFLOAT *a,
+    VSINT    n
+)
+{
+    VSINT i ;
+    VSFLOAT obj = 0 ;
+
+    for(i = 0 ; i < n ; i++)
+    {
+        obj += x[i] * gx[i] + y[i] * a[i] ;
+    }
+    return obj ;
+}
+
+
+
+/* Compute gx = Gx - gamma * Sy */
+void VSP_Grad
+(
+    VSPFLOAT             *gx,
+    VSPFLOAT       *const Gx,
+    const VSPFLOAT *const y,
+    const VSPINT          n,
+    const VSPINT   *const Si,
+    const VSPLONG  *const Sp,
+    const VSPFLOAT        gamma,
+    const int             FullSpace // TRUE if n for Full Space (not Subspace)
+)
+{
+    VSINT j ;
+    VSLINT p ;
+
+    for(j = 0; j < n; j++) gx [j] = Gx [j] ;
+
+    for (j = 0; j < n; j++)
+    {
+        if ( y [j] )
+        {
+            VSFLOAT const t = -gamma*y [j] ;
+            VSLINT const l = Sp [j+1] ;
+            for (p = Sp [j]; p < l; p++) gx [Si [p]] += t ;
+            if ( FullSpace ) gx [j] += t ; // account for diagonal in Full Space
+        }
+    }
+}
+
+void VSP_Grad_Proj
+(
+    VSFLOAT  *x,
+    VSFLOAT  *gx,
+    VSFLOAT  *y,
+    VSFLOAT  *gy,
+    VSFLOAT  *a,    /* vertex costs */
+    VSINT    *Ai,
+    VSLINT   *Ap,
+    VSINT     u,
+    VSINT     n,
+    VSFLOAT   gamma,
+    int       ngp
+)
+{
+    int it, skip_napheapx, skip_napheapy, status ;
+    VSINT i ;
+    VSFLOAT eps, obj, obj_0, s, t, lambdax, lambday, *X, *Y, *sx, *sy, *gxtemp ;
+
+    NAPdata *napdata ;
+    napdata = napheap_setup () ;
+    napdata->n = n ;   // problem dimension at current level
+    napdata->a = a ;   // linear constraint for napheap problem
+
+#if 0
+    napdata->a = NULL ;
+    for (i = 0; i < n; i++)
+    {
+        if ( a [i] != 1 )
+        {
+            napdata->a = a ;
+            break ;
+        }
+    }
+#endif
+    napdata->blo = 0 ; // lower bound of balance constraint
+    napdata->bhi = u ; // upper bound of balance constraint
+    eps = n*1.e-8 ;    // when cost does not improve by eps, exit
+
+    X = malloc (n*sizeof (VSPFLOAT)) ; // stores projection in x
+    Y = malloc (n*sizeof (VSPFLOAT)) ; // stores projection in y
+
+    // initial objective, obj
+    obj = VSP_Obj(x, gx, y, a, n) ;
+#if 0
+printf ("n: %i\n", n) ;
+vs_printxMATLAB(x, n, "x") ;
+vs_printxMATLAB(y, n, "y") ;
+vs_printxMATLAB(a, n, "a") ;
+vs_printxMATLAB(gx, n, "gx") ;
+#endif
+    VSFLOAT start_obj = obj ;
+
+    // starting guess for lambda
+    lambdax = VSZERO ;
+    lambday = VSZERO ;
+
+    /* Perform ngp iterations of the gradient projection algorithm
+       The new (x, y) is the solution of
+       
+              min 0.5*(x-sx)^2 + 0.5*(y-sy)%2
+      
+                   subject to 0 <= a'x <= u, 0 <= x <= 1,
+                              0 <= a'y <= u, 0 <= y <= 1,
+    
+       where and sx and sy are steps along the gradient starting from the
+       iterates x and y: sx = x + s*gx and sy = y + s*gy, s = stepsize */
+    sx     = malloc(n * sizeof(*sx)) ;
+    sy     = malloc(n * sizeof(*sy)) ;
+    gxtemp = malloc(n * sizeof(*gxtemp)) ;
+
+    // start of the gradient projection algorithm loop
+    it = 0 ;
+    while ( 1 )
+    {
+        obj_0 = obj ; // save prior objective value
+        s = vs_max(gx, n) ;
+        t = vs_max(gy, n) ;
+        s = MAX(s, t) ;
+        // if gradient vanishes, then current point is optimal
+        if ( s == VSZERO ) break ;
+        it++ ;
+
+
+        // Scaling factor for gradients
+        s = 0.8909725/s ;
+        // sfac = factor by which stepsize decreases to improve obj
+        VSFLOAT sfac = 0.2 ;
+
+        /* Project gradient step onto feasible set. The projection decomposes
+           into two separate projections: sx is projected on the x-feasible
+           set and sy is projected on the y-feasible set.  */
+        obj = -NAPINF ; /* initialize obj to a lower bound on objective*/
+        int subit = 0 ;
+        while(obj + eps < obj_0 )
+        {
+            subit++ ; 
+            if ( subit == 1 )
+            {
+                // scale gradient by optimal stepsize 0.891/length
+                vs_scale(gx, s, n) ;
+                vs_scale(gy, s, n) ;
+            }
+            else
+            {
+                vs_scale(gx, sfac, n) ;
+                vs_scale(gy, sfac, n) ;
+            }
+
+            // Compute new point (sx, sy)
+            vs_vecadd(sx, x, gx, n) ;
+            vs_vecadd(sy, y, gy, n) ;
+#if 0
+vs_printxMATLAB (x, n, "x0") ;
+vs_printxMATLAB (gx, n, "gx0") ;
+vs_printxMATLAB (sx, n, "sx0") ;
+vs_printxMATLAB (y, n, "y0") ;
+vs_printxMATLAB (gy, n, "gy0") ;
+vs_printxMATLAB (sy, n, "sy0") ;
+#endif
+
+            // Project sx to feasible set, see if lambda = 0 works
+            skip_napheapx = VSFALSE ;
+#if 0
+printf ("new point:\n") ;
+vs_printxMATLAB (sx, n, "sx") ;
+vs_printxMATLAB (sy, n, "sy") ;
+printf ("lambdax: %e\n", lambdax) ;
+#endif
+            if ( !lambdax )
+            {
+                t = VSZERO ;
+                for (i = 0; i < n; i++)
+                {
+                    if ( sx [i] > VSONE )
+                    {
+                        sx [i] = VSONE ;
+                        t += a [i] ;
+                    }
+                    else if ( sx [i] < VSZERO )
+                    {
+                        sx [i] = VSZERO ;
+                    }
+                    else
+                    {
+                        t += a [i]*sx [i] ;
+                    }
+                }
+                if ( t <= u )
+                {
+                    skip_napheapx = VSTRUE ;
+                }
+                else
+                {
+                    vs_vecadd(sx, x, gx, n) ; /* sx restored to correct value*/
+                }
+            }
+            if ( !skip_napheapx )
+            {
+printf ("use napheap x\n") ;
+                napdata->c = sx ;
+                napdata->x = X ;
+
+                napdata->lambda = lambdax ;
+                status = napheap(napdata) ;
+                lambdax = napdata->lambda ;
+#if 0
+                //printf ("lambdax: %e\n", lambdax) ;
+                //if( status ) napheap_print_status (napdata) ;
+                VSFLOAT err, r ;            
+                err = napheap_check (&r, &s, &t, napdata) ;
+                printf ("errx: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
+                if ( err > 1.e-6 )
+                {
+                    printf ("NAPHEAP error: %e\n", err) ;
+                    exit(1) ;
+                }
+#endif
+            }
+
+            // Project sy to feasible set, see if lambda = 0 works
+            skip_napheapy = VSFALSE ;
+//printf ("lambday: %e\n", lambday) ;
+            if ( !lambday )
+            {
+                t = VSZERO ;
+                for (i = 0; i < n; i++)
+                {
+                    if ( sy [i] > VSONE )
+                    {
+                        sy [i] = VSONE ;
+                        t += a [i] ;
+                    }
+                    else if ( sy [i] < VSZERO )
+                    {
+                        sy [i] = VSZERO ;
+                    }
+                    else
+                    {
+                        t += a [i]*sy [i] ;
+                    }
+                }
+                if ( t <= u )
+                {
+                    skip_napheapy = VSTRUE ;
+                }
+                else
+                {
+                    vs_vecadd(sy, y, gy, n) ; /* sy restored to correct value*/
+                }
+            }
+            if ( !skip_napheapy )
+            {
+printf ("use napheap y\n") ;
+                napdata->c = sy ;
+                napdata->x = Y ;
+                napdata->lambda = lambday ;
+                status = napheap(napdata) ;
+                lambday = napdata->lambda ;
+#if 0
+                //printf ("lambday: %e\n", lambday) ;
+                //printf ("n = %i ;\n", n) ;
+                //printf ("u = %i ;\n", u) ;
+                //printf ("l = 0 ;\n") ;
+                //printf ("lambda after = %25.15e\n", napdata->lambda) ;
+                //int i ;
+                //for (i = 0; i < n; i++)
+                //{
+                    //    printf ("y[%i] = %25.15e ;\n", i, sy [i]) ;
+                //}
+                //for (i = 0; i < n; i++)
+                //{
+                //    printf ("a[%i] = %25.15e ;\n", i, a [i]) ;
+                //}
+                //if( status ) napheap_print_status (napdata) ;
+
+                err = napheap_check (&r, &s, &t, napdata) ;
+                printf ("erry: %e errb: %e errB: %e errc: %e\n", err, r, s, t) ;
+                if ( err > 1.e-6 )
+                {
+                    printf ("NAPHEAP error: %e\n", err) ;
+                    exit(1) ;
+                }
+#endif
+            }
+
+            // compute gxtemp
+            if ( skip_napheapy )
+            {
+                // solution stored in sy
+                VSP_Grad(gxtemp, a, sy, n, Ai, Ap, gamma, 1) ;
+                if ( skip_napheapx )
+                {
+                    // solution stored in sx
+                    obj = VSP_Obj(sx, gxtemp, sy, a, n) ;
+                }
+                else
+                {
+                    // solution stored in X
+                    obj = VSP_Obj(X, gxtemp, sy, a, n) ;
+                }
+            }
+            else
+            {
+                // solution stored in Y
+                VSP_Grad(gxtemp, a, Y, n, Ai, Ap, gamma, 1) ;
+                if ( skip_napheapx )
+                {
+                    // solution stored in sx
+                    obj = VSP_Obj(sx, gxtemp, Y, a, n) ;
+                }
+                else
+                {
+                    // solution stored in X
+                    obj = VSP_Obj(X, gxtemp, Y, a, n) ;
+                }
+            }
+
+            //printf("it: %i obj: %f    obj0: %f\n", it, obj, obj_0) ;
+            printf ("it: %i obj0: %f obj: %f +: %f n: %i\n",
+                       it, obj_0, obj, obj-obj_0, n);
+        }
+
+        /* Update: x <- X and y <- Y */
+        if ( skip_napheapx )
+        {
+            // solution stored in sx
+            vs_copyx(x, sx, n) ;
+        }
+        else
+        {
+            // solution stored in X
+            vs_copyx(x, X, n) ;
+        }
+        if ( skip_napheapy )
+        {
+            // solution stored in sy
+            vs_copyx(y, sy, n) ;
+        }
+        else
+        {
+            // solution stored in Y
+            vs_copyx(y, Y, n) ;
+        }
+
+        vs_copyx(gx, gxtemp, n) ;        // grad at x stored above in gxtemp
+        // evaluate gradient at y
+        VSP_Grad(gy, a, x, n, Ai, Ap, gamma, 1) ;
+
+        if ( obj < obj_0 + eps ) break ; // |obj - obj_0| < eps => stationary
+
+        if ( obj - obj_0 <= 0.005*VSMAX(obj, 1) ) break ;
+    }
+    printf ("start: %f  end: %f +: %f\n",
+             start_obj, obj, obj - start_obj) ;
+
+    napheap_terminate(&napdata) ;
+
+    /* Cleanup */
+    free(sx) ;
+    free(sy) ;
+    free(X) ;
+    free(Y) ;
+    free(gxtemp) ;
+}
+
+
+// Only use this when the subproblem is much smaller than original problem
+void VSP_FMsubspace
+(
+    VSPFLOAT  *x,    // variable in the bilinear objective
+    VSINT     fx,    // index of fractional component of x if one exists
+    VSPFLOAT  *y,    // variable in the bilinear objective
+    VSPINT    fy,    // index of fractional component of y if one exists
+    VSPFLOAT  *a,    // vertex costs
+    VSPINT    *Ai,   // row indices for full space
+    VSPLONG   *Ap,   // col pointer for full space
+    VSPINT     u,    // upper bound for balance constraint
+    VSPINT     n,    // number of vertices
+    VSPFLOAT   gamma,// max vertex cost
+    VSPFLOAT   noFM  /*, skip FMsubspace when nF >= noFM*n
+    VSPFLOAT   wx,      VSFLOAT workspace of size 7n
+    VSPINT     wi,      VSINT workspace of size 3n + [nnz(A) +n]
+    VSPLONG    wL       VSLINT workspace of size n+1 */
+)
+{
+    int it, skip_napheapx, skip_napheapy, status ;
+    VSINT Aip, i, j, k, improvement, nF, nS, *F, *Si, *v, *wi ;
+    VSLINT q, p, *Sp, *wL ;
+    VSFLOAT eps, obj, obj_0, s, t, lambdax, lambday, ux, uy,
+           *X, *Sx, *sx, *Gx, *gx, *Y, *Sy, *sy, *Gy, *gy, *gxtemp, *Sa, *wx ;
+    NAPdata *napdata ;
+
+    napdata = NULL ;
+    /* The malloc's and their associated free's need to be moved to
+       the main code. One malloc at the start of the code and one free
+       at the completion. */
+    wx = malloc (n*sizeof (VSPFLOAT)*12) ;
+    wi = malloc (sizeof (VSINT)*Ap [n] + n*sizeof(VSINT)*3) ;
+    wL = malloc ( ((VSLINT) n + 1)*sizeof(VSLINT)) ;
+
+    X  = wx     ; // X in subspace
+    Sx = wx+1*n ; // free x variables forming subspace
+    sx = wx+2*n ; // projection point in x
+    Gx = wx+3*n ; // linear part of gradient wrt x in subspace
+    gx = wx+4*n ; // gradient of subspace problem with respect to x
+    Y  = wx+5*n ; // Y in subspace
+    Sy = wx+6*n ; // free y variables forming subspace
+    sy = wx+7*n ; // projection point in y
+    Gy = wx+8*n ; // linear part of gradient wrt y in subspace
+    gy = wx+9*n ; // gradient of subspace problem with respect to y
+    gxtemp=wx+10*n;// gradient in x
+    Sa = wx+11*n; // a in subspace
+    v = wi      ; // indices of free components
+    F  = wi+1*n ; // F [i] >= 0 for free variables, F [i] = EMPTY for bound
+    Si = wi+2*n ; // indices of free variables
+    Sp = wL     ; // column pointers for Si
+
+    improvement = 1 ;
+    vs_initi (F, EMPTY, n) ;
+    while ( improvement >= 1 )
+    {
+        // count the number of vertices in the separator
+        nS = 0 ;
+        for (i = 0; i < n; i++) if ( (x [i] == 0) && (y [i] == 0) ) nS++ ;
+       
+        // if nS too big relative to n, then skip FMsubspace
+        if ( nS >= noFM*n ) break ;
+
+        /* create subspace problem: vertices in separator and vertices directly
+           connected to separator, separator includes fractional vertices */
+        if ( fx != EMPTY ) F [fx] = 0 ;
+        if ( fy != EMPTY ) F [fy] = 0 ;
+        for (j = 0; j < n; j++)
+        {
+            // find vertices in separator and fractional vertices
+            if ( (x [j] == 0) && (y [j] == 0) )
+            {
+                F [j] = 0 ; // initialized as empty
+                VSLINT const l = Ap [j+1] ;
+                for (p = Ap [j]; p < l; p++)
+                {
+                    i = Ai [p] ;
+                    // add to free set if not already free
+                    if ( F [i] == EMPTY ) F [i] = 0 ;
+                }
+            }
+        }
+
+        // nF counts number of free vertices
+        nF = 0 ;
+        ux = u ; // Initial upper bound on x-balance constraint is u.
+        uy = u ; /* Initial upper bound on y-balance constraint is u.
+                    After the free variables are determined, the fixed variables
+                    (complement of the free variables) are removed from the
+                    problem and from u. Therefore ux and uy may be different,
+                    and both are generally smaller than u. */
+        // create maps between original vertices and subspace vertices
+        for (i = 0; i < n; i++)
+        {
+            if ( F [i] != EMPTY ) // variable is free
+            {
+                F [i] = nF ; // maps original index to subspace
+                v [nF] = i ; // maps subspace to original index
+                Sa [nF] = a [i] ;
+                Sx [nF] = x [i] ;
+                Sy [nF] = y [i] ;
+                nF++ ;
+            }
+            else // variable is fixed and removed from problem
+            {
+                ux -= x [i]*a [i] ;
+                uy -= y [i]*a [i] ;
+            }
+        }
+        if ( nF >= noFM*n ) break ;
+     
+        // build the subspace matrix and the gradients
+        vs_initx (gx, VSZERO, nF) ;
+        vs_initx (gy, VSZERO, nF) ;
+        p = q = 0 ;
+        Sp [p] = 0 ;
+        for (j = 0; j < nF;)
+        {
+            s = t = VSZERO ; // obj deriv wrt yj or xj
+            VSFLOAT const Sxj = -gamma*Sx [j] ; // xj in subspace times -gamma
+            VSFLOAT const Syj = -gamma*Sy [j] ; // yj in subspace times -gamma
+            i = v [j] ;      // column of x or y in subspace matrix S
+            VSLINT const l = Ap [i+1] ;
+    
+            if ( (p = Ap [i]) < l )
+            {
+                for (; p < l; p++)
+                {
+                    Aip = Ai [p] ;
+                    if ( Aip > i ) // add diagonal since not included in A
+                    {
+//printf ("add diagonal\n") ;
+//fflush(stdout) ;
+                        VSINT const k1 = F [i] ; // subspace variable
+                        Si [q++] = k1 ;
+                        if ( Syj != VSZERO ) gx [k1] += Syj ;
+                        if ( Sxj != VSZERO ) gy [k1] += Sxj ;
+                        VSINT const k2 = F [Aip] ;
+                        if ( k2 != EMPTY )
+                        {
+                            Si [q++] = k2 ;
+                            if ( Syj != VSZERO ) gx [k2] += Syj ;
+                            if ( Sxj != VSZERO ) gy [k2] += Sxj ;
+                        }
+                        else // not free
+                        {
+                            t += y [Aip] ; // fixed part of x-gradient
+                            s += x [Aip] ; // fixed part of y-gradient
+                        }
+                        p++ ;
+                        break ;
+                    }
+                    VSINT const k = F [Aip] ;
+                    if ( k != EMPTY )
+                    {
+                        Si [q++] = k ;
+                        if ( Syj != VSZERO ) gx [k] += Syj ;
+                        if ( Sxj != VSZERO ) gy [k] += Sxj ;
+                    }
+                    else // not free
+                    {
+                        t += y [Aip] ; // fixed part of x-gradient
+                        s += x [Aip] ; // fixed part of y-gradient
+                    }
+                }
+                for (; p < l; p++)
+                {
+                    Aip = Ai [p] ;
+                    VSINT const k = F [Aip] ;
+                    if ( k != EMPTY )
+                    {
+                        Si [q++] = k ;
+                        if ( Syj != VSZERO ) gx [k] += Syj ;
+                        if ( Sxj != VSZERO ) gy [k] += Sxj ;
+                    }
+                    else // not free
+                    {
+                        t += y [Aip] ; // fixed part of x-gradient
+                        s += x [Aip] ; // fixed part of y-gradient
+                    }
+                }
+                if ( Aip < i ) // add diagonal
+                {
+                    VSINT const k = F [i] ;
+                    Si [q++] = k ;
+                    if ( Syj != VSZERO ) gx [k] += Syj ;
+                    if ( Sxj != VSZERO ) gy [k] += Sxj ;
+                }
+            }
+            else // add diagonal
+            {
+                VSINT const k = F [i] ;
+                Si [q++] = k ;
+                if ( Syj != VSZERO ) gx [k] += Syj ;
+                if ( Sxj != VSZERO ) gy [k] += Sxj ;
+            }
+
+            t = Sa [j] - gamma*t ;
+            Gx [j] = t ;
+            gx [j] += t ;
+            s = Sa [j] - gamma*s ;
+            Gy [j] = s ;
+            gy [j] += s ;
+            j++ ;
+            Sp [j] = q ;
+        }
+#if 0
+// check that Si and Sp includes the diagonal; indices in column increasing
+p = 0 ;
+for (j = 0; j < nF; j++)
+{
+    VSLINT const l = Sp [j+1] ;
+    i = -1 ;
+    k = 0 ;
+    for (; p < l; p++)
+    {
+        if ( Si [p] <= i ) // i stores last index in column
+        {
+            printf ("indices do not increase at col = %i p = %i\n", j, p) ;
+            fflush (stdout) ;
+            exit (1) ;
+        }
+        i = Si [p] ;
+        if ( i == j ) k = 1 ; // diagonal found
+    }
+    if ( k == 0 )
+    {
+        printf ("diagonal not found in col = %i\n", j) ;
+        fflush (stdout) ;
+        exit (1) ;
+    }
+}
+
+// check Gx, Gy, Si, and Sp
+VSFLOAT *GGx, *GGy ;
+GGx = malloc ( sizeof (VSFLOAT)*nF ) ;
+vs_copyx (GGx, Sa, nF) ;
+GGy = malloc ( sizeof (VSFLOAT)*nF ) ;
+vs_copyx (GGy, Sa, nF) ;
+p = 0 ;
+for (j = 0; j < n; j++)
+{
+    VSLINT const l = Ap [j+1] ;
+    int ifree, jfree, nfree ;
+    nfree = 0 ;
+    jfree = -1 ;
+    if ( F [j] != -1 )
+    {
+        jfree = F [j] ;
+        q = Sp [jfree] ;
+    }
+    for (; p < l; p++)
+    {
+        ifree = -1 ;
+        i = Ai [p] ;
+        if ( F [i] != -1 ) ifree = F [i] ;
+        if ( (ifree != -1) && (jfree != -1) ) // in Si and Sp
+        {
+            if ( q >= Sp [jfree+1] )
+            {
+                printf ("reached end of col %i in S without finding %i\n",
+                         jfree, ifree) ;
+                printf ("which corresponds to (%i, %i) in A\n", i, j) ;
+                fflush (stdout) ;
+                exit(1) ;
+            }
+            nfree++ ;
+            // find row ifree in col jfree
+            if ( Si [q] == jfree ) q++ ; // skip diagonal of S
+            if ( Si [q] != ifree )
+            {
+                    printf ("A(%i, %i) not in col %i of S\n", i, j, jfree) ;
+                    fflush (stdout) ;
+                    exit (1) ;
+            }
+            q++ ;
+        }
+        if ( (ifree != -1) && (jfree == -1) ) // belongs in GGx
+        {
+            GGx [ifree] -= gamma*y [j] ;
+        }
+        if ( (ifree == -1) && (jfree != -1) ) // belongs in GGy
+        {
+            GGy [jfree] -= gamma*x [i] ;
+        }
+    }
+    if ( (jfree != EMPTY) && Sp [jfree+1] - Sp [jfree] != nfree + 1 )
+    {
+        printf ("col %i of A has %i free elements while S "
+                "has %i elements\n",
+                 j, nfree, Sp [jfree+1]-Sp [jfree] - 1) ;
+        fflush (stdout) ;
+        exit (1) ;
+    }
+}
+// check GGx and GGy
+s = t = 0 ;
+for (i = 0; i < nF; i++)
+{
+    t += fabs (GGx [i] - Gx [i]) ;
+    s += fabs (Gx [i]) ;
+}
+printf ("relative error %e in Gx\n", t/s) ;
+if (t/s >= 1.e-10 )
+{
+    printf ("relative error %e in Gx\n", t/s) ;
+    fflush (stdout) ;
+    exit (1) ;
+}
+s = t = 0 ;
+for (i = 0; i < nF; i++)
+{
+    t += fabs (GGy [i] - Gy [i]) ;
+    s += fabs (Gy [i]) ;
+}
+printf ("relative error %e in Gy\n", t/s) ;
+if (t/s >= 1.e-10 )
+{
+    printf ("relative error %e in Gy\n", t/s) ;
+    fflush (stdout) ;
+    exit (1) ;
+}
+free (GGx) ;
+free (GGy) ;
+#endif
+        napdata = napheap_setup () ;
+        napdata->n = nF ;   // problem dimension at current level
+        napdata->a = Sa ;   // linear constraint for subspace
+        napdata->blo = 0 ;  // lower bound of balance constraint
+        eps = nF*1.e-8 ;    // when cost does not improve by eps, exit
+    
+        /* initial objective, obj. This is the objective for the subproblem
+           with the constant term in the original objective dropped */
+        obj = VSP_Obj (Sx, gx, Sy, Gy, nF) ;
+        VSFLOAT start_obj = obj ;
+    
+        // starting guess for lambda
+        lambdax = VSZERO ;
+        lambday = VSZERO ;
+    
+        /* Perform iterations of the gradient projection algorithm for subspace
+           The new (Sx, Sy) is the solution of
+           
+                  min 0.5*(x-sx)^2 + 0.5*(y-sy)%2
+          
+                       subject to 0 <= ax'x <= ux, 0 <= x <= 1,
+                                       ay'y <= uy, 0 <= y <= 1,
+        
+           where sx and sy are steps along the gradient starting from the
+           iterates Sx and Sy: sx = Sx + s*gx and sy = Sy + s*gy,
+           s = stepsize */
+
+        // check that gx and gy are gradients in the subspace
+#if 0
+GGx = malloc ( sizeof (VSFLOAT)*nF ) ;
+GGy = malloc ( sizeof (VSFLOAT)*nF ) ;
+VSP_Grad (GGx, Gx, Sy, nF, Si, Sp, gamma, 0) ;
+s = t = 0 ;
+for (i = 0; i < nF; i++)
+{
+    t += fabs (GGx [i] - gx [i]) ;
+    s += fabs (gx [i]) ;
+}
+printf ("relative error %e in gx\n", t/s) ;
+if (t/s >= 1.e-10 )
+{
+    printf ("relative error %e in gx\n", t/s) ;
+    fflush (stdout) ;
+    exit (1) ;
+}
+VSP_Grad (GGy, Gy, Sx, nF, Si, Sp, gamma, 0) ;
+s = t = 0 ;
+for (i = 0; i < nF; i++)
+{
+    t += fabs (GGy [i] - gy [i]) ;
+    s += fabs (gy [i]) ;
+}
+printf ("relative error %e in gy\n", t/s) ;
+if (t/s >= 1.e-10 )
+{
+    printf ("relative error %e in gy\n", t/s) ;
+    fflush (stdout) ;
+    exit (1) ;
+}
+free (GGx) ;
+free (GGy) ;
+#endif
+    
+        // start of the gradient projection algorithm loop
+        it = 0 ;
+        while ( 1 )
+        {
+            obj_0 = obj ; // save prior objective value
+            s = vs_max(gx, nF) ;
+            t = vs_max(gy, nF) ;
+            s = MAX(s, t) ;
+            // if gradient vanishes, then current point is stationary
+            if ( s == VSZERO ) break ;
+            it++ ;
+    
+            // Scaling factor for gradients
+            s = 0.8909725/s ;
+            // sfac = factor by which stepsize decreases to improve obj
+            VSFLOAT sfac = 0.2 ;
+    
+            /* Project gradient onto feasible set. The projection decomposes
+               into two separate projections: sx is projected on the x-feasible
+               set and sy is projected on the y-feasible set.  */
+            obj = -NAPINF ; /* initialize obj to a lower bound on objective*/
+            int subit = 0 ;
+#if 0
+vs_printAMATLAB (nF, Sp, Si, NULL, "S") ;
+vs_printxMATLAB (Gx, nF, "Gx") ;
+vs_printxMATLAB (Gy, nF, "Gy") ;
+vs_printxMATLAB (gx, nF, "gx") ;
+vs_printxMATLAB (gy, nF, "gy") ;
+vs_printxMATLAB (Sx, nF, "x") ;
+vs_printxMATLAB (Sy, nF, "y") ;
+#endif
+            while(obj + eps < obj_0 )
+            {
+                subit++ ; 
+                if ( subit == 1 )
+                {
+                    // scale gradient by optimal stepsize 0.891/length
+                    vs_scale (gx, s, nF) ;
+                    vs_scale (gy, s, nF) ;
+                }
+                else
+                {
+                    vs_scale (gx, sfac, nF) ;
+                    vs_scale (gy, sfac, nF) ;
+                }
+    
+                // Compute new point (sx, sy)
+                vs_vecadd(sx, Sx, gx, nF) ;
+                vs_vecadd(sy, Sy, gy, nF) ;
+#if 0
+vs_printxMATLAB (Sx, nF, "x1") ;
+vs_printxMATLAB (gx, nF, "gx1") ;
+vs_printxMATLAB (sx, nF, "sx1") ;
+vs_printxMATLAB (Sy, n, "y1") ;
+vs_printxMATLAB (gy, n, "gy1") ;
+vs_printxMATLAB (sy, n, "sy1") ;
+#endif
+    
+#if 0
+printf ("new point:\n") ;
+vs_printxMATLAB (sx, nF, "sx") ;
+vs_printxMATLAB (sy, nF, "sy") ;
+#endif
+//printf ("lambdax: %e\n", lambdax) ;
+                // Project sx to feasible set, see if lambda = 0 works
+                skip_napheapx = VSFALSE ;
+                if ( !lambdax )
+                {
+                    t = VSZERO ;
+                    for (i = 0; i < nF; i++)
+                    {
+                        if ( sx [i] > VSONE )
+                        {
+                            sx [i] = VSONE ;
+                            t += Sa [i] ;
+                        }
+                        else if ( sx [i] < VSZERO )
+                        {
+                            sx [i] = VSZERO ;
+                        }
+                        else
+                        {
+                            t += Sa [i]*sx [i] ;
+                        }
+                    }
+                    if ( t <= ux )
+                    {
+                        skip_napheapx = VSTRUE ;
+                    }
+                    else
+                    {
+                        // restore sx to correct value
+                        vs_vecadd(sx, Sx, gx, nF) ;
+                    }
+                }
+                if ( !skip_napheapx )
+                {
+//printf ("use napheap x\n") ;
+                    napdata->c = sx ;   // linear term in projection
+                    napdata->x = X ;    // solution returned in X
+                    napdata->bhi = ux ; // upper bound of balance constraint
+    
+                    napdata->lambda = lambdax ;
+                    status = napheap(napdata) ;
+                    lambdax = napdata->lambda ;
+#if 0
+                    //printf ("lambdax: %e\n", lambdax) ;
+                    //if( status ) napheap_print_status (napdata) ;
+                    VSFLOAT err, r ;            
+                    err = napheap_check (&r, &s, &t, napdata) ;
+                    printf ("errx: %e errb: %e errB: %e errc: %e\n",
+                             err, r, s, t) ;
+                    if ( err > 1.e-6 )
+                    {
+                        printf ("NAPHEAP error: %e\n", err) ;
+                        exit(1) ;
+                    }
+#endif
+                }
+    
+                // Project sy to feasible set, see if lambda = 0 works
+                skip_napheapy = VSFALSE ;
+//printf ("lambday: %e\n", lambday) ;
+                if ( !lambday )
+                {
+                    t = VSZERO ;
+                    for (i = 0; i < nF; i++)
+                    {
+                        if ( sy [i] > VSONE )
+                        {
+                            sy [i] = VSONE ;
+                            t += Sa [i] ;
+                        }
+                        else if ( sy [i] < VSZERO )
+                        {
+                            sy [i] = VSZERO ;
+                        }
+                        else
+                        {
+                            t += Sa [i]*sy [i] ;
+                        }
+                    }
+                    if ( t <= uy )
+                    {
+                        skip_napheapy = VSTRUE ;
+                    }
+                    else
+                    {
+                        // restore sy to correct value
+                        vs_vecadd(sy, Sy, gy, nF) ;
+                    }
+                }
+                if ( !skip_napheapy )
+                {
+//printf ("use napheap y\n") ;
+                    napdata->c = sy ;   // linear term in projection
+                    napdata->x = Y ;    // solution returned in Y
+                    napdata->bhi = uy ; // upper bound of balance constraint
+                    napdata->lambda = lambday ;
+                    status = napheap(napdata) ;
+                    lambday = napdata->lambda ;
+#if 0
+                    //printf ("lambday: %e\n", lambday) ;
+                    //printf ("n = %i ;\n", n) ;
+                    //printf ("u = %i ;\n", u) ;
+                    //printf ("l = 0 ;\n") ;
+                    //printf ("lambda after = %25.15e\n", napdata->lambda) ;
+                    //int i ;
+                    //for (i = 0; i < n; i++)
+                    //{
+                        //    printf ("y[%i] = %25.15e ;\n", i, sy [i]) ;
+                    //}
+                    //for (i = 0; i < n; i++)
+                    //{
+                    //    printf ("a[%i] = %25.15e ;\n", i, a [i]) ;
+                    //}
+                    //if( status ) napheap_print_status (napdata) ;
+    
+                    err = napheap_check (&r, &s, &t, napdata) ;
+                    printf ("erry: %e errb: %e errB: %e errc: %e\n",
+                             err, r, s, t) ;
+                    if ( err > 1.e-6 )
+                    {
+                        printf ("NAPHEAP error: %e\n", err) ;
+                        exit(1) ;
+                    }
+#endif
+                }
+    
+                // compute gxtemp
+                if ( skip_napheapy )
+                {
+                    // solution stored in sy
+                    VSP_Grad (gxtemp, Gx, sy, nF, Si, Sp, gamma, 0) ;
+                    if ( skip_napheapx )
+                    {
+                        // solution stored in sx
+                        obj = VSP_Obj (sx, gxtemp, sy, Gy, nF) ;
+                    }
+                    else
+                    {
+                        // solution stored in X
+                        obj = VSP_Obj (X, gxtemp, sy, Gy, nF) ;
+                    }
+                }
+                else
+                {
+                    // solution stored in Y
+                    VSP_Grad (gxtemp, Gx, Y, nF, Si, Sp, gamma, 0) ;
+                    if ( skip_napheapx )
+                    {
+                        // solution stored in sx
+                        obj = VSP_Obj (sx, gxtemp, Y, Gy, nF) ;
+                    }
+                    else
+                    {
+                        // solution stored in X
+                        obj = VSP_Obj (X, gxtemp, Y, Gy, nF) ;
+                    }
+                }
+    
+                //printf("it: %i obj: %f    obj0: %f\n", it, obj, obj_0) ;
+                //printf ("it: %i obj0: %f obj: %f +: %f n: %i nF: %i\n",
+                //           it, obj_0, obj, obj-obj_0, n, nF);
+            }
+    
+            /* Update: x <- X and y <- Y */
+            if ( skip_napheapx )
+            {
+                // solution stored in sx
+                vs_copyx(Sx, sx, nF) ;
+            }
+            else
+            {
+                // solution stored in X
+                vs_copyx(Sx, X, nF) ;
+            }
+            if ( skip_napheapy )
+            {
+                // solution stored in sy
+                vs_copyx(Sy, sy, nF) ;
+            }
+            else
+            {
+                // solution stored in Y
+                vs_copyx(Sy, Y, nF) ;
+            }
+    
+            vs_copyx(gx, gxtemp, nF) ;        // grad at x stored in gxtemp
+    
+            // evaluate gradient at y
+            VSP_Grad (gy, Gy, Sx, nF, Si, Sp, gamma, 0) ;
+            // |obj - obj_0| < eps => stationary
+            if ( obj < obj_0 + eps ) break ;
+            if ( obj - obj_0 <= 0.005*VSMAX(obj, 1) ) break ;
+        }
+        //printf ("start: %f  end: %f +: %f\n",
+        //         start_obj, obj, obj - start_obj) ;
+        improvement = obj - start_obj ;
+
+        // convert Sx and Sy to almost binary, first call also updates gy
+        fx = VSPboundary (Sx, Sa, gx, gy, nF, Si, Sp, gamma, 1, 0, 0) ;
+        fy = VSPboundary (Sy, Sa, gy, gx, nF, Si, Sp, gamma, 0, 0, 0) ;
+ 
+        // copy subspace Sx and Sy back into full space x and y
+        for (j = 0; j < nF; j++)
+        {
+            i = v [j] ; // column for x or y
+            x [i] = Sx [j] ;
+            y [i] = Sy [j] ;
+            F [i] = EMPTY ;
+        }
+    
+        napheap_terminate(&napdata) ;
+    }
+
+#if 0
+    /* compute gx gradient for full space */
+    VSP_Grad (gx, a, y, n, Ai, Ap, gamma, 1/*full space*/) ;
+    /* move x to boundary in full space, no gy update since no gy present */
+    VSPboundary (x, a, gx, gy, n, Ai, Ap, gamma, 0/*no gy update*/, 0) ;
+    /* compute gy gradient for full space */
+    VSP_Grad (gy, a, x, n, Ai, Ap, gamma, 1/*full space*/) ;
+    /* move y to boundary in full space, update gx gradient, no change in gy */
+    VSPboundary (y, a, gy, gx, n, Ai, Ap, gamma, 1/*gx update*/, 0) ;
+    // printf("exit FMsubspace with obj = %e\n", VSP_Obj (x, gx, y, a, n)) ;
+#endif
+    if ( napdata != NULL ) napheap_terminate (&napdata) ;
+    free (wx) ;
+    free (wi) ;
+    free (wL) ;
+}
+
+
+
+// Wrapper for VSP_FMsubspace using state structs
+void FM_subspace_grad_proj(State *X, State *Y, Problem *P, Options *opts)
+{
+    /* ====================================================================== */
+    // Step 0: Declarations and initializations
+    /* ====================================================================== */
+    VSPFLOAT xcost, ycost, *c_flt, *x, *y, *gx, *gy, noFM ;
+    VSPINT fx, fy ;
+    VSPINT   *c     = P->graph->c ;
+    VSPINT   *Ai    = P->graph->Ai ;
+    VSPLONG  *Ap    = P->graph->Ap ;
+    VSPINT    n     = P->graph->n ;
+    VSPINT    u     = P->u ;
+    VSPFLOAT  gamma = P->graph->max_vtx_cost ;
+
+    int update_grad ;
+    int is_full_space = TRUE ;
+    int print_lvl  = 0 ;
+    /* ====================================================================== */
+    // Step 1: Convert x, y, c to floats. Get index of fractional entries
+    /* ====================================================================== */
+    x     = Point_To_Array(X->point) ;
+    y     = Point_To_Array(Y->point) ;
+    c_flt = Array_Int_To_Flt(c, n) ;
+
+    fx = X->point->ind_frac ;
+    fy = Y->point->ind_frac ;
+    
+    /* ====================================================================== */
+    /* Step 2: Do FM subspace method */
+    /* ====================================================================== */
+    noFM = opts->noFM ;
+    VSP_FMsubspace (x, fx, y, fy, c_flt, Ai, Ap, u, n, gamma, noFM) ;
+
+
+    /* ====================================================================== */
+    // Step 3: Move x and y to vertices of the feasible set
+    /* ====================================================================== */
+    // Compute gx = gradient for full space
+    gx = malloc ( n * sizeof(*gx) ) ;
+    VSP_Grad (gx, c_flt, y, n, Ai, Ap, gamma, is_full_space) ;
+
+    // Move x to boundary. gx doesn't change. gy not yet evaluated
+    update_grad = FALSE ;
+    fx = VSPboundary(x, c_flt, gx, gy, n, Ai, Ap,gamma,update_grad,1,print_lvl);
+
+    // Compute gy = gradient for full space
+    gy = malloc ( n * sizeof(*gy) ) ;
+    VSP_Grad (gy, c_flt, x, n, Ai, Ap, gamma, is_full_space) ;
+
+    // Move y to boundary in full space. gy doesn't changes. Update gx
+    update_grad = TRUE ;
+    fy = VSPboundary (y, c_flt, gy, gx, n, Ai,Ap,gamma,update_grad,1,print_lvl);
+
+    // Move x and y to vertices
+    xcost = Move_To_Vertex(x, y, gx, gy, Ai, Ap, c_flt, u, gamma, n, &fx);
+    ycost = Move_To_Vertex(y, x, gy, gx, Ai, Ap, c_flt, u, gamma, n, &fy);
+
+
+    /* ====================================================================== */
+    // Step 4: Switch back to states and clean up
+    /* ====================================================================== */
+    Array_To_State(x, xcost, gy, X, P, fx) ;
+    Array_To_State(y, ycost, gx, Y, P, fy) ;
+
+    free(x) ;
+    free(y) ;
+    free(gx) ;
+    free(gy) ;
+    free(c_flt) ;
 }

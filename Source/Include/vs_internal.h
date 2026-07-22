@@ -1,5 +1,5 @@
-#ifndef _VS_H_
-#define _VS_H_
+#ifndef _VS_INTERNAL_H_
+#define _VS_INTERNAL_H_
 
 #include <time.h>
 #include <stdlib.h>
@@ -10,6 +10,7 @@
 #include <math.h>
 #include </usr/include/mkl/mkl.h>
 #include </usr/include/mkl/mkl_spblas.h>
+#include "vs.h"
 
 /* ========================================================================== */
 /* === macros =============================================================== */
@@ -19,7 +20,7 @@
 #define VSLINT   VSPLONG
 #define VSFLOAT  VSPFLOAT
 
-#define PRI(A) ( (long long) (A) )
+// #define PRI(A) ( (long long) (A) ) // defined in core.h
 
 #define VSFALSE  ( 0)
 #define VSTRUE   ( 1)
@@ -29,6 +30,9 @@
 #define VSZERO ((VSFLOAT) 0)
 #define VSHALF ((VSFLOAT) .5)
 #define RE_SCALAR ((VSFLOAT) 5.85498315243191680e-02)
+#define VSZERO_PLUS   ( ((VSFLOAT) 1E-8) )
+#define VSZERO_MINUS  (-VSZERO_PLUS)
+
 
 #define VSMAX(a,b) ( ((a) > (b)) ? (a) : (b) )
 #define VSMIN(a,b) ( ((a) < (b)) ? (a) : (b) )
@@ -250,8 +254,8 @@ else /* lambda = 0 is optimal, blo <= a'x <= bhi */ \
 #define NAPINF inf
 #define NAPMAX VSMAX
 #define NAPMIN VSMIN
-#define FALSE VSFALSE
-#define TRUE VSTRUE
+// #define FALSE VSFALSE
+// #define TRUE VSTRUE
 #define napheap_malloc vs_malloc
 #define napheap_free vs_free
 #define nap_dot vs_dot
@@ -260,29 +264,6 @@ else /* lambda = 0 is optimal, blo <= a'x <= bhi */ \
 /* ========================================================================== */
 /* === vs structures ======================================================== */
 /* ========================================================================== */
-
-typedef struct VSparm      /* parameters */
-{
-    /* printing */
-    int       PrintLevel ; /* Level 0  = no print, ... , Level 2 = max print*/
-    int       PrintParms ; /* TRUE means print parameter values */
-    int      PrintStatus ; /* TRUE means print status */
-
-    int      compute_eig ; /* TRUE means use eigenvector to start bisection */
-    unsigned    int seed ; /* seed to start srand */
-    VSFLOAT          eps ; /* machine epsilon for VSFLOAT */
-    int      SmallMatrix ; /* full diagonalization of A when n <= SmallMatrix */
-    VSFLOAT basis_factor ; /* # Lanczos iter = basis_factor*log2(dimension) */
-    VSFLOAT  Lanczos_tol ; /* |u_j| <= Lanczos_tol*Amax => stop Lanc. */
-    VSFLOAT       qr_its ; /* total QR iterations <= qr_its * dimension */
-    VSFLOAT   qr_tol_rel ; /* stop QR when u_{k-1}^2 <= qr_tol_rel*|d_k| */
-    VSFLOAT   qr_tol_abs ; /* stop QR when |u_{k-1}| <= qr_abs_tol */
-    VSFLOAT     qr_lower ; /* controls rescaling */
-    int              ngp ; /* number of gradient projection iterations */
-    int  initial_project ; /* TRUE: project z onto feasible set for bisection
-                              before the gradient projection loop;
-                              FALSE: skip the initial projection */
-} VSparm ;
 
 typedef struct VSgivens    /* Givens rotations in diagonalization */
 {
@@ -472,26 +453,6 @@ typedef struct
     VSLINT nz ;    // number of nonzeros
 } CSC ;
 
-/* prototypes for vs */
-
-int vs
-(
-    int       *x, /* x [i] = 0, 1, or 2 to put i in set 0, set 1, or separator
-                     respectively,  malloc'd by user */
-    VSINT    *Ei, /* row numbers */
-    VSLINT   *Ep, /* column pointers */
-    VSINT    *Ex, /* edge weights,   NULL => all entries in Ex are 1 */
-    VSINT     *a, /* vertex weights, NULL => all entries in a are 1 */
-    VSINT      n, /* problem dimension */
-    VSFLOAT    m, /* balance constraint parameter: 0.5 * original # vertices
-                     m = 0.5*sum(vw [i]) */
-    VSparm *Parm  /* parameter structure */
-) ;
-
-void vs_default
-(
-    VSparm  *Parm /* pointer to parameter structure */
-) ;
 
 void vs_print_parms
 (
@@ -575,9 +536,10 @@ void vs_copyx
 
 void vs_vecadd
 (
-    VSFLOAT       *x,
-    VSFLOAT const *b,
-    VSINT   const  n
+     VSFLOAT       *x,
+     VSFLOAT       *y,
+     VSFLOAT const *b,
+     VSINT   const  n
 ) ;
 
 void vs_scale
@@ -610,23 +572,17 @@ void vs_translate
     VSINT   const n
 ) ;
 
-void vs_vecadd
+void vs_boundary /* return original cost and its improvement */
 (
-    VSFLOAT       *x,
-    VSFLOAT const *b,
-    VSINT   const  n
-) ;
-
-void vs_boundary /* return cost improvement */
-(
-    VSFLOAT   *x, /* feasible point for (GB), output described above */
-    VSINT    *Ai, /* row numbers */
-    VSLINT   *Ap, /* column pointers */
-    VSFLOAT  *Ax, /* edge weights,   NULL => all entries in Ax are 1 */
-    VSFLOAT   *a, /* vertex weights, NULL => all entries in a are 1 */
-    VSINT      n, /* problem dimension */
-    VSFLOAT  *A1, /* linear term in objective of (GB) */
-    VSFLOAT   *g  /* work array for storing gradient vector */
+    VSFLOAT           *x, /* feasible point for (GB), output described above */
+    VSINT            *Ai, /* row numbers */
+    VSLINT           *Ap, /* column pointers */
+    VSFLOAT          *Ax, /* edge weights,   NULL => all entries in Ax are 1 */
+    VSFLOAT           *a, /* vertex weights, NULL => all entries in a are 1 */
+    VSINT              n, /* problem dimension */
+    VSFLOAT         *A12, /* linear term in objective of (GB) */
+    VSFLOAT           *g, /* work array for storing gradient vector */
+    int const PrintLevel
 ) ;
 
 VSINT vs_interior
@@ -777,8 +733,14 @@ void vs_separator
     VSLINT               *Ap, // Original graph
     VSINT                  n, // Original graph n
     VSINT          *vtx_wgts,
-    int            get_stats,// Binary flag to determine if (somewhat expensive)
-                             // stats should be computed
+    int      try_both_covers, // If nonzero: compute both Konig covers (BFS
+                              // from unmatched cols and from unmatched rows)
+                              // and pick the one with smallest weight,
+                              // tiebreaking on smallest imbalance.
+                              // If zero: original logic, single cover from
+                              // BFS on unmatched columns.
+    int            get_stats,  // Binary flag to determine if (somewhat
+                               // expensive) stats should be computed
 
     // Ignored if get_stats is false. In particular, they can be NULL
     VSINT             *n_bip,
@@ -1231,13 +1193,6 @@ static void Augment (VSINT k, const CSC *A, VSINT *jmatch, VSLINT *cheap,
 
 static VSINT *Maximum_Matching_Get(const CSC *A, VSINT seed) ;
 
-static void Vtx_Cover_From_Max_Matching_Get
-(
-    CSC            *B,
-    VSINT  *matching,
-    VSINT     **cover
-) ;
-
 static int Are_All_Neighbors_In_Cover
 (
     CSC             *B,
@@ -1260,24 +1215,6 @@ static void Separator_Check
     CSC       *A  // Adjacency matrix
 ) ;
 
-void vs_separator
-(
-    int                *part, // array with entries 0, 1, or 2
-    VSINT                *Ai, // Original graph
-    VSLINT               *Ap, // Original graph
-    VSINT                  n, // Original graph n
-    VSINT          *vtx_wgts,
-    int            get_stats,  // Binary flag to determine if (somewhat
-                               // expensive) stats should be computed
-
-    // Ignored if get_stats is false. In particular, they can be NULL
-    VSINT             *n_bip,
-    VSLINT           *nz_bip,
-    VSINT         *wgt_cover,
-    VSINT             *imbal,
-    VSFLOAT *time_entire_ret
-) ;
-
 static void Check_Its_A_Cover(CSC *B, VSINT *cover) ;
 
 void Pricing_Algorithm_Vertex_Cover_Get
@@ -1287,22 +1224,5 @@ void Pricing_Algorithm_Vertex_Cover_Get
     VSINT     *cover
 ) ;
 
-void vs_separator_approx
-(   
-    int                *part, // array with entries 0, 1, or 2
-    VSINT                *Ai, // Original graph
-    VSLINT               *Ap, // Original graph
-    VSINT                  n, // Original graph n
-    VSINT          *vtx_wgts,
-    int            get_stats,  // Binary flag to determine if (somewhat
-                               // expensive) stats should be computed
-
-    // Ignored if get_stats is false. In particular, they can be NULL
-    VSINT       *num_vert_bip,
-    VSLINT            *nz_bip,
-    VSINT          *wgt_cover,
-    VSINT              *imbal,
-    VSFLOAT *time_entire_ret
-) ;
 
 #endif

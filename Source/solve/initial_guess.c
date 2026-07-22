@@ -3,7 +3,8 @@
 #include "solve_internal.h"
 #include "mc.h"
 #include "utils.h"
-#include "VS.h"
+#include "coarsen.h"
+#include "vs.h"
 
 static void set_manual_initial_guess
 (
@@ -215,7 +216,7 @@ static void set_centroid
     obj_y += problem->u ;
 
     /* Update the state of y */
-    array_to_point(y_f, Y->point) ;
+    Array_To_Point(y_f, Y->point) ;
     Compute_Az(Y->point, Y->Az, problem->graph->Ai, problem->graph->Ap, problem->graph->n) ;
     compute_weight(Y->point, &Y->weight, c) ;
 
@@ -259,9 +260,12 @@ void Part_To_States
     int        *part,
     State      *X,
     State      *Y,
-    Problem    *problem
+    Problem    *problem,
+    bool        empty_sep
 )
 {
+    SET_FUNCTION_COUNTER ;
+
     VSPINT   i ;
     VSPINT   side ;
     VSPINT   u_finest ;
@@ -320,14 +324,14 @@ void Part_To_States
     Y->point->val_frac = 0 ;
 
     u_finest = Get_u_Finest(problem) ;
-    if(wgts_part[2] == 0 && wgts_part[0] <= u_finest && wgts_part[1]<=u_finest)
+    if(empty_sep && wgts_part[2] == 0 && wgts_part[0] <= u_finest && wgts_part[1]<=u_finest)
     {
         for(i = 0 ; i < n ; i++)
         {
-            x[i] = 0 ;
-            y[i] = 0 ;
-            if(part[i] == 0)      x[i] = 1 ;
-            else if(part[i] == 1) y[i] = 1 ;
+            const int side = part[i] ;
+            x[i] = (side == 0) ;
+            y[i] = (side == 1) ;
+            VSP_ASSERT(side == 0 || side == 1) ;
         }
         X->weight = wgts_part[0] ;
         Y->weight = wgts_part[1] ;
@@ -337,13 +341,11 @@ void Part_To_States
         // Set Ax and Ay
         Compute_Az(X->point, X->Az, Ai, Ap, n) ;
         Compute_Az(Y->point, Y->Az, Ai, Ap, n) ;
+
+        #ifdef DEBUG
+            check_states(X, Y, problem) ;
+        #endif
     }
-
-
-#ifdef DEBUG
-    check_states(X, Y, problem) ;
-#endif
-
 }
 
 static void set_bisection_initial_guess
@@ -371,13 +373,43 @@ static void set_bisection_initial_guess
     VSparm ParmStruc, *Parm ;
     Parm = &ParmStruc ;
     vs_default (Parm) ;
+    Parm->initial_project = options->initial_project ;
+    Parm->try_both_covers = options->try_both_covers ;
+    Parm->ngp             = options->bisection_ngp ;
 
     // Get partition
     VSPINT m = (problem->graph->total_vtx_cost) / 2 ;
     vs(part, Ai, Ap, Ae, c, n, m,Parm) ;
 
+
+    if(options->ub_based_on_bisection)
+    {
+        Problem *P = problem ;
+        VSPFLOAT u_ratio_coarsest ;
+        VSPFLOAT u_ratio_coarsest_Old ;
+        VSPINT   wgts[3] = {0, 0, 0} ;
+
+        // Calculate new upper bound at coarsest level
+        for(i = 0 ; i < n ; i++) wgts[ part[i] ] += c[i] ;
+        u_ratio_coarsest = MAX(wgts[0], wgts[1]) / (VSPFLOAT) (P->graph->total_vtx_cost) ;
+        u_ratio_coarsest = MAX(u_ratio_coarsest, options->u_ratio_coarsest) ;
+
+        // printf("Coarsest ub: %f\n", u_ratio_coarsest) ;
+
+        u_ratio_coarsest_Old = options->u_ratio_coarsest ;
+        options->u_ratio_coarsest = u_ratio_coarsest ;
+        while(P != NULL)
+        {
+            Set_Upper_Bound(P, options, QUADRATIC) ;
+            P = P->parent_problem ;
+        }
+
+        // Restore
+        options->u_ratio_coarsest = u_ratio_coarsest_Old ;
+    }
+
     // Convert partition to states
-    Part_To_States(part, X, Y, problem) ;
+    Part_To_States(part, X, Y, problem, true) ;
 
     // Cleanup
     free(part) ;

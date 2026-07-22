@@ -8,93 +8,113 @@
 
 void mountain_climbing
 (
-    State               *X,
-    State               *Y,
-    Problem       *problem,
-    Options       *options,
-    VSPFLOAT             gamma,
-    bool          is_gamma_org
+    State    *X,
+    State    *Y,
+    Problem  *problem,
+    Options  *options,
+    VSPFLOAT  gamma,
+    bool      is_gamma_org
 )
 {
     TIMER_START(T_MC) ;
 
-    SET_FUNCTION_COUNTER ;
+SET_FUNCTION_COUNTER ;
 #ifdef DEBUG
         if(is_gamma_org) VSP_ASSERT(equal(gamma,problem->graph->max_vtx_cost)) ;
         else             VSP_ASSERT(gamma < problem->graph->max_vtx_cost) ;
-#endif
 
-    #ifdef DEBUG
         /* Check input */
-        check_state(Y, problem);
         check_state(X, problem);
+        check_state(Y, problem);
 
         VSPFLOAT obj_dbg ;
         obj_dbg = compute_obj(X, Y, problem, problem->graph->max_vtx_cost) ;
         (void) obj_dbg ;
-    #endif
+#endif
 
     /* Local vars */
-    VSPINT *c  = problem->graph->c;
-    VSPINT bal = problem->u;
-    VSPINT n   = problem->graph->n;
-
-    State *Xstar = Clone_State(X) ;
-    State *Ystar = Clone_State(Y);
-
-    VSPFLOAT obj = compute_obj(X, Y, problem, gamma);
-    VSPINT loop = 0;
+    VSPFLOAT obj, old_obj, new_obj, f_xstar_y, f_x_ystar ;
+    VSPINT mc_count ;
+    VSPINT *c = problem->graph->c ;
+    VSPINT  n = problem->graph->n ;
+    VSPINT  u = problem->u ;
+    State *Xstar, *Ystar ;
     char optimal_var;
 
-    /*** Start Phase **********************************************************/
-    /* Optimize over x to get x_star */
-    VSPFLOAT f_xstar_y = LP_solver_4(Xstar, Y->Az, c, bal,
-                                                gamma, problem, options, 'x') ;
-    f_xstar_y += Y->weight;
-
-    /* Optimize over y to get y_star */
-    VSPFLOAT f_x_ystar = LP_solver_4(Ystar, X->Az, c, bal,
-                                                gamma, problem, options, 'y') ;
-    f_x_ystar += X->weight;
-
-    /* Adjust objective value to prevent cycling */
-    f_xstar_y = MAX(f_xstar_y, obj);
-    f_x_ystar = MAX(f_x_ystar, obj);
-
-
-    if (f_xstar_y > f_x_ystar + f_x_ystar * EPS)
+    /* ====================================================================== */
+    // Start mc: either start from lowest cost variable, or start with both
+    /* ====================================================================== */
+    if(options->start_mc_both_vars)
     {
-        copy_state(Xstar, X);
-        optimal_var = 'x';
+        obj = compute_obj(X, Y, problem, gamma);
+        State *Xstar = Clone_State(X) ;
+        State *Ystar = Clone_State(Y) ;
+
+        // Optimize over x to get x_star and f(x*, y)
+        f_xstar_y = LP_solver_4
+                    (Xstar, Y->Az, c, u, gamma, problem, options, 'x');
+        f_xstar_y += Y->weight;
+
+        // Optimize over y to get y_star and f(x, y*)
+        f_x_ystar = LP_solver_4
+                    (Ystar, X->Az, c, u, gamma, problem, options, 'y');
+        f_x_ystar += X->weight;
+
+        /* Adjust objective value to prevent cycling */
+        f_xstar_y = MAX(f_xstar_y, obj);
+        f_x_ystar = MAX(f_x_ystar, obj);
+
+        if (f_xstar_y > f_x_ystar + f_x_ystar * EPS)
+        {
+            copy_state(Xstar, X);
+            optimal_var = 'x';
+        }
+        else
+        {
+            copy_state(Ystar, Y);
+            optimal_var = 'y';
+        }
+
+        new_obj = (optimal_var == 'x') ? f_xstar_y : f_x_ystar;
+
+        /* Free memory */
+        Destroy_State(Xstar);
+        Destroy_State(Ystar);
     }
     else
     {
-        copy_state(Ystar, Y);
-        optimal_var = 'y';
+        if(X->weight <= Y->weight)
+        {
+            // Optimize over x
+            new_obj     = LP_solver_4(X, Y->Az, c, u,gamma,problem,options,'x');
+            new_obj    += Y->weight;
+            optimal_var = 'x';
+        }
+        else
+        {
+            // Optimize over y
+            new_obj      = LP_solver_4(Y, X->Az, c,u,gamma,problem,options,'y');
+            new_obj     += X->weight;
+            optimal_var  = 'y';
+        }
     }
 
-    /* Free memory */
-    Destroy_State(Xstar);
-    Destroy_State(Ystar);
-
     /*** Orthogonal Phase *****************************************************/
-    VSPFLOAT old_obj = compute_obj(X, Y, problem, gamma);
-    VSPINT mc_count = 0 ;
+    old_obj = new_obj ;
+    mc_count = 0 ;
     while (true)
     {
-        VSPFLOAT new_obj;
-
         if (optimal_var == 'x')
         {
             /* Optimize over y */
-            new_obj = LP_solver_4(Y, X->Az, c, bal, gamma, problem, options, 'y') ;
-            new_obj += X->weight;
+            new_obj = LP_solver_4(Y, X->Az, c, u, gamma, problem, options, 'y');
+            new_obj += X->weight ;
             optimal_var = 'y';
         }
         else
         {
             /* Optimize over x */
-            new_obj = LP_solver_4(X, Y->Az, c, bal, gamma, problem, options, 'x') ;
+            new_obj = LP_solver_4(X, Y->Az, c, u, gamma, problem, options, 'x');
             new_obj += Y->weight;
             optimal_var = 'x';
         }

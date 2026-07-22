@@ -3,7 +3,7 @@
 #include "utils.h"
 #include "greedy_flips.h"
 #include "FM.h"
-#include "VS.h"
+#include "vs.h"
 #include "mc.h"
 
 // Run a strategy on a cloned point. If it beats the original, swap.
@@ -30,7 +30,7 @@ bool Try_And_Keep_If_Better
     VSPFLOAT obj_orig = compute_obj(X,  Y,  problem, gamma);
     VSPFLOAT obj_new  = compute_obj(Xc, Yc, problem, gamma);
 
-    bool better = (obj_new > obj_orig);
+    bool better = (obj_new >= obj_orig);
     if (better)
     {
         Swap_Mem(X, Xc, sizeof(State));
@@ -85,7 +85,7 @@ void strategy_random_restart
     State *X, State *Y, Problem *problem, Options *options
 )
 {
-    initial_guess tmp = options->initial_guess ;
+    initial_guess tmp      = options->initial_guess ;
     options->initial_guess = random_initial_guess ;
     set_initial_guess(X, Y, problem, options);
     Optimize(X, Y, problem, options);
@@ -129,14 +129,14 @@ void strategy_explore_bisection
     VSparm ParmStruc, *Parm ;
     Parm = &ParmStruc ;
     vs_default (Parm) ;
-    Parm->ngp = 10 ;
+    Parm->ngp = 5 ;
     Parm->compute_eig = FALSE ;
     vs(part, Ai, Ap, Ae, c, n, m,Parm) ;
 
     // Convert vs point to states
-    Part_To_States(part, X, Y, problem) ;
+    Part_To_States(part, X, Y, problem, false) ;
     free(part) ;
 
     // Do mc
-    mountain_climbing(X, Y,problem, options, gamma, true) ;
+    Optimize(X, Y, problem, options) ;
 }

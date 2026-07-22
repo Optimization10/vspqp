@@ -7,6 +7,8 @@
 #include <string.h>
 #include <threads.h>
 #include "profiler.h"
+#include "hubs.h"
+#include "data_structures.h"
 
 const char *G_Current_Problem_Name ;
 
@@ -126,15 +128,12 @@ void Destroy_All_Problems(Problem *problemFinest)
 // Output: 
 solve_result *Solve_Null_Graph
 (
-    Problem *probFinest
+    VSPINT n,
+    VSPINT u
 )
 {
-    VSPINT i,
-    n    = probFinest->graph->n,
-    u    = probFinest->u ;
-
+    VSPINT i ;
     VSPINT M    = MIN(u, n / 2) ;
-
 
     solve_result *result = malloc( sizeof(*result) ) ;
     result->x = calloc(n, sizeof(VSPINT)) ;
@@ -167,14 +166,13 @@ solve_result *Solve_Null_Graph
         }
     }
     result->obj_val  = result->weight_x + result->weight_y ;
-    Destroy_All_Problems(probFinest) ;
     return result ;
 }
 
 
-solve_result *Package_Result(State *X, State *Y, Problem *P)
+solve_result *Package_Result(State *X, State *Y)
 {
-    VSPINT n = P->graph->n;
+    VSPINT n = X->point->n ;
     solve_result *result = malloc(sizeof(*result));
 
     result->x = malloc(n * sizeof(VSPINT));
@@ -193,10 +191,15 @@ solve_result *Package_Result(State *X, State *Y, Problem *P)
 
 /* Set the cost of each vector to 1, each edge weight to 1, and
    the balance constraints as 60% of the total number of vertices             */
-void set_default_problem_data(Problem* problem)
+static void set_default_problem_data
+(
+    Problem* problem,
+    Options *opts,
+    VSPINT n_input
+)
 {
     VSPLONG i ;
-    VSPINT n = problem->graph->n ;
+    VSPINT   n = problem->graph->n ;
     VSPLONG nz = problem->graph->nz ;
 
     /* Set cost of each vertex to 1 */
@@ -204,14 +207,14 @@ void set_default_problem_data(Problem* problem)
     for(i = 0 ; i < n ; i++) c[i] = 1 ;
 
     /* Set the upper balance constraint to 60%, and lower constraint to 1 */
-    problem->u =        (VSPINT) (problem->graph->n * 0.6);
-    problem->ubFinest = (VSPINT) (problem->graph->n * 0.6) ;
+    problem->u        = n_input * opts->u_ratio_finest ;
+    problem->ubFinest = problem->u ;
     return ;
 }
 
 /* Compute alpha, gamma, sum of all costs, and set the is_original flag to
    true */
-void    preprocess_finest_problem
+void preprocess_finest_problem
 (
     Problem* problem,
     Options* options
@@ -271,20 +274,14 @@ void    preprocess_finest_problem
     problem->graph->max_vtx_cost = gamma ;
     problem->graph->total_vtx_cost = total_graph_weight ;
     problem->graph->ratio_max_cost = ratio_cost_gamma ;
-
-
     return ;
 }
 
 
-
-
-void check_for_complete_graph(Problem *problem)
+void check_for_complete_graph(VSPINT n, VSPLONG nz)
 {
-    long long n_long  = (long long) problem->graph->n ;
-    long long nz_long = (long long) problem->graph->nz ;
-    long long upper_bnd_nz = n_long * n_long - n_long ;
-    if( nz_long == upper_bnd_nz )
+    long long upper_bnd_nz = (long long) n * n - n ;
+    if( nz == upper_bnd_nz )
     {
         fprintf
         (
@@ -292,14 +289,13 @@ void check_for_complete_graph(Problem *problem)
         ) ;
         exit(1) ;
     }
-    else if(nz_long > upper_bnd_nz)
+    else if(nz > upper_bnd_nz)
     {
         fprintf(stderr, "ERROR: nz > n^2 - n\n") ;
         exit(1) ;
     }
     return ;
 }
-
 
 // Input: an almost binary point. Initial point at this level
 // Output: all our improvements algorithms have been applied
@@ -318,11 +314,16 @@ void Solve_Level
     TIMER_START(T_TOTAL) ;
     
     Optimize(X, Y, problem, options) ;
-    // if(problem->level == 0)
-    // if( 1 )
-    // {
-    //     Try_And_Keep_If_Better(X, Y, problem, strategy_explore_bisection, options, NULL) ;
-    // }
+    VSPFLOAT imbal_ratio = (VSPFLOAT) abs(X->weight - Y->weight) / problem->graph->total_vtx_cost ;
+
+    if(   options->attempt_second_start
+       && imbal_ratio > options->min_imbal_ratio_second_start
+       && problem->level >= options->min_level_second_start)
+    {
+        Try_And_Keep_If_Better(X, Y, problem, strategy_explore_bisection, options, NULL) ;
+    }
+
+    Rebalance_Singletons(X, Y, problem) ;
 
     TIMER_STOP(T_TOTAL) ;
     Timer_Flush(problem->level) ;
@@ -351,8 +352,7 @@ void Uncoarsen_Point_NoSep
     VSPINT *cxInt = coarse_X->point->int_part ;
     VSPINT *cyInt = coarse_Y->point->int_part ;
 
-    // Propagate int_part. Each fine vertex inherits the assignment of its
-    // image in the coarse graph.
+
     for(VSPINT fv = 0 ; fv < fn ; fv++)
     {
         VSPINT cv = matchmap[fv] ;
@@ -360,9 +360,6 @@ void Uncoarsen_Point_NoSep
         fyInt[fv] = cyInt[cv] ;
     }
 
-    // Weights are preserved through coarsening (c_coarse[k] = sum of c_fine
-    // over preimage(k)), so the coarse weights are already the correct fine
-    // weights. No iteration needed to recompute.
     fine_X->weight = coarse_X->weight ;
     fine_Y->weight = coarse_Y->weight ;
 
@@ -372,36 +369,102 @@ void Uncoarsen_Point_NoSep
 
 solve_result *VSP_Solve
 (
-    VSPINT    n,
-    VSPLONG  *Ap,
-    VSPINT   *Ai,
+    VSPINT    n_input,
+    VSPLONG  *Ap_input,
+    VSPINT   *Ai_input,
     Options  *options,
-    char     *name     // Optional. Problem name
+    char     *name       // Optional. Problem name
 )
 {
     SET_FUNCTION_COUNTER ;
     G_Current_Problem_Name = name ;
 
+
+    /*--------------------------------------------------------------------*/
+    // Check for trivial inputs (no edges, or complete graphs)
+    /*--------------------------------------------------------------------*/
+    // Short-circuit if input graph is complete
+    check_for_complete_graph(n_input, Ap_input[n_input]) ;
+
+    // Short-circuit if input problem has no edges
+    if(Ap_input[n_input] == 0)
+    {
+        return Solve_Null_Graph (n_input, n_input * options->u_ratio_finest) ;
+    }
+
+    /*--------------------------------------------------------------------*/
+    // Remove hubs
+    /*--------------------------------------------------------------------*/
+    VSPINT   num_hubs ;
+    VSPINT  *hubs ;
+    VSPINT   n ;
+    VSPINT  *Ai ;
+    VSPLONG *Ap ;
+    
+    // Get hubs
+    Get_Hubs(n_input, Ap_input, options->hub_treshold, &hubs, &num_hubs) ;
+
+    // Every hub goes into the separator, so they only help if they're a small
+    // minority. If there's a significant fraction of them, skip removal and
+    // solve the original graph.
+    bool use_hubs = (num_hubs > 0) && (num_hubs <= 0.3 * n_input) ;
+
+    if(use_hubs)
+    {
+        Remove_Hubs(n_input, Ai_input, Ap_input, hubs, num_hubs, &n, &Ai, &Ap) ;
+    }
+    else
+    {
+        Ai = Ai_input ;
+        Ap = Ap_input ;
+        n  = n_input ;
+        num_hubs = 0 ;
+    }
+
+    if(Ap[n] == 0)
+    {
+        solve_result *result = malloc(sizeof(*result)) ;
+        result->x = calloc(n_input, sizeof(VSPINT)) ;
+        result->y = calloc(n_input, sizeof(VSPINT)) ;
+
+        VSPINT u = n_input * options->u_ratio_finest ;
+        VSPINT x_count, y_count ;
+        if(u < n / 2) { x_count = u ;     y_count = u ;         }
+        else          { x_count = n / 2 ; y_count = n - n / 2 ; }
+
+        VSPINT h = 0, placed = 0 ;
+        for(VSPINT v = 0 ; v < n_input ; v++)
+        {
+            if(h < num_hubs && hubs[h] == v) { h++ ; continue ; }
+            if      (placed < x_count)           result->x[v] = 1 ;
+            else if (placed < x_count + y_count) result->y[v] = 1 ;
+            placed++ ;
+        }
+        result->weight_x = x_count ;
+        result->weight_y = y_count ;
+        result->obj_val  = x_count + y_count ;
+
+        free(hubs) ;
+        free(Ai) ;
+        free(Ap) ;
+        return result ;
+    }
+
+    /*--------------------------------------------------------------------*/
+    // Load problem into Problem struct
+    /*--------------------------------------------------------------------*/
     bool have_global_optimum = false ;
     Problem *probFinest, *probCoarsest, *P ;
 
     probFinest = Construct_Problem(n, Ap[n], Ai, Ap, false, options) ;
-    set_default_problem_data(probFinest) ;
+    set_default_problem_data(probFinest, options, n_input) ;
 
     /* Preprocessing */
-    check_for_complete_graph(probFinest) ;
     preprocess_finest_problem(probFinest, options) ;
 
     #ifdef DEBUG
         check_problem(probFinest, options) ;
     #endif
-
-    if(probFinest->graph->nz == 0)
-    {
-        solve_result *ret = Solve_Null_Graph(probFinest) ;
-        Destroy_All_Problems(probFinest) ;
-        return ret ;
-    }
 
     /*--------------------------------------------------------------------*/
     // Coarsen
@@ -426,11 +489,6 @@ solve_result *VSP_Solve
     {
         have_global_optimum = true ;
 
-        // Singleton short-circuit: the coarse vertices listed in sol_sings
-        // (and their finest-level preimages) go in shore X, everything else
-        // in shore Y, with no separator. Since c is preserved through
-        // coarsening, the weights set here are the correct finest-level
-        // weights too.
         VSPINT *c        = P->graph->c ;
         VSPINT  n_coarse = P->graph->n ;
         VSPINT  weight_x = 0 ;
@@ -462,7 +520,7 @@ solve_result *VSP_Solve
 
     // Invariant: X_l, Y_l holds the solution at level l.
     // On the singleton path the coarse solution has empty separator, so we
-    // use the cheaper Uncoarsen_Point_NoSep (no Az, no frac, no Solve_Level).
+    // use the cheaper Uncoarsen_Point_NoSep (no Az computation).
     for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
     {
 
@@ -486,13 +544,34 @@ solve_result *VSP_Solve
     // X_0, Y_0 is the solution at the finest, uncompressed level
     X_0 = X_lp1 ;
     Y_0 = Y_lp1 ;
-    solve_result *result = Package_Result(X_0, Y_0, probFinest) ;
+
+    if(num_hubs)
+    {
+        Restore_Hubs(X_0, hubs, num_hubs) ;
+        Restore_Hubs(Y_0, hubs, num_hubs) ;
+        Place_Hubs_In_Shores
+        (
+            X_0, Y_0,
+            hubs, num_hubs,
+            Ai_input, Ap_input,
+            probFinest->u
+        ) ;
+    }
+
+    solve_result *result = Package_Result(X_0, Y_0) ;
     Destroy_State(X_0) ;
     Destroy_State(Y_0) ;
     free(sol_sings) ;
 
     Print_Stats(probFinest) ;
     Destroy_All_Problems(probFinest) ;
+
+    free(hubs) ;
+    if(num_hubs)
+    {
+        free(Ai) ;
+        free(Ap) ;
+    }
 
     return result ;
 }

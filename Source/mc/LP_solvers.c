@@ -165,7 +165,10 @@ VSPFLOAT LP_solver_4
                         Error("Issue in LP solver", DBG_INFO) ;
                     }
                     VSPFLOAT objEnd = compute_LP_objective(Z->point, c, gamma, Aw) ;
-                    VSP_ASSERT(objStart <= objEnd) ;
+                    if(Is_Less_Than(objEnd, objStart, 1E-8))
+                    {
+                        Error("LP obj did not increase", DBG_INFO) ;
+                    }
                 #endif
                 if(useRandomness) free(perm) ;
                 return obj ;
@@ -226,7 +229,10 @@ VSPFLOAT LP_solver_4
                     }
 
                     VSPFLOAT objEnd = compute_LP_objective(Z->point, c, gamma, Aw) ;
-                    VSP_ASSERT(objStart <= objEnd) ;
+                    if(Is_Less_Than(objEnd, objStart, 1E-8))
+                    {
+                        Error("LP obj did not increase", DBG_INFO) ;
+                    }
                 #endif
                 if(useRandomness) free(perm) ;
                 return obj ;

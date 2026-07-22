@@ -302,6 +302,19 @@ void FlipSelector_Check_v5
 
 
 // ASSUMED: p_(x, 1) and p_(y, 1) are each <= 2
+// ASSUMED: p_(x, 1) and p_(y, 1) are each <= 2
+//
+// Fix vs. original v1: the gain-recording block has been split. Originally,
+// `if(gain > maxFeasPosGain)` was doing both the "beneficial threshold"
+// filter and the "new max" check at once, which caused any flip whose gain
+// tied the running max to be silently dropped from the pool. Now the two
+// jobs are separated:
+//   - `if(gain > threshold)` records the flip (always, when beneficial)
+//   - `if(gain > maxFeasPosGain)` updates the max (only on strict improvement)
+//
+// Pool building also now guards on `numFeasPosGain[flip] == 0` so that
+// unrecorded flips can't accidentally tie when maxFeasPosGain == 0 in
+// non-strict mode.
 void SelectRandomOptimalBeneficialFlip
 (
     VSPINT *x,
@@ -346,15 +359,18 @@ void SelectRandomOptimalBeneficialFlip
 
     /*------------------------------------------------------------------------*/
     // Collect the following data
-    // feasPosGains[4] - in entry k, record the feasible positive gain (if any)
-    //                  of the flip encoded as k
-    // 
-    // maxFeasPosGain - maximal feasible positive gain (weakly positive, >= 0)
-    // numFeasPosGain - number of indices corresponding to that feasible
-    //                  positive gain
+    // feasPosGains[k]   - gain of flip k (valid iff numFeasPosGain[k] > 0)
+    // numFeasPosGain[k] - number of indices achieving that gain (0 means
+    //                     flip k was not recorded, doubles as a "present" flag)
+    // maxFeasPosGain    - max over recorded gains
+    //
+    // A flip is beneficial iff
+    //   strict     : gain > 0
+    //   non-strict : gain > -1   (gain >= 0)
     /*------------------------------------------------------------------------*/
     VSPINT cval, gain, numIdx ;
-    VSPINT maxFeasPosGain = strict ? 0 : -1 ;
+    VSPINT threshold      = strict ? 0 : -1 ;
+    VSPINT maxFeasPosGain = threshold ;
     VSPINT feasPosGains  [4] = {0} ;
     VSPINT numFeasPosGain[4] = {0} ;
 
@@ -363,12 +379,12 @@ void SelectRandomOptimalBeneficialFlip
     if(cval != EMPTY)
     {
         gain = cval ;
-        if(gain > maxFeasPosGain)
+        if(gain > threshold)
         {
-            maxFeasPosGain = gain ;
-            feasPosGains[XUP]   = gain ;
+            feasPosGains[XUP] = gain ;
             IdxGroupsByC_Num_Idx_With_Given_C(x0Ay0_groups, cval, &numIdx) ;
             numFeasPosGain[XUP] = numIdx ;
+            if(gain > maxFeasPosGain) maxFeasPosGain = gain ;
         }
     }
 
@@ -377,12 +393,12 @@ void SelectRandomOptimalBeneficialFlip
     if(cval != EMPTY)
     {
         gain = cval ;
-        if(gain > maxFeasPosGain)
+        if(gain > threshold)
         {
-            maxFeasPosGain    = gain ;
             feasPosGains[YUP] = gain ;
             IdxGroupsByC_Num_Idx_With_Given_C(y0Ax0_groups, cval, &numIdx) ;
             numFeasPosGain[YUP] = numIdx ;
+            if(gain > maxFeasPosGain) maxFeasPosGain = gain ;
         }
     }
 
@@ -391,12 +407,12 @@ void SelectRandomOptimalBeneficialFlip
     if(cval != EMPTY)
     {
         gain =  -(cval - gamma * 2) ;
-        if(gain > maxFeasPosGain)
+        if(gain > threshold)
         {
-            maxFeasPosGain = gain ;
             feasPosGains[XDN] = gain ;
             IdxGroupsByC_Num_Idx_With_Top_C(x1Ay2_groups, &numIdx) ;
             numFeasPosGain[XDN] = numIdx ;
+            if(gain > maxFeasPosGain) maxFeasPosGain = gain ;
         }
     }
     else // if cval == EMPTY
@@ -405,12 +421,12 @@ void SelectRandomOptimalBeneficialFlip
         if(cval != EMPTY)
         {
             gain =  -(cval - gamma * 1) ;
-            if(gain > maxFeasPosGain)
+            if(gain > threshold)
             {
-                maxFeasPosGain = gain ;
                 feasPosGains[XDN] = gain ;
                 IdxGroupsByC_Num_Idx_With_Top_C(x1Ay1_groups, &numIdx) ;
                 numFeasPosGain[XDN] = numIdx ;
+                if(gain > maxFeasPosGain) maxFeasPosGain = gain ;
             }
         }
     }
@@ -420,12 +436,12 @@ void SelectRandomOptimalBeneficialFlip
     if(cval != EMPTY)
     {
         gain =  -(cval - gamma * 2) ;
-        if(gain > maxFeasPosGain)
+        if(gain > threshold)
         {
-            maxFeasPosGain = gain ;
             feasPosGains[YDN] = gain ;
             IdxGroupsByC_Num_Idx_With_Top_C(y1Ax2_groups, &numIdx) ;
             numFeasPosGain[YDN] = numIdx ;
+            if(gain > maxFeasPosGain) maxFeasPosGain = gain ;
         }
     }
     else // if cval == EMPTY
@@ -434,12 +450,12 @@ void SelectRandomOptimalBeneficialFlip
         if(cval != EMPTY)
         {
             gain =  -(cval - gamma * 1) ;
-            if(gain > maxFeasPosGain)
+            if(gain > threshold)
             {
-                maxFeasPosGain = gain ;
                 feasPosGains[YDN] = gain ;
                 IdxGroupsByC_Num_Idx_With_Top_C(y1Ax1_groups, &numIdx) ;
                 numFeasPosGain[YDN] = numIdx ;
+                if(gain > maxFeasPosGain) maxFeasPosGain = gain ;
             }
         }
     }
@@ -469,14 +485,6 @@ void SelectRandomOptimalBeneficialFlip
                     x, Ax, wgtx, y, Ay, wgty,
                     *retFlipVar, *retIndFlip, problem
                 ) ;
-
-                FeasibleStrictlyBeneficialFlipSelector_Check
-                (
-                    x, Ax, wgtx,
-                    y, Ay, wgty,
-                    *retFlipVar, *retIndFlip,
-                    problem, IMPROVE_OBJ_ONLY
-                ) ;
             }
         }
         else
@@ -492,7 +500,7 @@ void SelectRandomOptimalBeneficialFlip
     }
 
     /*------------------------------------------------------------------------*/
-    // Record all flips with maximal gain in 
+    // Record all flips with maximal gain in
     // maxGainFlips[4]     - a stack containing 0-3 which encode flips
     // m                   - size of maxGainFlips stack
     // numsMaxGainFlips[4] - a stack of the number of indices corr. to each flip
@@ -503,38 +511,38 @@ void SelectRandomOptimalBeneficialFlip
     VSPINT numsMaxGainFlips[4] = {0} ;
     VSPINT acumm[5]            = {0} ;
 
-    if( feasPosGains[XUP] == maxFeasPosGain )
+    if( numFeasPosGain[XUP] > 0 && feasPosGains[XUP] == maxFeasPosGain )
     {
         maxGainFlips[m] = XUP ;
         numsMaxGainFlips[m] = numFeasPosGain[XUP] ;
-        m++ ; 
+        m++ ;
         acumm[m] = acumm[m-1] + numFeasPosGain[XUP]  ;
     }
 
 
-    if( feasPosGains[YUP] == maxFeasPosGain )
+    if( numFeasPosGain[YUP] > 0 && feasPosGains[YUP] == maxFeasPosGain )
     {
         maxGainFlips[m] = YUP ;
         numsMaxGainFlips[m] = numFeasPosGain[YUP] ;
-        m++ ; 
+        m++ ;
         acumm[m] = acumm[m-1] + numFeasPosGain[YUP]  ;
-    }    
+    }
 
-    if( feasPosGains[XDN] == maxFeasPosGain )
+    if( numFeasPosGain[XDN] > 0 && feasPosGains[XDN] == maxFeasPosGain )
     {
         maxGainFlips[m] = XDN ;
         numsMaxGainFlips[m] = numFeasPosGain[XDN] ;
-        m++ ; 
+        m++ ;
         acumm[m] = acumm[m-1] + numFeasPosGain[XDN]  ;
-    }    
+    }
 
-    if( feasPosGains[YDN] == maxFeasPosGain )
+    if( numFeasPosGain[YDN] > 0 && feasPosGains[YDN] == maxFeasPosGain )
     {
         maxGainFlips[m] = YDN ;
         numsMaxGainFlips[m] = numFeasPosGain[YDN] ;
-        m++ ; 
+        m++ ;
         acumm[m] = acumm[m-1] + numFeasPosGain[YDN] ;
-    }    
+    }
 
     /*------------------------------------------------------------------------*/
     // Choose a random flip with maximal gain
@@ -624,20 +632,12 @@ void SelectRandomOptimalBeneficialFlip
         }
         else
         {
-            FeasibleStrictlyBeneficialFlipSelector_Check
-            (
-                x, Ax, wgtx,
-                y, Ay, wgty,
-                *retFlipVar, *retIndFlip,
-                problem,
-                strict ? IMPROVE_OBJ_ONLY : IMPROVE_OBJ_OR_NEUTRAL_DOWNFLIP
-            ) ;
+
         }
     #endif
 
     return ;
 }
-
 
 
 
@@ -955,320 +955,362 @@ void FeasibleBeneficialFlipSelector_Check
 
 
 // Flip Selector Check
-void FeasibleStrictlyBeneficialFlipSelector_Check
+
+
+
+
+// ASSUMED: p_(x, 1) and p_(y, 1) are each <= 2
+// v2 differs from v1 only in how it breaks ties among max-gain flips:
+// improving-imbalance flips are preferred over damaging-imbalance flips,
+// and within each group downflips are preferred over upflips.
+void SelectRandomOptimalBeneficialFlip_v2
 (
-    VSPINT                          *x,
-    VSPINT                         *Ax,
-    VSPINT                        wgtx,
-    VSPINT                          *y,
-    VSPINT                         *Ay,
-    VSPINT                        wgty,
-    char                  givenVarFlip,
-    VSPINT                givenIndFlip,
-    Problem               *problem,
-    Expected_Flip_Effect expFlipEffect
+    VSPINT *x,
+    VSPINT *y,
+    VSPINT *Ax,
+    VSPINT *Ay,
+    VSPINT wgtx,
+    VSPINT wgty,
+    bool deep_search,
+    bool strict,
+
+    IdxGroupsByC *x0Ay0_groups,
+    IdxGroupsByC *x1Ay1_groups,
+    IdxGroupsByC *x1Ay2_groups,
+    Direct_Access_List *x0Ay1_list, // only used in debugging
+
+    IdxGroupsByC *y0Ax0_groups,
+    IdxGroupsByC *y1Ax1_groups,
+    IdxGroupsByC *y1Ax2_groups,
+    Direct_Access_List *y0Ax1_list, // only used in debugging
+
+    Problem       *problem,
+    char           *retFlipVar, // '\0' if no flip
+    VSPINT         *retIndFlip  // EMPTY if no flip
 )
 {
-    static long long unsigned count = 0 ;
-    count++ ;
-    WARN_IF_NOT_DEBUG_MODE ;
+    SET_FUNCTION_COUNTER ;
+    #ifdef DEBUG
+        Check_All_Data
+        (
+            x, Ax, wgtx, y, Ay, wgty,
+            x0Ay0_groups, x0Ay1_list, x1Ay1_groups, x1Ay2_groups,
+            y0Ax0_groups, y0Ax1_list, y1Ax1_groups, y1Ax2_groups,
+            problem
+        ) ;
+    #endif
 
-    // Validate input
-    if(givenIndFlip != EMPTY)
-    {
-        if(givenVarFlip != 'x' && givenVarFlip != 'y')
-        {
-            ERR("Mismatch between given ind flip and given var flip") ;
-        }
-    }
-    else
-    {
-        if(givenVarFlip != '\0')
-        {
-            ERR("Mismatch between given ind flip and given var flip") ;
-        }
-    }
-
-    VSPINT i, k, xi, yi, Axi, Ayi, ci, bestGain = 0 ;
-    VSPINT n = problem->graph->n ;
-    VSPINT gamma = problem->graph->max_vtx_cost ;
-    VSPINT *c = problem->graph->c ;
-    VSPINT  u = problem->u ;
+    VSPINT u      = problem->u ;
+    VSPINT gamma  = problem->graph->max_vtx_cost ;
 
     /*------------------------------------------------------------------------*/
-    // Compute ps, cs, and witnesses (indices attaining the ps and cs)
-    // For the witnesses, compute feasibility status, and gains
+    // Collect the following data for every feasible beneficial flip:
+    // feasPosGains[k]   - gain of flip k (only valid if numFeasPosGain[k] > 0)
+    // numFeasPosGain[k] - number of indices achieving that gain (0 if flip
+    //                     k is not recorded; this doubles as a "present"
+    //                     flag).
+    // maxFeasPosGain    - max over recorded gains.
+    //
+    // A flip is "beneficial" / passes the threshold iff
+    //   strict     : gain > 0
+    //   non-strict : gain > -1   (i.e., gain >= 0)
     /*------------------------------------------------------------------------*/
+    VSPINT cval, gain, numIdx ;
+    VSPINT threshold      = strict ? 0 : -1 ;
+    VSPINT maxFeasPosGain = threshold ;
+    VSPINT feasPosGains  [4] = {0} ;
+    VSPINT numFeasPosGain[4] = {0} ;
 
-    VSPINT ps[4], cs[4], witness[4], isFeas[4], gains[4] ;
-    Compute_ps_And_cs_Dbg
-    (
-        x, Ax, wgtx, NULL, y, Ay, wgty, NULL, problem,
-        ps, cs, witness
-    ) ;
-
-    Compute_Feasibility_And_Gains
-    (
-        Ax, Ay, wgtx, wgty, problem,
-        witness, isFeas, gains
-    ) ;
-
-    /*------------------------------------------------------------------------*/
-    // Load the given flip into a Flip data structure of easier debugging
-    /*------------------------------------------------------------------------*/
-    VSPINT givenGain = 0 ;
-    if( givenVarFlip == 'x' )
+    // x upflip
+    IdxGroupsByC_See_Best_Feasible_Cval(x0Ay0_groups, wgtx, u, deep_search, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
+    if(cval != EMPTY)
     {
-        givenGain = GAIN_FLIP( DIR_FLIP(x[givenIndFlip]), c[givenIndFlip], gamma, Ay[givenIndFlip] ) ;
-    }
-    else if( givenVarFlip == 'y' )
-    {
-        givenGain = GAIN_FLIP( DIR_FLIP(y[givenIndFlip]), c[givenIndFlip], gamma, Ax[givenIndFlip] ) ;
-    }
-
-    Flip givenFlip = {0} ;
-    givenFlip.gamma = gamma ;
-    givenFlip.i    = givenIndFlip ;
-    givenFlip.var  = givenVarFlip ;
-    givenFlip.gain = givenGain ;
-    givenFlip.u = u ;
-    if(givenVarFlip == 'x')
-    {
-        VSP_ASSERT(givenIndFlip != EMPTY) ;
-        givenFlip.wgt = wgtx ;
-        givenFlip.zi   = x[givenIndFlip] ;
-        givenFlip.Awi  = Ay[givenIndFlip] ;
-        givenFlip.dir  = 1 - 2 * x[givenIndFlip] ;
-        givenFlip.ci   = c[givenIndFlip] ;
-        if(x[givenIndFlip] == 0)
+        gain = cval ;
+        if(gain > threshold)
         {
-            givenFlip.dir = 1 ;
-        }
-        else
-        {
-            givenFlip.dir = -1 ;
+            feasPosGains[XUP] = gain ;
+            IdxGroupsByC_Num_Idx_With_Given_C(x0Ay0_groups, cval, &numIdx) ;
+            numFeasPosGain[XUP] = numIdx ;
+            if(gain > maxFeasPosGain) maxFeasPosGain = gain ;
         }
     }
-    else if(givenVarFlip == 'y')
-    {
-        VSP_ASSERT(givenIndFlip != EMPTY) ;
-        givenFlip.wgt = wgty ;
-        givenFlip.zi   = y[givenIndFlip] ;
-        givenFlip.Awi  = Ax[givenIndFlip] ;
-        givenFlip.dir  = 1 - 2 * y[givenIndFlip] ;
-        givenFlip.ci   = c[givenIndFlip] ;
-    }
-    else
-    {
-        givenFlip.i  = EMPTY ;
-    }
 
-
-    // Check for feasibility
-    if(givenFlip.i != EMPTY)
+    // y upflip
+    IdxGroupsByC_See_Best_Feasible_Cval(y0Ax0_groups, wgty, u, deep_search, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
+    if(cval != EMPTY)
     {
-        if(givenFlip.dir == 1 && !FEASIBLE_UPFLIP(givenFlip.wgt, givenFlip.ci, givenFlip.u) )
+        gain = cval ;
+        if(gain > threshold)
         {
-            ERR("Infeasible flip") ;
+            feasPosGains[YUP] = gain ;
+            IdxGroupsByC_Num_Idx_With_Given_C(y0Ax0_groups, cval, &numIdx) ;
+            numFeasPosGain[YUP] = numIdx ;
+            if(gain > maxFeasPosGain) maxFeasPosGain = gain ;
         }
-    } 
+    }
 
-    // In each case, trueFlip will be an optimal flip for that case. And we will
-    // check givenFlip against it.
-    // Initialize trueFlip as an empty flip
-    Flip trueFlip = {0} ;
-    trueFlip.var  = '\0' ;
-    trueFlip.i    = EMPTY ;
-    trueFlip.gamma = gamma ;
-    trueFlip.u = u ;
-    switch (expFlipEffect)
+    // x downflip
+    IdxGroupsByC_See_Best_Feasible_Cval(x1Ay2_groups, wgtx, u, false, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
+    if(cval != EMPTY)
     {
-    case IMPROVE_OBJ_ONLY :
-        // Fill out trueFlip with a feasible, strictly beneficial flip if
-        // possible
-        bestGain = 0 ;
-        for(k = 0 ; k < 4 ; k++)
+        gain =  -(cval - gamma * 2) ;
+        if(gain > threshold)
         {
-            if(isFeas[k] && gains[k] > bestGain)
+            feasPosGains[XDN] = gain ;
+            IdxGroupsByC_Num_Idx_With_Top_C(x1Ay2_groups, &numIdx) ;
+            numFeasPosGain[XDN] = numIdx ;
+            if(gain > maxFeasPosGain) maxFeasPosGain = gain ;
+        }
+    }
+    else // if cval == EMPTY
+    {
+        IdxGroupsByC_See_Best_Feasible_Cval(x1Ay1_groups, wgtx, u, false, &cval, x, Ay, problem->graph->n, problem->graph->c) ;
+        if(cval != EMPTY)
+        {
+            gain =  -(cval - gamma * 1) ;
+            if(gain > threshold)
             {
-                i = witness[k] ;
-                trueFlip.ci  = c[i] ;
-                trueFlip.dir = GET_DIR(k) ;
-                trueFlip.gain = gains[k] ;
-                trueFlip.i = i ;
-                trueFlip.zi = GET_ZI(k) ;
-                if( GET_VAR(k) == X_VAR )
-                {
-                    trueFlip.var = 'x' ;
-                    trueFlip.Awi = Ay[i] ;
-                    trueFlip.wgt = wgtx ;
-                }
-                else
-                {
-                    trueFlip.var = 'y' ;
-                    trueFlip.Awi = Ax[i] ;
-                    trueFlip.wgt = wgty ;
-                }
+                feasPosGains[XDN] = gain ;
+                IdxGroupsByC_Num_Idx_With_Top_C(x1Ay1_groups, &numIdx) ;
+                numFeasPosGain[XDN] = numIdx ;
+                if(gain > maxFeasPosGain) maxFeasPosGain = gain ;
             }
         }
+    }
 
-        if( !IFF(givenFlip.i != EMPTY, trueFlip.i != EMPTY) )
+    // y dnflip
+    IdxGroupsByC_See_Best_Feasible_Cval(y1Ax2_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
+    if(cval != EMPTY)
+    {
+        gain =  -(cval - gamma * 2) ;
+        if(gain > threshold)
         {
-            ERR("Mismatch in flips") ;
+            feasPosGains[YDN] = gain ;
+            IdxGroupsByC_Num_Idx_With_Top_C(y1Ax2_groups, &numIdx) ;
+            numFeasPosGain[YDN] = numIdx ;
+            if(gain > maxFeasPosGain) maxFeasPosGain = gain ;
         }
-
-        // Compare the given flip with true flip
-        if(trueFlip.gain > 0)
+    }
+    else // if cval == EMPTY
+    {
+        IdxGroupsByC_See_Best_Feasible_Cval(y1Ax1_groups, wgty, u, false, &cval, y, Ax, problem->graph->n, problem->graph->c) ;
+        if(cval != EMPTY)
         {
-            if(givenFlip.var != '\0')
+            gain =  -(cval - gamma * 1) ;
+            if(gain > threshold)
             {
-                if(trueFlip.gain > givenFlip.gain)
-                {
-                    ERR("Suboptimal flip selected") ;
-                }
+                feasPosGains[YDN] = gain ;
+                IdxGroupsByC_Num_Idx_With_Top_C(y1Ax1_groups, &numIdx) ;
+                numFeasPosGain[YDN] = numIdx ;
+                if(gain > maxFeasPosGain) maxFeasPosGain = gain ;
+            }
+        }
+    }
+
+    VSPINT noFlipVal = strict ? 0 : -1 ;
+    if(maxFeasPosGain == noFlipVal) // If maxFeasPosGain has its initial value
+    {
+        *retFlipVar = '\0' ;
+        *retIndFlip = EMPTY ;
+#ifdef DEBUG
+        if(strict)
+        {
+            if(deep_search)
+            {
+                FlipSelector_Check_v5
+                (
+                    x, Ax, wgtx,
+                    y, Ay, wgty,
+                    *retFlipVar, *retIndFlip,
+                    problem, IMPROVE_OBJ_ONLY_v5
+                ) ;
             }
             else
             {
-                ERR("Not detected a flip when there is one") ;
+                FeasibleBeneficialFlipSelector_Check
+                (
+                    x, Ax, wgtx, y, Ay, wgty,
+                    *retFlipVar, *retIndFlip, problem
+                ) ;
             }
         }
         else
         {
-            if(givenFlip.i != EMPTY)
-            {
-                ERR("Seem to have detected a wrong flip") ;
-            }
+            FeasibleBeneficialFlipSelector_Check
+            (
+                x, Ax, wgtx, y, Ay, wgty,
+                *retFlipVar, *retIndFlip, problem
+            ) ;
         }
+#endif
+        return ;
+    }
 
-        // Sanity check
-        if(givenFlip.i != EMPTY && givenFlip.gain <= 0)
-        {
-            ERR("Bad flip selected, and code above is wrong") ;
-        }
+    /*------------------------------------------------------------------------*/
+    // Partition the flips that achieve maxFeasPosGain into 4 priority tiers:
+    //   tier 0: improving downflips  (reduces |wgtx - wgty|, is a downflip)
+    //   tier 1: improving upflips    (reduces |wgtx - wgty|, is an upflip)
+    //   tier 2: damaging  downflips  (fallback pool, downflips preferred)
+    //   tier 3: damaging  upflips    (fallback pool)
+    //
+    // A flip "improves imbalance" iff
+    //   - it is a downflip on the heavier side, or
+    //   - it is an upflip   on the lighter side.
+    // When wgtx == wgty no flip improves imbalance, so every max-gain flip
+    // falls into tiers 2/3.
+    //
+    // The lowest-numbered non-empty tier is selected; within that tier, a
+    // flip is chosen by weighted random selection (weighted by index count).
+    //
+    // tierFlips[t][.] - stack of flip codes in tier t
+    // tierSizes[t]    - size of that stack
+    // tierAcumm[t][.] - running totals of numFeasPosGain in that tier
+    /*------------------------------------------------------------------------*/
+    bool improves_imbalance[4] ;
+    improves_imbalance[XUP] = (wgtx < wgty) ;
+    improves_imbalance[YUP] = (wgty < wgtx) ;
+    improves_imbalance[XDN] = (wgtx > wgty) ;
+    improves_imbalance[YDN] = (wgty > wgtx) ;
 
-        break ;
-    case IMPROVE_OBJ_OR_NEUTRAL_DOWNFLIP :
-        // Get a true flip
-        bestGain = 0 ;
-        for(k = 0 ; k < 4 ; k++)
-        {
-            if(isFeas[k] && (gains[k] > bestGain || (k >= 2 && gains[k] >= bestGain) ) )
-            {
-                bestGain = gains[k] ;
-                i = witness[k] ;
-                trueFlip.ci  = c[i] ;
-                trueFlip.dir = GET_DIR(k) ;
-                trueFlip.gain = gains[k] ;
-                trueFlip.i = i ;
-                trueFlip.zi = GET_ZI(k) ;
-                if( GET_VAR(k) == X_VAR )
-                {
-                    trueFlip.var = 'x' ;
-                    trueFlip.Awi = Ay[i] ;
-                    trueFlip.wgt = wgtx ;
-                }
-                else
-                {
-                    trueFlip.var = 'y' ;
-                    trueFlip.Awi = Ax[i] ;
-                    trueFlip.wgt = wgty ;
-                }
-            }
-        }
+    bool is_downflip[4] ;
+    is_downflip[XUP] = false ;
+    is_downflip[YUP] = false ;
+    is_downflip[XDN] = true  ;
+    is_downflip[YDN] = true  ;
 
-        if(givenFlip.i != EMPTY)
-        {
-            // Check that it's either a strictly beneficial upflip or a neutral
-            // downflip
-            if(givenFlip.dir == 1)
-            {
-                if(givenFlip.gain <= 0)
-                {
-                    ERR("Flip does not strictly improve objective") ;
-                }
+    VSPINT tierFlips[4][4] = {{0}} ;
+    VSPINT tierSizes[4]    = {0}   ;
+    VSPINT tierAcumm[4][5] = {{0}} ;
 
-                if(trueFlip.i == EMPTY || givenFlip.gain < trueFlip.gain)
-                {
-                    ERR("Error in flips") ;
-                }
-            }
-            else
-            {
-                if(givenFlip.gain < 0)
-                {
-                    ERR("Flip damages objective") ;
-                }
-            }
-        }
-        else // no given flip
-        {
-            if(trueFlip.i != EMPTY)
-            {
-                ERR("Flip not found") ;
-            }
-        }
+    VSPINT allFlips[4] = {XUP, YUP, XDN, YDN} ;
 
-        // Sanity check
-        if(givenFlip.gain < 0)
-        {
-            ERR("Damaging flip selected, and code above is wrong") ;
-        }
-        break ;
-    
-    case GAIN_GEQ_0 :
+    for(VSPINT i = 0 ; i < 4 ; i++)
     {
-        // Get a true flip
-        bestGain = -1 ;
-        for(k = 0 ; k < 4 ; k++)
-        {
-            if(isFeas[k] && gains[k] > bestGain )
-            {
-                i = witness[k] ;
-                trueFlip.ci  = c[i] ;
-                trueFlip.dir = GET_DIR(k) ;
-                trueFlip.gain = gains[k] ;
-                trueFlip.i = i ;
-                trueFlip.zi = GET_ZI(k) ;
-                if( GET_VAR(k) == X_VAR )
-                {
-                    trueFlip.var = 'x' ;
-                    trueFlip.Awi = Ay[i] ;
-                    trueFlip.wgt = wgtx ;
-                }
-                else
-                {
-                    trueFlip.var = 'y' ;
-                    trueFlip.Awi = Ax[i] ;
-                    trueFlip.wgt = wgty ;
-                }
-            }
-        }
+        VSPINT flip = allFlips[i] ;
+        if(numFeasPosGain[flip] == 0)        continue ; // flip not recorded
+        if(feasPosGains[flip] != maxFeasPosGain) continue ; // not at max
 
-        // Either both flips should exist or both should not exist
-        if( !IFF(givenFlip.i != EMPTY, trueFlip.i != EMPTY) )
-        {
-            ERR("Mismatch between given and true flip") ;
-        }
+        VSPINT tier ;
+        if(improves_imbalance[flip])
+            tier = is_downflip[flip] ? 0 : 1 ;
+        else
+            tier = is_downflip[flip] ? 2 : 3 ;
 
-        // Compare the given flip with true flip
-        if(trueFlip.i != EMPTY)
-        {
-            if(trueFlip.gain > givenFlip.gain)
-            {
-                ERR("Suboptimal flip selected") ;
-            }
-        }
+        VSPINT slot = tierSizes[tier] ;
+        tierFlips[tier][slot] = flip ;
+        tierSizes[tier]++ ;
+        tierAcumm[tier][slot + 1] = tierAcumm[tier][slot] + numFeasPosGain[flip] ;
+    }
 
-        // Sanity check
-        if(givenFlip.gain < 0)
+    // Pick the highest-priority (lowest-numbered) non-empty tier
+    VSPINT chosenTier = EMPTY ;
+    for(VSPINT t = 0 ; t < 4 ; t++)
+    {
+        if(tierSizes[t] > 0)
         {
-            ERR("Damaging flip selected, and code above is wrong") ;
+            chosenTier = t ;
+            break ;
         }
     }
 
-    break ;
-    default:
-        ERR("Unknown expFlipEffect value") ;
-        break;
+    #ifdef DEBUG
+        if(chosenTier == EMPTY)
+        {
+            ERR("No tier populated despite maxFeasPosGain being set!") ;
+            fflush(stdout) ;
+        }
+    #endif
+
+    /*------------------------------------------------------------------------*/
+    // Choose a random flip within the chosen tier (weighted by index count)
+    // flipChoice - integer in [0, 3] representing the flip
+    /*------------------------------------------------------------------------*/
+    VSPINT baseRandNum = rand() ;
+    VSPINT randChoice  = baseRandNum % tierAcumm[chosenTier][tierSizes[chosenTier]] ;
+    VSPINT flipChoice ;
+    bool was_initialized = false ;
+
+    for(VSPINT p = 1 ; p <= tierSizes[chosenTier] ; p++)
+    {
+        if(randChoice < tierAcumm[chosenTier][p])
+        {
+            flipChoice = tierFlips[chosenTier][p - 1] ;
+            #ifdef DEBUG
+                was_initialized = true ;
+            #endif
+            break ;
+        }
     }
+
+    #ifdef DEBUG
+    if(!was_initialized)
+    {
+        ERR("Flip choice was not initialized!") ;
+        fflush(stdout) ;
+    }
+    #endif
+
+    #ifdef DEBUG
+        if( !IN_RANGE(flipChoice, 0, 4) )
+        {
+            ERR("flipChoice incorrect") ;
+        }
+    #endif
+
+
+    if(flipChoice == XUP)
+    {
+        IdxGroupsByC_See_Random_Idx_Given_C(x0Ay0_groups, baseRandNum, feasPosGains[X0], retIndFlip) ;
+        *retFlipVar = 'x' ;
+    }
+    else if(flipChoice == YUP)
+    {
+        IdxGroupsByC_See_Random_Idx_Given_C(y0Ax0_groups, baseRandNum, feasPosGains[Y0], retIndFlip) ;
+        *retFlipVar = 'y' ;
+    }
+    else if(flipChoice == XDN)
+    {
+        *retFlipVar = 'x' ;
+        if(maxFeasPosGain >= gamma)
+        {
+            IdxGroupsByC_See_Random_Idx_Top_C(x1Ay2_groups, baseRandNum, retIndFlip) ;
+        }
+        else
+        {
+            IdxGroupsByC_See_Random_Idx_Top_C(x1Ay1_groups, baseRandNum, retIndFlip) ;
+        }
+    }
+    else
+    {
+        VSP_ASSERT(flipChoice == YDN) ;
+        *retFlipVar = 'y' ;
+        if(maxFeasPosGain >= gamma)
+        {
+            IdxGroupsByC_See_Random_Idx_Top_C(y1Ax2_groups, baseRandNum, retIndFlip) ;
+        }
+        else
+        {
+            IdxGroupsByC_See_Random_Idx_Top_C(y1Ax1_groups, baseRandNum, retIndFlip) ;
+        }
+    }
+
+    #ifdef DEBUG
+        if(deep_search)
+        {
+            FlipSelector_Check_v5
+            (
+                x, Ax, wgtx,
+                y, Ay, wgty,
+                *retFlipVar, *retIndFlip,
+                problem,
+                strict ? IMPROVE_OBJ_ONLY_v5 : IMPROVE_OBJ_OR_NEUTRAL_Downflip_v5
+            ) ;
+        }
+        else
+        {
+
+        }
+    #endif
+
+    return ;
 }

@@ -475,8 +475,10 @@ void set_default_options(Options *options)
     /*------------------------------------------------------------------------*/
     /* Relax Upper Bound Options                                              */
     /*------------------------------------------------------------------------*/
-    options->relaxUB      = true ;
-    options->ratioUBLimit = 0.5 ;
+    options->tighten_u        = true ;
+    options->u_ratio_finest   = 0.6 ;
+    options->u_ratio_coarsest = 0.5 ;
+    options->ub_based_on_bisection = false ;
 
     /*------------------------------------------------------------------------*/
     /* Starting Guess Options                                                 */
@@ -494,6 +496,7 @@ void set_default_options(Options *options)
     /* Mountain Climbing Options                                              */
     /*------------------------------------------------------------------------*/
     options->tol_LP_opt_checker = 1E-10 ;
+    options->start_mc_both_vars = TRUE ;
 
     /*------------------------------------------------------------------------*/
     /* Simple Coarsening Options                                              */
@@ -502,6 +505,36 @@ void set_default_options(Options *options)
     options->sort_cols             = false ;
     options->node_cutoff           = 32 ;
     options->density_cutoff        = 0.4 ;
+
+    options->initial_project       = FALSE ;
+    options->try_both_covers       = TRUE ;
+
+    /* ====================================================================== */
+    // Bisection ngp options
+    /* ====================================================================== */
+    options->bisection_ngp = 3 ;
+
+    /* ====================================================================== */
+    // FM subspace options
+    /* ====================================================================== */
+    options->use_FM_subspace_grad_proj = FALSE ;
+    options->noFM = 0.2 ;
+
+
+    options->attempt_second_start = TRUE ;
+    options->min_imbal_ratio_second_start = 0.07 ;
+    options->min_level_second_start = 4 ;
+
+    /* ====================================================================== */
+    // Gradient projection applied to vsp
+    /* ====================================================================== */
+    options->vsp_grad_proj = false ;
+    options->vsp_ngp = 3 ;
+
+    /* ====================================================================== */
+    // Hub removal
+    /* ====================================================================== */
+    options-> hub_treshold = 0.5 ;
 
     return ;
 }
@@ -538,32 +571,65 @@ void Print_Options(const Options *opts, const char *path)
         return;
     }
 
-    fprintf(f, "Options:\n");
-
+    fprintf(f, "Initial guess\n") ;
     fprintf(f, "  initial_guess                  = %s\n",   initial_guess_to_str(opts->initial_guess));
     fprintf(f, "  random_point_weight_proportion = %g\n",   opts->random_point_weight_proportion);
     fprintf(f, "  centroidVal                    = %g\n",   opts->centroidVal);
 
     /* Gamma reduction */
+    fprintf(f, "Gamma reduction\n") ;
     fprintf(f, "  num_gr_for_small_graphs        = %lld\n", PRI(opts->num_gr_for_small_graphs));
     fprintf(f, "  num_gr_for_large_graphs        = %lld\n", PRI(opts->num_gr_for_large_graphs));
     fprintf(f, "  max_num_vert_small_graph       = %lld\n", PRI(opts->max_num_vert_small_graph));
 
     /* Miscellaneous */
-    fprintf(f, "  relaxUB                        = %s\n",   opts->relaxUB ? "true" : "false");
-    fprintf(f, "  ratioUBLimit                   = %g\n",   opts->ratioUBLimit);
+    fprintf(f, "Miscellaneous\n") ;
+    fprintf(f, "  tighten_u                      = %s\n",   opts->tighten_u ? "true" : "false");
+    fprintf(f, "  u_ratio_finest                 = %f\n",   opts->u_ratio_finest);
+    fprintf(f, "  u_ratio_coarsest               = %f\n",   opts->u_ratio_coarsest);
 
     /* FM Options */
     fprintf(f, "  FM_Limit                       = %lld\n", PRI(opts->FM_Limit));
 
     /* Mountain Climbing Options */
+    fprintf(f, "Mountain climbing\n") ;
     fprintf(f, "  tol_LP_opt_checker             = %g\n",   opts->tol_LP_opt_checker);
+    fprintf(f, "  Initial mc var strategy        = %s\n",   opts->start_mc_both_vars ? "try_both_vars" : "use_lower_cost_var");
 
     /* Simple Coarsening Options */
+    fprintf(f, "Coarsening\n") ;
     fprintf(f, "  compression_threshold          = %g\n",   opts->compression_threshold);
     fprintf(f, "  sort_cols                      = %i\n",   opts->sort_cols || opts->initial_guess == bisection_initial_guess);
     fprintf(f, "  node_cutoff                    = %i\n",   opts->node_cutoff);
     fprintf(f, "  density_cutoff                 = %f\n",   opts->density_cutoff);
+
+
+    /* vs options */
+    fprintf(f, "VS startup\n") ;
+    fprintf(f, "  initial_projection             = %s\n",   (opts->initial_project) ? "yes" : "no") ;
+    fprintf(f, "  try_both_covers                = %s\n",   (opts->try_both_covers) ? "yes" : "no") ;
+    fprintf(f, "  bisection_ngp                  = %i\n",   opts->bisection_ngp) ;
+
+    /* FM subspace gradient projection */
+    fprintf(f, "FM Subspace\n") ;
+    fprintf(f, "  Use FM subpsace grad proj      = %s\n",   (opts->use_FM_subspace_grad_proj) ? "yes" : "no") ;
+    fprintf(f, "  Max subspace size              = %f\n",   opts->noFM) ;
+
+
+    /* Second start options */
+    fprintf(f, "Second start\n") ;
+    fprintf(f, "  attempt_second_start           = %s\n",   opts->attempt_second_start ? "true" : "false");
+    fprintf(f, "  min_imbal_ratio_second_start   = %g\n",   opts->min_imbal_ratio_second_start);
+    fprintf(f, "  min_level_second_start         = %lld\n", PRI(opts->min_level_second_start));
+
+    /* VSP gradient projection options */
+    fprintf(f, "VSP gradient projection\n") ;
+    fprintf(f, "  vsp_grad_proj                  = %s\n",   (opts->vsp_grad_proj) ? "yes" : "no") ;
+    fprintf(f, "  vsp_ngp                        = %i\n",   opts->vsp_ngp ) ;
+
+    /* hub removal */
+    fprintf(f, "Hub removal\n") ;
+    fprintf(f, "  hub_treshold                   = %f\n",   opts->hub_treshold ) ;
 
     fclose(f);
 }

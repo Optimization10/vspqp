@@ -21,8 +21,6 @@ void Greedy_Flips
     static int count = 0 ;
     count++ ;
 
-    Round_Down_Fractions(X, Y, problem) ;
-
     VSPINT *x = X->point->int_part ;
     VSPINT *Ax = X->Az->int_part ;
     VSPINT *wgtx = &(X->weight) ;

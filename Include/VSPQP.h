@@ -51,9 +51,9 @@ typedef struct restart_decision_struct
 typedef struct Options_struct
 {
     /* Initial guess */
-    initial_guess      initial_guess;
-    VSPFLOAT               random_point_weight_proportion ;
-    VSPFLOAT               centroidVal ;
+    initial_guess  initial_guess;
+    VSPFLOAT       random_point_weight_proportion ;
+    VSPFLOAT       centroidVal ;
 
     restart_decision *restart_decision ;
 
@@ -65,8 +65,10 @@ typedef struct Options_struct
     VSPINT max_num_vert_small_graph ; /* Max number of vertices in  what is
                                          to be considered a "small" graph     */
 
-    bool relaxUB ;
-    VSPFLOAT ratioUBLimit ;
+    bool     tighten_u ;
+    VSPFLOAT u_ratio_finest ;
+    VSPFLOAT u_ratio_coarsest ;
+    bool     ub_based_on_bisection ;
 
     /* FM Options */
     VSPINT FM_Limit ;
@@ -77,6 +79,7 @@ typedef struct Options_struct
     /* ====================================================================== */
     // Tolerance for LP optimality checker
     VSPFLOAT tol_LP_opt_checker ;
+    int start_mc_both_vars ;
 
 
     /* ====================================================================== */
@@ -91,15 +94,67 @@ typedef struct Options_struct
     VSPINT   node_cutoff ;
     VSPFLOAT density_cutoff ;
 
-} Options;
+
+    int initial_project ;
+    
+    // Obtain a min vertex cover from the left and from the right in vs() 
+    int try_both_covers ;
+
+    /* ====================================================================== */
+    // Bisection ngp options
+    /* ====================================================================== */
+
+    int bisection_ngp ;
+
+    /* ====================================================================== */
+    // FMsubspace options   
+    /* ====================================================================== */
+    int use_FM_subspace_grad_proj ;
+    VSPFLOAT noFM ;
+
+    /* ====================================================================== */
+    // Second start options
+    /* ====================================================================== */
+    // In the second start, if the imbalance is sufficiently large after
+    // optimizing at a coarse level, we apply vs() to this point, followed by
+    // the optimization routine, and accept this point if it has a (weakly)
+    // smaller separator.
+
+    // 0 or 1. Controls if the second start is attempted. Other fields ignored
+    // if 0
+    int      attempt_second_start ;
+    
+    // min value of |C(X) - C(Y)| / C(V) required to trigger second start
+    VSPFLOAT min_imbal_ratio_second_start ;
+
+    // min level required to trigger second start
+    VSPINT   min_level_second_start ;
+
+    /* ====================================================================== */
+    // Gradient projection applied to vsp
+    /* ====================================================================== */
+    // Flag to control if we do vsp_grad_proj
+    bool vsp_grad_proj ;
+    
+    // Number of gradient projection steps applied to vsp
+    int  vsp_ngp ; 
 
 
-typedef struct {
-    VSPINT  weight_x ;
-    VSPINT  weight_y ;
-    VSPFLOAT obj_val ;
-    VSPINT *x ;
-    VSPINT *y ;
+    /* ====================================================================== */
+    // Hub removal
+    /* ====================================================================== */
+    double hub_treshold ;
+
+} Options ;
+
+
+typedef struct
+{
+    VSPINT    weight_x ;
+    VSPINT    weight_y ;
+    VSPFLOAT  obj_val ;
+    VSPINT   *x ;
+    VSPINT   *y ;
 } solve_result ;
 
 

@@ -62,4 +62,4 @@ CC = gcc
 # Additional Compiler Flags
 #------------------------------------------------------------------------------
 # Add any other compiler flags, such as as -DLOG
-USER_FLAGS = 
+USER_FLAGS =

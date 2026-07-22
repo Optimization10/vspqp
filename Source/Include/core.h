@@ -25,9 +25,12 @@
 #define TRUE    1
 #define FALSE   0
 
-#define ZERO    1E-6
+#define ZERO        1E-6
+#define ZERO_PLUS   1E-6
+#define ZERO_MINUS -(ZERO_PLUS)
 
-
+#define VAR_X 0
+#define VAR_Y 1
 
 /* -------------------------------------------------------------------------- */
 /*  Utility                                                                   */
@@ -60,6 +63,8 @@
     (a) = (b);                                 \
     (b) = _swap_tmp_do_not_use_;               \
 } while (0)
+
+#define ABS_VAL(a) ( ((a) >= 0 ) ? ( (a) ) : ( -(a) ) )
 
 /* -------------------------------------------------------------------------- */
 /*  Debug                                                                     */

@@ -35,6 +35,7 @@ void Multi_Start_Flips
         Xstar = Clone_State(X);
         Ystar = Clone_State(Y);
 
+        Round_Down_Fractions(Xstar, Ystar, problem) ;
         Greedy_Flips(Xstar, Ystar, problem, numPassesInFlips, true, true);
 
         objStar = compute_obj(Xstar, Ystar, problem, (VSPFLOAT) gamma) ;

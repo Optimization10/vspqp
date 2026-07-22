@@ -11,6 +11,7 @@ include $(VSPATH)/Config/internal.mk
 default: lib
 
 lib: $(VSPQP_CONFIG_H)
+	@mkdir -p $(VSPATH)/output $(BUILD_DIR)
 	$(MAKE) -C $(VSPATH)/Lib
 
 
@@ -38,13 +39,15 @@ run_example: example
 	@./Demo/example
 
 valgrind: example
+	@mkdir -p $(VSPATH)/output
 	@valgrind \
-  --tool=memcheck \
-  --leak-check=full \
-  --show-leak-kinds=all \
-  --track-origins=yes \
-  --suppressions=$(VSPATH)/Config/mkl.supp \
-	./Demo/example > output/valgrind.txt 2>&1
+	--tool=memcheck \
+	--leak-check=full \
+	--show-leak-kinds=all \
+	--track-origins=yes \
+	--suppressions=$(VSPATH)/Config/mkl.supp \
+	--log-file=$(VSPATH)/output/valgrind.txt \
+	./Demo/example
 
 callgrind: example
 	@mkdir -p $(VSPATH)/output/callgrind

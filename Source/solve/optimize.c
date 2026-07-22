@@ -1,8 +1,10 @@
+#include "core.h"
 #include "solve_internal.h"
 #include "mc.h"
 #include "FM.h"
 #include "greedy_flips.h"
 #include "utils.h"
+#include "vs.h"
 
 
 
@@ -97,11 +99,11 @@ static void Gamma_Reduction_Loop
     State       *X,
     State       *Y,
     Problem     *problem,
-    Options     *options,
-    VSPINT       gamma_org
+    Options     *options
 )
 {
     VSPINT i, k = 0, num_gr;
+    VSPINT gamma_org = problem->graph->max_vtx_cost ;
     VSPFLOAT gamma, f_x_y, f_xstar_ystar;
 
     Determine_Num_GR(problem->graph->n, options, &num_gr);
@@ -119,12 +121,24 @@ static void Gamma_Reduction_Loop
         State *Yc = Clone_State(Y);
 
         mountain_climbing(Xc, Yc, problem, options, gamma, false);
+
+        /* ================================================================== */
+        // FM subspace gradient projection
+        /* ================================================================== */
+        if(options->use_FM_subspace_grad_proj)
+        {
+            FM_subspace_grad_proj(Xc, Yc, problem, options) ;
+        }
+
         mountain_climbing(Xc, Yc, problem, options, gamma_org, true);
+        Round_Down_Fractions(Xc, Yc, problem) ;
         Greedy_Flips(Xc, Yc, problem, 9, (problem->level <= 2), false);
 
         VSPINT np;
         if (problem->level >= problem->coarsest_level_num / 2) np = 3;
         else np = 2;
+
+        Round_Down_Fractions(Xc, Yc, problem) ;
         FM_Metis(Xc, Yc, problem, options, np);
 
         f_x_y         = compute_obj(X,  Y,  problem, gamma_org);
@@ -153,49 +167,112 @@ static void Gamma_Reduction_Loop
 
 void Optimize
 (
-    State       *X,
-    State       *Y,
-    Problem     *problem,
-    Options     *options
+    State   *X,
+    State   *Y,
+    Problem *problem,
+    Options *options
 )
 {
-    static int count = 0 ;
-    count++ ;
-
-    #ifdef DEBUG
+    SET_FUNCTION_COUNTER ;
+#ifdef DEBUG
         check_states(X, Y, problem);
-    #endif
+#endif
+    VSPFLOAT *x_flt, *y_flt, *gx, *gy, *c_flt, xcost, ycost ;
+    VSPINT    n_passes;
+    VSPINT    n     = problem->graph->n ;
+    VSPINT   *c     = problem->graph->c ;
+    VSPINT    l     = problem->level ;
+    VSPINT    L     = problem->coarsest_level_num ;
+    VSPINT    gamma = problem->graph->max_vtx_cost ;
+    VSPINT   *Ai    = problem->graph->Ai ;
+    VSPLONG  *Ap    = problem->graph->Ap ;
+    VSPINT    u     = problem->u ;
 
-    VSPINT gamma_org = problem->graph->max_vtx_cost;
+    /* ====================================================================== */
+    // Phase 0: Gradient Projection
+    /* ====================================================================== */
+    if(options->vsp_grad_proj)
+    {
+        /* Step 1: Convert x, y, c to floats, and compute gx and gy */
+        x_flt = Point_To_Array(X->point) ;
+        gx    = Az_To_Grad(c, gamma, Y->Az) ;
 
-    // Phase 1: MC vs Flips — run both on same input, keep better
-    // Phase 1: MC
-    mountain_climbing(X, Y, problem, options, problem->graph->max_vtx_cost, true);
-    
+        y_flt = Point_To_Array(Y->point) ;    
+        gy    = Az_To_Grad(c, gamma, X->Az) ;
 
+        c_flt = Array_Int_To_Flt(c, n) ;
+
+        /* Step 2: Do gradient projection */
+        VSP_Grad_Proj
+        (
+            x_flt, gx, y_flt, gy, c_flt, Ai, Ap, u, n, gamma, options->vsp_ngp
+        ) ;
+
+        /* Step 3: Move x_flt, y_flt to almost binary points */
+        int print_level = 0 ;
+
+        VSPINT j1, j2 ;
+        j1 = VSPboundary(x_flt, c_flt, gx, gy, n, Ai, Ap, gamma, 1, 1, print_level) ;
+        j2 = VSPboundary(y_flt, c_flt, gy, gx, n, Ai, Ap, gamma, 1, 1, print_level) ;
+
+        /* Step 4: Update the X and Y states with x_flt and y_flt */
+        xcost = Move_To_Vertex(x_flt, y_flt, gx, gy, Ai,Ap,c_flt,u,gamma,n,&j1);
+        ycost = Move_To_Vertex(y_flt, x_flt, gy, gx, Ai,Ap,c_flt,u,gamma,n,&j2);
+
+        Array_To_State(x_flt, xcost, gy, X, problem, j1) ;
+        Array_To_State(y_flt, ycost, gx, Y, problem, j2) ;
+
+        /* Step 5: Cleanup */
+        free(x_flt) ;
+        free(y_flt) ;
+        free(gx) ;
+        free(gy) ;
+        free(c_flt) ;
+    }
+
+    /* ====================================================================== */
+    // Phase 1: Mountain climbing
+    /* ====================================================================== */
+    mountain_climbing(X, Y, problem, options, gamma, true) ;
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
+
+    /* ====================================================================== */
     // Phase 2: Greedy flips
+    /* ====================================================================== */
+    Round_Down_Fractions(X, Y, problem) ;
     Greedy_Flips(X, Y, problem, 9, (problem->level <= 2), false);
 
-    // Phase 3: FM
-    VSPINT n_passes;
-    if (problem->level >= problem->coarsest_level_num / 2) n_passes = 3;
-    else n_passes = 2;
-    FM_Metis(X, Y, problem, options, n_passes);
 
+    /* ====================================================================== */
+    // Phase 3: FM subspace gradient projection
+    /* ====================================================================== */
+
+
+
+    /* ====================================================================== */
+    // Phase 4: FM METIS
+    /* ====================================================================== */
+    n_passes = (l >= L / 2) ? 3 : 2 ;
+    Round_Down_Fractions(X, Y, problem) ;
+
+    FM_Metis(X, Y, problem, options, n_passes);
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
-    // Phase 4: MC
-    mountain_climbing
-    (
-        X, Y, problem, options, problem->graph->max_vtx_cost, true
-    ) ;
+    /* ====================================================================== */
+    // Phase 5: Mountain climbing
+    /* ====================================================================== */
+    mountain_climbing(X, Y, problem, options, gamma, true) ;
 
-    // Phase 5: Gamma reductions
-    Gamma_Reduction_Loop(X, Y, problem, options, gamma_org);
+    /* ====================================================================== */
+    // Phase 6: Gamma reduction
+    /* ====================================================================== */
+    Gamma_Reduction_Loop(X, Y, problem, options);
 
-    // Phase 6: Final cleanup flips
+    /* ====================================================================== */
+    // Phase 7: Greedy flips
+    /* ====================================================================== */
+    Round_Down_Fractions(X, Y, problem) ;
     Greedy_Flips(X, Y, problem, 5, true, true);
 
     CLEANUP:
