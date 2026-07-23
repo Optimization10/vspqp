@@ -206,6 +206,8 @@ static void Use_Separator_Heap
     } 
 }
 
+#define PRINT 1
+
 void Rebalance_Singletons(State *X, State *Y, Problem *P)
 {
     SET_FUNCTION_COUNTER ;
@@ -256,7 +258,15 @@ void Rebalance_Singletons(State *X, State *Y, Problem *P)
         if (Ap[i+1] - Ap[i] > 0) continue ;
 
         // Skip fractional entries
-        if (i == idx_frac[0] || i == idx_frac[1]) continue ;
+        if (i == idx_frac[0] || i == idx_frac[1])
+        {
+
+#if PRINT
+    // printf("\n Problem %s .Fractional Singleton", G_Current_Problem_Name) ;
+#endif
+            continue ;
+        }
+        
 
         // Check if singleton is in intersection. Really shouldn't happen
         // (it incurs penalty gamma >= c[i])

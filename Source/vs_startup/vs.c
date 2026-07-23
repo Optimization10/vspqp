@@ -472,12 +472,12 @@ int vs
             vs_daxpy (vnew, vprior, -d [0], n) ;
             u [0] = vs_norm (vnew, n) ;
             /* evaluate second Lanczos vector if termination not reached */
+            nO = 1 ;
             if ( fabs(u [0]) > Lanczos_tol )
             {
                 /* normalize vnew to be a unit vector */
                 t = VSONE/u [0] ;
                 vs_scale (vnew, t, n) ;
-                nO = 1 ;
                 while ( 1 )
                 {
                     vpprior = vprior ;

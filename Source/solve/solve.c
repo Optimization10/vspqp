@@ -323,7 +323,7 @@ void Solve_Level
         Try_And_Keep_If_Better(X, Y, problem, strategy_explore_bisection, options, NULL) ;
     }
 
-    // Rebalance_Singletons(X, Y, problem) ;
+    Rebalance_Singletons(X, Y, problem) ;
 
     TIMER_STOP(T_TOTAL) ;
     Timer_Flush(problem->level) ;
