@@ -2,10 +2,7 @@
 #define IO_H
 #include "core.h"
 
-void dump_graph_gephi
-(
-    Problem *problem
-) ;
+void dump_graph_gephi(Problem *problem, State *X, State *Y) ;
 
 void dump_graph
 (

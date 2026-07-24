@@ -8,8 +8,10 @@
 #include <assert.h>
 
 /* Dump a graph as Gephi-ready CSVs: output/nodes_<count>.csv and
-   output/edges_<count>.csv. Indexing is 1-based. */
-void dump_graph_gephi(Problem *problem)
+   output/edges_<count>.csv. Indexing is 1-based. If X and Y are
+   non-NULL, node labels include the partition each node belongs to,
+   based on the values of x[i] and y[i]. */
+void dump_graph_gephi(Problem *problem, State *X, State *Y)
 {
     static long long unsigned count = 0 ;
     count++ ;
@@ -25,6 +27,7 @@ void dump_graph_gephi(Problem *problem)
     VSPINT  n   = problem->graph->n ;
 
     char path[1000] ;
+    char label[100] ;
     FILE *file ;
 
     /* ---------------- Nodes ---------------- */
@@ -36,9 +39,55 @@ void dump_graph_gephi(Problem *problem)
     fprintf(file, "Id,Label,Cost\n") ;
     for(i = 0 ; i < n ; i++)
     {
-        fprintf(file, "%lld,%lld,%lld\n",
+        if(X != NULL && Y != NULL)
+        {
+            VSPINT   *xint = X->point->int_part ;
+            VSPINT   *yint = Y->point->int_part ;
+            VSPINT   xind  = X->point->ind_frac ;
+            VSPINT   yind  = Y->point->ind_frac ;
+            VSPFLOAT xval  = xint[i] + (i == xind) * X->point->val_frac ;
+            VSPFLOAT yval  = yint[i] + (i == yind) * Y->point->val_frac ;
+
+            bool xFrac = (i == xind) ;
+            bool yFrac = (i == yind) ;
+
+            if(xFrac && yFrac)
+            {
+                sprintf(label, "x_%.4f_cap_y_%.4f", xval, yval) ;
+            }
+            else if(xFrac)
+            {
+                sprintf(label, "x_%.4f", xval) ;
+            }
+            else if(yFrac)
+            {
+                sprintf(label, "y_%.4f", yval) ;
+            }
+            else if(xval == 1 && yval == 1)
+            {
+                sprintf(label, "x_cap_y") ;
+            }
+            else if(xval == 1)
+            {
+                sprintf(label, "x") ;
+            }
+            else if(yval == 1)
+            {
+                sprintf(label, "y") ;
+            }
+            else
+            {
+                sprintf(label, "%lld", (long long) i + 1) ;
+            }
+        }
+        else
+        {
+            sprintf(label, "%lld", (long long) i + 1) ;
+        }
+
+        fprintf(file, "%lld,%s,%lld\n",
                 (long long) i + 1,
-                (long long) i + 1,
+                label,
                 (long long) c[i]) ;
     }
 

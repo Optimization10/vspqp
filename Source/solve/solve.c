@@ -325,6 +325,7 @@ void Solve_Level
 
     Rebalance_Singletons(X, Y, problem) ;
 
+
     TIMER_STOP(T_TOTAL) ;
     Timer_Flush(problem->level) ;
 }
