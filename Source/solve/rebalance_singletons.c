@@ -3,8 +3,6 @@
 #include "data_structures.h"
 #include "utils.h"
 
-#define PRINT 1
-
 /* ========================================================================== */
 // Whole-singleton insert/remove. Heap argument may be NULL (no heap insert).
 /* ========================================================================== */
@@ -82,14 +80,6 @@ static void Rebalance
 
         // Stop if there was no move, or if balance is nearly perfect
         if (!moved || imbalance(states[0], states[1]) <= 1) stop = true ;
-
-        if(moved)
-        {
-#if PRINT
-    char target = (to == 0) ? 'x' : 'y' ;
-    printf("    Moved vertex. Imbal: %i\n", imbalance(states[0], states[1])) ;
-#endif
-        }
     }
 }
 
@@ -223,10 +213,6 @@ void Rebalance_Singletons(State *X, State *Y, Problem *P)
     check_states(X, Y, P) ;
 #endif
 
-#if PRINT
-    printf("Problem: %s  Level: %i  n: %i  edges: %i\n", G_Current_Problem_Name, P->level, P->graph->n, P->graph->nz/2) ;
-#endif
-
     /* ====================================================================== */
     // Quit early if partition is already near-perfectly balanced
     /* ====================================================================== */
@@ -272,10 +258,6 @@ void Rebalance_Singletons(State *X, State *Y, Problem *P)
         // Skip fractional entries
         if (i == idx_frac[0] || i == idx_frac[1])
         {
-
-#if PRINT
-    printf("\n Problem %s .Fractional Singleton", G_Current_Problem_Name) ;
-#endif
             continue ;
         }
         
@@ -294,9 +276,6 @@ void Rebalance_Singletons(State *X, State *Y, Problem *P)
         // heap
         if (z[0][i] + z[1][i] == 0)
         {
-#if PRINT
-    printf("\n Problem %s . Singleton in separator", G_Current_Problem_Name) ;
-#endif
             to = (states[0]->weight < states[1]->weight) ? 0 : 1 ;
             if (states[to]->weight  + c[i] <= u)
             {

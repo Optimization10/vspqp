@@ -371,8 +371,8 @@ void Neutral_Flips_Strategy_1
         // beneficial flips, so no point for a while loop. Need to double check
         // though
         /*--------------------------------------------------------------------*/
-        do
-        {
+        // do
+        // {
             // Neutral downflips
             Neutral_Downflips
             (
@@ -390,7 +390,7 @@ void Neutral_Flips_Strategy_1
                 y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
                 problem, &numFeasibleStrictlyBenFlips
             ) ;
-        } while(numFeasibleStrictlyBenFlips) ;
+        // } while(numFeasibleStrictlyBenFlips) ;
     }
 }
 
