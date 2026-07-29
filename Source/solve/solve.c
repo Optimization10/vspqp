@@ -9,6 +9,7 @@
 #include "profiler.h"
 #include "hubs.h"
 #include "data_structures.h"
+#include "IO.h"
 
 const char *G_Current_Problem_Name ;
 
@@ -325,6 +326,11 @@ void Solve_Level
 
     Rebalance_Singletons(X, Y, problem) ;
 
+
+if(problem->level == 2)
+{
+    dump_graph_gephi(problem, X, Y) ;
+}
 
     TIMER_STOP(T_TOTAL) ;
     Timer_Flush(problem->level) ;
