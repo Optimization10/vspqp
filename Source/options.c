@@ -504,7 +504,7 @@ void set_default_options(Options *options)
     options->compression_threshold = 0.51 ;
     options->sort_cols             = false ;
     options->node_cutoff           = 32 ;
-    options->density_cutoff        = 0.4 ;
+    options->density_cutoff        = 0.5 ;
 
     options->initial_project       = FALSE ;
     options->try_both_covers       = TRUE ;

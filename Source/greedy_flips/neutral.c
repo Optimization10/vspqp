@@ -353,7 +353,7 @@ void Neutral_Flips_Strategy_1
                 problem
             ) ;
             
-            // Strictly beneficial flips, no deep search
+            // Strictly beneficial flips
             FeasibleBeneficialFlips
             (
                 x, y, Ax, Ay, wgtx, wgty, deep_search, true,
@@ -364,33 +364,22 @@ void Neutral_Flips_Strategy_1
 
         } while(numFeasibleStrictlyBenFlips) ;
 
-
-        /*--------------------------------------------------------------------*/
-        // Alternate between neutral dnflips in w and strictly beneficial flips
-        // MOST LIKELY there are no neutral downflips after strictly
-        // beneficial flips, so no point for a while loop. Need to double check
-        // though
-        /*--------------------------------------------------------------------*/
-        // do
-        // {
-            // Neutral downflips
-            Neutral_Downflips
-            (
-                w, Aw, z, Az, wgtw, wgtz,
-                w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
-                z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
-                problem
-            ) ;
-            
-            // Strictly beneficial flips
-            FeasibleBeneficialFlips
-            (
-                x, y, Ax, Ay, wgtx, wgty, deep_search, true,
-                x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
-                y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
-                problem, &numFeasibleStrictlyBenFlips
-            ) ;
-        // } while(numFeasibleStrictlyBenFlips) ;
+        Neutral_Downflips
+        (
+            w, Aw, z, Az, wgtw, wgtz,
+            w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
+            z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
+            problem
+        ) ;
+        
+        // Strictly beneficial flips
+        FeasibleBeneficialFlips
+        (
+            x, y, Ax, Ay, wgtx, wgty, deep_search, true,
+            x0Ay0_groups, x1Ay1_groups, x1Ay2_groups, x0Ay1_list,
+            y0Ax0_groups, y1Ax1_groups, y1Ax2_groups, y0Ax1_list,
+            problem, &numFeasibleStrictlyBenFlips
+        ) ;
     }
 }
 
@@ -399,8 +388,6 @@ void Neutral_Flips_Strategy_1
 
 /*----------------------------------------------------------------------------*/
 // Do all feasible, neutral downflips in z (first variable)
-// WARNING: I am not only doing neutral downflips here, but also strictly
-// beneficial downflips
 void Neutral_Downflips
 (
     VSPINT                          *z,
