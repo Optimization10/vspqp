@@ -290,7 +290,8 @@ static void Get_Downflip
     IdxGroupsByC        *z1Aw2_groups,
     IdxGroupsByC        *z1Aw1_groups,
     Problem                    *P,
-    VSPINT                  *ind_flip
+    VSPINT                  *ind_flip,
+    int                       *Aw_val
 )
 {
     VSPINT c_bot = EMPTY ;
@@ -299,7 +300,8 @@ static void Get_Downflip
     c_bot = Min_Heap_See_Top_Key_v4(z1Aw2_groups->minHeap) ;
     if(c_bot != EMPTY)
     {
-        Chosen = z1Aw2_groups ;
+        Chosen  = z1Aw2_groups ;
+        *Aw_val = 2 ;
     }
     else
     {
@@ -307,6 +309,7 @@ static void Get_Downflip
         if(c_bot != EMPTY)
         {
             Chosen = z1Aw1_groups ;
+            *Aw_val = 1 ;
         }
     }
 
@@ -386,9 +389,28 @@ void Balance_Flips
 
     // Alternate flips to promote balance
     VSPINT ind_flip ;
-    while(true)
+    int Aw_val ;
+    bool any_flip_done = true ;
+    while(*wgtz < *wgtw && any_flip_done)
     {
-        bool any_flip_done = false ;
+        any_flip_done = false ;
+
+        // Do downflip in heavier variable
+        Get_Downflip(w1Az2_groups, w1Az1_groups, P, &ind_flip, &Aw_val) ;
+        if(ind_flip != EMPTY)
+        {
+            Downflip
+            (
+                w, Aw, z, Az, wgtw, wgtz,
+                w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
+                z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
+                ind_flip, P
+            ) ;
+            any_flip_done = true ;
+
+            if(Aw_val == 2) continue ;
+        }
+
         // Do upflip in lighter variable
         Get_Upflip(*wgtz, z0Aw0_groups, z0Aw1_list, P, &ind_flip) ;
         if(ind_flip != EMPTY)
@@ -403,23 +425,5 @@ void Balance_Flips
             ) ;
             any_flip_done = true ;
         }
-
-        // Do downflip in heavier variable
-        Get_Downflip(w1Az2_groups, w1Az1_groups, P, &ind_flip) ;
-        if(ind_flip != EMPTY)
-        {
-            Downflip
-            (
-                w, Aw, z, Az, wgtw, wgtz,
-                w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
-                z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
-                ind_flip, P
-            ) ;
-            any_flip_done = true ;
-        }
-
-        // Break if the lighter variable has surpassed the heavier one
-        // TODO 2: May want to continue going if we're improving the objective
-        if(*wgtz >= *wgtw || !any_flip_done) break ;
     }
 }
