@@ -327,6 +327,12 @@ static void Get_Downflip
     return ;
 }
 
+
+// TODO: Version I had before August 9, 2026 seems to have worked a bit
+// better. In that version, we were doing the upflip first, though
+// in theory it was possible that we were doing flips which land us in
+// points with x_i = 1 and Ay_i >= 3, or y_i = 1 and Ax_i >= 3.
+// 
 // Assume: Input point is the output of feasible beneficial flips
 // Attempt to balance the point as much as possible using neutral flips
 // and singletons
