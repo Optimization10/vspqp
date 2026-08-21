@@ -262,7 +262,7 @@ static void Read_hager6_File
     *n = ntemp ;
 
     // Convert Ai array to VSPINTs
-    *Ai = malloc(nztemp * sizeof(*Ai));
+    *Ai = malloc(nztemp * sizeof(**Ai));
     if (!Ai)
     {
         free(tempAi);
@@ -272,7 +272,7 @@ static void Read_hager6_File
     for (int64_t i = 0; i < nztemp; i++) (*Ai)[i] = tempAi[i];
 
     // Convert Ap array to VSPLONGs
-    *Ap = malloc((ntemp + 1) * sizeof(*Ap) );
+    *Ap = malloc((ntemp + 1) * sizeof(**Ap) );
     if (!Ap)
     {
         free(Ai) ;
