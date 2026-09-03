@@ -297,7 +297,7 @@ void Neutral_Flips_Strategy_1
     IdxGroupsByC *y1Ax2_groups,
     Direct_Access_List *y0Ax1_list, // only used in debugging
 
-    VSPINT          maxNumPasses,
+    VSPINT         maxNumPasses,
     Problem       *problem
 )
 {
