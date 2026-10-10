@@ -714,12 +714,15 @@ int vs
         printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
     }
     
-    vs_separator
-    (
-        x, Ei, Ep, n, vw,
-        Parm->try_both_covers, 0,
-        NULL, NULL, NULL, NULL, NULL
-    ) ;
+    // vs_separator
+    // (
+    //     x, Ei, Ep, n, vw,
+    //     Parm->try_both_covers, 0,
+    //     NULL, NULL, NULL, NULL, NULL
+    // ) ;
+
+    vs_separator_min_weight(x, Ei, Ep, n, vw) ;
+
 
     if ( PrintLevel )
     {
@@ -10332,7 +10335,7 @@ void Min_Weighted_Vtx_Cover
 
 
         /* === Find the Bottleneck Capacity ================================= */
-    
+
         delta = infinity ;
         j = t ;
 
@@ -10397,4 +10400,77 @@ void Min_Weighted_Vtx_Cover
     free(Rx) ;
     free(Ri) ;
     free(Rp) ;
+}
+
+
+int vs_separator_min_weight
+(
+    int                *part, // array with entries 0, 1, or 2
+    VSINT                *Ai, // Original graph
+    VSLINT               *Ap, // Original graph
+    VSINT                  n, // Original graph n
+    VSINT          *vtx_wgts
+)
+{
+    CSC A ;
+    A.m = n ; A.n = n ; A.nz = Ap[n] ; A.i = Ai ; A.p = Ap ;
+    VSINT *localBipLabel, i, j, offset ;
+    int status = 0 ;
+
+    // Rows of B are the 0-vertices, columns of B are the 1-vertices
+    CSC *B = CSC_Extract_Bipartite_Graph(part, &A, &localBipLabel) ;
+
+    VSINT nrows = B->m ;
+    VSINT nbip  = B->m + B->n ;
+
+    VSPINT *cost  = NULL ;
+    VSPINT *cover = NULL ;
+
+    // If no edge is cut by parts 0, 1 then part 2 is already a separator
+    if(nbip > 0)
+    {
+        cost  = malloc((size_t) nbip * sizeof(*cost)) ;
+        cover = malloc((size_t) nbip * sizeof(*cover)) ;
+
+        // Costs of the vertices of the bipartite graph
+        for(i = 0 ; i < n ; i++)
+        {
+            j = localBipLabel[i] ;
+            if(j != VSEMPTY)
+            {
+                offset = ( part[i] ) ? nrows : 0 ;
+                cost[offset + j] = vtx_wgts[i] ;
+            }
+        }
+
+        // Get minimum weight vertex cover
+        Min_Weighted_Vtx_Cover(B, cost, cover) ;
+
+        if(status == 0)
+        {
+            // Move vertices in the cover to separator
+            for(i = 0 ; i < n ; i++)
+            {
+                j = localBipLabel[i] ;
+                if(j != VSEMPTY)
+                {
+                    offset = ( part[i] ) ? nrows : 0 ;
+                    if(cover[offset + j]) part[i] = 2 ;
+                }
+            }
+        }
+    }
+
+#ifdef DEBUG
+    if(nbip > 0) Check_Bip_Vertex_Cover(B, cover) ;
+    Separator_Check(part, &A) ;
+#endif
+
+    free(cover) ;
+    free(cost) ;
+    free(localBipLabel) ;
+
+    CSC_Destroy(B) ;
+
+    return status ;
 }
