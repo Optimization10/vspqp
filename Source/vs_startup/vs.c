@@ -716,34 +716,62 @@ int vs
     }
     
 ////////////////////////////////////////////////////////////////////////////////
-    // {
-    //     // Run the original routine on a copy of x, for comparison only
-    //     int *x_old = malloc(n * sizeof(*x_old)) ;
-    //     for(VSINT k = 0 ; k < n ; k++) x_old[k] = x[k] ;
+    {
+        // TEMPORARY statistics: run both cover routines on copies of x and
+        // print their costs. x itself is not modified here; the cover that
+        // is actually used is selected by Parm->cover_type below.
+        int *x_old = malloc(n * sizeof(*x_old)) ;
+        int *x_new = malloc(n * sizeof(*x_new)) ;
+        for(VSINT k = 0 ; k < n ; k++) x_old[k] = x_new[k] = x[k] ;
 
-    //     vs_separator
-    //     (
-    //         x_old, Ei, Ep, n, vw,
-    //         Parm->try_both_covers, 0,
-    //         NULL, NULL, NULL, NULL, NULL
-    //     ) ;
+        vs_separator
+        (
+            x_old, Ei, Ep, n, vw,
+            Parm->try_both_covers, 0,
+            NULL, NULL, NULL, NULL, NULL
+        ) ;
 
-    //     int status = vs_separator_min_weight(x, Ei, Ep, n, vw) ;
+        int stat_status = vs_separator_min_weight(x_new, Ei, Ep, n, vw) ;
 
-    //     // Cost of a separator: total weight of the vertices in part 2
-    //     long long cost_old = 0, cost_new = 0 ;
-    //     for(VSINT k = 0 ; k < n ; k++)
-    //     {
-    //         if(x_old[k] == 2) cost_old += vw[k] ;
-    //         if(x[k]     == 2) cost_new += vw[k] ;
-    //     }
+        // Cost of a separator: total weight of the vertices in part 2
+        long long cost_old = 0, cost_new = 0 ;
+        for(VSINT k = 0 ; k < n ; k++)
+        {
+            long long const w = vw_is_one ? 1 : vw[k] ;
+            if(x_old[k] == 2) cost_old += w ;
+            if(x_new[k] == 2) cost_new += w ;
+        }
 
-    //     if(status == 0) printf("%lld,%lld\n", cost_old, cost_new) ;
-    //     else printf("vs_separator_min_weight failed with status %d\n", status) ;
-    //     fflush(stdout) ;
+        FILE *f ;
+        static bool first_time = true ;
+        if(first_time)
+        {
+            f = fopen("output/covers.csv", "w") ;
+            fprintf(f, "id,min_card,min_cost\n") ;
+        }
+        else
+        {
+           f = fopen("output/covers.csv", "a") ;
+        }
+        first_time = false ;
 
-    //     free(x_old) ;
-    // }
+
+        if(stat_status == 0)
+        {
+            fprintf(f, "%s,%lld,%lld\n",
+                   G_Current_Problem_Name, cost_old, cost_new) ;
+        }
+        else
+        {
+            printf("%s,vs_separator_min_weight failed with status %d\n",
+                   G_Current_Problem_Name ? G_Current_Problem_Name : "(null)",
+                   stat_status) ;
+        }
+        fclose(f) ;
+
+        free(x_old) ;
+        free(x_new) ;
+    }
 ////////////////////////////////////////////////////////////////////////////////
 
     if(Parm->cover_type == MIN_COST_COVER)
