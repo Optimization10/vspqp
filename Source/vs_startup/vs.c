@@ -75,6 +75,7 @@
       |MA  02110-1301  USA                                             |
       |________________________________________________________________|*/
 
+#include "VSPQP.h"
 #include "vs_internal.h"
 #include "core.h"
 #include "utils.h"
@@ -714,14 +715,68 @@ int vs
         printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
     }
     
-    // vs_separator
-    // (
-    //     x, Ei, Ep, n, vw,
-    //     Parm->try_both_covers, 0,
-    //     NULL, NULL, NULL, NULL, NULL
-    // ) ;
+////////////////////////////////////////////////////////////////////////////////
+    // {
+    //     // Run the original routine on a copy of x, for comparison only
+    //     int *x_old = malloc(n * sizeof(*x_old)) ;
+    //     for(VSINT k = 0 ; k < n ; k++) x_old[k] = x[k] ;
 
-    vs_separator_min_weight(x, Ei, Ep, n, vw) ;
+    //     vs_separator
+    //     (
+    //         x_old, Ei, Ep, n, vw,
+    //         Parm->try_both_covers, 0,
+    //         NULL, NULL, NULL, NULL, NULL
+    //     ) ;
+
+    //     int status = vs_separator_min_weight(x, Ei, Ep, n, vw) ;
+
+    //     // Cost of a separator: total weight of the vertices in part 2
+    //     long long cost_old = 0, cost_new = 0 ;
+    //     for(VSINT k = 0 ; k < n ; k++)
+    //     {
+    //         if(x_old[k] == 2) cost_old += vw[k] ;
+    //         if(x[k]     == 2) cost_new += vw[k] ;
+    //     }
+
+    //     if(status == 0) printf("%lld,%lld\n", cost_old, cost_new) ;
+    //     else printf("vs_separator_min_weight failed with status %d\n", status) ;
+    //     fflush(stdout) ;
+
+    //     free(x_old) ;
+    // }
+////////////////////////////////////////////////////////////////////////////////
+
+    if(Parm->cover_type == MIN_COST_COVER)
+    {
+        vs_separator_min_weight(x, Ei, Ep, n, vw) ;
+    }
+    else if(Parm->cover_type == MIN_CARD_COVER)
+    {
+        vs_separator
+        (
+            x, Ei, Ep, n, vw,
+            Parm->try_both_covers,
+            0, NULL, NULL, NULL, NULL, NULL
+        ) ;
+    }
+    else if(Parm->cover_type == APPROX_MIN_CARD_COVER)
+    {
+        vs_separator_approx
+        (
+            x, Ei, Ep, n, vw,
+            0, NULL, NULL, NULL, NULL, NULL
+        ) ;
+    }
+    else
+    {
+        printf("\nWARNING: NO VERTEX COVER TYPE SELECTED\n") ;
+        vs_separator
+        (
+            x, Ei, Ep, n, vw,
+            Parm->try_both_covers,
+            0, NULL, NULL, NULL, NULL, NULL
+        ) ;
+    }
 
 
     if ( PrintLevel )

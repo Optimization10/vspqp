@@ -48,6 +48,13 @@ typedef struct restart_decision_struct
 } restart_decision ;
 
 
+typedef enum cover_type_enum
+{
+    MIN_COST_COVER,
+    MIN_CARD_COVER,
+    APPROX_MIN_CARD_COVER
+} cover_type ;
+
 typedef struct Options_struct
 {
     /* Initial guess */
@@ -94,10 +101,23 @@ typedef struct Options_struct
     VSPINT   node_cutoff ;
     VSPFLOAT density_cutoff ;
 
-
     int initial_project ;
-    
-    // Obtain a min vertex cover from the left and from the right in vs() 
+
+    /* ====================================================================== */
+    // Vertex Cover Options
+    /* ====================================================================== */
+    // First, select a cover type:
+    // MIN_COST_COVER -- find a min cost cover by solving a max flow problem
+    // MIN_CARD_COVER -- find a min cardinality using a max matching
+    //
+    // APPROX_MIN_CARD_COVER -- use the pricing algorithm to find a cover with
+    //                          cardinality <= 2*OPT where OPT is the min
+    //                          cardinality among all vertex covers
+    cover_type cover_type ;
+
+    // if cover_type = MIN_CARD_COVER, this boolean option controls whether
+    //                 we compute a cover starting from each side and select
+    //                 the cover with lower cost
     int try_both_covers ;
 
     /* ====================================================================== */

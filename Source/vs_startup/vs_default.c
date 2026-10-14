@@ -1,3 +1,4 @@
+#include "VSPQP.h"
 #include "vs_internal.h"
 
 /* ==========================================================================
@@ -53,5 +54,8 @@ void vs_default
     Parm->ngp = 3 ;
 
     Parm->initial_project = VSFALSE ;
+
+    // cover type
+    Parm->cover_type = MIN_CARD_COVER ;
     Parm->try_both_covers = VSTRUE ;
 }

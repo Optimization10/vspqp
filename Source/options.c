@@ -507,6 +507,11 @@ void set_default_options(Options *options)
     options->density_cutoff        = 0.5 ;
 
     options->initial_project       = FALSE ;
+
+    /* ====================================================================== */
+    // Vertex Cover Options
+    /* ====================================================================== */
+    options->cover_type            = MIN_CARD_COVER ;
     options->try_both_covers       = TRUE ;
 
     /* ====================================================================== */
@@ -541,11 +546,23 @@ void set_default_options(Options *options)
 
 static const char *initial_guess_to_str(initial_guess g)
 {
-    switch (g) {
+    switch (g)
+    {
         case centroid_initial_guess:  return "centroid";
         case random_initial_guess:    return "random";
         case manual_initial_guess:    return "manual";
         case bisection_initial_guess: return "bisection";
+        default:                      return "unknown";
+    }
+}
+
+static const char *cover_type_to_str(cover_type c)
+{
+    switch (c)
+    {
+        case MIN_COST_COVER:          return "min-cost-cover" ;
+        case MIN_CARD_COVER:          return "min-cardinality-cover" ;
+        case APPROX_MIN_CARD_COVER:   return "approx-min-cardinality-cover" ;
         default:                      return "unknown";
     }
 }
@@ -603,11 +620,13 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  node_cutoff                    = %i\n",   opts->node_cutoff);
     fprintf(f, "  density_cutoff                 = %f\n",   opts->density_cutoff);
 
+    /* Cover type options */
+    fprintf(f, "  cover_type                     = %s\n",   cover_type_to_str(opts->cover_type) ) ;
+    fprintf(f, "  try_both_covers                = %s\n",   (opts->try_both_covers) ? "yes" : "no") ;
 
     /* vs options */
     fprintf(f, "VS startup\n") ;
     fprintf(f, "  initial_projection             = %s\n",   (opts->initial_project) ? "yes" : "no") ;
-    fprintf(f, "  try_both_covers                = %s\n",   (opts->try_both_covers) ? "yes" : "no") ;
     fprintf(f, "  bisection_ngp                  = %i\n",   opts->bisection_ngp) ;
 
     /* FM subspace gradient projection */

@@ -1,5 +1,6 @@
 #ifndef VS_H
 #define VS_H
+#include "VSPQP.h"
 #include "core.h"
 
 typedef struct VSparm      /* parameters */
@@ -24,6 +25,19 @@ typedef struct VSparm      /* parameters */
                               before the gradient projection loop;
                               FALSE: skip the initial projection */
 
+    /* vertex cover of bipartite graph */
+    // First, select a cover type:
+    // MIN_COST_COVER -- find a min cost cover by solving a max flow problem
+    // MIN_CARD_COVER -- find a min cardinality using a max matching
+    //
+    // APPROX_MIN_CARD_COVER -- use the pricing algorithm to find a cover with
+    //                          cardinality <= 2*OPT where OPT is the min
+    //                          cardinality among all vertex covers
+    cover_type cover_type ;
+
+    // if cover_type = MIN_CARD_COVER, this boolean option controls whether
+    //                 we compute a cover starting from each side and select
+    //                 the cover with lower cost
     int try_both_covers ;
 } VSparm ;
 
