@@ -716,6 +716,7 @@ int vs
     }
     
 ////////////////////////////////////////////////////////////////////////////////
+#if 0
     {
         // TEMPORARY statistics: run both cover routines on copies of x and
         // print their costs. x itself is not modified here; the cover that
@@ -772,6 +773,7 @@ int vs
         free(x_old) ;
         free(x_new) ;
     }
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 
     if(Parm->cover_type == MIN_COST_COVER)

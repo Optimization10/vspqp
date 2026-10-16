@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <malloc.h>
 
 // #include <cstdlib>
 #include "time.h"
@@ -416,6 +417,10 @@ void Write_Results
 
 int main(int argc, char** argv)
 {
+    mallopt(M_MMAP_MAX, 0);         // keep large arrays in the heap
+    mallopt(M_TRIM_THRESHOLD, -1);  // never return freed memory to the OS
+
+
     /*------------------------------------------------------------------------*/
     // User Controls for Choosing a Problem Set
     /*------------------------------------------------------------------------*/

@@ -123,4 +123,16 @@ void VSP_Grad
 
 void FM_subspace_grad_proj(State *X, State *Y, Problem *P, Options *opts) ;
 
+// Make part 2 a separator by moving a min-weight vertex cover of the
+// bipartite graph between parts 0 and 1 into part 2. Defined in vs.c
+int vs_separator_min_weight
+(
+    int      *part,
+    VSPINT   *Ai,
+    VSPLONG  *Ap,
+    VSPINT    n,
+    VSPINT   *vtx_wgts   // must not be NULL
+) ;
+
+
 #endif
