@@ -260,17 +260,22 @@ void Optimize
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
     /* ====================================================================== */
-    // Phase 5: Mountain climbing
+    // Phase 5: Cover Refine
+    /* ====================================================================== */
+    // Cover_Refine(X, Y, problem, sqrt(problem->graph->total_vtx_cost) ) ;
+
+    /* ====================================================================== */
+    // Phase 6: Mountain climbing
     /* ====================================================================== */
     mountain_climbing(X, Y, problem, options, gamma, true) ;
 
     /* ====================================================================== */
-    // Phase 6: Gamma reduction
+    // Phase 7: Gamma reduction
     /* ====================================================================== */
     Gamma_Reduction_Loop(X, Y, problem, options);
 
     /* ====================================================================== */
-    // Phase 7: Greedy flips
+    // Phase 8: Greedy flips
     /* ====================================================================== */
     Round_Down_Fractions(X, Y, problem) ;
     Greedy_Flips(X, Y, problem, 5, true, true);

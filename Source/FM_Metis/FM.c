@@ -1057,6 +1057,8 @@ void FM_Metis
     // n_passes = problem->level + 4 ;
     for(pass = 0 ; pass < n_passes ; pass++)
     {
+        VSPINT sep_at_pass_start = pwgts[2] ;
+
 
         /* Initialize moved array */
         Fill_Int_Array_With_Value(EMPTY, moved, n) ;
@@ -1380,6 +1382,10 @@ void FM_Metis
                 Error("Mincut doesn't match size of separator", DBG_INFO) ;
             }
         #endif
+
+        // Like METIS: stop once a pass fails to shrink the separator
+        if(pwgts[2] >= sep_at_pass_start) break ;
+
 
 
         // Flips between FM passes

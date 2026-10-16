@@ -1,12 +1,71 @@
+#include <stdlib.h>
 #include "core.h"
 #include "solve_internal.h"
 #include "utils.h"
 #include "vs.h"
 
-// One Ashcraft-Liu step toward shore `to` (0 = X, 1 = Y). Take a min-weight
-// vertex cover C of the bipartite graph between the separator S and the
-// opposite shore, then move S \ C into `to` and C ∩ other into the separator.
-// S is itself a cover, so c(C) <= c(S).
+/* ========================================================================== */
+// Separator refinement by min-weight bipartite vertex cover
+// (Liu 1989; Ashcraft & Liu 1998).
+//
+// Let S be the separator. For a shore `to` and the opposite shore `other`,
+// take a min-weight vertex cover C of the bipartite graph between S and the
+// vertices of `other` adjacent to S. Moving S \ C into `to` and C ∩ other into
+// the separator gives a valid separator of weight c(C) <= c(S), since S is
+// itself a cover.
+/* ========================================================================== */
+
+
+// Number of vertices in the bipartite graph Cover_Step would build for shore
+// `to`: separator vertices with a neighbor in the other shore, plus the
+// other-shore vertices adjacent to the separator. This matches what
+// CSC_Extract_Bipartite_Graph extracts. Counting stops once the count reaches
+// limit, so the return value is only exact when it's below limit.
+// mark is workspace of size n.
+static VSPINT Bip_Size
+(
+    const int *where,
+    int        to,
+    int       *mark,
+    VSPINT     limit,
+    Problem   *P
+)
+{
+    VSPINT   i, j ;
+    VSPLONG  p ;
+    VSPINT   nbip  = 0 ;
+    VSPINT   n     = P->graph->n ;
+    VSPINT  *Ai    = P->graph->Ai ;
+    VSPLONG *Ap    = P->graph->Ap ;
+    int      other = 1 - to ;
+
+    for(i = 0 ; i < n ; i++) mark[i] = 0 ;
+
+    for(i = 0 ; i < n && nbip < limit ; i++)
+    {
+        if(where[i] != 2) continue ;
+
+        bool in_bip = false ;
+        for(p = Ap[i] ; p < Ap[i+1] ; p++)
+        {
+            j = Ai[p] ;
+            if(where[j] != other) continue ;
+
+            in_bip = true ;
+            if(!mark[j])
+            {
+                mark[j] = 1 ;
+                nbip++ ;
+            }
+        }
+        if(in_bip) nbip++ ;
+    }
+
+    return nbip ;
+}
+
+
+// One cover step toward shore `to` (0 = X, 1 = Y).
 //
 // where: current partition (0 = X, 1 = Y, 2 = separator), not modified
 // lab:   output, the new partition in the same encoding
@@ -54,6 +113,7 @@ static VSPINT Cover_Step
     return (wto <= P->u) ? wsep : EMPTY ;
 }
 
+
 // Apply partition lab to X and Y. Only vertices whose side changed are
 // touched, and Az is updated column by column, as in FM's Where_To_States.
 static void Apply_Partition(const int *lab, State *X, State *Y, Problem *P)
@@ -78,12 +138,18 @@ static void Apply_Partition(const int *lab, State *X, State *Y, Problem *P)
     }
 }
 
+
 // Repeat cover steps on both shores while the separator weight decreases.
+// A direction is skipped when its bipartite graph has max_bip or more
+// vertices; max_bip <= 0 disables the refinement.
+//
 // Requires X, Y to form a true separator with no fractional entries, e.g.
 // right after FM_Metis. Terminates because each accepted step strictly
 // decreases an integer separator weight.
-void Cover_Refine(State *X, State *Y, Problem *P)
+void Cover_Refine(State *X, State *Y, Problem *P, VSPINT max_bip)
 {
+    if(max_bip <= 0) return ;
+
     VSPINT  i, s, best ;
     VSPINT  n     = P->graph->n ;
     int     to, best_to ;
@@ -107,6 +173,9 @@ void Cover_Refine(State *X, State *Y, Problem *P)
         best_to = EMPTY ;
         for(to = 0 ; to < 2 ; to++)
         {
+            // lab[to] is scratch here; Cover_Step overwrites all of it
+            if(Bip_Size(where, to, lab[to], max_bip, P) >= max_bip) continue ;
+
             s = Cover_Step(where, to, lab[to], P) ;
             if(s != EMPTY && s < best) { best = s ; best_to = to ; }
         }

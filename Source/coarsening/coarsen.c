@@ -519,12 +519,16 @@ void Set_Upper_Bound
     Interpolation interpolation
 )
 {
-    // Return early if we're not modifying u, or if there are no coarse levels
-    if(opts->tighten_u == false || problem->coarsest_level_num == 0 )
+    // Return early if we're not modifying u, or if there are no coarse levels.
+    // The finest level always keeps the true bound: ubFinest is based on the
+    // input graph's size, while total_vtx_cost excludes any removed hubs.
+    if(opts->tighten_u == false || problem->coarsest_level_num == 0
+       || problem->level == 0)
     {
         problem->u = problem->ubFinest ;
         return ;
     }
+
 
     VSPINT l          = problem->level ;
     VSPINT L          = problem->coarsest_level_num ;
