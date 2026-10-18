@@ -171,7 +171,9 @@ typedef struct Problem_struct
     VSPINT level ;
     VSPINT coarsest_level_num ; /* the level of the coarsest problem */
 
-    VSPINT ubFinest ;
+    /* Vertices in the input graph, removed hubs included. Hubs are expected to
+       stay in the separator, so u at every level is a ratio of this count. */
+    VSPINT n_original ;
 
     Stats stats ;
 

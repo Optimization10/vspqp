@@ -385,30 +385,17 @@ static void set_bisection_initial_guess
     vs(part, Ai, Ap, Ae, c, n, m,Parm) ;
 
 
+    // Loosen the coarsest bound so it admits the bisection's larger shore
     if(options->ub_based_on_bisection)
     {
-        Problem *P = problem ;
         VSPFLOAT u_ratio_coarsest ;
-        VSPFLOAT u_ratio_coarsest_Old ;
         VSPINT   wgts[3] = {0, 0, 0} ;
 
-        // Calculate new upper bound at coarsest level
         for(i = 0 ; i < n ; i++) wgts[ part[i] ] += c[i] ;
-        u_ratio_coarsest = MAX(wgts[0], wgts[1]) / (VSPFLOAT) (P->graph->total_vtx_cost) ;
+        u_ratio_coarsest = MAX(wgts[0], wgts[1]) / (VSPFLOAT) problem->n_original ;
         u_ratio_coarsest = MAX(u_ratio_coarsest, options->u_ratio_coarsest) ;
 
-        // printf("Coarsest ub: %f\n", u_ratio_coarsest) ;
-
-        u_ratio_coarsest_Old = options->u_ratio_coarsest ;
-        options->u_ratio_coarsest = u_ratio_coarsest ;
-        while(P != NULL)
-        {
-            Set_Upper_Bound(P, options, QUADRATIC) ;
-            P = P->parent_problem ;
-        }
-
-        // Restore
-        options->u_ratio_coarsest = u_ratio_coarsest_Old ;
+        Set_Upper_Bounds(problem, options, u_ratio_coarsest, QUADRATIC) ;
     }
 
     // Convert partition to states

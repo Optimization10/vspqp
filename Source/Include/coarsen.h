@@ -33,10 +33,11 @@ Problem *Problem_Recursive_Coarsen
     VSPINT    *n_sings
 ) ;
 
-void Set_Upper_Bound
+void Set_Upper_Bounds
 (
     Problem      *problem,
     Options      *opts,
+    VSPFLOAT      ratio_coarsest,
     Interpolation interpolation
 ) ;
 

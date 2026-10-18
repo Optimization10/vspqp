@@ -2907,7 +2907,7 @@ VSPINT Get_u_Finest(Problem *P)
     SET_FUNCTION_COUNTER ;
     VSP_ASSERT(P != NULL) ;
     while(P->parent_problem != NULL) P = P->parent_problem ;
-    return P->ubFinest ;
+    return P->u ;
 }
 
 // Return c - gamma Az as an array of floats

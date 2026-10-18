@@ -249,20 +249,17 @@ static Graph* Graph_Coarsen
     free(htable) ;
 
 
-    if(opts->sort_cols || opts->initial_guess == bisection_initial_guess)
-    {
-        /* Sort columns of the coarse graph */
-        VSPLONG nz_coarse = Ap_coarse[n_coarse] ;
-        VSPINT *tmp_i = malloc(nz_coarse * sizeof(VSPINT)) ;
-        VSPINT *tmp_e = malloc(nz_coarse * sizeof(VSPINT)) ;
-        vs_sort_cols(Ap_coarse, tmp_i, tmp_e, Ai_coarse, Ae_coarse, n_coarse) ;
-        free(Graph_Coarse->Ai) ;
-        free(Graph_Coarse->Ae) ;
-        Graph_Coarse->Ai = tmp_i ;
-        Graph_Coarse->Ae = tmp_e ;
-        Ai_coarse = tmp_i ;
-        Ae_coarse = tmp_e ;
-    }
+    /* Sort columns of the coarse graph */
+    VSPLONG nz_coarse = Ap_coarse[n_coarse] ;
+    VSPINT *tmp_i = malloc(nz_coarse * sizeof(VSPINT)) ;
+    VSPINT *tmp_e = malloc(nz_coarse * sizeof(VSPINT)) ;
+    vs_sort_cols(Ap_coarse, tmp_i, tmp_e, Ai_coarse, Ae_coarse, n_coarse) ;
+    free(Graph_Coarse->Ai) ;
+    free(Graph_Coarse->Ae) ;
+    Graph_Coarse->Ai = tmp_i ;
+    Graph_Coarse->Ae = tmp_e ;
+    Ai_coarse = tmp_i ;
+    Ae_coarse = tmp_e ;
 
 
 #ifdef DEBUG
@@ -495,7 +492,7 @@ static Problem *Problem_Coarsen
     /* ====================================================================== */
     P->child_problem         = P_coarse ;
     P_coarse->u              = P->u ;
-    P_coarse->ubFinest       = P->ubFinest ;
+    P_coarse->n_original     = P->n_original ;
     P_coarse->level          = P->level + 1 ;
     P_coarse->parent_problem = P ;
 
@@ -512,57 +509,44 @@ static Problem *Problem_Coarsen
 }
 
 
-void Set_Upper_Bound
+// Set u on problem and every finer level above it:
+//     u_l = floor(ratio_l * n_original)
+// ratio_l is u_ratio_finest at level 0. With tighten_u it moves toward
+// ratio_coarsest at the coarsest level, otherwise it stays u_ratio_finest.
+void Set_Upper_Bounds
 (
     Problem      *problem,
     Options      *opts,
+    VSPFLOAT      ratio_coarsest,
     Interpolation interpolation
 )
 {
-    // Return early if we're not modifying u, or if there are no coarse levels.
-    // The finest level always keeps the true bound: ubFinest is based on the
-    // input graph's size, while total_vtx_cost excludes any removed hubs.
-    if(opts->tighten_u == false || problem->coarsest_level_num == 0
-       || problem->level == 0)
-    {
-        problem->u = problem->ubFinest ;
-        return ;
-    }
-
-
-    VSPINT l          = problem->level ;
-    VSPINT L          = problem->coarsest_level_num ;
-    VSPINT cost_graph = problem->graph->total_vtx_cost ;
-
-    VSPFLOAT gap, coeff, ratio_l ;
-    
+    VSPINT   L       = problem->coarsest_level_num ;
     VSPFLOAT ratio_0 = opts->u_ratio_finest ;
-    VSPFLOAT ratio_L = opts->u_ratio_coarsest ;
+    VSPFLOAT ratio_L = ratio_coarsest ;
 
-    // Compute ratio_l
-    switch(interpolation)
+    for(Problem *P = problem ; P != NULL ; P = P->parent_problem)
     {
-        case LINEAR:
-            gap        = ratio_L - ratio_0 ;
-            ratio_l    = ratio_0+ l * (gap / L) ;
-            break ;
+        VSPINT   l       = P->level ;
+        VSPFLOAT ratio_l = ratio_0 ;
 
-        case QUADRATIC:
-            coeff   = (ratio_0- ratio_L) / (L * L) ;
-            ratio_l = coeff * (l - L) * (l - L) + ratio_L ;
-            // printf("ub: %f\n", ratio_l) ;
-            break ;
+        if(opts->tighten_u && l > 0)
+        {
+            switch(interpolation)
+            {
+                case LINEAR:
+                    ratio_l = ratio_0 + l * ((ratio_L - ratio_0) / L) ;
+                    break ;
 
-        default:
-            printf("Interpolation not supported\n") ;
-            problem->u = problem->ubFinest ;
-            return ;
+                case QUADRATIC:
+                    ratio_l = (ratio_0 - ratio_L) / (L * L) * (l - L) * (l - L)
+                            + ratio_L ;
+                    break ;
+            }
+        }
+
+        P->u = (VSPINT) floor(ratio_l * P->n_original) ;
     }
-
-    // Set u based on ratio_l
-    problem->u = (VSPINT) floor(ratio_l * cost_graph) ;
-
-    return ;
 }
 
 
@@ -796,13 +780,7 @@ Problem *Problem_Recursive_Coarsen
     }
     coarsest_P->child_problem = NULL ;
 
-    /* Set upper bounds */
-    P = coarsest_P ;
-    while(P != NULL)
-    {
-       Set_Upper_Bound(P, opts, QUADRATIC) ;
-       P = P->parent_problem ;
-    }
+    Set_Upper_Bounds(coarsest_P, opts, opts->u_ratio_coarsest, QUADRATIC) ;
 
     return coarsest_P ;
 }

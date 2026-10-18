@@ -468,24 +468,29 @@ int main(int argc, char** argv)
     options = construct_options() ;
     set_default_options(options) ;
 
-    // Custom options
-    // options->sort_cols     = true ;
+    /* Coarsening Options */
     options->attempt_second_start = FALSE ;
-    options->u_ratio_coarsest  = 0.45 ;
-    // options->u_ratio_coarsest  = 0.45 ;
-    // options->u_ratio_coarsest  = 0.48 ;
-    // No tightening: every level gets u_ratio_finest * n_input (hubs included)
-    options->tighten_u = FALSE ;
-    // options->u_ratio_coarsest  = 0.42 ;
+
+    /* Upper Bound */
+    // options->u_ratio_coarsest = 0.48 ;  // tighten coarse levels toward 0.48
+    options->tighten_u = FALSE ;           // every level uses u_ratio_finest
+
+    /* Initial Guess */
     options->initial_guess = bisection_initial_guess ;
     // options->ub_based_on_bisection = true ;
     options->initial_project = FALSE ;
     // options->initial_project = TRUE ;
-    options->FM_Limit = 320 ;
     options->try_both_covers = FALSE ;
     options->bisection_ngp = 3 ;
+
+    /* FM METIS*/
+    options->FM_Limit = 320 ;
+
+    /* Gradient Projection on the Full VSP */
     options->vsp_grad_proj = FALSE ;
     options->vsp_ngp = 3 ;
+
+    /* Gradient Projection on the FM Subspace */
     options->use_FM_subspace_grad_proj = FALSE ;
     options->noFM = 0.2 ;
 

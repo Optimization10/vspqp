@@ -208,8 +208,8 @@ static void set_default_problem_data
     for(i = 0 ; i < n ; i++) c[i] = 1 ;
 
     /* Set the upper balance constraint to 60%, and lower constraint to 1 */
-    problem->u        = n_input * opts->u_ratio_finest ;
-    problem->ubFinest = problem->u ;
+    problem->n_original = n_input ;
+    problem->u          = n_input * opts->u_ratio_finest ;
     return ;
 }
 

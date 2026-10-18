@@ -502,7 +502,6 @@ void set_default_options(Options *options)
     /* Simple Coarsening Options                                              */
     /*------------------------------------------------------------------------*/
     options->compression_threshold = 0.51 ;
-    options->sort_cols             = false ;
     options->node_cutoff           = 32 ;
     options->density_cutoff        = 0.5 ;
 
@@ -616,7 +615,6 @@ void Print_Options(const Options *opts, const char *path)
     /* Simple Coarsening Options */
     fprintf(f, "Coarsening\n") ;
     fprintf(f, "  compression_threshold          = %g\n",   opts->compression_threshold);
-    fprintf(f, "  sort_cols                      = %i\n",   opts->sort_cols || opts->initial_guess == bisection_initial_guess);
     fprintf(f, "  node_cutoff                    = %i\n",   opts->node_cutoff);
     fprintf(f, "  density_cutoff                 = %f\n",   opts->density_cutoff);
 
