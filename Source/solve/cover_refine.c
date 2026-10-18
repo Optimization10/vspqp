@@ -4,17 +4,6 @@
 #include "utils.h"
 #include "vs.h"
 
-/* ========================================================================== */
-// Separator refinement by min-weight bipartite vertex cover
-// (Liu 1989; Ashcraft & Liu 1998).
-//
-// Let S be the separator. For a shore `to` and the opposite shore `other`,
-// take a min-weight vertex cover C of the bipartite graph between S and the
-// vertices of `other` adjacent to S. Moving S \ C into `to` and C ∩ other into
-// the separator gives a valid separator of weight c(C) <= c(S), since S is
-// itself a cover.
-/* ========================================================================== */
-
 
 // Number of vertices in the bipartite graph Cover_Step would build for shore
 // `to`: separator vertices with a neighbor in the other shore, plus the
@@ -115,7 +104,7 @@ static VSPINT Cover_Step
 
 
 // Apply partition lab to X and Y. Only vertices whose side changed are
-// touched, and Az is updated column by column, as in FM's Where_To_States.
+// touched, and Az is updated column by column
 static void Apply_Partition(const int *lab, State *X, State *Y, Problem *P)
 {
     VSPINT  i, s ;
@@ -139,29 +128,79 @@ static void Apply_Partition(const int *lab, State *X, State *Y, Problem *P)
 }
 
 
+#ifdef DEBUG
+// Check that X, Y form a true separator: no vertex in both shores and no edge
+// between the shores. check_states covers the weights, Az, and the bound u.
+// Returns the separator cost, recomputed from scratch.
+static VSPINT Check_Separator(State *X, State *Y, Problem *P)
+{
+    SET_FUNCTION_COUNTER ;
+
+    VSPINT   i ;
+    VSPLONG  p ;
+    VSPINT   n      = P->graph->n ;
+    VSPINT  *c      = P->graph->c ;
+    VSPINT  *Ai     = P->graph->Ai ;
+    VSPLONG *Ap     = P->graph->Ap ;
+    VSPINT  *x      = X->point->int_part ;
+    VSPINT  *y      = Y->point->int_part ;
+    VSPINT   wsep   = 0 ;
+    VSPINT   nboth  = 0 ;
+    VSPINT   ncross = 0 ;
+
+    check_states(X, Y, P) ;
+
+    for(i = 0 ; i < n ; i++)
+    {
+        if(x[i] && y[i])   nboth++ ;
+        if(!x[i] && !y[i]) wsep += c[i] ;
+        if(!x[i]) continue ;
+
+        for(p = Ap[i] ; p < Ap[i+1] ; p++)
+        {
+            if(y[Ai[p]]) ncross++ ;
+        }
+    }
+
+    // Error logs and continues, so report each kind of violation once
+    if(nboth > 0)  ERR("Vertex in both shores") ;
+    if(ncross > 0) ERR("Edge between the shores") ;
+    if(wsep != P->graph->total_vtx_cost - X->weight - Y->weight)
+    {
+        ERR("Separator weight disagrees with the shore weights") ;
+    }
+
+    return wsep ;
+}
+#endif
+
+
 // Repeat cover steps on both shores while the separator weight decreases.
 // A direction is skipped when its bipartite graph has max_bip or more
-// vertices; max_bip <= 0 disables the refinement.
-//
-// Requires X, Y to form a true separator with no fractional entries, e.g.
-// right after FM_Metis. Terminates because each accepted step strictly
-// decreases an integer separator weight.
-void Cover_Refine(State *X, State *Y, Problem *P, VSPINT max_bip)
+// vertices
+int Cover_Refine(State *X, State *Y, Problem *P, VSPINT max_bip)
 {
-    if(max_bip <= 0) return ;
+    SET_FUNCTION_COUNTER ;
+    if(max_bip <= 0) return 0 ;
 
     VSPINT  i, s, best ;
-    VSPINT  n     = P->graph->n ;
+    VSPINT  n      = P->graph->n ;
     int     to, best_to ;
-    int    *where = malloc(n * sizeof(*where)) ;
+    int     passes = 0 ;
+    int    *where  = malloc(n * sizeof(*where)) ;
     int    *lab[2] ;
     lab[0] = malloc(n * sizeof(int)) ;
     lab[1] = malloc(n * sizeof(int)) ;
 
     VSP_ASSERT(X->point->ind_frac == EMPTY && Y->point->ind_frac == EMPTY) ;
+#ifdef DEBUG
+    VSPINT wsep_prev = Check_Separator(X, Y, P) ;
+#endif
 
     while(true)
     {
+        passes++ ;
+
         for(i = 0 ; i < n ; i++)
         {
             if     (X->point->int_part[i]) where[i] = 0 ;
@@ -182,13 +221,20 @@ void Cover_Refine(State *X, State *Y, Problem *P, VSPINT max_bip)
 
         if(best_to == EMPTY) break ;
         Apply_Partition(lab[best_to], X, Y, P) ;
-    }
 
 #ifdef DEBUG
-    check_states(X, Y, P) ;
+        // An accepted step must leave a separator of the weight Cover_Step
+        // reported, strictly below the previous one
+        VSPINT wsep = Check_Separator(X, Y, P) ;
+        if(wsep != best)      ERR("Separator weight differs from Cover_Step") ;
+        if(wsep >= wsep_prev) ERR("Separator weight did not decrease") ;
+        wsep_prev = wsep ;
 #endif
+    }
 
     free(where) ;
     free(lab[0]) ;
     free(lab[1]) ;
+
+    return passes ;
 }

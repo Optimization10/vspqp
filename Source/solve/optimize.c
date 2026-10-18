@@ -140,6 +140,8 @@ static void Gamma_Reduction_Loop
 
         Round_Down_Fractions(Xc, Yc, problem) ;
         FM_Metis(Xc, Yc, problem, options, np);
+        // int passes_done = Cover_Refine(Xc, Yc, problem, 5*sqrt(problem->graph->total_vtx_cost) ) ;
+
 
         f_x_y         = compute_obj(X,  Y,  problem, gamma_org);
         f_xstar_ystar = compute_obj(Xc, Yc, problem, gamma_org);
@@ -230,6 +232,7 @@ void Optimize
         free(c_flt) ;
     }
 
+
     /* ====================================================================== */
     // Phase 1: Mountain climbing
     /* ====================================================================== */
@@ -256,14 +259,11 @@ void Optimize
     n_passes = (l >= L / 2) ? 3 : 2 ;
     Round_Down_Fractions(X, Y, problem) ;
 
-    FM_Metis(X, Y, problem, options, n_passes);
-    if (Early_Exit(X, Y, problem)) goto CLEANUP;
+    FM_Metis(X, Y, problem, options, n_passes) ;
+    // int passes_done = Cover_Refine(X, Y, problem, 5*sqrt(problem->graph->total_vtx_cost) ) ;
 
-    /* ====================================================================== */
-    // Phase 5: Cover Refine
-    /* ====================================================================== */
-    // Cover_Refine(X, Y, problem, sqrt(problem->graph->total_vtx_cost) ) ;
 
+    if (Early_Exit(X, Y, problem)) goto CLEANUP ;
     /* ====================================================================== */
     // Phase 6: Mountain climbing
     /* ====================================================================== */

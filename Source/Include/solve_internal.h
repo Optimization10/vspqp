@@ -80,5 +80,5 @@ void strategy_explore_bisection
 
 void Rebalance_Singletons(State *X, State *Y, Problem *P) ;
 
-void Cover_Refine(State *X, State *Y, Problem *P, VSPINT max_bip) ;
+int Cover_Refine(State *X, State *Y, Problem *P, VSPINT max_bip) ;
 #endif
