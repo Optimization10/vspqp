@@ -135,4 +135,12 @@ int vs_separator_min_weight
 ) ;
 
 
+void Grad_Proj_Full_Space
+(
+    State   *X,
+    State   *Y,
+    Problem *problem,
+    Options *options
+) ;
+
 #endif

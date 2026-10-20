@@ -10559,3 +10559,60 @@ int vs_separator_min_weight
 
     return status ;
 }
+
+
+void Grad_Proj_Full_Space
+(
+    State   *X,
+    State   *Y,
+    Problem *problem,
+    Options *options
+)
+{
+    VSPFLOAT *x_flt, *y_flt, *gx, *gy, *c_flt, xcost, ycost ;
+    VSPINT    n_passes;
+    VSPINT    n     = problem->graph->n ;
+    VSPINT   *c     = problem->graph->c ;
+    VSPINT    l     = problem->level ;
+    VSPINT    L     = problem->coarsest_level_num ;
+    VSPINT    gamma = problem->graph->max_vtx_cost ;
+    VSPINT   *Ai    = problem->graph->Ai ;
+    VSPLONG  *Ap    = problem->graph->Ap ;
+    VSPINT    u     = problem->u ;
+
+    /* Step 1: Convert x, y, c to floats, and compute gx and gy */
+    x_flt = Point_To_Array(X->point) ;
+    gx    = Az_To_Grad(c, gamma, Y->Az) ;
+
+    y_flt = Point_To_Array(Y->point) ;    
+    gy    = Az_To_Grad(c, gamma, X->Az) ;
+
+    c_flt = Array_Int_To_Flt(c, n) ;
+
+    /* Step 2: Do gradient projection */
+    VSP_Grad_Proj
+    (
+        x_flt, gx, y_flt, gy, c_flt, Ai, Ap, u, n, gamma, options->vsp_ngp
+    ) ;
+
+    /* Step 3: Move x_flt, y_flt to almost binary points */
+    int print_level = 0 ;
+
+    VSPINT j1, j2 ;
+    j1 = VSPboundary(x_flt, c_flt, gx, gy, n, Ai, Ap, gamma, 1, 1, print_level) ;
+    j2 = VSPboundary(y_flt, c_flt, gy, gx, n, Ai, Ap, gamma, 1, 1, print_level) ;
+
+    /* Step 4: Update the X and Y states with x_flt and y_flt */
+    xcost = Move_To_Vertex(x_flt, y_flt, gx, gy, Ai,Ap,c_flt,u,gamma,n,&j1);
+    ycost = Move_To_Vertex(y_flt, x_flt, gy, gx, Ai,Ap,c_flt,u,gamma,n,&j2);
+
+    Array_To_State(x_flt, xcost, gy, X, problem, j1) ;
+    Array_To_State(y_flt, ycost, gx, Y, problem, j2) ;
+
+    /* Step 5: Cleanup */
+    free(x_flt) ;
+    free(y_flt) ;
+    free(gx) ;
+    free(gy) ;
+    free(c_flt) ;
+}
