@@ -23,6 +23,7 @@ int vs_sort_cols
 // Ai (and Ae, if it has one), since they are replaced.
 void Graph_Sort_Cols(Graph *G)
 {
+    SET_FUNCTION_COUNTER ;
     VSP_ASSERT(G->owns_Ai) ;
     VSPLONG nz    = G->Ap[G->n] ;
     size_t  bytes = (nz > 0 ? nz : 1) * sizeof(VSPINT) ;
