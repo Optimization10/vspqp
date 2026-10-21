@@ -105,6 +105,12 @@ typedef struct Options_struct
     VSPINT   node_cutoff ;
     VSPFLOAT density_cutoff ;
 
+    // If true, the adjacency lists of every coarse graph are sorted. If false,
+    // only a graph handed to vs() (the bisection) is sorted, right before the
+    // call, which saves about a third of the coarsening time. Ties in
+    // matching, FM and flips follow adjacency order, so results change.
+    bool     sort_coarse_graphs ;
+
     int initial_project ;
 
     /* ====================================================================== */
@@ -168,6 +174,16 @@ typedef struct Options_struct
     // Hub removal
     /* ====================================================================== */
     double hub_treshold ;
+
+    /* ====================================================================== */
+    // Band refinement
+    /* ====================================================================== */
+    // Optimize runs Band_Refine (a minimum cut on the separator plus 3 BFS
+    // layers into each shore) before its first greedy flips, on levels at
+    // most band_max_level. EMPTY turns it off. Each call makes at most
+    // band_passes improving moves.
+    VSPINT band_max_level ;
+    VSPINT band_passes ;
 
     /* ====================================================================== */
     // Branched coarsening (VSP_Solve_2 only)

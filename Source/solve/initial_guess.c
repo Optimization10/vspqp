@@ -380,6 +380,15 @@ static void set_bisection_initial_guess
     Parm->cover_type      = options->cover_type ;
     Parm->try_both_covers = options->try_both_covers ;
 
+    // vs() needs sorted adjacency lists. The finest graph comes sorted, and
+    // coarse graphs too unless sort_coarse_graphs is off.
+    if(!options->sort_coarse_graphs && problem->graph->owns_Ai)
+    {
+        Graph_Sort_Cols(problem->graph) ;
+        Ai = problem->graph->Ai ;
+        Ae = problem->graph->Ae ;
+    }
+
     // Get partition
     VSPINT m = (problem->graph->total_vtx_cost) / 2 ;
     vs(part, Ai, Ap, Ae, c, n, m,Parm) ;

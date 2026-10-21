@@ -5,6 +5,7 @@
 #include "FM.h"
 #include "vs.h"
 #include "mc.h"
+#include "coarsen.h"
 
 // Run a strategy on a cloned point. If it beats the original, swap.
 // Returns true if the clone was better.
@@ -99,6 +100,12 @@ void strategy_explore_bisection
     State *X, State *Y, Problem *problem, Options *options
 )
 {
+    // vs() needs sorted adjacency lists (see set_bisection_initial_guess)
+    if(!options->sort_coarse_graphs && problem->graph->owns_Ai)
+    {
+        Graph_Sort_Cols(problem->graph) ;
+    }
+
     // Convert the current separator to an x array for vs()
     VSPINT   i ;
     VSPINT  *x  = X->point->int_part ;

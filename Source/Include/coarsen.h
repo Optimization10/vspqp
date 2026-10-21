@@ -17,6 +17,8 @@ void Graph_Simple_Match
     const VSPINT *perm  // Order in which to visit the vertices. NULL: 0..n-1
 ) ;
 
+void Graph_Sort_Cols(Graph *G) ;
+
 Problem *Problem_Coarsen
 (
     Problem *P,

@@ -19,6 +19,22 @@ int vs_sort_cols
 ) ;
 
 
+// Sort the adjacency list of every vertex of G, keeping Ae in step. G must own
+// Ai (and Ae, if it has one), since they are replaced.
+void Graph_Sort_Cols(Graph *G)
+{
+    VSP_ASSERT(G->owns_Ai) ;
+    VSPLONG nz    = G->Ap[G->n] ;
+    size_t  bytes = (nz > 0 ? nz : 1) * sizeof(VSPINT) ;
+    VSPINT *tmp_i = malloc(bytes) ;
+    VSPINT *tmp_e = (G->Ae != NULL) ? malloc(bytes) : NULL ;
+    vs_sort_cols(G->Ap, tmp_i, tmp_e, G->Ai, G->Ae, G->n) ;
+    free(G->Ai) ;
+    free(G->Ae) ;
+    G->Ai = tmp_i ;
+    G->Ae = tmp_e ;
+}
+
 /* Coarsening works as follows: iterate through each vertex k of the coarse*/
 /* Graph-> Let A and B be the vertices in the finer graph which*/
 /* map to k. Iterate through all the neighbors of A. These will be neighbors*/
@@ -249,17 +265,21 @@ static Graph* Graph_Coarsen
     free(htable) ;
 
 
-    /* Sort columns of the coarse graph */
-    VSPLONG nz_coarse = Ap_coarse[n_coarse] ;
-    VSPINT *tmp_i = malloc(nz_coarse * sizeof(VSPINT)) ;
-    VSPINT *tmp_e = malloc(nz_coarse * sizeof(VSPINT)) ;
-    vs_sort_cols(Ap_coarse, tmp_i, tmp_e, Ai_coarse, Ae_coarse, n_coarse) ;
-    free(Graph_Coarse->Ai) ;
-    free(Graph_Coarse->Ae) ;
-    Graph_Coarse->Ai = tmp_i ;
-    Graph_Coarse->Ae = tmp_e ;
-    Ai_coarse = tmp_i ;
-    Ae_coarse = tmp_e ;
+    /* Sort columns of the coarse graph, or else just trim Ai and Ae, which
+       were sized for the fine graph's nz */
+    if(opts->sort_coarse_graphs)
+    {
+        Graph_Sort_Cols(Graph_Coarse) ;
+    }
+    else
+    {
+        VSPLONG nz_coarse = Ap_coarse[n_coarse] ;
+        size_t  bytes     = (nz_coarse > 0 ? nz_coarse : 1) * sizeof(VSPINT) ;
+        Graph_Coarse->Ai = realloc(Graph_Coarse->Ai, bytes) ;
+        Graph_Coarse->Ae = realloc(Graph_Coarse->Ae, bytes) ;
+    }
+    Ai_coarse = Graph_Coarse->Ai ;
+    Ae_coarse = Graph_Coarse->Ae ;
 
 
 #ifdef DEBUG

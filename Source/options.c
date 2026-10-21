@@ -505,6 +505,7 @@ void set_default_options(Options *options)
     options->compression_threshold = 0.51 ;
     options->node_cutoff           = 32 ;
     options->density_cutoff        = 0.5 ;
+    options->sort_coarse_graphs    = false ;
 
     options->initial_project       = FALSE ;
 
@@ -542,13 +543,19 @@ void set_default_options(Options *options)
     options-> hub_treshold = 0.5 ;
 
     /* ====================================================================== */
+    // Band refinement
+    /* ====================================================================== */
+    options->band_max_level = 0 ;
+    options->band_passes    = 3 ;
+
+    /* ====================================================================== */
     // Branched coarsening (VSP_Solve_2 only)
     /* ====================================================================== */
     options->branch_shared_levels = 4 ;
     options->num_branches         = 5 ;
     options->branch_node_cutoff   = 60 ;
     options->branch_seed          = 1 ;
-    options->branch_full_solves   = 1 ;
+    options->branch_full_solves   = 0 ;
 
     return ;
 }
@@ -628,6 +635,7 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  compression_threshold          = %g\n",   opts->compression_threshold);
     fprintf(f, "  node_cutoff                    = %i\n",   opts->node_cutoff);
     fprintf(f, "  density_cutoff                 = %f\n",   opts->density_cutoff);
+    fprintf(f, "  sort_coarse_graphs             = %s\n",   opts->sort_coarse_graphs ? "true" : "false");
 
     /* Cover type options */
     fprintf(f, "  cover_type                     = %s\n",   cover_type_to_str(opts->cover_type) ) ;
@@ -658,6 +666,11 @@ void Print_Options(const Options *opts, const char *path)
     /* hub removal */
     fprintf(f, "Hub removal\n") ;
     fprintf(f, "  hub_treshold                   = %f\n",   opts->hub_treshold ) ;
+
+    /* Band refinement */
+    fprintf(f, "Band refinement\n") ;
+    fprintf(f, "  band_max_level                 = %lld\n", PRI(opts->band_max_level)) ;
+    fprintf(f, "  band_passes                    = %lld\n", PRI(opts->band_passes)) ;
 
     /* Branched coarsening */
     fprintf(f, "Branched coarsening (VSP_Solve_2 only)\n") ;
