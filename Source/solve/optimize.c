@@ -140,8 +140,6 @@ static void Gamma_Reduction_Loop
 
         Round_Down_Fractions(Xc, Yc, problem) ;
         FM_Metis(Xc, Yc, problem, options, np);
-        // int passes_done = Cover_Refine(Xc, Yc, problem, 5*sqrt(problem->graph->total_vtx_cost) ) ;
-
 
         f_x_y         = compute_obj(X,  Y,  problem, gamma_org);
         f_xstar_ystar = compute_obj(Xc, Yc, problem, gamma_org);
@@ -180,7 +178,6 @@ void Optimize
         check_states(X, Y, problem);
 #endif
     VSPINT    n_passes;
-    VSPINT    n     = problem->graph->n ;
     VSPINT    l     = problem->level ;
     VSPINT    L     = problem->coarsest_level_num ;
     VSPINT    gamma = problem->graph->max_vtx_cost ;
@@ -190,8 +187,6 @@ void Optimize
     /* ====================================================================== */
     if(options->vsp_grad_proj) Grad_Proj_Full_Space(X,Y, problem, options) ;
 
-
-    int passes_done ;
     /* ====================================================================== */
     // Phase 1: Mountain climbing
     /* ====================================================================== */
@@ -203,9 +198,7 @@ void Optimize
     // Phase 2: Greedy flips
     /* ====================================================================== */
     Round_Down_Fractions(X, Y, problem) ;
-    passes_done = Cover_Refine(X, Y, problem, 8*sqrt(problem->graph->total_vtx_cost) ) ;
     Greedy_Flips(X, Y, problem, 9, (problem->level <= 2), false);
-    passes_done = Cover_Refine(X, Y, problem, 8*sqrt(problem->graph->total_vtx_cost) ) ;
 
 
     /* ====================================================================== */
@@ -220,29 +213,24 @@ void Optimize
     n_passes = (l >= L / 2) ? 3 : 2 ;
     Round_Down_Fractions(X, Y, problem) ;
 
-    FM_Metis(X, Y, problem, options, n_passes) ;
-    passes_done = Cover_Refine(X, Y, problem, 8*sqrt(problem->graph->total_vtx_cost) ) ;
-
-
-    if (Early_Exit(X, Y, problem)) goto CLEANUP ;
-    /* ====================================================================== */
-    // Phase 6: Mountain climbing
-    /* ====================================================================== */
-    // mountain_climbing(X, Y, problem, options, gamma, true) ;
+    FM_Metis(X, Y, problem, options, n_passes);
+    if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
     /* ====================================================================== */
-    // Phase 7: Gamma reduction
+    // Phase 5: Mountain climbing
     /* ====================================================================== */
-    // Gamma_Reduction_Loop(X, Y, problem, options);
+    mountain_climbing(X, Y, problem, options, gamma, true) ;
 
     /* ====================================================================== */
-    // Phase 8: Greedy flips
+    // Phase 6: Gamma reduction
+    /* ====================================================================== */
+    Gamma_Reduction_Loop(X, Y, problem, options);
+
+    /* ====================================================================== */
+    // Phase 7: Greedy flips
     /* ====================================================================== */
     Round_Down_Fractions(X, Y, problem) ;
     Greedy_Flips(X, Y, problem, 5, true, true);
-    FM_Metis(X, Y, problem, options, 1) ;
-    Greedy_Flips(X, Y, problem, 5, true, true);
-    passes_done = Cover_Refine(X, Y, problem, 8*sqrt(problem->graph->total_vtx_cost) ) ;
 
     CLEANUP:
 
