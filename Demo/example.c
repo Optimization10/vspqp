@@ -527,7 +527,8 @@ int main(int argc, char** argv)
         // Solve the problem
         restart_decide_reset(options->restart_decision) ;
         clock_gettime(CLOCK_REALTIME, &start) ;
-        result = VSP_Solve(n, Ap, Ai, options, name_problem) ;
+        result = VSP_Solve_2(n, Ap, Ai, options, name_problem) ;
+        // result = VSP_Solve(n, Ap, Ai, options, name_problem) ;
         clock_gettime(CLOCK_REALTIME, &end);
 
 

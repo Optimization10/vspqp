@@ -455,7 +455,7 @@ static Graph* Graph_Coarsen
 
 
 // Generate a coarser version of the current problem
-static Problem *Problem_Coarsen
+Problem *Problem_Coarsen
 (
     Problem *P,
     Options *opts
@@ -560,7 +560,7 @@ static inline VSPINT abs_diff(VSPINT a, VSPINT b)
 // on the size of a shore at the finest level. Assume u0 >= N0/2.
 // Given a problem where the cost of singletons is at least N0-u0, find a
 // subset of singletons whose cost is in [N0-u0, u0], ideally close to N0/2.
-static VSPINT *Singletons_Solution(Problem *P, VSPINT N0, VSPINT u0, VSPINT *nSing)
+VSPINT *Singletons_Solution(Problem *P, VSPINT N0, VSPINT u0, VSPINT *nSing)
 {
     SET_FUNCTION_COUNTER ;
     VSP_ASSERT(u0 >= N0/2) ;
@@ -735,7 +735,8 @@ Problem *Problem_Recursive_Coarsen
             P->graph,
             P->matching,
             P->level,
-            opts
+            opts,
+            NULL
         ) ;
 
         // Coarsen P

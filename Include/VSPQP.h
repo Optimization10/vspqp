@@ -72,6 +72,11 @@ typedef struct Options_struct
     VSPINT max_num_vert_small_graph ; /* Max number of vertices in  what is
                                          to be considered a "small" graph     */
 
+    /* Gamma reduction only runs on levels at least this coarse. 0 runs it on
+       every level. For VSP_Solve_2, branch_shared_levels keeps it in the
+       branches and on the shared graph they start from.                      */
+    VSPINT gamma_reduction_min_level ;
+
     bool     tighten_u ;
     VSPFLOAT u_ratio_finest ;
     VSPFLOAT u_ratio_coarsest ;
@@ -164,6 +169,34 @@ typedef struct Options_struct
     /* ====================================================================== */
     double hub_treshold ;
 
+    /* ====================================================================== */
+    // Branched coarsening (VSP_Solve_2 only)
+    /* ====================================================================== */
+    // VSP_Solve_2 coarsens the finest graph branch_shared_levels times. From
+    // that graph, it builds num_branches independent coarsenings and solves
+    // each of them back up to the shared graph. The best of these solutions
+    // is refined up to the finest level. Branch 0 matches vertices in index
+    // order, like VSP_Solve. The others match them in a random order.
+    VSPINT branch_shared_levels ;
+    VSPINT num_branches ;
+
+    // VSP_Solve_2 stops coarsening, in the shared levels and in the branches,
+    // once a graph has fewer than this many vertices. It is VSP_Solve_2's
+    // node_cutoff.
+    VSPINT branch_node_cutoff ;
+
+    // Seeds the random visit orders. They use their own generator, so they
+    // don't touch the rand() stream that the solvers use.
+    VSPINT branch_seed ;
+
+    // How many branches, counting from branch 0, get the full level solve on
+    // the levels they solve on their own (their coarsest level up to and
+    // including the shared graph). The other branches get a cheap solve there:
+    // greedy flips and FM only. If the winner is a cheap branch, it then gets
+    // the full level solve on the shared graph. Every finer level always gets
+    // the full solve. 0 is the fastest setting.
+    VSPINT branch_full_solves ;
+
 } Options ;
 
 
@@ -190,6 +223,17 @@ void Levels_unselect
 
 
 solve_result *VSP_Solve
+(
+    VSPINT    n,
+    VSPLONG  *Ap,
+    VSPINT   *Ai,
+    Options  *options,
+    char     *name     // Optional. Problem name
+) ;
+
+// Like VSP_Solve, but with METIS-style branched coarsening. See the branch_*
+// fields of Options.
+solve_result *VSP_Solve_2
 (
     VSPINT    n,
     VSPLONG  *Ap,

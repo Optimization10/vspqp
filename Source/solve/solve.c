@@ -368,13 +368,160 @@ void Uncoarsen_Point_NoSep
     Destroy_State(coarse_Y) ;
 }
 
-solve_result *VSP_Solve
+// Solve the coarsest problem P, or seed it from the singleton short-circuit
+// when sol_sings is not NULL. Returns true if the solution is globally optimal
+// (empty separator), so the finer levels only need to project it.
+bool Solve_Coarsest
 (
-    VSPINT    n_input,
-    VSPLONG  *Ap_input,
-    VSPINT   *Ai_input,
+    Problem      *P,
+    Options      *options,
+    VSPINT       *sol_sings,
+    VSPINT        n_sings,
+    Level_Solver  solve_level, // Improves the initial guess, e.g. Solve_Level
+    State       **X,           // Output: solution at P
+    State       **Y            // Output: solution at P
+)
+{
+    bool have_global_optimum ;
+    State *X_lp1 = Construct_State(P->graph->n) ;
+    State *Y_lp1 = Construct_State(P->graph->n) ;
+
+    if(sol_sings != NULL)
+    {
+        have_global_optimum = true ;
+
+        VSPINT *c        = P->graph->c ;
+        VSPINT  n_coarse = P->graph->n ;
+        VSPINT  weight_x = 0 ;
+
+        for(VSPINT i = 0 ; i < n_coarse ; i++)
+        {
+            X_lp1->point->int_part[i] = 0 ;
+            Y_lp1->point->int_part[i] = 1 ;
+        }
+        for(VSPINT k = 0 ; k < n_sings ; k++)
+        {
+            VSPINT v = sol_sings[k] ;
+            X_lp1->point->int_part[v] = 1 ;
+            Y_lp1->point->int_part[v] = 0 ;
+            weight_x += c[v] ;
+        }
+        X_lp1->weight = weight_x ;
+        Y_lp1->weight = P->graph->total_vtx_cost - weight_x ;
+    }
+    else
+    {
+        set_initial_guess(X_lp1, Y_lp1, P, options) ;
+        have_global_optimum =
+                (X_lp1->weight + Y_lp1->weight == P->graph->total_vtx_cost) ;
+
+        // Solve coarsest level if initial solution is not globally optimal
+        if(!have_global_optimum) solve_level(X_lp1, Y_lp1, P, options) ;
+    }
+
+    *X = X_lp1 ;
+    *Y = Y_lp1 ;
+    return have_global_optimum ;
+}
+
+// Project the solution (X, Y) of P up to Top, a finer problem of the same
+// hierarchy, solving each level on the way with solve_level. On return X, Y
+// hold the solution at Top.
+void Solve_Up
+(
+    Problem      *P,
+    Problem      *Top,
+    bool          have_global_optimum,
+    Options      *options,
+    Level_Solver  solve_level,
+    State       **X,
+    State       **Y
+)
+{
+    State *X_l, *Y_l, *X_lp1 = *X, *Y_lp1 = *Y ;
+
+    // Invariant: X_l, Y_l holds the solution at level l.
+    // On the singleton path the coarse solution has empty separator, so we
+    // use the cheaper Uncoarsen_Point_NoSep (no Az computation).
+    for(P = P->parent_problem ; P != Top->parent_problem ; P = P->parent_problem)
+    {
+
+        X_l = Construct_State(P->graph->n) ;
+        Y_l = Construct_State(P->graph->n) ;
+
+        if(have_global_optimum)
+        {
+            Uncoarsen_Point_NoSep(P, X_l, Y_l, X_lp1, Y_lp1) ;
+        }
+        else
+        {
+            Uncoarsen_Point(P, X_l, Y_l, X_lp1, Y_lp1) ;
+            solve_level(X_l, Y_l, P, options) ;
+        }
+
+        X_lp1 = X_l ;
+        Y_lp1 = Y_l ;
+    }
+
+    *X = X_lp1 ;
+    *Y = Y_lp1 ;
+}
+
+// Coarsen probFinest all the way down, solve the coarsest level, and refine
+// the solution back up to (X_0, Y_0)
+static void Solve_Hierarchy
+(
+    Problem  *probFinest,
     Options  *options,
-    char     *name       // Optional. Problem name
+    State   **X_0,
+    State   **Y_0
+)
+{
+    bool have_global_optimum ;
+    Problem *probCoarsest ;
+
+    /*--------------------------------------------------------------------*/
+    // Coarsen
+    /*--------------------------------------------------------------------*/
+    VSPINT *sol_sings ;
+    VSPINT  n_sings ;
+    probCoarsest = Problem_Recursive_Coarsen
+                   (
+                       probFinest, options, &sol_sings, &n_sings
+                   ) ;
+
+    /*------------------------------------------------------------------------*/
+    // Solve the coarsest level (or seed it from the singleton short-circuit)
+    /*------------------------------------------------------------------------*/
+    have_global_optimum = Solve_Coarsest
+                          (
+                              probCoarsest, options, sol_sings, n_sings,
+                              Solve_Level, X_0, Y_0
+                          ) ;
+
+    /*------------------------------------------------------------------------*/
+    // Refine back up to the finest level
+    /*------------------------------------------------------------------------*/
+    Solve_Up
+    (
+        probCoarsest, probFinest, have_global_optimum, options, Solve_Level,
+        X_0, Y_0
+    ) ;
+
+    free(sol_sings) ;
+}
+
+// Everything around the multilevel solve: trivial inputs, removing and
+// restoring hubs, building the finest problem, and packaging the result.
+// solve_hierarchy does the multilevel solve itself.
+solve_result *VSP_Solve_With
+(
+    VSPINT             n_input,
+    VSPLONG           *Ap_input,
+    VSPINT            *Ai_input,
+    Options           *options,
+    char              *name,       // Optional. Problem name
+    Hierarchy_Solver   solve_hierarchy
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -454,8 +601,7 @@ solve_result *VSP_Solve
     /*--------------------------------------------------------------------*/
     // Load problem into Problem struct
     /*--------------------------------------------------------------------*/
-    bool have_global_optimum = false ;
-    Problem *probFinest, *probCoarsest, *P ;
+    Problem *probFinest ;
 
     probFinest = Construct_Problem(n, Ap[n], Ai, Ap, false, options) ;
     set_default_problem_data(probFinest, options, n_input) ;
@@ -468,83 +614,11 @@ solve_result *VSP_Solve
     #endif
 
     /*--------------------------------------------------------------------*/
-    // Coarsen
+    // Coarsen, solve, and refine
     /*--------------------------------------------------------------------*/
-    VSPINT *sol_sings ;
-    VSPINT  n_sings ;
-    probCoarsest = Problem_Recursive_Coarsen
-                   (
-                       probFinest, options, &sol_sings, &n_sings
-                   ) ;
-    State *X_l = NULL, *Y_l = NULL, *X_lp1 = NULL , *Y_lp1 = NULL,
-    *X_0 = NULL, *Y_0 = NULL ;
-
-    /*------------------------------------------------------------------------*/
-    // Solve the coarsest level (or seed it from the singleton short-circuit)
-    /*------------------------------------------------------------------------*/
-    P = probCoarsest ;
-    X_lp1 = Construct_State(P->graph->n) ;
-    Y_lp1 = Construct_State(P->graph->n) ;
-
-    if(sol_sings != NULL)
-    {
-        have_global_optimum = true ;
-
-        VSPINT *c        = P->graph->c ;
-        VSPINT  n_coarse = P->graph->n ;
-        VSPINT  weight_x = 0 ;
-
-        for(VSPINT i = 0 ; i < n_coarse ; i++)
-        {
-            X_lp1->point->int_part[i] = 0 ;
-            Y_lp1->point->int_part[i] = 1 ;
-        }
-        for(VSPINT k = 0 ; k < n_sings ; k++)
-        {
-            VSPINT v = sol_sings[k] ;
-            X_lp1->point->int_part[v] = 1 ;
-            Y_lp1->point->int_part[v] = 0 ;
-            weight_x += c[v] ;
-        }
-        X_lp1->weight = weight_x ;
-        Y_lp1->weight = P->graph->total_vtx_cost - weight_x ;
-    }
-    else
-    {
-        set_initial_guess(X_lp1, Y_lp1, P, options) ;
-        have_global_optimum =
-                (X_lp1->weight + Y_lp1->weight == P->graph->total_vtx_cost) ;
-
-        // Solve coarsest level if initial solution is not globally optimal
-        if(!have_global_optimum) Solve_Level(X_lp1, Y_lp1, P, options) ;
-    }
-
-    // Invariant: X_l, Y_l holds the solution at level l.
-    // On the singleton path the coarse solution has empty separator, so we
-    // use the cheaper Uncoarsen_Point_NoSep (no Az computation).
-    for(P = P->parent_problem ; P != NULL ; P = P->parent_problem)
-    {
-
-        X_l = Construct_State(P->graph->n) ;
-        Y_l = Construct_State(P->graph->n) ;
-
-        if(have_global_optimum)
-        {
-            Uncoarsen_Point_NoSep(P, X_l, Y_l, X_lp1, Y_lp1) ;
-        }
-        else
-        {
-            Uncoarsen_Point(P, X_l, Y_l, X_lp1, Y_lp1) ;
-            Solve_Level(X_l, Y_l, P, options) ;
-        }
-
-        X_lp1 = X_l ;
-        Y_lp1 = Y_l ;
-    }
-
     // X_0, Y_0 is the solution at the finest, uncompressed level
-    X_0 = X_lp1 ;
-    Y_0 = Y_lp1 ;
+    State *X_0 = NULL, *Y_0 = NULL ;
+    solve_hierarchy(probFinest, options, &X_0, &Y_0) ;
 
     if(num_hubs)
     {
@@ -562,7 +636,6 @@ solve_result *VSP_Solve
     solve_result *result = Package_Result(X_0, Y_0) ;
     Destroy_State(X_0) ;
     Destroy_State(Y_0) ;
-    free(sol_sings) ;
 
     Print_Stats(probFinest) ;
     Destroy_All_Problems(probFinest) ;
@@ -575,4 +648,19 @@ solve_result *VSP_Solve
     }
 
     return result ;
+}
+
+solve_result *VSP_Solve
+(
+    VSPINT    n_input,
+    VSPLONG  *Ap_input,
+    VSPINT   *Ai_input,
+    Options  *options,
+    char     *name       // Optional. Problem name
+)
+{
+    return VSP_Solve_With
+           (
+               n_input, Ap_input, Ai_input, options, name, Solve_Hierarchy
+           ) ;
 }

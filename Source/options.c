@@ -471,6 +471,7 @@ void set_default_options(Options *options)
     options->max_num_vert_small_graph = 8000 ;
     options->num_gr_for_small_graphs  = 4 ;
     options->num_gr_for_large_graphs  = 1 ;
+    options->gamma_reduction_min_level = 0 ;
 
     /*------------------------------------------------------------------------*/
     /* Relax Upper Bound Options                                              */
@@ -540,6 +541,15 @@ void set_default_options(Options *options)
     /* ====================================================================== */
     options-> hub_treshold = 0.5 ;
 
+    /* ====================================================================== */
+    // Branched coarsening (VSP_Solve_2 only)
+    /* ====================================================================== */
+    options->branch_shared_levels = 4 ;
+    options->num_branches         = 5 ;
+    options->branch_node_cutoff   = 60 ;
+    options->branch_seed          = 1 ;
+    options->branch_full_solves   = 1 ;
+
     return ;
 }
 
@@ -597,6 +607,7 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  num_gr_for_small_graphs        = %lld\n", PRI(opts->num_gr_for_small_graphs));
     fprintf(f, "  num_gr_for_large_graphs        = %lld\n", PRI(opts->num_gr_for_large_graphs));
     fprintf(f, "  max_num_vert_small_graph       = %lld\n", PRI(opts->max_num_vert_small_graph));
+    fprintf(f, "  gamma_reduction_min_level      = %lld\n", PRI(opts->gamma_reduction_min_level));
 
     /* Miscellaneous */
     fprintf(f, "Miscellaneous\n") ;
@@ -647,6 +658,14 @@ void Print_Options(const Options *opts, const char *path)
     /* hub removal */
     fprintf(f, "Hub removal\n") ;
     fprintf(f, "  hub_treshold                   = %f\n",   opts->hub_treshold ) ;
+
+    /* Branched coarsening */
+    fprintf(f, "Branched coarsening (VSP_Solve_2 only)\n") ;
+    fprintf(f, "  branch_shared_levels           = %lld\n", PRI(opts->branch_shared_levels)) ;
+    fprintf(f, "  num_branches                   = %lld\n", PRI(opts->num_branches)) ;
+    fprintf(f, "  branch_node_cutoff             = %lld\n", PRI(opts->branch_node_cutoff)) ;
+    fprintf(f, "  branch_seed                    = %lld\n", PRI(opts->branch_seed)) ;
+    fprintf(f, "  branch_full_solves             = %lld\n", PRI(opts->branch_full_solves)) ;
 
     fclose(f);
 }

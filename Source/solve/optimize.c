@@ -224,7 +224,10 @@ void Optimize
     /* ====================================================================== */
     // Phase 6: Gamma reduction
     /* ====================================================================== */
-    Gamma_Reduction_Loop(X, Y, problem, options);
+    if(l >= options->gamma_reduction_min_level)
+    {
+        Gamma_Reduction_Loop(X, Y, problem, options);
+    }
 
     /* ====================================================================== */
     // Phase 7: Greedy flips

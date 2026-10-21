@@ -13,7 +13,22 @@ void Graph_Simple_Match
     Graph       *Graph,
     Matching        *M,
     VSPINT         lvl,
-    Options   *options
+    Options   *options,
+    const VSPINT *perm  // Order in which to visit the vertices. NULL: 0..n-1
+) ;
+
+Problem *Problem_Coarsen
+(
+    Problem *P,
+    Options *opts
+) ;
+
+VSPINT *Singletons_Solution
+(
+    Problem *P,
+    VSPINT   N0,
+    VSPINT   u0,
+    VSPINT  *nSing
 ) ;
 
 void Uncoarsen_Point

@@ -446,7 +446,8 @@ void Graph_Simple_Match
     Graph       *Graph,
     Matching        *M,
     VSPINT         lvl,
-    Options   *options
+    Options   *options,
+    const VSPINT *perm  // Order in which to visit the vertices. NULL: 0..n-1
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -457,7 +458,7 @@ void Graph_Simple_Match
     VSPINT *invmatchmap = M->invmatchmap ;
     match_type *matchtype = M->matchtype ;
 
-    VSPINT i, j, k, v, q, j_ew, k_ew, ck, cj ;
+    VSPINT i, j, k, v, q, j_ew, k_ew, ck, cj, ii ;
     VSPLONG p, end ;
 
     // Graph info
@@ -482,8 +483,9 @@ void Graph_Simple_Match
     /*------------------------------------------------------------------------*/
     // bool exists_perfect_coarse_vtx = false ;
 
-    for (i = 0; i < n; i++)
+    for (ii = 0; ii < n; ii++)
     {
+        i = (perm == NULL) ? ii : perm[ii] ;
         if(Is_Matched(i, matching)) continue ;
     
         if(Is_Singleton(i, Ap))
@@ -538,8 +540,9 @@ void Graph_Simple_Match
     /*------------------------------------------------------------------------*/
     VSPINT node_pivot, ew_pivot, neigh, ew ;
     VSPINT perfect, light, lightest, c_lightest ;
-    for(k = 0; k < n; k++)
+    for(ii = 0; ii < n; ii++)
     {
+        k = (perm == NULL) ? ii : perm[ii] ;
         if ( Is_Matched(k, matching) ) continue;
 
         node_pivot = EMPTY ;
@@ -657,8 +660,9 @@ void Graph_Simple_Match
             printf("\n\nInvalid n: %zu \n\n", (size_t) n) ;
         }
 
-        for(i  = 0 ; i < n ; i++)
+        for(ii = 0 ; ii < n ; ii++)
         {
+            i = (perm == NULL) ? ii : perm[ii] ;
             if(matchtype[i] != matchtype_HEM || HEM_Pair_Visited[i] ) continue ;
 
             // {i, j} is a HEM pair 
