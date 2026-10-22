@@ -432,7 +432,7 @@ int main(int argc, char** argv)
     {
         // Ovi's computer folders
         "/home/ovi/data/suitesparse/symmetric/",
-        "/home/ovi/data/network-repository/networks/",
+        "/home/ovi/network-repository/",
 
         // hager6 folders
         "/media/hager/datafile/symmetric/",
