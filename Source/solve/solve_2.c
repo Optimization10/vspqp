@@ -127,7 +127,7 @@ static void Reset_Matching(Matching *M, VSPINT n)
 // branch_node_cutoff in place of node_cutoff. *bottom is set if a stopping
 // rule ended the coarsening, so the returned problem is the coarsest level.
 // If rng is NULL vertices are matched in index order, otherwise in a random
-// order.
+// order: on every level, or only on the first if branch_permute_once is set.
 static Problem *Coarsen
 (
     Problem   *P,
@@ -163,9 +163,13 @@ static Problem *Coarsen
     {
         TIMER_START(T_COARSEN) ;
         // Match P
-        if(rng != NULL) Random_Order(perm, P->graph->n, rng) ;
-        Graph_Simple_Match(P->graph, P->matching, P->level, opts, perm) ;
-        if(rng != NULL)
+        bool random = (rng != NULL) && (l == 0 || !opts->branch_permute_once) ;
+        if(random) Random_Order(perm, P->graph->n, rng) ;
+        Graph_Simple_Match
+        (
+            P->graph, P->matching, P->level, opts, random ? perm : NULL
+        ) ;
+        if(random)
         {
             Renumber_Coarse_Vertices(P->matching, P->graph->n, newid) ;
         }

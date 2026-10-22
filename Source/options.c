@@ -556,6 +556,7 @@ void set_default_options(Options *options)
     options->branch_node_cutoff   = 60 ;
     options->branch_seed          = 1 ;
     options->branch_full_solves   = 0 ;
+    options->branch_permute_once  = false ;
 
     return ;
 }
@@ -679,6 +680,7 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  branch_node_cutoff             = %lld\n", PRI(opts->branch_node_cutoff)) ;
     fprintf(f, "  branch_seed                    = %lld\n", PRI(opts->branch_seed)) ;
     fprintf(f, "  branch_full_solves             = %lld\n", PRI(opts->branch_full_solves)) ;
+    fprintf(f, "  branch_permute_once            = %s\n",   opts->branch_permute_once ? "true" : "false") ;
 
     fclose(f);
 }

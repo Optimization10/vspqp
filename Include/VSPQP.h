@@ -213,6 +213,11 @@ typedef struct Options_struct
     // the full solve. 0 is the fastest setting.
     VSPINT branch_full_solves ;
 
+    // If true, each branch matches the shared graph in its own random order
+    // and its coarser levels in index order. If false, every level of a
+    // branch gets a new random order.
+    bool branch_permute_once ;
+
 } Options ;
 
 

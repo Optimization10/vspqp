@@ -448,8 +448,8 @@ int main(int argc, char** argv)
     reset_file("./output/errors.txt") ;
     unsigned int seed ;
 
-    // seed = (unsigned VSPINT) time(NULL) ;
-    seed = 1 ;
+    // The seed can be given on the command line, e.g. ./Demo/example 3
+    seed = (argc > 1) ? (unsigned int) atoi(argv[1]) : 1 ;
 
     srand(seed) ;
     printf("\nSeed : %u\n\n", seed ) ;
@@ -495,6 +495,11 @@ int main(int argc, char** argv)
     options->noFM = 0.2 ;
 
     options->band_max_level = -1 ;   // no band refinement at any level
+
+    /* Branched coarsening */
+    options->branch_seed         = seed ;  // the seed sets the branches' orders
+    options->branch_permute_once = false ;  // random order on the first level
+                                            // only
 
 
     Print_Options(options, "output/opts.txt") ;
