@@ -8,7 +8,7 @@
 
 // Two-sided band refinement of a vertex separator.
 //
-// The band is the separator S plus up to BAND_LAYERS BFS layers into each
+// The band is the separator S plus up to max_layers BFS layers into each
 // shore. The rest of X is contracted into the source and the rest of Y into
 // the sink. Each band vertex v is split into v_in -> v_out with capacity c(v),
 // and graph edges inside the band get infinite capacity. A minimum s-t cut is
@@ -22,7 +22,6 @@
 // feasible, the pass makes no move. A move is accepted if the separator gets
 // lighter, or stays the same weight and the shores get more balanced.
 
-#define BAND_LAYERS     3   // BFS layers into each shore
 #define BAND_DEG_FACTOR 16  // total degree of the band <= this * max vertices
 
 #define S_NODE  0
@@ -381,8 +380,9 @@ static void Band_Check_Separator(State *X, State *Y, Problem *P)
 
 
 // Refine the separator X, Y with at most max_passes band moves. The band has
-// at most 2 * max_bip vertices. If the separator alone is too big for the band,
-// or no move is accepted, Cover_Refine is run instead.
+// at most 2 * max_bip vertices and max_layers BFS layers on each side. If the
+// separator alone is too big for the band, or no move is accepted,
+// Cover_Refine is run instead.
 // Returns the number of band passes
 int Band_Refine
 (
@@ -390,7 +390,8 @@ int Band_Refine
     State   *Y,
     Problem *P,
     VSPINT   max_bip,
-    VSPINT   max_passes
+    VSPINT   max_passes,
+    VSPINT   max_layers
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -440,7 +441,7 @@ int Band_Refine
     {
         passes++ ;
 
-        /* === Band: S plus BAND_LAYERS BFS layers into each shore ========== */
+        /* === Band: S plus max_layers BFS layers into each shore =========== */
         // Each shore gets at most half of the vertices left after S, and the
         // total degree of the band is capped at BAND_DEG_FACTOR * max_band
         int       nb       = 0, cnt[2] = {0, 0}, k ;
@@ -461,7 +462,7 @@ int Band_Refine
         }
 
         int lo = 0, hi = nb ;
-        for(int layer = 0 ; layer < BAND_LAYERS ; layer++)
+        for(int layer = 0 ; layer < max_layers ; layer++)
         {
             for(k = lo ; k < hi ; k++)
             {

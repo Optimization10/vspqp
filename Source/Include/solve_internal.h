@@ -83,7 +83,8 @@ void Rebalance_Singletons(State *X, State *Y, Problem *P) ;
 int Cover_Refine(State *X, State *Y, Problem *P, VSPINT max_bip) ;
 int Band_Refine
 (
-    State *X, State *Y, Problem *P, VSPINT max_bip, VSPINT max_passes
+    State *X, State *Y, Problem *P, VSPINT max_bip, VSPINT max_passes,
+    VSPINT max_layers
 ) ;
 
 /*----------------------------------------------------------------------------*/

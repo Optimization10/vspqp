@@ -492,6 +492,7 @@ void set_default_options(Options *options)
     /* FM Options                                                             */
     /*------------------------------------------------------------------------*/
     options->FM_Limit = 300 ;
+    options->FM_sides = FM_TWO_SIDED ;
 
     /*------------------------------------------------------------------------*/
     /* Mountain Climbing Options                                              */
@@ -547,6 +548,7 @@ void set_default_options(Options *options)
     /* ====================================================================== */
     options->band_max_level = 0 ;
     options->band_passes    = 3 ;
+    options->band_layers    = 30 ;
 
     /* ====================================================================== */
     // Branched coarsening (VSP_Solve_2 only)
@@ -580,6 +582,17 @@ static const char *cover_type_to_str(cover_type c)
         case MIN_COST_COVER:          return "min-cost-cover" ;
         case MIN_CARD_COVER:          return "min-cardinality-cover" ;
         case APPROX_MIN_CARD_COVER:   return "approx-min-cardinality-cover" ;
+        default:                      return "unknown";
+    }
+}
+
+static const char *FM_sides_to_str(FM_sides_type s)
+{
+    switch (s)
+    {
+        case FM_TWO_SIDED:            return "two-sided" ;
+        case FM_ONE_SIDED:            return "one-sided" ;
+        case FM_TWO_THEN_ONE_SIDED:   return "two-sided-then-one-sided" ;
         default:                      return "unknown";
     }
 }
@@ -625,6 +638,7 @@ void Print_Options(const Options *opts, const char *path)
 
     /* FM Options */
     fprintf(f, "  FM_Limit                       = %lld\n", PRI(opts->FM_Limit));
+    fprintf(f, "  FM_sides                       = %s\n",   FM_sides_to_str(opts->FM_sides)) ;
 
     /* Mountain Climbing Options */
     fprintf(f, "Mountain climbing\n") ;
@@ -672,6 +686,7 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "Band refinement\n") ;
     fprintf(f, "  band_max_level                 = %lld\n", PRI(opts->band_max_level)) ;
     fprintf(f, "  band_passes                    = %lld\n", PRI(opts->band_passes)) ;
+    fprintf(f, "  band_layers                    = %lld\n", PRI(opts->band_layers)) ;
 
     /* Branched coarsening */
     fprintf(f, "Branched coarsening (VSP_Solve_2 only)\n") ;

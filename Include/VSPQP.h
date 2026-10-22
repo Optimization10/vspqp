@@ -55,6 +55,16 @@ typedef enum cover_type_enum
     APPROX_MIN_CARD_COVER
 } cover_type ;
 
+// Which METIS node FM FM_Metis runs: the 2-sided FM (FM_2WayNodeRefine2Sided),
+// the 1-sided FM (FM_2WayNodeRefine1Sided, the METIS default for vertex
+// separators), or the 2-sided FM followed by the 1-sided FM.
+typedef enum FM_sides_enum
+{
+    FM_TWO_SIDED,
+    FM_ONE_SIDED,
+    FM_TWO_THEN_ONE_SIDED
+} FM_sides_type ;
+
 typedef struct Options_struct
 {
     /* Initial guess */
@@ -83,7 +93,8 @@ typedef struct Options_struct
     bool     ub_based_on_bisection ;
 
     /* FM Options */
-    VSPINT FM_Limit ;
+    VSPINT        FM_Limit ;
+    FM_sides_type FM_sides ;
 
 
     /* ====================================================================== */
@@ -178,12 +189,13 @@ typedef struct Options_struct
     /* ====================================================================== */
     // Band refinement
     /* ====================================================================== */
-    // Optimize runs Band_Refine (a minimum cut on the separator plus 3 BFS
-    // layers into each shore) before its first greedy flips, on levels at
-    // most band_max_level. EMPTY turns it off. Each call makes at most
-    // band_passes improving moves.
+    // Optimize runs Band_Refine (a minimum cut on the separator plus up to
+    // band_layers BFS layers into each shore) before its first greedy flips,
+    // on levels at most band_max_level. EMPTY turns it off. Each call makes at
+    // most band_passes improving moves.
     VSPINT band_max_level ;
     VSPINT band_passes ;
+    VSPINT band_layers ;
 
     /* ====================================================================== */
     // Branched coarsening (VSP_Solve_2 only)

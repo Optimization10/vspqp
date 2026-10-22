@@ -945,10 +945,10 @@ static void CheckAllFMDataNoLock
 
 
 /*----------------------------------------------------------------------------*/
-/*      Driver Function                                                       */
+/*      Two-sided FM (METIS FM_2WayNodeRefine2Sided)                          */
 /*----------------------------------------------------------------------------*/
 /* Assume we start with a bona fide separator */
-void FM_Metis
+static void FM_Metis_2Sided
 (
     State             *Z,
     State             *W,
@@ -1432,4 +1432,231 @@ void FM_Metis
     TIMER_STOP(T_FM) ;
 
     return ;
+}
+
+/*----------------------------------------------------------------------------*/
+/*      One-sided FM (METIS FM_2WayNodeRefine1Sided)                          */
+/*----------------------------------------------------------------------------*/
+/* Every move in a pass goes to the same side, and the side alternates between
+   passes, so a pass can sweep the separator across the graph up to the
+   balance bound. */
+static void FM_Metis_1Sided
+(
+    State             *Z,
+    State             *W,
+    Problem     *problem,
+    Options     *options,
+    VSPINT       n_iters
+)
+{
+    SET_FUNCTION_COUNTER ;
+    TIMER_START(T_FM) ;
+
+    VSPLONG p ;
+    VSPINT i, j, k, to, other, nswaps, higain, newdiff ;
+
+    VSPINT *z  = Z->point->int_part ;
+    VSPINT *w  = W->point->int_part ;
+    VSPINT  n  = problem->graph->n ;
+    VSPINT *c  = problem->graph->c ;
+    VSPINT *Ai = problem->graph->Ai ;
+    VSPLONG *Ap = problem->graph->Ap ;
+
+    VSPINT *swaps   = malloc(n * sizeof(*swaps)) ;
+    VSPINT *mind    = malloc(2 * n * sizeof(*mind)) ;
+    VSPINT *mptr    = malloc((n + 1) * sizeof(*mptr)) ;
+    VSPINT  nmind ;
+
+    VSPINT pwgts[3] ;
+    pwgts[0] = Z->weight ;
+    pwgts[1] = W->weight ;
+    pwgts[2] = problem->graph->total_vtx_cost - pwgts[0] - pwgts[1] ;
+
+    VSPINT nbnd    = 0 ;
+    VSPINT *bndind = malloc(n * sizeof(*bndind)) ;
+    VSPINT *bndptr = malloc(n * sizeof(*bndptr)) ;
+    VSPINT *where  = malloc(n * sizeof(*where)) ;
+    Init_Where_And_Sep(bndind, bndptr, &nbnd, where, z, w, n) ;
+
+    ExtNeighWgts *extWgts = malloc(n * sizeof(*extWgts)) ;
+    Set_Ext_Neigh_Wgts(extWgts, Ai, Ap, c, bndind, nbnd, where) ;
+
+    QueueFM *queue = QueueFM_Construct(n) ;
+
+    VSPINT badmaxpwgt = problem->u ;
+    VSPINT limit      = options->FM_Limit ;
+
+    /* The first pass moves into the lighter side */
+    to = (pwgts[0] < pwgts[1]) ? 1 : 0 ;
+    for(VSPINT pass = 0 ; pass < 2 * n_iters ; pass++)
+    {
+        other = to ;
+        to    = 1 - to ;
+
+        Fill_Int_Array_With_Value(EMPTY, queue->locator, n) ;
+        queue->numNodes = 0 ;
+        for(i = 0 ; i < nbnd ; i++)
+        {
+            j = bndind[i] ;
+            QueueFM_Insert(queue, j, c[j] - extWgts[j].wgts[other]) ;
+        }
+
+        VSPINT initcut     = pwgts[2] ;
+        VSPINT mincut      = pwgts[2] ;
+        VSPINT mindiff     = abs(pwgts[0] - pwgts[1]) ;
+        VSPINT mincutorder = EMPTY ;
+        nmind   = 0 ;
+        mptr[0] = 0 ;
+
+        for(nswaps = 0 ; nswaps < n ; nswaps++)
+        {
+            higain = QueueFM_Get_Top_Value(queue) ;
+            if(higain == EMPTY) break ;
+
+            if(nmind + Ap[higain + 1] - Ap[higain] >= 2 * n - 1) break ;
+            if(pwgts[to] + c[higain] > badmaxpwgt) break ;
+
+            pwgts[2] -= (c[higain] - extWgts[higain].wgts[other]) ;
+            newdiff = abs(pwgts[to] + c[higain]
+                          - (pwgts[other] - extWgts[higain].wgts[other])) ;
+
+            if(pwgts[2] < mincut || (pwgts[2] == mincut && newdiff < mindiff))
+            {
+                mincut      = pwgts[2] ;
+                mincutorder = nswaps ;
+                mindiff     = newdiff ;
+            }
+            else if(nswaps - mincutorder > 3 * limit
+                    || (nswaps - mincutorder > limit && pwgts[2] > 1.10 * mincut))
+            {
+                pwgts[2] += (c[higain] - extWgts[higain].wgts[other]) ;
+                break ;
+            }
+
+            /* Move higain from the separator into to */
+            BND_Delete(&nbnd, bndind, bndptr, higain) ;
+            pwgts[to]    += c[higain] ;
+            where[higain] = to ;
+            swaps[nswaps] = higain ;
+
+            for(p = Ap[higain] ; p < Ap[higain + 1] ; p++)
+            {
+                k = Ai[p] ;
+                if(where[k] == 2)
+                {
+                    /* The gain of k depends only on wgts[other] */
+                    extWgts[k].wgts[to] += c[higain] ;
+                }
+                else if(where[k] == other)
+                {
+                    /* Pull k into the separator */
+                    BND_Insert(&nbnd, bndind, bndptr, k) ;
+                    mind[nmind++] = k ;
+                    where[k] = 2 ;
+                    pwgts[other] -= c[k] ;
+
+                    extWgts[k].wgts[0] = 0 ;
+                    extWgts[k].wgts[1] = 0 ;
+                    for(VSPLONG jj = Ap[k] ; jj < Ap[k + 1] ; jj++)
+                    {
+                        VSPINT kk = Ai[jj] ;
+                        if(where[kk] != 2)
+                        {
+                            extWgts[k].wgts[where[kk]] += c[kk] ;
+                        }
+                        else
+                        {
+                            VSPINT oldgain = c[kk] - extWgts[kk].wgts[other] ;
+                            extWgts[kk].wgts[other] -= c[k] ;
+                            QueueFM_Update(queue, kk, oldgain + c[k]) ;
+                        }
+                    }
+                    QueueFM_Insert(queue, k, c[k] - extWgts[k].wgts[other]) ;
+                }
+            }
+            mptr[nswaps + 1] = nmind ;
+        }
+
+        /* Roll back to the best separator of this pass */
+        for(nswaps-- ; nswaps > mincutorder ; nswaps--)
+        {
+            higain = swaps[nswaps] ;
+            VSPINT t = where[higain] ;
+            VSPINT o = 1 - t ;
+
+            INC_DEC(pwgts[2], pwgts[t], c[higain]) ;
+            where[higain] = 2 ;
+            BND_Insert(&nbnd, bndind, bndptr, higain) ;
+
+            extWgts[higain].wgts[0] = 0 ;
+            extWgts[higain].wgts[1] = 0 ;
+            for(p = Ap[higain] ; p < Ap[higain + 1] ; p++)
+            {
+                k = Ai[p] ;
+                if(where[k] == 2) extWgts[k].wgts[t] -= c[higain] ;
+                else              extWgts[higain].wgts[where[k]] += c[k] ;
+            }
+
+            for(j = mptr[nswaps] ; j < mptr[nswaps + 1] ; j++)
+            {
+                k = mind[j] ;
+                VSP_ASSERT(where[k] == 2) ;
+                where[k] = o ;
+                INC_DEC(pwgts[o], pwgts[2], c[k]) ;
+                BND_Delete(&nbnd, bndind, bndptr, k) ;
+                for(VSPLONG jj = Ap[k] ; jj < Ap[k + 1] ; jj++)
+                {
+                    VSPINT kk = Ai[jj] ;
+                    if(where[kk] == 2) extWgts[kk].wgts[o] += c[k] ;
+                }
+            }
+        }
+
+        #ifdef DEBUG
+            if(mincut != pwgts[2]) Error("1-sided: mincut != separator", DBG_INFO) ;
+            Check_Ext_Neigh_Wgts(extWgts, Ai, Ap, c, n, where) ;
+            BND_Check(nbnd, bndind, bndptr, where, n) ;
+            if(pwgts[0] > problem->u || pwgts[1] > problem->u)
+                Error("1-sided: upper bound violated", DBG_INFO) ;
+        #endif
+
+        if(pass % 2 == 1 && (mincutorder == EMPTY || mincut >= initcut)) break ;
+    }
+
+    Where_To_States(where, Z, W, pwgts, problem) ;
+
+    free(swaps) ;
+    free(mind) ;
+    free(mptr) ;
+    free(bndind) ;
+    free(bndptr) ;
+    free(where) ;
+    free(extWgts) ;
+    QueueFM_Destruct(queue) ;
+
+    TIMER_STOP(T_FM) ;
+}
+
+/*----------------------------------------------------------------------------*/
+/*      Driver Function                                                       */
+/*----------------------------------------------------------------------------*/
+/* Assume we start with a bona fide separator. options->FM_sides picks the
+   2-sided FM, the 1-sided FM, or the 2-sided FM followed by the 1-sided FM. */
+void FM_Metis
+(
+    State             *Z,
+    State             *W,
+    Problem     *problem,
+    Options     *options,
+    VSPINT          n_passes
+)
+{
+    if(options->FM_sides != FM_ONE_SIDED)
+    {
+        FM_Metis_2Sided(Z, W, problem, options, n_passes) ;
+    }
+    if(options->FM_sides != FM_TWO_SIDED)
+    {
+        FM_Metis_1Sided(Z, W, problem, options, n_passes) ;
+    }
 }
