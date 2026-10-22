@@ -494,6 +494,9 @@ int main(int argc, char** argv)
     options->use_FM_subspace_grad_proj = FALSE ;
     options->noFM = 0.2 ;
 
+    options->band_max_level = -1 ;   // no band refinement at any level
+
+
     Print_Options(options, "output/opts.txt") ;
     /*** I/O ******************************************************************/
     /* 1. Set column title for results.csv */

@@ -16,19 +16,14 @@
 // move into both shores at once, so it is not limited by the slack of one
 // shore.
 //
-// Balance: if every minimum cut overloads a shore, band vertices that end up
-// in that shore are charged lambda * c(v). lambda = j / BAND_K starts at
-// 1 / BAND_K and doubles. The penalties only grow, so each max flow continues
-// from the previous one.
-//
-// Of the two extreme minimum cuts (closest to the source and closest to the
-// sink), the feasible one with the lightest separator, then the better
-// balance, is taken. A move is accepted if the separator gets lighter, or
-// stays the same weight and the shores get more balanced.
+// The cut ignores the bound u on the shores. Of the two extreme minimum cuts
+// (closest to the source and closest to the sink), the feasible one with the
+// lightest separator, then the better balance, is taken. If neither is
+// feasible, the pass makes no move. A move is accepted if the separator gets
+// lighter, or stays the same weight and the shores get more balanced.
 
 #define BAND_LAYERS     3   // BFS layers into each shore
 #define BAND_DEG_FACTOR 16  // total degree of the band <= this * max vertices
-#define BAND_K          64  // lambda = j / BAND_K
 
 #define S_NODE  0
 #define T_NODE  1
@@ -38,7 +33,7 @@
 // 0 = X, 1 = Y, 2 = separator
 #define SIDE(x, y, v) ((x)[v] ? 0 : ((y)[v] ? 1 : 2))
 
-// Capacities are scaled by BAND_K and can exceed VSPLONG
+// The infinite capacity, 2 * total weight + 1, can exceed VSPLONG
 typedef long long band_cap ;
 
 
@@ -51,7 +46,6 @@ typedef struct
     int       nn, ne ;
     int      *head, *nxt, *to ;
     band_cap *cap ;   // residual capacities
-    band_cap *cap0 ;  // capacities without penalties
     int      *level, *it, *q, *stk ;
 } Band_Net ;
 
@@ -68,7 +62,6 @@ static void Net_Init(Band_Net *N, int nn, long long max_ne)
     N->nxt   = malloc(max_ne * sizeof(int)) ;
     N->to    = malloc(max_ne * sizeof(int)) ;
     N->cap   = malloc(max_ne * sizeof(band_cap)) ;
-    N->cap0  = malloc(max_ne * sizeof(band_cap)) ;
     for(int i = 0 ; i < nn ; i++) N->head[i] = -1 ;
 }
 
@@ -83,7 +76,6 @@ static void Net_Free(Band_Net *N)
     free(N->nxt) ;
     free(N->to) ;
     free(N->cap) ;
-    free(N->cap0) ;
 }
 
 
@@ -93,12 +85,12 @@ static void Net_Add(Band_Net *N, int u, int v, band_cap c)
     int e = N->ne ;
 
     N->to[e]   = v ;
-    N->cap0[e] = c ;
+    N->cap[e]  = c ;
     N->nxt[e]  = N->head[u] ;
     N->head[u] = e ;
 
     N->to[e+1]   = u ;
-    N->cap0[e+1] = 0 ;
+    N->cap[e+1]  = 0 ;
     N->nxt[e+1]  = N->head[v] ;
     N->head[v]   = e + 1 ;
 
@@ -106,7 +98,7 @@ static void Net_Add(Band_Net *N, int u, int v, band_cap c)
 }
 
 
-// Dinic's algorithm, starting from the flow already in N->cap
+// Dinic's algorithm on the residual capacities in N->cap
 static void Net_Max_Flow(Band_Net *N, int s, int t)
 {
     int *level = N->level ;
@@ -247,7 +239,6 @@ typedef struct
     Band_Net  N ;
     int       nb ;              // number of band vertices
     int      *band ;            // band[li] is a vertex of the graph
-    int      *pen_s, *pen_t ;   // penalty arcs s -> v_in and v_out -> t
     int      *tmp ;             // sides of the band vertices for one cut
     int      *best ;            // sides of the band vertices for the best cut
     char     *zs, *zt ;
@@ -256,8 +247,6 @@ typedef struct
     band_cap  wx0, wy0, sep0 ;  // current weights
     band_cap  best_sep, best_imb ;
     bool      have_best ;
-    int       jprev ;           // penalty j of the flow in N
-    band_cap  r_sep[2], r_wx[2], r_wy[2] ;  // last solve, per extreme cut
 } Band ;
 
 
@@ -294,47 +283,23 @@ static void Band_Eval
 }
 
 
-// Min cut with penalty j / BAND_K per unit of weight that ends up in shore L.
-// With warm, j must not be smaller than the j of the flow already in the
-// network for the same L: the penalties only grow, so that flow stays
-// feasible and is augmented further. Both extreme min cuts are evaluated and
-// the best feasible one is kept if it improves on the best so far.
-// Returns true if either extreme cut is feasible.
-static bool Band_Solve(Band *B, int j, int L, bool warm)
+// Max flow, then evaluate both extreme minimum cuts and keep the best feasible
+// one if it improves on the best so far
+static void Band_Solve(Band *B)
 {
     Band_Net *N = &B->N ;
-
-    if(!warm)
-    {
-        memcpy(N->cap, N->cap0, N->ne * sizeof(band_cap)) ;
-        B->jprev = 0 ;
-    }
-    if(j > B->jprev)
-    {
-        for(int li = 0 ; li < B->nb ; li++)
-        {
-            int e = (L == 0) ? B->pen_t[li] : B->pen_s[li] ;
-            N->cap[e] += (band_cap) (j - B->jprev) * B->c[B->band[li]] ;
-        }
-    }
-    B->jprev = j ;
 
     Net_Max_Flow(N, S_NODE, T_NODE) ;
     Net_Reach_From(N, S_NODE, B->zs) ;
     Net_Reach_To(N, T_NODE, B->zt) ;
 
-    bool feasible = false ;
     for(int ex = 0 ; ex < 2 ; ex++)
     {
         band_cap sep, wx, wy ;
         if(ex == 0) Band_Eval(B, B->zs, 0, &sep, &wx, &wy) ;  // nearest s
         else        Band_Eval(B, B->zt, 1, &sep, &wx, &wy) ;  // nearest t
-        B->r_sep[ex] = sep ;
-        B->r_wx[ex]  = wx ;
-        B->r_wy[ex]  = wy ;
 
         if(wx > B->u || wy > B->u) continue ;
-        feasible = true ;
 
         band_cap imb = (wx > wy) ? wx - wy : wy - wx ;
         if(sep < B->best_sep || (sep == B->best_sep && imb < B->best_imb))
@@ -345,7 +310,6 @@ static bool Band_Solve(Band *B, int j, int L, bool warm)
             memcpy(B->best, B->tmp, B->nb * sizeof(int)) ;
         }
     }
-    return feasible ;
 }
 
 
@@ -463,8 +427,6 @@ int Band_Refine
     B.band  = malloc(max_band * sizeof(int)) ;
     B.tmp   = malloc(max_band * sizeof(int)) ;
     B.best  = malloc(max_band * sizeof(int)) ;
-    B.pen_s = malloc(max_band * sizeof(int)) ;
-    B.pen_t = malloc(max_band * sizeof(int)) ;
     B.zs    = malloc(2 * max_band + 2) ;
     B.zt    = malloc(2 * max_band + 2) ;
     int *Slist = malloc(max_band * sizeof(int)) ;
@@ -527,7 +489,7 @@ int Band_Refine
         B.nb = nb ;
 
         /* === Network ======================================================= */
-        long long max_ne = 5LL * nb ;
+        long long max_ne = 3LL * nb ;
         for(k = 0 ; k < nb ; k++)
         {
             int v = B.band[k] ;
@@ -537,14 +499,14 @@ int Band_Refine
             }
         }
         Net_Init(&B.N, 2 * nb + 2, 2 * max_ne) ;
-        band_cap inf = 2LL * BAND_K * (band_cap) tot + 1 ;
+        band_cap inf = 2LL * (band_cap) tot + 1 ;
 
         for(int li = 0 ; li < nb ; li++)
         {
             int v     = B.band[li] ;
             int to_s  = 0 ;
             int to_t  = 0 ;
-            Net_Add(&B.N, IN(li), OUT(li), (band_cap) BAND_K * c[v]) ;
+            Net_Add(&B.N, IN(li), OUT(li), (band_cap) c[v]) ;
             for(p = Ap[v] ; p < Ap[v+1] ; p++)
             {
                 int w = Ai[p] ;
@@ -564,11 +526,6 @@ int Band_Refine
             }
             if(to_s) Net_Add(&B.N, S_NODE, IN(li), inf) ;
             if(to_t) Net_Add(&B.N, OUT(li), T_NODE, inf) ;
-
-            B.pen_s[li] = B.N.ne ;
-            Net_Add(&B.N, S_NODE, IN(li), 0) ;
-            B.pen_t[li] = B.N.ne ;
-            Net_Add(&B.N, OUT(li), T_NODE, 0) ;
         }
 
         /* === Solve ========================================================= */
@@ -579,21 +536,7 @@ int Band_Refine
         B.best_imb  = (B.wx0 > B.wy0) ? B.wx0 - B.wy0 : B.wy0 - B.wx0 ;
         B.have_best = false ;
 
-        bool feasible = Band_Solve(&B, 0, 0, false) ;
-        if(!feasible && B.r_sep[0] < B.sep0)
-        {
-            // Every min cut overloads a shore. Charge the overloaded one,
-            // doubling the penalty and continuing from the previous flow
-            int L ;
-            if     (B.r_wx[0] > B.u) L = 0 ;  // even the smallest X is too big
-            else if(B.r_wy[1] > B.u) L = 1 ;  // even the smallest Y is too big
-            else L = (B.r_wy[0] - B.u > B.r_wx[1] - B.u) ? 1 : 0 ;
-
-            for(int j = 1 ; j <= BAND_K ; j *= 2)
-            {
-                if(Band_Solve(&B, j, L, true)) break ;
-            }
-        }
+        Band_Solve(&B) ;
 
         Net_Free(&B.N) ;
         for(k = 0 ; k < nb ; k++) loc[B.band[k]] = -1 ;
@@ -616,8 +559,6 @@ int Band_Refine
     free(B.band) ;
     free(B.tmp) ;
     free(B.best) ;
-    free(B.pen_s) ;
-    free(B.pen_t) ;
     free(B.zs) ;
     free(B.zt) ;
     free(Slist) ;
