@@ -1,3 +1,4 @@
+#include "VSPQP.h"
 #include "core.h"
 #include "FM_internal.h"
 #include "data_structures.h"
@@ -153,7 +154,7 @@ void MovesImprovingCost
             {
                 if(pwgts[0] > pwgts[1]) to = 1 ;
                 else if(pwgts[0] < pwgts[1]) to = 0 ;
-                else to = rand() % 2 ;
+                else to = pass % 2 ;
             } 
             other = 1 - to ;
 
@@ -1648,15 +1649,20 @@ void FM_Metis
     State             *W,
     Problem     *problem,
     Options     *options,
-    VSPINT          n_passes
+    VSPINT      n_passes
 )
 {
-    if(options->FM_sides != FM_ONE_SIDED)
+    if(options->FM_sides == FM_TWO_SIDED)
     {
         FM_Metis_2Sided(Z, W, problem, options, n_passes) ;
     }
-    if(options->FM_sides != FM_TWO_SIDED)
+    else if(options->FM_sides == FM_ONE_SIDED)
     {
+        FM_Metis_1Sided(Z, W, problem, options, n_passes) ;
+    }
+    else
+    {
+        FM_Metis_2Sided(Z, W, problem, options, n_passes) ;
         FM_Metis_1Sided(Z, W, problem, options, n_passes) ;
     }
 }

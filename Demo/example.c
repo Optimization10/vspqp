@@ -486,6 +486,7 @@ int main(int argc, char** argv)
     /* FM METIS*/
     options->FM_Limit = 320 ;
     options->FM_sides = FM_TWO_THEN_ONE_SIDED ;  // or FM_TWO_SIDED, FM_ONE_SIDED
+    // options->FM_sides = FM_TWO_SIDED ;  // or FM_TWO_SIDED, FM_ONE_SIDED
 
     /* Gradient Projection on the Full VSP */
     options->vsp_grad_proj = FALSE ;
@@ -495,7 +496,7 @@ int main(int argc, char** argv)
     options->use_FM_subspace_grad_proj = FALSE ;
     options->noFM = 0.2 ;
 
-    options->band_max_level = 0 ;    // band refinement on level 0 only
+    options->band_max_level = -1 ;   // no band refinement at any level
     options->band_layers    = 30 ;   // up to 30 BFS layers on each side
 
     /* Branched coarsening */
