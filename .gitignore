@@ -15,6 +15,7 @@ Demo/example
 
 outputs_archive/
 output/
+arch/
 .cache/
 # Prerequisites
 *.d

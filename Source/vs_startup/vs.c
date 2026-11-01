@@ -75,6 +75,7 @@
       |MA  02110-1301  USA                                             |
       |________________________________________________________________|*/
 
+#include "VSPQP.h"
 #include "vs_internal.h"
 #include "core.h"
 #include "utils.h"
@@ -472,12 +473,12 @@ int vs
             vs_daxpy (vnew, vprior, -d [0], n) ;
             u [0] = vs_norm (vnew, n) ;
             /* evaluate second Lanczos vector if termination not reached */
+            nO = 1 ;
             if ( fabs(u [0]) > Lanczos_tol )
             {
                 /* normalize vnew to be a unit vector */
                 t = VSONE/u [0] ;
                 vs_scale (vnew, t, n) ;
-                nO = 1 ;
                 while ( 1 )
                 {
                     vpprior = vprior ;
@@ -714,12 +715,99 @@ int vs
         printf ("n0: %i n1: %i ns: %i cutedge: %i\n", n0, n1, ns, cutedge) ;
     }
     
-    vs_separator
-    (
-        x, Ei, Ep, n, vw,
-        Parm->try_both_covers, 0,
-        NULL, NULL, NULL, NULL, NULL
-    ) ;
+////////////////////////////////////////////////////////////////////////////////
+#if 0
+    {
+        // TEMPORARY statistics: run both cover routines on copies of x and
+        // print their costs. x itself is not modified here; the cover that
+        // is actually used is selected by Parm->cover_type below.
+        int *x_old = malloc(n * sizeof(*x_old)) ;
+        int *x_new = malloc(n * sizeof(*x_new)) ;
+        for(VSINT k = 0 ; k < n ; k++) x_old[k] = x_new[k] = x[k] ;
+
+        vs_separator
+        (
+            x_old, Ei, Ep, n, vw,
+            Parm->try_both_covers, 0,
+            NULL, NULL, NULL, NULL, NULL
+        ) ;
+
+        int stat_status = vs_separator_min_weight(x_new, Ei, Ep, n, vw) ;
+
+        // Cost of a separator: total weight of the vertices in part 2
+        long long cost_old = 0, cost_new = 0 ;
+        for(VSINT k = 0 ; k < n ; k++)
+        {
+            long long const w = vw_is_one ? 1 : vw[k] ;
+            if(x_old[k] == 2) cost_old += w ;
+            if(x_new[k] == 2) cost_new += w ;
+        }
+
+        FILE *f ;
+        static bool first_time = true ;
+        if(first_time)
+        {
+            f = fopen("output/covers.csv", "w") ;
+            fprintf(f, "id,min_card,min_cost\n") ;
+        }
+        else
+        {
+           f = fopen("output/covers.csv", "a") ;
+        }
+        first_time = false ;
+
+
+        if(stat_status == 0)
+        {
+            fprintf(f, "%s,%lld,%lld\n",
+                   G_Current_Problem_Name, cost_old, cost_new) ;
+        }
+        else
+        {
+            printf("%s,vs_separator_min_weight failed with status %d\n",
+                   G_Current_Problem_Name ? G_Current_Problem_Name : "(null)",
+                   stat_status) ;
+        }
+        fclose(f) ;
+
+        free(x_old) ;
+        free(x_new) ;
+    }
+#endif
+////////////////////////////////////////////////////////////////////////////////
+
+    if(Parm->cover_type == MIN_COST_COVER)
+    {
+        vs_separator_min_weight(x, Ei, Ep, n, vw) ;
+    }
+    else if(Parm->cover_type == MIN_CARD_COVER)
+    {
+        vs_separator
+        (
+            x, Ei, Ep, n, vw,
+            Parm->try_both_covers,
+            0, NULL, NULL, NULL, NULL, NULL
+        ) ;
+    }
+    else if(Parm->cover_type == APPROX_MIN_CARD_COVER)
+    {
+        vs_separator_approx
+        (
+            x, Ei, Ep, n, vw,
+            0, NULL, NULL, NULL, NULL, NULL
+        ) ;
+    }
+    else
+    {
+        printf("\nWARNING: NO VERTEX COVER TYPE SELECTED\n") ;
+        vs_separator
+        (
+            x, Ei, Ep, n, vw,
+            Parm->try_both_covers,
+            0, NULL, NULL, NULL, NULL, NULL
+        ) ;
+    }
+
 
     if ( PrintLevel )
     {
@@ -8472,8 +8560,8 @@ static void Check_Its_A_Cover(CSC *B, VSINT *cover)
 
 void Pricing_Algorithm_Vertex_Cover_Get
 (
-    CSC            *B,
-    VSINT         *w,
+    CSC          *B,
+    VSINT        *w,
     VSINT     *cover
 )
 {
@@ -10077,6 +10165,453 @@ void FM_subspace_grad_proj(State *X, State *Y, Problem *P, Options *opts)
 
     free(x) ;
     free(y) ;
+    free(gx) ;
+    free(gy) ;
+    free(c_flt) ;
+}
+
+
+
+
+/* ========================================================================== */
+//          Getting a Minimum Cost Vertex Cover of a Bipartite Graph
+//
+// Input:
+// - A bipartite graph with m vertices on the left and n vertices on the right
+// - An array cost of size m + n, where the first m entries are the vertex
+//   costs on the left, and the last n entries are the vertex costs on the right
+//
+// Output:
+// - An array cover of size m + n containing zeros and ones.  The first m
+//   entries correspond to the left vertices and the last n entries correspond
+//   to the right vertices.
+//
+// Notation:
+// The source node s is labeled 0, the left nodes 1, 2, ... m, the right nodes
+// m + 1, m + 2, ... m + n, and the sink is m + n + 1.
+//
+// The capacities are:
+//
+//      source -> left       cost of left vertex
+//      left   -> right      infinity
+//      right  -> sink       cost of right vertex
+//
+// The reverse residual edges initially have capacity zero.
+/* ========================================================================== */
+
+
+void Min_Weighted_Vtx_Cover
+(
+    CSC *B,
+    VSPINT *cost,
+    VSPINT *cover
+)
+{
+    VSPINT i, j ;
+    VSPLONG p, q, r, end ;
+
+    VSPINT m = B->m ;
+    VSPINT n = B->n ;
+
+    VSPINT *Bi = B->i ;
+    VSPLONG *Bp = B->p ;
+
+    VSPINT N = m + n + 2 ;
+    VSPINT s = 0 ;
+    VSPINT t = N - 1 ;
+
+    VSPLONG bnz = Bp[n] ;
+    VSPLONG rnz = 2*bnz + 2*m + 2*n ;
+
+    VSPLONG infinity, delta ;
+
+    /* === Construct CSR Residual Graph ===================================== */
+
+    VSPINT  *Ri   = malloc( rnz * sizeof(VSPINT) ) ;
+    VSPLONG *Rx   = malloc( rnz * sizeof(VSPLONG) ) ;
+    VSPLONG *Rrev = malloc( rnz * sizeof(VSPLONG) ) ;
+    VSPLONG *Rp   = malloc( (N + 1) * sizeof(VSPLONG) ) ;
+
+    // Workspace: w[i] is first the degree of left vertex i, then its
+    // insertion position in the CSR row
+    VSPLONG *w = malloc( (m + 1) * sizeof(VSPLONG) ) ;
+
+    // A finite value which can safely play the role of infinity
+    infinity = 1 ;
+    for(i = 0 ; i < m + n ; i++)
+    {
+        infinity += (VSPLONG) cost[i] ;
+    }
+
+    // Count the entries in each row of B (the degree of each left vertex)
+    for(i = 0 ; i < m ; i++) w[i] = 0 ;
+
+    end = Bp[n] ;
+    for(p = 0 ; p < end ; p++)
+    {
+        w[Bi[p]]++ ;
+    }
+
+    // Set the CSR row pointers
+    //
+    // Row 0: source
+    Rp[0] = 0 ;
+    Rp[1] = m ;
+
+    // Rows 1, ..., m: left vertices
+    for(i = 0 ; i < m ; i++)
+    {
+        Rp[i+2] = Rp[i+1] + 1 + w[i] ;
+    }
+
+    // Rows m+1, ..., m+n: right vertices
+    for(j = 0 ; j < n ; j++)
+    {
+        Rp[m+j+2] = Rp[m+j+1] + (Bp[j+1] - Bp[j]) + 1 ;
+    }
+
+    // Row m+n+1: sink
+    Rp[m+n+2] = Rp[m+n+1] + n ;
+
+
+    /* === Place Source-Left Edges ========================================== */
+
+    for(i = 0 ; i < m ; i++)
+    {
+        // Position of source -> left
+        p = Rp[s] + i ;
+
+        // Position of left -> source
+        q = Rp[i+1] ;
+
+        // source -> left
+        Ri[p] = i + 1 ;
+        Rx[p] = cost[i] ;
+
+        // left -> source
+        Ri[q] = s ;
+        Rx[q] = 0 ;
+
+        // Pair the residual edges
+        Rrev[p] = q ;
+        Rrev[q] = p ;
+
+        // Next free position in the row of left vertex i
+        w[i] = q + 1 ;
+    }
+
+
+    /* === Place Left-Right and Right-Sink Edges ============================ */
+
+    for(j = 0 ; j < n ; j++)
+    {
+        // First free position in the row of right vertex j
+        q = Rp[m+j+1] ;
+
+        end = Bp[j+1] ;
+
+        for(p = Bp[j] ; p < end ; p++)
+        {
+            i = Bi[p] ;
+
+            // Position of left -> right
+            r = w[i]++ ;
+
+            // left -> right
+            Ri[r] = m + j + 1 ;
+            Rx[r] = infinity ;
+
+            // right -> left
+            Ri[q] = i + 1 ;
+            Rx[q] = 0 ;
+
+            // Pair the residual edges
+            Rrev[r] = q ;
+            Rrev[q] = r ;
+
+            q++ ;
+        }
+
+        // q is now the position of right -> sink
+        r = Rp[t] + j ;
+
+        // right -> sink
+        Ri[q] = t ;
+        Rx[q] = cost[m+j] ;
+
+        // sink -> right
+        Ri[r] = m + j + 1 ;
+        Rx[r] = 0 ;
+
+        // Pair the residual edges
+        Rrev[q] = r ;
+        Rrev[r] = q ;
+    }
+
+    free(w) ;
+
+
+    /* === Do the Ford-Fulkerson Algorithm Using BFS ======================== */
+    // Since BFS is used to find augmenting paths, this is the
+    // Edmonds-Karp version of Ford-Fulkerson.
+
+    VSPINT *parent = malloc( N * sizeof(VSPINT) ) ;
+    VSPLONG *parent_edge = malloc( N * sizeof(VSPLONG) ) ;
+
+    // Simple BFS queue
+    VSPINT *queue = malloc( N * sizeof(VSPINT) ) ;
+    VSPINT head, tail ;
+
+    while(TRUE)
+    {
+        /* === Find an Augmenting Path ====================================== */
+
+        for(i = 0 ; i < N ; i++)
+        {
+            parent[i] = VSEMPTY ;
+        }
+
+        head = 0 ;
+        tail = 0 ;
+
+        // Mark the source as discovered
+        parent[s] = s ;
+        queue[tail++] = s ;
+
+        while(head < tail)
+        {
+            i = queue[head++] ;
+
+            end = Rp[i+1] ;
+
+            // Iterate through the outgoing residual edges of vertex i
+            for(p = Rp[i] ; p < end ; p++)
+            {
+                // Skip edges with zero residual capacity
+                if(Rx[p] == 0) continue ;
+
+                j = Ri[p] ;
+
+                // Skip discovered vertices
+                if(parent[j] != VSEMPTY) continue ;
+
+                // j has not been discovered
+                parent[j] = i ;
+                parent_edge[j] = p ;
+
+                // We have found an augmenting path to the sink
+                if(j == t) break ;
+
+                queue[tail++] = j ;
+            }
+
+            if(parent[t] != VSEMPTY) break ;
+        }
+
+
+        /* === No Augmenting Path Remains =================================== */
+
+        if(parent[t] == VSEMPTY)
+        {
+            // The vertices discovered by this final BFS are exactly the
+            // vertices reachable from the source in the final residual graph.
+            break ;
+        }
+
+
+        /* === Find the Bottleneck Capacity ================================= */
+
+        delta = infinity ;
+        j = t ;
+
+        while(j != s)
+        {
+            p = parent_edge[j] ;
+
+            if(Rx[p] < delta)
+            {
+                delta = Rx[p] ;
+            }
+
+            j = parent[j] ;
+        }
+
+
+        /* === Augment the Flow ============================================= */
+
+        j = t ;
+
+        while(j != s)
+        {
+            p = parent_edge[j] ;
+
+            Rx[p]       -= delta ;
+            Rx[Rrev[p]] += delta ;
+
+            j = parent[j] ;
+        }
+    }
+
+
+    /* === Get the Minimum Weight Vertex Cover ============================== */
+    //
+    // Let Z be the set of vertices reachable from the source in the final
+    // residual graph.  The minimum weight vertex cover is
+    //
+    //                  (Left \ Z) union (Right intersect Z).
+    //
+    // parent[] from the final unsuccessful BFS identifies Z.
+
+    // Left vertices which are NOT reachable from the source
+    for(i = 0 ; i < m ; i++)
+    {
+        cover[i] = (parent[i+1] == VSEMPTY) ? 1 : 0 ;
+    }
+
+    // Right vertices which ARE reachable from the source
+    for(j = 0 ; j < n ; j++)
+    {
+        cover[m+j] = (parent[m+j+1] != VSEMPTY) ? 1 : 0 ;
+    }
+
+
+    /* === Free Workspace =================================================== */
+
+    free(queue) ;
+    free(parent_edge) ;
+    free(parent) ;
+
+    free(Rrev) ;
+    free(Rx) ;
+    free(Ri) ;
+    free(Rp) ;
+}
+
+
+int vs_separator_min_weight
+(
+    int                *part, // array with entries 0, 1, or 2
+    VSINT                *Ai, // Original graph
+    VSLINT               *Ap, // Original graph
+    VSINT                  n, // Original graph n
+    VSINT          *vtx_wgts
+)
+{
+    CSC A ;
+    A.m = n ; A.n = n ; A.nz = Ap[n] ; A.i = Ai ; A.p = Ap ;
+    VSINT *localBipLabel, i, j, offset ;
+    int status = 0 ;
+
+    // Rows of B are the 0-vertices, columns of B are the 1-vertices
+    CSC *B = CSC_Extract_Bipartite_Graph(part, &A, &localBipLabel) ;
+
+    VSINT nrows = B->m ;
+    VSINT nbip  = B->m + B->n ;
+
+    VSPINT *cost  = NULL ;
+    VSPINT *cover = NULL ;
+
+    // If no edge is cut by parts 0, 1 then part 2 is already a separator
+    if(nbip > 0)
+    {
+        cost  = malloc((size_t) nbip * sizeof(*cost)) ;
+        cover = malloc((size_t) nbip * sizeof(*cover)) ;
+
+        // Costs of the vertices of the bipartite graph
+        for(i = 0 ; i < n ; i++)
+        {
+            j = localBipLabel[i] ;
+            if(j != VSEMPTY)
+            {
+                offset = ( part[i] ) ? nrows : 0 ;
+                cost[offset + j] = vtx_wgts[i] ;
+            }
+        }
+
+        // Get minimum weight vertex cover
+        Min_Weighted_Vtx_Cover(B, cost, cover) ;
+
+        if(status == 0)
+        {
+            // Move vertices in the cover to separator
+            for(i = 0 ; i < n ; i++)
+            {
+                j = localBipLabel[i] ;
+                if(j != VSEMPTY)
+                {
+                    offset = ( part[i] ) ? nrows : 0 ;
+                    if(cover[offset + j]) part[i] = 2 ;
+                }
+            }
+        }
+    }
+
+#ifdef DEBUG
+    if(nbip > 0) Check_Bip_Vertex_Cover(B, cover) ;
+    Separator_Check(part, &A) ;
+#endif
+
+    free(cover) ;
+    free(cost) ;
+    free(localBipLabel) ;
+
+    CSC_Destroy(B) ;
+
+    return status ;
+}
+
+
+void Grad_Proj_Full_Space
+(
+    State   *X,
+    State   *Y,
+    Problem *problem,
+    Options *options
+)
+{
+    VSPFLOAT *x_flt, *y_flt, *gx, *gy, *c_flt, xcost, ycost ;
+    VSPINT    n_passes;
+    VSPINT    n     = problem->graph->n ;
+    VSPINT   *c     = problem->graph->c ;
+    VSPINT    l     = problem->level ;
+    VSPINT    L     = problem->coarsest_level_num ;
+    VSPINT    gamma = problem->graph->max_vtx_cost ;
+    VSPINT   *Ai    = problem->graph->Ai ;
+    VSPLONG  *Ap    = problem->graph->Ap ;
+    VSPINT    u     = problem->u ;
+
+    /* Step 1: Convert x, y, c to floats, and compute gx and gy */
+    x_flt = Point_To_Array(X->point) ;
+    gx    = Az_To_Grad(c, gamma, Y->Az) ;
+
+    y_flt = Point_To_Array(Y->point) ;    
+    gy    = Az_To_Grad(c, gamma, X->Az) ;
+
+    c_flt = Array_Int_To_Flt(c, n) ;
+
+    /* Step 2: Do gradient projection */
+    VSP_Grad_Proj
+    (
+        x_flt, gx, y_flt, gy, c_flt, Ai, Ap, u, n, gamma, options->vsp_ngp
+    ) ;
+
+    /* Step 3: Move x_flt, y_flt to almost binary points */
+    int print_level = 0 ;
+
+    VSPINT j1, j2 ;
+    j1 = VSPboundary(x_flt, c_flt, gx, gy, n, Ai, Ap, gamma, 1, 1, print_level) ;
+    j2 = VSPboundary(y_flt, c_flt, gy, gx, n, Ai, Ap, gamma, 1, 1, print_level) ;
+
+    /* Step 4: Update the X and Y states with x_flt and y_flt */
+    xcost = Move_To_Vertex(x_flt, y_flt, gx, gy, Ai,Ap,c_flt,u,gamma,n,&j1);
+    ycost = Move_To_Vertex(y_flt, x_flt, gy, gx, Ai,Ap,c_flt,u,gamma,n,&j2);
+
+    Array_To_State(x_flt, xcost, gy, X, problem, j1) ;
+    Array_To_State(y_flt, ycost, gx, Y, problem, j2) ;
+
+    /* Step 5: Cleanup */
+    free(x_flt) ;
+    free(y_flt) ;
     free(gx) ;
     free(gy) ;
     free(c_flt) ;

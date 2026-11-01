@@ -19,6 +19,23 @@ int vs_sort_cols
 ) ;
 
 
+// Sort the adjacency list of every vertex of G, keeping Ae in step. G must own
+// Ai (and Ae, if it has one), since they are replaced.
+void Graph_Sort_Cols(Graph *G)
+{
+    SET_FUNCTION_COUNTER ;
+    VSP_ASSERT(G->owns_Ai) ;
+    VSPLONG nz    = G->Ap[G->n] ;
+    size_t  bytes = (nz > 0 ? nz : 1) * sizeof(VSPINT) ;
+    VSPINT *tmp_i = malloc(bytes) ;
+    VSPINT *tmp_e = (G->Ae != NULL) ? malloc(bytes) : NULL ;
+    vs_sort_cols(G->Ap, tmp_i, tmp_e, G->Ai, G->Ae, G->n) ;
+    free(G->Ai) ;
+    free(G->Ae) ;
+    G->Ai = tmp_i ;
+    G->Ae = tmp_e ;
+}
+
 /* Coarsening works as follows: iterate through each vertex k of the coarse*/
 /* Graph-> Let A and B be the vertices in the finer graph which*/
 /* map to k. Iterate through all the neighbors of A. These will be neighbors*/
@@ -249,20 +266,21 @@ static Graph* Graph_Coarsen
     free(htable) ;
 
 
-    if(opts->sort_cols || opts->initial_guess == bisection_initial_guess)
+    /* Sort columns of the coarse graph, or else just trim Ai and Ae, which
+       were sized for the fine graph's nz */
+    if(opts->sort_coarse_graphs)
     {
-        /* Sort columns of the coarse graph */
-        VSPLONG nz_coarse = Ap_coarse[n_coarse] ;
-        VSPINT *tmp_i = malloc(nz_coarse * sizeof(VSPINT)) ;
-        VSPINT *tmp_e = malloc(nz_coarse * sizeof(VSPINT)) ;
-        vs_sort_cols(Ap_coarse, tmp_i, tmp_e, Ai_coarse, Ae_coarse, n_coarse) ;
-        free(Graph_Coarse->Ai) ;
-        free(Graph_Coarse->Ae) ;
-        Graph_Coarse->Ai = tmp_i ;
-        Graph_Coarse->Ae = tmp_e ;
-        Ai_coarse = tmp_i ;
-        Ae_coarse = tmp_e ;
+        Graph_Sort_Cols(Graph_Coarse) ;
     }
+    else
+    {
+        VSPLONG nz_coarse = Ap_coarse[n_coarse] ;
+        size_t  bytes     = (nz_coarse > 0 ? nz_coarse : 1) * sizeof(VSPINT) ;
+        Graph_Coarse->Ai = realloc(Graph_Coarse->Ai, bytes) ;
+        Graph_Coarse->Ae = realloc(Graph_Coarse->Ae, bytes) ;
+    }
+    Ai_coarse = Graph_Coarse->Ai ;
+    Ae_coarse = Graph_Coarse->Ae ;
 
 
 #ifdef DEBUG
@@ -458,7 +476,7 @@ static Graph* Graph_Coarsen
 
 
 // Generate a coarser version of the current problem
-static Problem *Problem_Coarsen
+Problem *Problem_Coarsen
 (
     Problem *P,
     Options *opts
@@ -495,7 +513,7 @@ static Problem *Problem_Coarsen
     /* ====================================================================== */
     P->child_problem         = P_coarse ;
     P_coarse->u              = P->u ;
-    P_coarse->ubFinest       = P->ubFinest ;
+    P_coarse->n_original     = P->n_original ;
     P_coarse->level          = P->level + 1 ;
     P_coarse->parent_problem = P ;
 
@@ -512,53 +530,44 @@ static Problem *Problem_Coarsen
 }
 
 
-void Set_Upper_Bound
+// Set u on problem and every finer level above it:
+//     u_l = floor(ratio_l * n_original)
+// ratio_l is u_ratio_finest at level 0. With tighten_u it moves toward
+// ratio_coarsest at the coarsest level, otherwise it stays u_ratio_finest.
+void Set_Upper_Bounds
 (
     Problem      *problem,
     Options      *opts,
+    VSPFLOAT      ratio_coarsest,
     Interpolation interpolation
 )
 {
-    // Return early if we're not modifying u, or if there are no coarse levels
-    if(opts->tighten_u == false || problem->coarsest_level_num == 0 )
-    {
-        problem->u = problem->ubFinest ;
-        return ;
-    }
-
-    VSPINT l          = problem->level ;
-    VSPINT L          = problem->coarsest_level_num ;
-    VSPINT cost_graph = problem->graph->total_vtx_cost ;
-
-    VSPFLOAT gap, coeff, ratio_l ;
-    
+    VSPINT   L       = problem->coarsest_level_num ;
     VSPFLOAT ratio_0 = opts->u_ratio_finest ;
-    VSPFLOAT ratio_L = opts->u_ratio_coarsest ;
+    VSPFLOAT ratio_L = ratio_coarsest ;
 
-    // Compute ratio_l
-    switch(interpolation)
+    for(Problem *P = problem ; P != NULL ; P = P->parent_problem)
     {
-        case LINEAR:
-            gap        = ratio_L - ratio_0 ;
-            ratio_l    = ratio_0+ l * (gap / L) ;
-            break ;
+        VSPINT   l       = P->level ;
+        VSPFLOAT ratio_l = ratio_0 ;
 
-        case QUADRATIC:
-            coeff   = (ratio_0- ratio_L) / (L * L) ;
-            ratio_l = coeff * (l - L) * (l - L) + ratio_L ;
-            // printf("ub: %f\n", ratio_l) ;
-            break ;
+        if(opts->tighten_u && l > 0)
+        {
+            switch(interpolation)
+            {
+                case LINEAR:
+                    ratio_l = ratio_0 + l * ((ratio_L - ratio_0) / L) ;
+                    break ;
 
-        default:
-            printf("Interpolation not supported\n") ;
-            problem->u = problem->ubFinest ;
-            return ;
+                case QUADRATIC:
+                    ratio_l = (ratio_0 - ratio_L) / (L * L) * (l - L) * (l - L)
+                            + ratio_L ;
+                    break ;
+            }
+        }
+
+        P->u = (VSPINT) floor(ratio_l * P->n_original) ;
     }
-
-    // Set u based on ratio_l
-    problem->u = (VSPINT) floor(ratio_l * cost_graph) ;
-
-    return ;
 }
 
 
@@ -572,7 +581,7 @@ static inline VSPINT abs_diff(VSPINT a, VSPINT b)
 // on the size of a shore at the finest level. Assume u0 >= N0/2.
 // Given a problem where the cost of singletons is at least N0-u0, find a
 // subset of singletons whose cost is in [N0-u0, u0], ideally close to N0/2.
-static VSPINT *Singletons_Solution(Problem *P, VSPINT N0, VSPINT u0, VSPINT *nSing)
+VSPINT *Singletons_Solution(Problem *P, VSPINT N0, VSPINT u0, VSPINT *nSing)
 {
     SET_FUNCTION_COUNTER ;
     VSP_ASSERT(u0 >= N0/2) ;
@@ -747,7 +756,8 @@ Problem *Problem_Recursive_Coarsen
             P->graph,
             P->matching,
             P->level,
-            opts
+            opts,
+            NULL
         ) ;
 
         // Coarsen P
@@ -792,13 +802,7 @@ Problem *Problem_Recursive_Coarsen
     }
     coarsest_P->child_problem = NULL ;
 
-    /* Set upper bounds */
-    P = coarsest_P ;
-    while(P != NULL)
-    {
-       Set_Upper_Bound(P, opts, QUADRATIC) ;
-       P = P->parent_problem ;
-    }
+    Set_Upper_Bounds(coarsest_P, opts, opts->u_ratio_coarsest, QUADRATIC) ;
 
     return coarsest_P ;
 }

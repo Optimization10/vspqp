@@ -374,38 +374,37 @@ static void set_bisection_initial_guess
     Parm = &ParmStruc ;
     vs_default (Parm) ;
     Parm->initial_project = options->initial_project ;
-    Parm->try_both_covers = options->try_both_covers ;
     Parm->ngp             = options->bisection_ngp ;
+
+    // vertex cover of bipartite graph
+    Parm->cover_type      = options->cover_type ;
+    Parm->try_both_covers = options->try_both_covers ;
+
+    // vs() needs sorted adjacency lists. The finest graph comes sorted, and
+    // coarse graphs too unless sort_coarse_graphs is off.
+    if(!options->sort_coarse_graphs && problem->graph->owns_Ai)
+    {
+        Graph_Sort_Cols(problem->graph) ;
+        Ai = problem->graph->Ai ;
+        Ae = problem->graph->Ae ;
+    }
 
     // Get partition
     VSPINT m = (problem->graph->total_vtx_cost) / 2 ;
     vs(part, Ai, Ap, Ae, c, n, m,Parm) ;
 
 
+    // Loosen the coarsest bound so it admits the bisection's larger shore
     if(options->ub_based_on_bisection)
     {
-        Problem *P = problem ;
         VSPFLOAT u_ratio_coarsest ;
-        VSPFLOAT u_ratio_coarsest_Old ;
         VSPINT   wgts[3] = {0, 0, 0} ;
 
-        // Calculate new upper bound at coarsest level
         for(i = 0 ; i < n ; i++) wgts[ part[i] ] += c[i] ;
-        u_ratio_coarsest = MAX(wgts[0], wgts[1]) / (VSPFLOAT) (P->graph->total_vtx_cost) ;
+        u_ratio_coarsest = MAX(wgts[0], wgts[1]) / (VSPFLOAT) problem->n_original ;
         u_ratio_coarsest = MAX(u_ratio_coarsest, options->u_ratio_coarsest) ;
 
-        // printf("Coarsest ub: %f\n", u_ratio_coarsest) ;
-
-        u_ratio_coarsest_Old = options->u_ratio_coarsest ;
-        options->u_ratio_coarsest = u_ratio_coarsest ;
-        while(P != NULL)
-        {
-            Set_Upper_Bound(P, options, QUADRATIC) ;
-            P = P->parent_problem ;
-        }
-
-        // Restore
-        options->u_ratio_coarsest = u_ratio_coarsest_Old ;
+        Set_Upper_Bounds(problem, options, u_ratio_coarsest, QUADRATIC) ;
     }
 
     // Convert partition to states

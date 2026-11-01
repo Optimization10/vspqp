@@ -238,58 +238,6 @@ static void Create_Match_3way_HEM
     return;
 }
 
-static void Create_Match_3way_Singleton
-(
-    VSPINT             i, // singleton, unmatched
-    VSPINT             j, // singleton, unmatched
-    VSPINT             k, // singleton, unmatched
-    VSPINT*            matching,
-    VSPINT*            matchmap,
-    VSPINT*            invmatchmap,
-    match_type*    matchtype_arr,
-    VSPINT*            cn_ptr
-)
-{
-
-    SET_FUNCTION_COUNTER;
-    #ifdef DEBUG
-        if(Is_Matched(i, matching))
-        {
-            ERR("Trying to match an already matched vertex");
-        }
-
-        if(Is_Matched(j, matching))
-        {
-            ERR("Trying to match an already matched vertex");
-        }
-
-        if(Is_Matched(k, matching))
-        {
-            ERR("Trying to match an already matched vertex");
-        }
-
-    #endif
-
-
-    matching[i] = j + 1;
-    matching[j] = k + 1;
-    matching[k] = i + 1;
-
-    matchtype_arr[i] = matchtype_singleton ;
-    matchtype_arr[j] = matchtype_singleton ;
-    matchtype_arr[k] = matchtype_singleton ;
-
-    matchmap[i] = *cn_ptr ;
-    matchmap[j] = *cn_ptr ;
-    matchmap[k] = *cn_ptr ;
-    
-    invmatchmap[*cn_ptr] = i ;
-
-    *cn_ptr += 1 ;
-    return;
-}
-
-
 // ASSUME: old is in a 2-way brotherly match with some vertex i
 // DO: Unmatch old and brotherly match new with i
 static void Steal_Match
@@ -338,84 +286,6 @@ static bool Is_Perfect_Vtx(VSPINT i, VSPINT *c, VSPINT pow2l)
     return (c[i] == pow2l) ;
 }
 
-
-
-
-static void Match_Singletons
-(
-    VSPINT           *heap_sings,
-    VSPINT          *lookup_heap,
-    VSPINT         *n_heap_sings,
-    VSPINT                    *c,
-    VSPINT          gamma_coarse,
-    VSPINT             *matching,
-    VSPINT             *matchmap,
-    VSPINT          *invmatchmap,
-    match_type    *matchtype,
-    VSPINT                   *cn,
-    VSPINT            *n_matches,
-    VSPINT          *n_unmatched
-)
-{
-    SET_FUNCTION_COUNTER ;
-
-    VSPINT i, j, k, ck ;
-    MinHeap_Heapify_v0(heap_sings, lookup_heap, *n_heap_sings, c) ;
-
-    while(*n_heap_sings > 0)
-    {
-        MinHeap_Get_Top_Val_v0(heap_sings, lookup_heap,n_heap_sings, c,&i);
-        MinHeap_Get_Top_Val_v0(heap_sings, lookup_heap,n_heap_sings, c,&j);
-        MinHeap_See_Top_Key_v0(heap_sings, c, *n_heap_sings, &ck) ;
-
-        VSP_ASSERT(i != EMPTY) ;
-        if(j != EMPTY && ck != EMPTY && c[i] + c[j] + ck <= gamma_coarse)
-        {
-            // extract k
-            MinHeap_Get_Top_Val_v0(heap_sings, lookup_heap,n_heap_sings, c,&k);
-            Create_Match_3way_Singleton
-            (
-                i, j, k, matching, matchmap, invmatchmap, matchtype, cn
-            ) ;
-            (*n_matches)++ ;
-            (*n_unmatched) -= 3 ;
-        }
-        else if(j != EMPTY && c[i] + c[j] <= gamma_coarse)
-        {
-            // Match i with j
-            Create_Match_2way
-            (
-                i, j, matching, invmatchmap, matchtype,
-                matchmap, cn, matchtype_singleton
-            ) ;
-            (*n_matches)++ ;
-            (*n_unmatched) -= 2 ;
-        }
-        else
-        {
-            // Match i with itself
-            Create_Match_2way
-            (
-                i, i, matching, invmatchmap, matchtype,
-                matchmap, cn, matchtype_singleton
-            ) ;
-            (*n_matches)++ ;
-            (*n_unmatched) -= 1 ;
-
-            if(j != EMPTY)
-            {
-                // Match j with itself
-                Create_Match_2way
-                (
-                    j, j, matching, invmatchmap, matchtype,
-                    matchmap, cn, matchtype_singleton
-                ) ;
-                (*n_matches)++ ;
-                (*n_unmatched) -= 1 ;
-            }
-        }
-    }
-}
 
 // Can handle states where not all vertices are matched yet
 static void Check_cn
@@ -576,7 +446,8 @@ void Graph_Simple_Match
     Graph       *Graph,
     Matching        *M,
     VSPINT         lvl,
-    Options   *options
+    Options   *options,
+    const VSPINT *perm  // Order in which to visit the vertices. NULL: 0..n-1
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -587,7 +458,7 @@ void Graph_Simple_Match
     VSPINT *invmatchmap = M->invmatchmap ;
     match_type *matchtype = M->matchtype ;
 
-    VSPINT i, j, k, v, q, j_ew, k_ew, ck, cj, ci_coarse ;
+    VSPINT i, j, k, v, q, j_ew, k_ew, ck, cj, ii ;
     VSPLONG p, end ;
 
     // Graph info
@@ -610,23 +481,22 @@ void Graph_Simple_Match
     // Heavy Edge and Weight Matching
     /*------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------*/
-    VSPINT *heap_sings      = malloc((n+1) * sizeof(*heap_sings)) ;
-    VSPINT  n_heap_sings    = 0 ;
-
-    VSPINT *lookup_heap     = malloc((n+1) * sizeof(*lookup_heap)) ;
-
-    // The largest cost of any 2-way or 3-way match. Used to block singleton
-    // matching if the cost of such a matching would exceed gamma_coarse.
-    VSPINT gamma_coarse     = 0 ; 
     // bool exists_perfect_coarse_vtx = false ;
 
-    for (i = 0; i < n; i++)
+    for (ii = 0; ii < n; ii++)
     {
+        i = (perm == NULL) ? ii : perm[ii] ;
         if(Is_Matched(i, matching)) continue ;
+    
         if(Is_Singleton(i, Ap))
         {
-            heap_sings[++n_heap_sings] = i ;
-            lookup_heap[i] = n_heap_sings ;
+            Create_Match_2way
+            (
+                i, i, matching, invmatchmap, matchtype,
+                matchmap, cn, matchtype_singleton
+            ) ;
+            n_matches++ ;
+            n_unmatched -= 1 ;
             continue ;
         }
 
@@ -661,29 +531,8 @@ void Graph_Simple_Match
             ) ;
             n_matches++ ;
             n_unmatched -= 2 ;
-
-            ci_coarse = c[i] + c[j] ;
-            if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
         }
     }
-
-    /*------------------------------------------------------------------------*/
-    // Match singletons
-    /*------------------------------------------------------------------------*/
-    VSP_ASSERT(n_heap_sings >= 0) ;
-
-    // Can occur if the graph consists entirely of singletons
-    if(gamma_coarse == 0) gamma_coarse = pow2lp1 ;
-    Match_Singletons
-    (
-        heap_sings, lookup_heap, &n_heap_sings, c, pow2lp1, matching,
-        matchmap, invmatchmap, matchtype, cn, &n_matches, &n_unmatched
-    ) ;
-    free(heap_sings) ;
-    free(lookup_heap) ;
-    heap_sings  = NULL ;
-    lookup_heap = NULL ;
-
     /*------------------------------------------------------------------------*/
     /*------------------------------------------------------------------------*/
     // Brotherly matching with pivots
@@ -691,8 +540,9 @@ void Graph_Simple_Match
     /*------------------------------------------------------------------------*/
     VSPINT node_pivot, ew_pivot, neigh, ew ;
     VSPINT perfect, light, lightest, c_lightest ;
-    for(k = 0; k < n; k++)
+    for(ii = 0; ii < n; ii++)
     {
+        k = (perm == NULL) ? ii : perm[ii] ;
         if ( Is_Matched(k, matching) ) continue;
 
         node_pivot = EMPTY ;
@@ -712,22 +562,22 @@ void Graph_Simple_Match
             }
         }
 
-        if(matchtype[node_pivot] == matchtype_3way)
-        {
-            printf("\nWARNING\n") ;
-            fflush(stdout) ;
-        }
-
-        if(matchtype[node_pivot] != matchtype_HEM)
-        {
-            printf("\nWARNING2\n") ;
-            fflush(stdout) ;
-        }
-
         // Match neighbors of the pivot, prioritizing matches between perfect
         // vertices
         if (node_pivot != EMPTY)
         {
+            if(matchtype[node_pivot] == matchtype_3way)
+            {
+                printf("\nWARNING\n") ;
+                fflush(stdout) ;
+            }
+
+            if(matchtype[node_pivot] != matchtype_HEM)
+            {
+                printf("\nWARNING2\n") ;
+                fflush(stdout) ;
+            }
+
             perfect = EMPTY ;
             light   = EMPTY ;
 
@@ -810,8 +660,9 @@ void Graph_Simple_Match
             printf("\n\nInvalid n: %zu \n\n", (size_t) n) ;
         }
 
-        for(i  = 0 ; i < n ; i++)
+        for(ii = 0 ; ii < n ; ii++)
         {
+            i = (perm == NULL) ? ii : perm[ii] ;
             if(matchtype[i] != matchtype_HEM || HEM_Pair_Visited[i] ) continue ;
 
             // {i, j} is a HEM pair 
@@ -838,7 +689,11 @@ void Graph_Simple_Match
                 if(Is_Matched(k, matching)) continue ;
 
                 ck = c[k] ;
-                if(ck < c_lightest) lightest = k ;
+                if(ck < c_lightest)
+                {
+                    lightest = k ;
+                    c_lightest = ck ;
+                }
 
                 if(ck == pow2l)
                 {
@@ -849,7 +704,6 @@ void Graph_Simple_Match
                             perfect, k, matching, invmatchmap, matchtype,
                             matchmap, cn, matchtype_brotherly
                         ) ;
-                        ci_coarse = c[i] + c[j] ;
                         #ifdef DEBUG
                             if(c[perfect] + c[k] != pow2lp1)
                             {
@@ -870,11 +724,6 @@ void Graph_Simple_Match
                             light, k, matching, invmatchmap, matchtype,
                             matchmap, cn, matchtype_brotherly
                         ) ;
-                        if(gamma_coarse < pow2l)
-                        {
-                            ci_coarse = c[i] + c[j] ;
-                            if(ci_coarse > gamma_coarse) gamma_coarse=ci_coarse;
-                        }
                         light = EMPTY ;
                     }
                     else light = k ;
@@ -898,7 +747,11 @@ void Graph_Simple_Match
                 if(k == perfect || k == light) continue ;
 
                 ck = c[k] ;
-                if(ck < c_lightest) lightest = k ;
+                if(ck < c_lightest)
+                {
+                    lightest = k ;
+                    c_lightest = ck ;
+                }
 
                 if(ck == pow2l)
                 {
@@ -910,7 +763,6 @@ void Graph_Simple_Match
                             matchmap, cn, matchtype_brotherly
                         ) ;
                         perfect = EMPTY ;
-                        ci_coarse = c[i] + c[j] ;
                     }
                     else perfect = k ;
                 }
@@ -925,12 +777,6 @@ void Graph_Simple_Match
                             matchmap, cn, matchtype_brotherly
                         ) ;
                         light = EMPTY ;
-                        if(gamma_coarse < pow2l)
-                        {
-                            ci_coarse = c[i] + c[j] ;
-                            if(ci_coarse > gamma_coarse) gamma_coarse=ci_coarse;
-                        }
-
                     }
                     else light = k ;
                 }
@@ -948,9 +794,6 @@ void Graph_Simple_Match
                     perfect, light, matching, invmatchmap, matchtype,
                     matchmap, cn, matchtype_brotherly
                 ) ;
-
-                ci_coarse = c[i] + c[j] ;
-                if(ci_coarse > gamma_coarse) gamma_coarse = ci_coarse ;
                 continue ;
             }
 
@@ -981,11 +824,6 @@ void Graph_Simple_Match
                     (
                         i, j, k, matching, matchmap, invmatchmap, matchtype
                     ) ;
-
-                    if(c[i] + c[j] + c[k] > gamma_coarse)
-                    {
-                        gamma_coarse = c[i] + c[j] + c[k] ;
-                    }
                 }
                 else selfmatch[ num_selfmatch++ ] = k ;
             }
@@ -1002,7 +840,6 @@ void Graph_Simple_Match
                     j, j, matching, invmatchmap, matchtype,
                     matchmap, cn, matchtype_selfMatch
                 ) ;
-                if(c[j] > gamma_coarse) gamma_coarse = c[j] ;
             }
         }
         free(selfmatch) ;

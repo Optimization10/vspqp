@@ -52,7 +52,6 @@ void Greedy_Flips
     IdxGroupsByC *x1Ay1_groups = IdxGroupsByC_Init(gamma, maxGroupSizes, c, n, 1, 1, x, Ay, 'x', MIN_HEAP_FLAG) ;
     IdxGroupsByC *x1Ay2_groups = IdxGroupsByC_Init(gamma, maxGroupSizes, c, n, 1, 2, x, Ay, 'x', MIN_HEAP_FLAG) ;
 
-
     // y structs
     IdxGroupsByC *y0Ax0_groups = IdxGroupsByC_Init(gamma, maxGroupSizes, c, n, 0, 0, y, Ax, 'y', MAX_HEAP_FLAG) ;
     Direct_Access_List *y0Ax1_list = Construct_Direct_Access_List(n) ;
@@ -290,7 +289,8 @@ static void Get_Downflip
     IdxGroupsByC        *z1Aw2_groups,
     IdxGroupsByC        *z1Aw1_groups,
     Problem                    *P,
-    VSPINT                  *ind_flip
+    VSPINT                  *ind_flip,
+    int                       *Aw_val
 )
 {
     VSPINT c_bot = EMPTY ;
@@ -299,7 +299,8 @@ static void Get_Downflip
     c_bot = Min_Heap_See_Top_Key_v4(z1Aw2_groups->minHeap) ;
     if(c_bot != EMPTY)
     {
-        Chosen = z1Aw2_groups ;
+        Chosen  = z1Aw2_groups ;
+        *Aw_val = 2 ;
     }
     else
     {
@@ -307,6 +308,7 @@ static void Get_Downflip
         if(c_bot != EMPTY)
         {
             Chosen = z1Aw1_groups ;
+            *Aw_val = 1 ;
         }
     }
 
@@ -324,6 +326,12 @@ static void Get_Downflip
     return ;
 }
 
+
+// TODO: Version I had before August 9, 2026 seems to have worked a bit
+// better. In that version, we were doing the upflip first, though
+// in theory it was possible that we were doing flips which land us in
+// points with x_i = 1 and Ay_i >= 3, or y_i = 1 and Ax_i >= 3.
+// 
 // Assume: Input point is the output of feasible beneficial flips
 // Attempt to balance the point as much as possible using neutral flips
 // and singletons
@@ -386,9 +394,28 @@ void Balance_Flips
 
     // Alternate flips to promote balance
     VSPINT ind_flip ;
-    while(true)
+    int Aw_val ;
+    bool any_flip_done = true ;
+    while(*wgtz < *wgtw && any_flip_done)
     {
-        bool any_flip_done = false ;
+        any_flip_done = false ;
+
+        // Do downflip in heavier variable
+        Get_Downflip(w1Az2_groups, w1Az1_groups, P, &ind_flip, &Aw_val) ;
+        if(ind_flip != EMPTY)
+        {
+            Downflip
+            (
+                w, Aw, z, Az, wgtw, wgtz,
+                w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
+                z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
+                ind_flip, P
+            ) ;
+            any_flip_done = true ;
+
+            if(Aw_val == 2) continue ;
+        }
+
         // Do upflip in lighter variable
         Get_Upflip(*wgtz, z0Aw0_groups, z0Aw1_list, P, &ind_flip) ;
         if(ind_flip != EMPTY)
@@ -403,23 +430,5 @@ void Balance_Flips
             ) ;
             any_flip_done = true ;
         }
-
-        // Do downflip in heavier variable
-        Get_Downflip(w1Az2_groups, w1Az1_groups, P, &ind_flip) ;
-        if(ind_flip != EMPTY)
-        {
-            Downflip
-            (
-                w, Aw, z, Az, wgtw, wgtz,
-                w0Az0_groups, w0Az1_list, w1Az1_groups, w1Az2_groups,
-                z0Aw0_groups, z0Aw1_list, z1Aw1_groups, z1Aw2_groups,
-                ind_flip, P
-            ) ;
-            any_flip_done = true ;
-        }
-
-        // Break if the lighter variable has surpassed the heavier one
-        // TODO 2: May want to continue going if we're improving the objective
-        if(*wgtz >= *wgtw || !any_flip_done) break ;
     }
 }

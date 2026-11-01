@@ -471,6 +471,7 @@ void set_default_options(Options *options)
     options->max_num_vert_small_graph = 8000 ;
     options->num_gr_for_small_graphs  = 4 ;
     options->num_gr_for_large_graphs  = 1 ;
+    options->gamma_reduction_min_level = 0 ;
 
     /*------------------------------------------------------------------------*/
     /* Relax Upper Bound Options                                              */
@@ -491,6 +492,7 @@ void set_default_options(Options *options)
     /* FM Options                                                             */
     /*------------------------------------------------------------------------*/
     options->FM_Limit = 300 ;
+    options->FM_sides = FM_TWO_SIDED ;
 
     /*------------------------------------------------------------------------*/
     /* Mountain Climbing Options                                              */
@@ -502,11 +504,16 @@ void set_default_options(Options *options)
     /* Simple Coarsening Options                                              */
     /*------------------------------------------------------------------------*/
     options->compression_threshold = 0.51 ;
-    options->sort_cols             = false ;
     options->node_cutoff           = 32 ;
-    options->density_cutoff        = 0.4 ;
+    options->density_cutoff        = 0.5 ;
+    options->sort_coarse_graphs    = false ;
 
     options->initial_project       = FALSE ;
+
+    /* ====================================================================== */
+    // Vertex Cover Options
+    /* ====================================================================== */
+    options->cover_type            = MIN_CARD_COVER ;
     options->try_both_covers       = TRUE ;
 
     /* ====================================================================== */
@@ -536,16 +543,80 @@ void set_default_options(Options *options)
     /* ====================================================================== */
     options-> hub_treshold = 0.5 ;
 
+    /* ====================================================================== */
+    // Band refinement
+    /* ====================================================================== */
+    options->band_max_level = 0 ;
+    options->band_passes    = 3 ;
+    options->band_layers    = 30 ;
+    options->band_select    = BAND_LAYERS ;
+    options->band_flow      = BAND_DINIC ;
+    options->band_vertex_factor = 0 ;
+    options->band_arc_factor    = 0 ;
+
+    /* ====================================================================== */
+    // Branched coarsening (VSP_Solve_2 only)
+    /* ====================================================================== */
+    options->branch_shared_levels = 4 ;
+    options->num_branches         = 5 ;
+    options->branch_node_cutoff   = 60 ;
+    options->branch_seed          = 1 ;
+    options->branch_full_solves   = 0 ;
+    options->branch_permute_once  = false ;
+
     return ;
 }
 
 static const char *initial_guess_to_str(initial_guess g)
 {
-    switch (g) {
+    switch (g)
+    {
         case centroid_initial_guess:  return "centroid";
         case random_initial_guess:    return "random";
         case manual_initial_guess:    return "manual";
         case bisection_initial_guess: return "bisection";
+        default:                      return "unknown";
+    }
+}
+
+static const char *cover_type_to_str(cover_type c)
+{
+    switch (c)
+    {
+        case MIN_COST_COVER:          return "min-cost-cover" ;
+        case MIN_CARD_COVER:          return "min-cardinality-cover" ;
+        case APPROX_MIN_CARD_COVER:   return "approx-min-cardinality-cover" ;
+        default:                      return "unknown";
+    }
+}
+
+static const char *FM_sides_to_str(FM_sides_type s)
+{
+    switch (s)
+    {
+        case FM_TWO_SIDED:            return "two-sided" ;
+        case FM_ONE_SIDED:            return "one-sided" ;
+        case FM_TWO_THEN_ONE_SIDED:   return "two-sided-then-one-sided" ;
+        default:                      return "unknown";
+    }
+}
+
+static const char *band_select_to_str(band_select_type s)
+{
+    switch (s)
+    {
+        case BAND_LAYERS:             return "layers" ;
+        case BAND_WEIGHT_BOUNDS:      return "weight-bounds" ;
+        default:                      return "unknown";
+    }
+}
+
+static const char *band_flow_to_str(band_flow_type s)
+{
+    switch (s)
+    {
+        case BAND_DINIC:              return "dinic" ;
+        case BAND_EDMONDS_KARP:       return "edmonds-karp" ;
         default:                      return "unknown";
     }
 }
@@ -581,6 +652,7 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  num_gr_for_small_graphs        = %lld\n", PRI(opts->num_gr_for_small_graphs));
     fprintf(f, "  num_gr_for_large_graphs        = %lld\n", PRI(opts->num_gr_for_large_graphs));
     fprintf(f, "  max_num_vert_small_graph       = %lld\n", PRI(opts->max_num_vert_small_graph));
+    fprintf(f, "  gamma_reduction_min_level      = %lld\n", PRI(opts->gamma_reduction_min_level));
 
     /* Miscellaneous */
     fprintf(f, "Miscellaneous\n") ;
@@ -590,6 +662,7 @@ void Print_Options(const Options *opts, const char *path)
 
     /* FM Options */
     fprintf(f, "  FM_Limit                       = %lld\n", PRI(opts->FM_Limit));
+    fprintf(f, "  FM_sides                       = %s\n",   FM_sides_to_str(opts->FM_sides)) ;
 
     /* Mountain Climbing Options */
     fprintf(f, "Mountain climbing\n") ;
@@ -599,15 +672,17 @@ void Print_Options(const Options *opts, const char *path)
     /* Simple Coarsening Options */
     fprintf(f, "Coarsening\n") ;
     fprintf(f, "  compression_threshold          = %g\n",   opts->compression_threshold);
-    fprintf(f, "  sort_cols                      = %i\n",   opts->sort_cols || opts->initial_guess == bisection_initial_guess);
     fprintf(f, "  node_cutoff                    = %i\n",   opts->node_cutoff);
     fprintf(f, "  density_cutoff                 = %f\n",   opts->density_cutoff);
+    fprintf(f, "  sort_coarse_graphs             = %s\n",   opts->sort_coarse_graphs ? "true" : "false");
 
+    /* Cover type options */
+    fprintf(f, "  cover_type                     = %s\n",   cover_type_to_str(opts->cover_type) ) ;
+    fprintf(f, "  try_both_covers                = %s\n",   (opts->try_both_covers) ? "yes" : "no") ;
 
     /* vs options */
     fprintf(f, "VS startup\n") ;
     fprintf(f, "  initial_projection             = %s\n",   (opts->initial_project) ? "yes" : "no") ;
-    fprintf(f, "  try_both_covers                = %s\n",   (opts->try_both_covers) ? "yes" : "no") ;
     fprintf(f, "  bisection_ngp                  = %i\n",   opts->bisection_ngp) ;
 
     /* FM subspace gradient projection */
@@ -630,6 +705,25 @@ void Print_Options(const Options *opts, const char *path)
     /* hub removal */
     fprintf(f, "Hub removal\n") ;
     fprintf(f, "  hub_treshold                   = %f\n",   opts->hub_treshold ) ;
+
+    /* Band refinement */
+    fprintf(f, "Band refinement\n") ;
+    fprintf(f, "  band_max_level                 = %lld\n", PRI(opts->band_max_level)) ;
+    fprintf(f, "  band_passes                    = %lld\n", PRI(opts->band_passes)) ;
+    fprintf(f, "  band_layers                    = %lld\n", PRI(opts->band_layers)) ;
+    fprintf(f, "  band_select                    = %s\n",   band_select_to_str(opts->band_select)) ;
+    fprintf(f, "  band_flow                      = %s\n",   band_flow_to_str(opts->band_flow)) ;
+    fprintf(f, "  band_vertex_factor             = %f\n",   opts->band_vertex_factor) ;
+    fprintf(f, "  band_arc_factor                = %f\n",   opts->band_arc_factor) ;
+
+    /* Branched coarsening */
+    fprintf(f, "Branched coarsening (VSP_Solve_2 only)\n") ;
+    fprintf(f, "  branch_shared_levels           = %lld\n", PRI(opts->branch_shared_levels)) ;
+    fprintf(f, "  num_branches                   = %lld\n", PRI(opts->num_branches)) ;
+    fprintf(f, "  branch_node_cutoff             = %lld\n", PRI(opts->branch_node_cutoff)) ;
+    fprintf(f, "  branch_seed                    = %lld\n", PRI(opts->branch_seed)) ;
+    fprintf(f, "  branch_full_solves             = %lld\n", PRI(opts->branch_full_solves)) ;
+    fprintf(f, "  branch_permute_once            = %s\n",   opts->branch_permute_once ? "true" : "false") ;
 
     fclose(f);
 }

@@ -2360,7 +2360,7 @@ void compute_weight(Point *Z, VSPINT *weight_z, VSPINT *c) {
         VSPFLOAT weight_frac_part = Z->val_frac * c[Z->ind_frac] ;
         /* TODO safety: Consider safety here. Maybe introduce a sort of check
                  before typecasting */
-        weight += lroundf(weight_frac_part) ;
+        weight += lround(weight_frac_part) ;
         #ifdef DEBUG
             if( fabs(weight_frac_part - round(weight_frac_part)) > ZERO ) {
                 Error("Error with weight", DBG_INFO) ;
@@ -2907,7 +2907,7 @@ VSPINT Get_u_Finest(Problem *P)
     SET_FUNCTION_COUNTER ;
     VSP_ASSERT(P != NULL) ;
     while(P->parent_problem != NULL) P = P->parent_problem ;
-    return P->ubFinest ;
+    return P->u ;
 }
 
 // Return c - gamma Az as an array of floats
@@ -3055,7 +3055,7 @@ void Array_To_State
         for(i = 0 ; i < n ; i++)
         {
             entry = one_over_gamma * (c[i] - gw[i]) - zk * (Ak[i] == one) ;
-            Az_int[i] = lroundf(entry) ;
+            Az_int[i] = lround(entry) ;
         }
     }
     else
@@ -3063,7 +3063,7 @@ void Array_To_State
         for(i = 0 ; i < n ; i++)
         {
             entry = one_over_gamma * (c[i] - gw[i]) ;
-            Az_int[i] = lroundf(entry) ;
+            Az_int[i] = lround(entry) ;
         }
     }
 #endif

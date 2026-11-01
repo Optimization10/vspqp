@@ -1,12 +1,16 @@
 #===============================================================================
 # Main Makefile
 #===============================================================================
+# Seeds for "make many": one run of Demo/example per seed, each archived in
+# arch/<date>_<time>_seed<seed>
+SEEDS = 1 2 3 4 5 6 7 8 9 10 11 12 13
+
 VSPATH = $(realpath $(CURDIR))
 export VSPATH
 
 include $(VSPATH)/Config/internal.mk
 
-.PHONY: lib example run_example valgrind clean callgrind
+.PHONY: lib example run_example many valgrind clean callgrind
 
 default: lib
 
@@ -37,6 +41,23 @@ run_example: example
 	@echo ""
 	@echo "Running example...\n"
 	@./Demo/example
+
+# Run the example once per seed in SEEDS. Each run starts with an empty output
+# directory, which is then moved to arch/<date>_<time>_seed<seed>. A non-empty
+# output directory from before is moved to arch/ too, never deleted.
+many: example
+	@mkdir -p $(VSPATH)/arch
+	@if [ -d $(VSPATH)/output ] && [ -n "$$(ls -A $(VSPATH)/output)" ]; then \
+		mv $(VSPATH)/output \
+		   $(VSPATH)/arch/$$(date +%Y-%m-%d_%H-%M-%S)_output-before-many ; \
+	fi
+	@for s in $(SEEDS) ; do \
+		mkdir -p $(VSPATH)/output ; \
+		echo "" ; echo "Running example with seed $$s..." ; \
+		./Demo/example $$s || exit 1 ; \
+		mv $(VSPATH)/output $(VSPATH)/arch/$$(date +%Y-%m-%d_%H-%M-%S)_seed$$s ; \
+	done
+	@mkdir -p $(VSPATH)/output
 
 valgrind: example
 	@mkdir -p $(VSPATH)/output

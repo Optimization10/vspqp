@@ -256,7 +256,11 @@ void Rebalance_Singletons(State *X, State *Y, Problem *P)
         if (Ap[i+1] - Ap[i] > 0) continue ;
 
         // Skip fractional entries
-        if (i == idx_frac[0] || i == idx_frac[1]) continue ;
+        if (i == idx_frac[0] || i == idx_frac[1])
+        {
+            continue ;
+        }
+        
 
         // Check if singleton is in intersection. Really shouldn't happen
         // (it incurs penalty gamma >= c[i])

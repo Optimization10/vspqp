@@ -79,4 +79,72 @@ void strategy_explore_bisection
 ) ;
 
 void Rebalance_Singletons(State *X, State *Y, Problem *P) ;
+
+int Cover_Refine(State *X, State *Y, Problem *P, VSPINT max_bip) ;
+int Band_Refine
+(
+    State *X, State *Y, Problem *P, VSPINT max_bip, VSPINT max_passes,
+    VSPINT max_layers, band_select_type select, band_flow_type flow,
+    VSPINT max_verts, VSPINT max_arcs
+) ;
+
+/*----------------------------------------------------------------------------*/
+/*  Multilevel solve pieces shared by VSP_Solve and VSP_Solve_2 (solve.c)     */
+/*----------------------------------------------------------------------------*/
+// Improves a solution at one level of the hierarchy
+typedef void (*Level_Solver)
+(
+    State    *X,
+    State    *Y,
+    Problem  *problem,
+    Options  *options
+) ;
+
+// The full level solve: Optimize, the optional second start, and
+// Rebalance_Singletons
+void Solve_Level(State *X, State *Y, Problem *problem, Options *options) ;
+
+// Solves the problem hierarchy below probFinest and returns the solution at
+// the finest level in (X_0, Y_0)
+typedef void (*Hierarchy_Solver)
+(
+    Problem  *probFinest,
+    Options  *options,
+    State   **X_0,
+    State   **Y_0
+) ;
+
+solve_result *VSP_Solve_With
+(
+    VSPINT             n_input,
+    VSPLONG           *Ap_input,
+    VSPINT            *Ai_input,
+    Options           *options,
+    char              *name,
+    Hierarchy_Solver   solve_hierarchy
+) ;
+
+bool Solve_Coarsest
+(
+    Problem      *P,
+    Options      *options,
+    VSPINT       *sol_sings,
+    VSPINT        n_sings,
+    Level_Solver  solve_level,
+    State       **X,
+    State       **Y
+) ;
+
+void Solve_Up
+(
+    Problem      *P,
+    Problem      *Top,
+    bool          have_global_optimum,
+    Options      *options,
+    Level_Solver  solve_level,
+    State       **X,
+    State       **Y
+) ;
+
+void Destroy_All_Problems(Problem *problemFinest) ;
 #endif

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <malloc.h>
 
 // #include <cstdlib>
 #include "time.h"
@@ -262,8 +263,8 @@ static void Read_hager6_File
     *n = ntemp ;
 
     // Convert Ai array to VSPINTs
-    *Ai = malloc(nztemp * sizeof(*Ai));
-    if (!Ai)
+    *Ai = malloc(nztemp * sizeof(**Ai));
+    if (!*Ai)
     {
         free(tempAi);
         free(tempAp);
@@ -272,8 +273,8 @@ static void Read_hager6_File
     for (int64_t i = 0; i < nztemp; i++) (*Ai)[i] = tempAi[i];
 
     // Convert Ap array to VSPLONGs
-    *Ap = malloc((ntemp + 1) * sizeof(*Ap) );
-    if (!Ap)
+    *Ap = malloc((ntemp + 1) * sizeof(**Ap) );
+    if (!*Ap)
     {
         free(Ai) ;
         free(tempAi) ;
@@ -416,6 +417,10 @@ void Write_Results
 
 int main(int argc, char** argv)
 {
+    mallopt(M_MMAP_MAX, 0);         // keep large arrays in the heap
+    mallopt(M_TRIM_THRESHOLD, -1);  // never return freed memory to the OS
+
+
     /*------------------------------------------------------------------------*/
     // User Controls for Choosing a Problem Set
     /*------------------------------------------------------------------------*/
@@ -427,7 +432,7 @@ int main(int argc, char** argv)
     {
         // Ovi's computer folders
         "/home/ovi/data/suitesparse/symmetric/",
-        "/home/ovi/data/network-repository/networks/",
+        "/home/ovi/network-repository/",
 
         // hager6 folders
         "/media/hager/datafile/symmetric/",
@@ -443,8 +448,8 @@ int main(int argc, char** argv)
     reset_file("./output/errors.txt") ;
     unsigned int seed ;
 
-    // seed = (unsigned VSPINT) time(NULL) ;
-    seed = 1 ;
+    // The seed can be given on the command line, e.g. ./Demo/example 3
+    seed = (argc > 1) ? (unsigned int) atoi(argv[1]) : 1 ;
 
     srand(seed) ;
     printf("\nSeed : %u\n\n", seed ) ;
@@ -463,23 +468,45 @@ int main(int argc, char** argv)
     options = construct_options() ;
     set_default_options(options) ;
 
-    // Custom options
-    // options->sort_cols     = true ;
+    /* Coarsening Options */
     options->attempt_second_start = FALSE ;
-    // options->u_ratio_coarsest  = 0.45 ;
-    options->u_ratio_coarsest  = 0.48 ;
-    // options->u_ratio_coarsest  = 0.42 ;
+
+    /* Upper Bound */
+    // options->u_ratio_coarsest = 0.48 ;  // tighten coarse levels toward 0.48
+    options->tighten_u = FALSE ;           // every level uses u_ratio_finest
+
+    /* Initial Guess */
     options->initial_guess = bisection_initial_guess ;
     // options->ub_based_on_bisection = true ;
     options->initial_project = FALSE ;
     // options->initial_project = TRUE ;
-    options->FM_Limit = 320 ;
     options->try_both_covers = FALSE ;
     options->bisection_ngp = 3 ;
+
+    /* FM METIS*/
+    options->FM_Limit = 320 ;
+    options->FM_sides = FM_TWO_THEN_ONE_SIDED ;  // or FM_TWO_SIDED, FM_ONE_SIDED
+    // options->FM_sides = FM_TWO_SIDED ;  // or FM_TWO_SIDED, FM_ONE_SIDED
+
+    /* Gradient Projection on the Full VSP */
     options->vsp_grad_proj = FALSE ;
     options->vsp_ngp = 3 ;
+
+    /* Gradient Projection on the FM Subspace */
     options->use_FM_subspace_grad_proj = FALSE ;
     options->noFM = 0.2 ;
+
+    options->band_max_level = -1 ;   // band refinement off (0: level 0 only)
+    options->band_layers    = 30 ;   // up to 30 BFS layers on each side (BAND_LAYERS only)
+    options->band_select    = BAND_WEIGHT_BOUNDS ;  // "mode 2"; BAND_LAYERS = the earlier band
+    options->band_flow      = BAND_EDMONDS_KARP ;   // or BAND_DINIC (same separators, faster)
+    options->band_vertex_factor = 32 ;              // band at most 32 sqrt(n) vertices (0: degree cap)
+
+    /* Branched coarsening */
+    options->branch_seed         = seed ;  // the seed sets the branches' orders
+    options->branch_permute_once = false ;  // true: random order on the
+                                            // first level only
+
 
     Print_Options(options, "output/opts.txt") ;
     /*** I/O ******************************************************************/
@@ -514,7 +541,8 @@ int main(int argc, char** argv)
         // Solve the problem
         restart_decide_reset(options->restart_decision) ;
         clock_gettime(CLOCK_REALTIME, &start) ;
-        result = VSP_Solve(n, Ap, Ai, options, name_problem) ;
+        result = VSP_Solve_2(n, Ap, Ai, options, name_problem) ;
+        // result = VSP_Solve(n, Ap, Ai, options, name_problem) ;
         clock_gettime(CLOCK_REALTIME, &end);
 
 

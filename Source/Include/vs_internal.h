@@ -1225,4 +1225,13 @@ void Pricing_Algorithm_Vertex_Cover_Get
 ) ;
 
 
+int vs_separator_min_weight
+(
+    int                *part, // array with entries 0, 1, or 2
+    VSINT                *Ai, // Original graph
+    VSLINT               *Ap, // Original graph
+    VSINT                  n, // Original graph n
+    VSINT          *vtx_wgts
+) ;
+
 #endif

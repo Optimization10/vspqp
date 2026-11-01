@@ -26,30 +26,9 @@ VSPFLOAT minreduce
     static long long unsigned count = 0 ;
     count++ ;
 
-
     VSPFLOAT gamma_tx = minreduce_one_var(X, Y->Az, problem) ;
     VSPFLOAT gamma_ty = minreduce_one_var(Y, X->Az, problem) ;
-
     VSPFLOAT gamma_max = (gamma_tx > gamma_ty) ? gamma_tx : gamma_ty ;
-
-
-    // if( gamma_max >= problem->graph->max_vtx_cost )
-    // {
-    //     mountain_climbing(X, Y, problem, options, problem->graph->max_vtx_cost, true) ;
-    // }
-    gamma_tx = minreduce_one_var(X, Y->Az, problem) ;
-    gamma_ty = minreduce_one_var(Y, X->Az, problem) ;
-
-    gamma_max = (gamma_tx > gamma_ty) ? gamma_tx : gamma_ty ;
-
-    if(gamma_max > problem->graph->max_vtx_cost)
-    {
-        // printf("Reduced gamma greater. Problem: %s\n", problem->name) ;
-    }
-    else if(gamma_max < 0)
-    {
-        // printf("Negative\n") ;
-    }
 
     #ifdef DEBUG
         check_states(X, Y, problem) ;
@@ -97,28 +76,9 @@ VSPFLOAT minreduce_one_var
                 gamma_t = c[i] / Awi ;
             }
         }
-
-        // if(z_int[i] == 0 && Awi == 0)
-        // {
-        //     if(c[i] > problem->u - Z->weight)
-        //     {
-        //         printf("Expected\n") ;
-        //     }
-        //     else
-        //     {
-        //         printf("NOT expected\n") ;
-        //     }
-        //     fflush(stdout) ;
-        // }
-
     }
 
-    #ifdef DEBUG
-        if(gamma_t > problem->graph->max_vtx_cost) {
-            Error("Error in gamma reduction", DBG_INFO) ;
-        }
-    #endif
 
     if(gamma_second != EMPTY) return gamma_second ;
-    return gamma_t ;
+    else                      return gamma_t ;
 }
