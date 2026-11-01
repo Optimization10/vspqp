@@ -217,11 +217,22 @@ typedef struct Options_struct
     // on levels at most band_max_level. EMPTY turns it off. Each call makes at
     // most band_passes improving moves. band_select chooses the band and
     // band_flow the max flow (see band_select_type and band_flow_type).
+    // BAND_WEIGHT_BOUNDS only: band_vertex_factor > 0 replaces the total
+    // degree cap by a cap of band_vertex_factor * sqrt(total vertex weight) on
+    // the number of band vertices (separator included; the band is skipped if
+    // the separator alone is larger). <= 0: degree cap.
+    // BAND_WEIGHT_BOUNDS only: band_arc_factor > 0 caps the arcs of the band's
+    // network at band_arc_factor * sqrt(total vertex weight) instead (two per
+    // edge inside the band, plus per band vertex its in-out arc and at most one
+    // s or t arc, two for a separator vertex); it takes precedence over
+    // band_vertex_factor. <= 0: off.
     VSPINT band_max_level ;
     VSPINT band_passes ;
     VSPINT band_layers ;
     band_select_type band_select ;
     band_flow_type   band_flow ;
+    double band_vertex_factor ;
+    double band_arc_factor ;
 
     /* ====================================================================== */
     // Branched coarsening (VSP_Solve_2 only)

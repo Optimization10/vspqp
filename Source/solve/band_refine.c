@@ -428,10 +428,29 @@ static void Band_Check_Separator(State *X, State *Y, Problem *P)
 #endif
 
 
+// Network arcs that band vertex v brings when it joins the band (loc marks the
+// vertices already in it): its in-out arc, at most one s or t arc (a shore
+// vertex has neighbors only in its own shore and S, and S is all in the band),
+// and two arcs for each edge to a vertex already in the band. A separator
+// vertex can have both an s and a t arc; the caller adds 1 for it
+static long long Band_Arcs_Added(int v, const VSPLONG *Ap, const VSPINT *Ai, const int *loc)
+{
+    long long a = 2 ;
+    for(VSPLONG p = Ap[v] ; p < Ap[v+1] ; p++)
+    {
+        if(Ai[p] != v && loc[Ai[p]] != -1) a += 2 ;
+    }
+    return a ;
+}
+
+
 // Refine the separator X, Y with at most max_passes band moves. BAND_LAYERS:
 // the band has at most 2 * max_bip vertices and max_layers BFS layers on each
 // side. BAND_WEIGHT_BOUNDS: the weight bounds of each side limit the band.
-// Both: the total degree of the band is at most BAND_DEG_FACTOR * 2 * max_bip.
+// Both: the total degree of the band is at most BAND_DEG_FACTOR * 2 * max_bip,
+// except that for BAND_WEIGHT_BOUNDS with max_arcs > 0 the band's network has
+// at most max_arcs arcs instead (counted as in Band_Arcs_Added), or else with
+// max_verts > 0 the band has at most max_verts vertices (no degree cap).
 // If the separator alone is too big for the band, or no move is accepted,
 // Cover_Refine is run instead.
 // Returns the number of band passes
@@ -444,7 +463,9 @@ int Band_Refine
     VSPINT   max_passes,
     VSPINT   max_layers,
     band_select_type select,
-    band_flow_type   flow
+    band_flow_type   flow,
+    VSPINT           max_verts,
+    VSPINT           max_arcs
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -463,6 +484,10 @@ int Band_Refine
     int      passes   = 0 ;
     bool     moved    = false ;
     bool     layers   = (select == BAND_LAYERS) ;
+    // BAND_WEIGHT_BOUNDS: cap on the network arcs, or else on the band
+    // vertices, instead of the degree cap
+    bool     acap     = !layers && max_arcs > 0 ;
+    bool     vcap     = !layers && !acap && max_verts > 0 ;
     // Most vertices a band can have (BAND_WEIGHT_BOUNDS has no count cap)
     VSPINT   cap_nb   = layers ? max_band : n ;
 
@@ -500,17 +525,22 @@ int Band_Refine
 
         /* === Band: S plus BFS layers into each shore ====================== */
         // The total degree of the band is capped at BAND_DEG_FACTOR * max_band
+        // (or, if acap, the network arcs at max_arcs; if vcap, the number of
+        // band vertices at max_verts)
         int       nb       = 0, k ;
         long long deg_sum  = 0 ;
         long long deg_cap  = (long long) BAND_DEG_FACTOR * max_band ;
+        long long arcs     = 0 ;
 
         for(k = 0 ; k < nS ; k++)
         {
             loc[Slist[k]] = nb ;
             B.band[nb++]  = Slist[k] ;
             deg_sum      += Ap[Slist[k]+1] - Ap[Slist[k]] ;
+            if(acap) arcs += 1 + Band_Arcs_Added(Slist[k], Ap, Ai, loc) ;
         }
-        if(deg_sum > deg_cap)
+        if(acap ? (arcs > max_arcs) :
+           vcap ? (nS > max_verts) : (deg_sum > deg_cap))
         {
             for(k = 0 ; k < nb ; k++) loc[B.band[k]] = -1 ;
             break ;
@@ -556,7 +586,9 @@ int Band_Refine
             // good at the first vertex that would make c(A cap X) exceed
             // u - c(Y) - c(S), the Y side likewise; a bound <= 0 gives that
             // side nothing. Both stop once the total degree would exceed the
-            // cap
+            // cap (if acap: once the network would get more than max_arcs
+            // arcs; if vcap: once the band would get more than max_verts
+            // vertices)
             band_cap wS      = (band_cap) tot - X->weight - Y->weight ;
             band_cap bnd[2]  = {(band_cap) P->u - Y->weight - wS,
                                 (band_cap) P->u - X->weight - wS} ;
@@ -582,7 +614,9 @@ int Band_Refine
                         }
 
                         long long dw = Ap[w+1] - Ap[w] ;
-                        if(deg_sum + dw > deg_cap)
+                        long long da = acap ? Band_Arcs_Added(w, Ap, Ai, loc) : 0 ;
+                        if(acap ? (arcs + da > max_arcs) :
+                           vcap ? (nb + 1 > max_verts) : (deg_sum + dw > deg_cap))
                         {
                             stop[0] = stop[1] = true ;
                             break ;
@@ -592,6 +626,7 @@ int Band_Refine
                         B.band[nb++] = w ;
                         add[sd]     += c[w] ;
                         deg_sum     += dw ;
+                        arcs        += da ;
                     }
                 }
                 lo = hi ;

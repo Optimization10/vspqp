@@ -551,6 +551,8 @@ void set_default_options(Options *options)
     options->band_layers    = 30 ;
     options->band_select    = BAND_LAYERS ;
     options->band_flow      = BAND_DINIC ;
+    options->band_vertex_factor = 0 ;
+    options->band_arc_factor    = 0 ;
 
     /* ====================================================================== */
     // Branched coarsening (VSP_Solve_2 only)
@@ -711,6 +713,8 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  band_layers                    = %lld\n", PRI(opts->band_layers)) ;
     fprintf(f, "  band_select                    = %s\n",   band_select_to_str(opts->band_select)) ;
     fprintf(f, "  band_flow                      = %s\n",   band_flow_to_str(opts->band_flow)) ;
+    fprintf(f, "  band_vertex_factor             = %f\n",   opts->band_vertex_factor) ;
+    fprintf(f, "  band_arc_factor                = %f\n",   opts->band_arc_factor) ;
 
     /* Branched coarsening */
     fprintf(f, "Branched coarsening (VSP_Solve_2 only)\n") ;
