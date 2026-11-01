@@ -198,21 +198,6 @@ void Optimize
     // Phase 2: Greedy flips
     /* ====================================================================== */
     Round_Down_Fractions(X, Y, problem) ;
-    if(l <= options->band_max_level)
-    {
-        Band_Refine
-        (
-            X, Y, problem, 8*sqrt(problem->graph->total_vtx_cost),
-            options->band_passes, options->band_layers,
-            options->band_select, options->band_flow,
-            (options->band_vertex_factor > 0) ?
-                (VSPINT) ceil(options->band_vertex_factor *
-                              sqrt(problem->graph->total_vtx_cost)) : EMPTY,
-            (options->band_arc_factor > 0) ?
-                (VSPINT) ceil(options->band_arc_factor *
-                              sqrt(problem->graph->total_vtx_cost)) : EMPTY
-        ) ;
-    }
     Greedy_Flips(X, Y, problem, 9, (problem->level <= 2), false);
 
 

@@ -496,12 +496,6 @@ int main(int argc, char** argv)
     options->use_FM_subspace_grad_proj = FALSE ;
     options->noFM = 0.2 ;
 
-    options->band_max_level = -1 ;   // band refinement off (0: level 0 only)
-    options->band_layers    = 30 ;   // up to 30 BFS layers on each side (BAND_LAYERS only)
-    options->band_select    = BAND_WEIGHT_BOUNDS ;  // "mode 2"; BAND_LAYERS = the earlier band
-    options->band_flow      = BAND_EDMONDS_KARP ;   // or BAND_DINIC (same separators, faster)
-    options->band_vertex_factor = 32 ;              // band at most 32 sqrt(n) vertices (0: degree cap)
-
     /* Branched coarsening */
     options->branch_seed         = seed ;  // the seed sets the branches' orders
     options->branch_permute_once = false ;  // true: random order on the
