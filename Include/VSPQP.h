@@ -65,6 +65,29 @@ typedef enum FM_sides_enum
     FM_TWO_THEN_ONE_SIDED
 } FM_sides_type ;
 
+// How Band_Refine chooses the band A around the separator S:
+// BAND_LAYERS: S plus up to band_layers BFS layers into each shore, at most
+//   2 * max_bip vertices (half of the rest per shore) and a total degree cap;
+//   skipped if 2|S| >= 2 * max_bip or deg(S) exceeds the cap.
+// BAND_WEIGHT_BOUNDS ("mode 2"): one BFS into each shore, the X side stopped by
+//   weight at u - c(Y) - c(S), the Y side at u - c(X) - c(S) (Sanders and
+//   Schulz), both stopped by the same total degree cap; skipped only if deg(S)
+//   exceeds the cap.
+typedef enum band_select_enum
+{
+    BAND_LAYERS = 0,
+    BAND_WEIGHT_BOUNDS = 2
+} band_select_type ;
+
+// Max flow used by Band_Refine: Dinic's algorithm, or Edmonds-Karp (one BFS
+// per augmenting path, as in Min_Weighted_Vtx_Cover). Both give the same
+// separator; only the time differs.
+typedef enum band_flow_enum
+{
+    BAND_DINIC,
+    BAND_EDMONDS_KARP
+} band_flow_type ;
+
 typedef struct Options_struct
 {
     /* Initial guess */
@@ -192,10 +215,13 @@ typedef struct Options_struct
     // Optimize runs Band_Refine (a minimum cut on the separator plus up to
     // band_layers BFS layers into each shore) before its first greedy flips,
     // on levels at most band_max_level. EMPTY turns it off. Each call makes at
-    // most band_passes improving moves.
+    // most band_passes improving moves. band_select chooses the band and
+    // band_flow the max flow (see band_select_type and band_flow_type).
     VSPINT band_max_level ;
     VSPINT band_passes ;
     VSPINT band_layers ;
+    band_select_type band_select ;
+    band_flow_type   band_flow ;
 
     /* ====================================================================== */
     // Branched coarsening (VSP_Solve_2 only)

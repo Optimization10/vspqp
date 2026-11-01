@@ -549,6 +549,8 @@ void set_default_options(Options *options)
     options->band_max_level = 0 ;
     options->band_passes    = 3 ;
     options->band_layers    = 30 ;
+    options->band_select    = BAND_LAYERS ;
+    options->band_flow      = BAND_DINIC ;
 
     /* ====================================================================== */
     // Branched coarsening (VSP_Solve_2 only)
@@ -593,6 +595,26 @@ static const char *FM_sides_to_str(FM_sides_type s)
         case FM_TWO_SIDED:            return "two-sided" ;
         case FM_ONE_SIDED:            return "one-sided" ;
         case FM_TWO_THEN_ONE_SIDED:   return "two-sided-then-one-sided" ;
+        default:                      return "unknown";
+    }
+}
+
+static const char *band_select_to_str(band_select_type s)
+{
+    switch (s)
+    {
+        case BAND_LAYERS:             return "layers" ;
+        case BAND_WEIGHT_BOUNDS:      return "weight-bounds" ;
+        default:                      return "unknown";
+    }
+}
+
+static const char *band_flow_to_str(band_flow_type s)
+{
+    switch (s)
+    {
+        case BAND_DINIC:              return "dinic" ;
+        case BAND_EDMONDS_KARP:       return "edmonds-karp" ;
         default:                      return "unknown";
     }
 }
@@ -687,6 +709,8 @@ void Print_Options(const Options *opts, const char *path)
     fprintf(f, "  band_max_level                 = %lld\n", PRI(opts->band_max_level)) ;
     fprintf(f, "  band_passes                    = %lld\n", PRI(opts->band_passes)) ;
     fprintf(f, "  band_layers                    = %lld\n", PRI(opts->band_layers)) ;
+    fprintf(f, "  band_select                    = %s\n",   band_select_to_str(opts->band_select)) ;
+    fprintf(f, "  band_flow                      = %s\n",   band_flow_to_str(opts->band_flow)) ;
 
     /* Branched coarsening */
     fprintf(f, "Branched coarsening (VSP_Solve_2 only)\n") ;

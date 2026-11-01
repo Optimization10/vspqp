@@ -9,12 +9,15 @@
 // Two-sided band refinement of a vertex separator.
 //
 // The band is the separator S plus up to max_layers BFS layers into each
-// shore. The rest of X is contracted into the source and the rest of Y into
-// the sink. Each band vertex v is split into v_in -> v_out with capacity c(v),
-// and graph edges inside the band get infinite capacity. A minimum s-t cut is
-// then a minimum weight separator inside the band. Unlike a cover step, it can
-// move into both shores at once, so it is not limited by the slack of one
-// shore.
+// shore (BAND_LAYERS), or S plus one BFS into each shore stopped by the weight
+// bounds u - c(Y) - c(S) and u - c(X) - c(S) (BAND_WEIGHT_BOUNDS, see
+// band_select_type in VSPQP.h). The rest of X is contracted into the source
+// and the rest of Y into the sink. Each band vertex v is split into
+// v_in -> v_out with capacity c(v), and graph edges inside the band get
+// infinite capacity. A minimum s-t cut, found by Dinic's algorithm or
+// Edmonds-Karp (band_flow_type), is then a minimum weight separator inside the
+// band. Unlike a cover step, it can move into both shores at once, so it is
+// not limited by the slack of one shore.
 //
 // The cut ignores the bound u on the shores. Of the two extreme minimum cuts
 // (closest to the source and closest to the sink), the feasible one with the
@@ -182,6 +185,50 @@ static void Net_Max_Flow(Band_Net *N, int s, int t)
 }
 
 
+// Edmonds-Karp on the residual capacities in N->cap, as in
+// Min_Weighted_Vtx_Cover (vs.c): one BFS per augmenting path, stopped as soon
+// as t is discovered. N->it holds the arc by which each node was reached
+static void Net_Max_Flow_EK(Band_Net *N, int s, int t)
+{
+    int *pe = N->it ;
+    int *q  = N->q ;
+
+    while(true)
+    {
+        /* === Find an augmenting path ====================================== */
+        int head = 0, tail = 0 ;
+        for(int i = 0 ; i < N->nn ; i++) pe[i] = -2 ;
+        pe[s] = -1 ;
+        q[tail++] = s ;
+        while(head < tail && pe[t] == -2)
+        {
+            int u = q[head++] ;
+            for(int e = N->head[u] ; e != -1 ; e = N->nxt[e])
+            {
+                int v = N->to[e] ;
+                if(N->cap[e] == 0 || pe[v] != -2) continue ;
+                pe[v] = e ;
+                if(v == t) break ;
+                q[tail++] = v ;
+            }
+        }
+        if(pe[t] == -2) break ;
+
+        /* === Augment by the bottleneck capacity =========================== */
+        band_cap f = N->cap[pe[t]] ;
+        for(int v = t ; v != s ; v = N->to[pe[v] ^ 1])
+        {
+            if(N->cap[pe[v]] < f) f = N->cap[pe[v]] ;
+        }
+        for(int v = t ; v != s ; v = N->to[pe[v] ^ 1])
+        {
+            N->cap[pe[v]]     -= f ;
+            N->cap[pe[v] ^ 1] += f ;
+        }
+    }
+}
+
+
 // mark[v] = 1 if v is reachable from s in the residual graph
 static void Net_Reach_From(Band_Net *N, int s, char *mark)
 {
@@ -246,6 +293,7 @@ typedef struct
     band_cap  wx0, wy0, sep0 ;  // current weights
     band_cap  best_sep, best_imb ;
     bool      have_best ;
+    band_flow_type flow ;       // max flow algorithm
 } Band ;
 
 
@@ -288,7 +336,8 @@ static void Band_Solve(Band *B)
 {
     Band_Net *N = &B->N ;
 
-    Net_Max_Flow(N, S_NODE, T_NODE) ;
+    if(B->flow == BAND_EDMONDS_KARP) Net_Max_Flow_EK(N, S_NODE, T_NODE) ;
+    else                             Net_Max_Flow(N, S_NODE, T_NODE) ;
     Net_Reach_From(N, S_NODE, B->zs) ;
     Net_Reach_To(N, T_NODE, B->zt) ;
 
@@ -379,9 +428,11 @@ static void Band_Check_Separator(State *X, State *Y, Problem *P)
 #endif
 
 
-// Refine the separator X, Y with at most max_passes band moves. The band has
-// at most 2 * max_bip vertices and max_layers BFS layers on each side. If the
-// separator alone is too big for the band, or no move is accepted,
+// Refine the separator X, Y with at most max_passes band moves. BAND_LAYERS:
+// the band has at most 2 * max_bip vertices and max_layers BFS layers on each
+// side. BAND_WEIGHT_BOUNDS: the weight bounds of each side limit the band.
+// Both: the total degree of the band is at most BAND_DEG_FACTOR * 2 * max_bip.
+// If the separator alone is too big for the band, or no move is accepted,
 // Cover_Refine is run instead.
 // Returns the number of band passes
 int Band_Refine
@@ -391,7 +442,9 @@ int Band_Refine
     Problem *P,
     VSPINT   max_bip,
     VSPINT   max_passes,
-    VSPINT   max_layers
+    VSPINT   max_layers,
+    band_select_type select,
+    band_flow_type   flow
 )
 {
     SET_FUNCTION_COUNTER ;
@@ -409,12 +462,15 @@ int Band_Refine
     VSPINT   max_band = 2 * max_bip ;
     int      passes   = 0 ;
     bool     moved    = false ;
+    bool     layers   = (select == BAND_LAYERS) ;
+    // Most vertices a band can have (BAND_WEIGHT_BOUNDS has no count cap)
+    VSPINT   cap_nb   = layers ? max_band : n ;
 
     VSP_ASSERT(X->point->ind_frac == EMPTY && Y->point->ind_frac == EMPTY) ;
 
     int nS = 0 ;
     for(i = 0 ; i < n ; i++) if(!x[i] && !y[i]) nS++ ;
-    if(nS == 0 || 2 * nS >= max_band)
+    if(nS == 0 || (layers && 2 * nS >= max_band))
     {
         Cover_Refine(X, Y, P, max_bip) ;
         return 0 ;
@@ -425,12 +481,13 @@ int Band_Refine
     B.y     = y ;
     B.c     = c ;
     B.u     = P->u ;
-    B.band  = malloc(max_band * sizeof(int)) ;
-    B.tmp   = malloc(max_band * sizeof(int)) ;
-    B.best  = malloc(max_band * sizeof(int)) ;
-    B.zs    = malloc(2 * max_band + 2) ;
-    B.zt    = malloc(2 * max_band + 2) ;
-    int *Slist = malloc(max_band * sizeof(int)) ;
+    B.flow  = flow ;
+    B.band  = malloc(cap_nb * sizeof(int)) ;
+    B.tmp   = malloc(cap_nb * sizeof(int)) ;
+    B.best  = malloc(cap_nb * sizeof(int)) ;
+    B.zs    = malloc(2 * (size_t) cap_nb + 2) ;
+    B.zt    = malloc(2 * (size_t) cap_nb + 2) ;
+    int *Slist = malloc(cap_nb * sizeof(int)) ;
     int *loc   = malloc(n * sizeof(int)) ;   // band index, -1 if not in band
     for(i = 0 ; i < n ; i++) loc[i] = -1 ;
 
@@ -441,11 +498,9 @@ int Band_Refine
     {
         passes++ ;
 
-        /* === Band: S plus max_layers BFS layers into each shore =========== */
-        // Each shore gets at most half of the vertices left after S, and the
-        // total degree of the band is capped at BAND_DEG_FACTOR * max_band
-        int       nb       = 0, cnt[2] = {0, 0}, k ;
-        int       cap_side = (max_band - nS) / 2 ;
+        /* === Band: S plus BFS layers into each shore ====================== */
+        // The total degree of the band is capped at BAND_DEG_FACTOR * max_band
+        int       nb       = 0, k ;
         long long deg_sum  = 0 ;
         long long deg_cap  = (long long) BAND_DEG_FACTOR * max_band ;
 
@@ -461,31 +516,87 @@ int Band_Refine
             break ;
         }
 
-        int lo = 0, hi = nb ;
-        for(int layer = 0 ; layer < max_layers ; layer++)
+        if(layers)
         {
-            for(k = lo ; k < hi ; k++)
+            // Up to max_layers layers; each shore gets at most half of the
+            // vertices left after S. Vertices over a cap are skipped
+            int cnt[2]   = {0, 0} ;
+            int cap_side = (max_band - nS) / 2 ;
+            int lo = 0, hi = nb ;
+            for(int layer = 0 ; layer < max_layers ; layer++)
             {
-                int v = B.band[k] ;
-                for(p = Ap[v] ; p < Ap[v+1] ; p++)
+                for(k = lo ; k < hi ; k++)
                 {
-                    int w = Ai[p] ;
-                    if(loc[w] != -1) continue ;
+                    int v = B.band[k] ;
+                    for(p = Ap[v] ; p < Ap[v+1] ; p++)
+                    {
+                        int w = Ai[p] ;
+                        if(loc[w] != -1) continue ;
 
-                    int sd = SIDE(x, y, w) ;
-                    if(sd == 2 || cnt[sd] >= cap_side) continue ;
+                        int sd = SIDE(x, y, w) ;
+                        if(sd == 2 || cnt[sd] >= cap_side) continue ;
 
-                    long long dw = Ap[w+1] - Ap[w] ;
-                    if(deg_sum + dw > deg_cap) continue ;
+                        long long dw = Ap[w+1] - Ap[w] ;
+                        if(deg_sum + dw > deg_cap) continue ;
 
-                    loc[w]       = nb ;
-                    B.band[nb++] = w ;
-                    cnt[sd]++ ;
-                    deg_sum     += dw ;
+                        loc[w]       = nb ;
+                        B.band[nb++] = w ;
+                        cnt[sd]++ ;
+                        deg_sum     += dw ;
+                    }
                 }
+                lo = hi ;
+                hi = nb ;
             }
-            lo = hi ;
-            hi = nb ;
+        }
+        else
+        {
+            // One BFS into X and one into Y, run together layer by layer (no
+            // X-Y edges, so each side is its own BFS). The X side stops for
+            // good at the first vertex that would make c(A cap X) exceed
+            // u - c(Y) - c(S), the Y side likewise; a bound <= 0 gives that
+            // side nothing. Both stop once the total degree would exceed the
+            // cap
+            band_cap wS      = (band_cap) tot - X->weight - Y->weight ;
+            band_cap bnd[2]  = {(band_cap) P->u - Y->weight - wS,
+                                (band_cap) P->u - X->weight - wS} ;
+            band_cap add[2]  = {0, 0} ;
+            bool     stop[2] = {bnd[0] <= 0, bnd[1] <= 0} ;
+            int lo = 0, hi = nb ;
+            while(lo < hi && !(stop[0] && stop[1]))
+            {
+                for(k = lo ; k < hi && !(stop[0] && stop[1]) ; k++)
+                {
+                    int v = B.band[k] ;
+                    for(p = Ap[v] ; p < Ap[v+1] ; p++)
+                    {
+                        int w = Ai[p] ;
+                        if(loc[w] != -1) continue ;
+
+                        int sd = SIDE(x, y, w) ;
+                        if(sd == 2 || stop[sd]) continue ;
+                        if(add[sd] + c[w] > bnd[sd])
+                        {
+                            stop[sd] = true ;
+                            continue ;
+                        }
+
+                        long long dw = Ap[w+1] - Ap[w] ;
+                        if(deg_sum + dw > deg_cap)
+                        {
+                            stop[0] = stop[1] = true ;
+                            break ;
+                        }
+
+                        loc[w]       = nb ;
+                        B.band[nb++] = w ;
+                        add[sd]     += c[w] ;
+                        deg_sum     += dw ;
+                    }
+                }
+                lo = hi ;
+                hi = nb ;
+            }
         }
         B.nb = nb ;
 
@@ -554,7 +665,7 @@ int Band_Refine
         // The new separator lies in the band
         nS = 0 ;
         for(k = 0 ; k < nb ; k++) if(B.best[k] == 2) Slist[nS++] = B.band[k] ;
-        if(nS == 0 || 2 * nS >= max_band) break ;
+        if(nS == 0 || (layers && 2 * nS >= max_band)) break ;
     }
 
     free(B.band) ;

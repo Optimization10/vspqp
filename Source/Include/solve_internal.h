@@ -84,7 +84,7 @@ int Cover_Refine(State *X, State *Y, Problem *P, VSPINT max_bip) ;
 int Band_Refine
 (
     State *X, State *Y, Problem *P, VSPINT max_bip, VSPINT max_passes,
-    VSPINT max_layers
+    VSPINT max_layers, band_select_type select, band_flow_type flow
 ) ;
 
 /*----------------------------------------------------------------------------*/

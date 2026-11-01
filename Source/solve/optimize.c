@@ -203,7 +203,8 @@ void Optimize
         Band_Refine
         (
             X, Y, problem, 8*sqrt(problem->graph->total_vtx_cost),
-            options->band_passes, options->band_layers
+            options->band_passes, options->band_layers,
+            options->band_select, options->band_flow
         ) ;
     }
     Greedy_Flips(X, Y, problem, 9, (problem->level <= 2), false);
