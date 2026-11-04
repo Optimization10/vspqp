@@ -57,7 +57,7 @@ void Timer_Flush(VSPINT level)
     {
         if (counts[i] > 0)
             fprintf(fp, "%s,%d,%s,%.6f,%d,%.6f\n",
-                    G_Current_Problem_Name, level, timer_names[i],
+                    G_Current_Problem_Name, (int) level, timer_names[i],
                     timings[i], counts[i], timings[i] / counts[i]);
     }
     Timer_Reset();

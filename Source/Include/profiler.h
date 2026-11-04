@@ -20,6 +20,6 @@ extern int counts[T_COUNT];
     counts[id]++; \
 } while(0)
 
-void Timer_Flush(int level) ;
+void Timer_Flush(VSPINT level) ;
 
 #endif

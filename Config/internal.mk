@@ -39,6 +39,15 @@ CFLAGS += -MMD -MP
 LIBS = -lm
 
 # =============================================================================
+# igraph (max flow for the band refinement)
+# =============================================================================
+# Static igraph build: IGRAPH_PREFIX/include/igraph and IGRAPH_PREFIX/lib.
+# Override in user_config.mk (or on the make command line) for another install.
+IGRAPH_PREFIX ?= $(VSPATH)/External/igraph
+CFLAGS += -I$(IGRAPH_PREFIX)/include/igraph
+LIBS := -L$(IGRAPH_PREFIX)/lib -ligraph -lstdc++ $(LIBS)
+
+# =============================================================================
 # Debug or Release Version
 # =============================================================================
 ifeq ($(VERSION),debug)

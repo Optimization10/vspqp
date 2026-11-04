@@ -496,6 +496,11 @@ int main(int argc, char** argv)
     options->use_FM_subspace_grad_proj = FALSE ;
     options->noFM = 0.2 ;
 
+    options->band_max_level  = 0 ;            // band refinement on level 0 only (-1: off)
+    options->band_passes     = 3 ;            // at most 3 improving band moves per call
+    options->band_flow       = BAND_IGRAPH ;  // or BAND_EDMONDS_KARP (same separators, slower)
+    options->band_deg_factor = 256 ;          // degree cap 256 sqrt(n) on level 0
+
     /* Branched coarsening */
     options->branch_seed         = seed ;  // the seed sets the branches' orders
     options->branch_permute_once = false ;  // true: random order on the

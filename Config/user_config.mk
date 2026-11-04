@@ -40,10 +40,10 @@ VSPFLOAT = double
 
 # ---- Used only if MKL is disabled and LONG is not true ----------------------
 VSPINT = int
-# VSPINT = long long int
+# VSPINT = "long long int"
 
 VSPLONG = int
-# VSPLONG = long long int
+# VSPLONG = "long long int"
 
 #------------------------------------------------------------------------------
 # Enable or disable extra compiler warnings

@@ -87,7 +87,7 @@ void VSP_Grad_Proj
     VSPINT     u,
     VSPINT     n,
     VSPFLOAT   gamma,
-    VSPINT     ngp
+    int        ngp
 ) ;
 
 // Only use this when the subproblem is much smaller than original problem

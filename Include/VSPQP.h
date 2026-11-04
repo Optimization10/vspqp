@@ -65,6 +65,15 @@ typedef enum FM_sides_enum
     FM_TWO_THEN_ONE_SIDED
 } FM_sides_type ;
 
+// Max flow used by Band_Refine: Edmonds-Karp (one BFS per augmenting path, as
+// in Min_Weighted_Vtx_Cover), or igraph's push-relabel (igraph_maxflow). Both
+// give the same separator; only the time differs.
+typedef enum band_flow_enum
+{
+    BAND_EDMONDS_KARP,
+    BAND_IGRAPH
+} band_flow_type ;
+
 typedef struct Options_struct
 {
     /* Initial guess */
@@ -185,6 +194,23 @@ typedef struct Options_struct
     // Hub removal
     /* ====================================================================== */
     double hub_treshold ;
+
+    /* ====================================================================== */
+    // Band refinement
+    /* ====================================================================== */
+    // Optimize runs Band_Refine (a minimum cut on the separator plus one BFS
+    // into each shore, stopped by the weight bounds u - c(Y) - c(S) and
+    // u - c(X) - c(S) of Sanders and Schulz) before its first greedy flips, on
+    // levels at most band_max_level. EMPTY turns it off. Each call makes at
+    // most band_passes improving moves. band_flow chooses the max flow (see
+    // band_flow_type). band_deg_factor sets the degree cap: the total degree
+    // of the band, separator included, is at most
+    // band_deg_factor * sqrt(total vertex weight) (= sqrt(n) on level 0); the
+    // band is skipped if the separator alone exceeds it.
+    VSPINT band_max_level ;
+    VSPINT band_passes ;
+    band_flow_type band_flow ;
+    double band_deg_factor ;
 
     /* ====================================================================== */
     // Branched coarsening (VSP_Solve_2 only)

@@ -364,7 +364,7 @@ static void set_bisection_initial_guess
     VSPINT  *c    = problem->graph->c ;
     VSPINT  *Ai   = problem->graph->Ai ;
     VSPINT  *Ae   = problem->graph->Ae ;
-    VSPINT  *part = malloc(n * sizeof(*part)) ;
+    int     *part = malloc(n * sizeof(*part)) ;
     VSPINT  *x    = X->point->int_part ;
     VSPINT  *y    = Y->point->int_part ;
     VSPLONG *Ap   = problem->graph->Ap ;

@@ -544,6 +544,14 @@ void set_default_options(Options *options)
     options-> hub_treshold = 0.5 ;
 
     /* ====================================================================== */
+    // Band refinement
+    /* ====================================================================== */
+    options->band_max_level  = 0 ;
+    options->band_passes     = 3 ;
+    options->band_flow       = BAND_IGRAPH ;
+    options->band_deg_factor = 256 ;
+
+    /* ====================================================================== */
     // Branched coarsening (VSP_Solve_2 only)
     /* ====================================================================== */
     options->branch_shared_levels = 4 ;
@@ -586,6 +594,16 @@ static const char *FM_sides_to_str(FM_sides_type s)
         case FM_TWO_SIDED:            return "two-sided" ;
         case FM_ONE_SIDED:            return "one-sided" ;
         case FM_TWO_THEN_ONE_SIDED:   return "two-sided-then-one-sided" ;
+        default:                      return "unknown";
+    }
+}
+
+static const char *band_flow_to_str(band_flow_type s)
+{
+    switch (s)
+    {
+        case BAND_EDMONDS_KARP:       return "edmonds-karp" ;
+        case BAND_IGRAPH:             return "igraph" ;
         default:                      return "unknown";
     }
 }
@@ -674,6 +692,13 @@ void Print_Options(const Options *opts, const char *path)
     /* hub removal */
     fprintf(f, "Hub removal\n") ;
     fprintf(f, "  hub_treshold                   = %f\n",   opts->hub_treshold ) ;
+
+    /* Band refinement */
+    fprintf(f, "Band refinement\n") ;
+    fprintf(f, "  band_max_level                 = %lld\n", PRI(opts->band_max_level)) ;
+    fprintf(f, "  band_passes                    = %lld\n", PRI(opts->band_passes)) ;
+    fprintf(f, "  band_flow                      = %s\n",   band_flow_to_str(opts->band_flow)) ;
+    fprintf(f, "  band_deg_factor                = %f\n",   opts->band_deg_factor) ;
 
     /* Branched coarsening */
     fprintf(f, "Branched coarsening (VSP_Solve_2 only)\n") ;
