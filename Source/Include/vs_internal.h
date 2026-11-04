@@ -1114,7 +1114,7 @@ static CSC *CSC_Transpose (const CSC *A) ;
 
 static CSC *CSC_Extract_Bipartite_Graph
 (
-    VSINT              *part,
+    int                *part,
     CSC                    *A,
     VSINT **localBipLabelRet
 ) ;
@@ -1211,7 +1211,7 @@ static void Check_Matching_Size_Against_Cover_Size
 
 static void Separator_Check
 (
-    VSINT *part, // entries are 0, 1, 2. Part 2 is candidate separator
+    int   *part, // entries are 0, 1, 2. Part 2 is candidate separator
     CSC       *A  // Adjacency matrix
 ) ;
 

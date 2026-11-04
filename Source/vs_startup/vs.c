@@ -7584,7 +7584,7 @@ static CSC *CSC_Transpose (const CSC *A)
 // of the partition, and the columns are the 1-vertices
 static CSC *CSC_Extract_Bipartite_Graph
 (
-    VSINT              *part,
+    int                *part,
     CSC                    *A,
     VSINT **localBipLabelRet
 )
@@ -8243,7 +8243,7 @@ static void Check_Matching_Size_Against_Cover_Size
 // Silent if the partition is a separator
 static void Separator_Check
 (
-    VSINT *part, // entries are 0, 1, 2. Part 2 is candidate separator
+    int   *part, // entries are 0, 1, 2. Part 2 is candidate separator
     CSC       *A  // Adjacency matrix
 )
 {
