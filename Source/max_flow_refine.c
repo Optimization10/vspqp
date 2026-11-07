@@ -1,8 +1,28 @@
 #include "core.h"
 #include <math.h>
+#include "igraph.h"
+#include "igraph_constants.h"
+#include "igraph_flow.h"
 
 #define OTHER_SIDE(i) (1 - (i))
-#define VSP_INF INFINITY
+
+#define INF_CAPACITY (gamma)
+// We change the capacity of the infinite-capacity edges to gamma, because
+// at the finest level, the network has unit capacities for every edge, and
+// some algorithms run faster in this setting
+// We can do this because this change to the capacities does not alter the
+// set of feasible flows, (and hence does not alter the objective either).
+// Consider the network with infinite edge capacities. Edges fall two four
+// categories:
+// 1) Edges whose endpoints are v_in for some vertex v of the original graph -
+//    since any v_in has just one outgoing edge (to v_out) with capacity
+//    <= gamma, no edge going into a v_in can carry more than gamma flow
+// 2) Edges whose endpoints are t - these edges start at some v_out,
+//    an the only incoming edge to v_out is some v_in. And edges of the form
+//    (v_in, v_out) have capacity <= gamma. Hence, at most gamma flow
+//    can come out of a v_out, so at most gamma flow can go along each edge
+//    ending at t
+
 
 // Gives 0, 1, or 2 if i is in side 0 (X side), side 1 (Y side), or separator
 #define SIDE(i, sides) (2 - 2*(sides[0])[i] -  (sides[1])[i])
@@ -164,6 +184,7 @@ static void Generate_Max_Flow_Graph
     VSPLONG *Ap,
     VSPINT   n,
     VSPINT  *c,
+    VSPINT   gamma,
 
     // The set A and the partition (X, S, Y)
     VSPINT  *Adense,
@@ -224,7 +245,7 @@ static void Generate_Max_Flow_Graph
         {
             Fp[1]++ ;
             Fi[t]   = 2*k+1 ;
-            Fx[t++] = VSP_INF ;
+            Fx[t++] = INF_CAPACITY ;
         }
 
         // The arc (2k+2, t) is written in the second walk
@@ -261,7 +282,7 @@ static void Generate_Max_Flow_Graph
                 // u corresponds to 2*u+1 and 2*u+2
                 // Make the arc (2k+2, 2u+1)
                 Fi[t]   = 2*u + 1 ;
-                Fx[t++] = VSP_INF ;
+                Fx[t++] = INF_CAPACITY ;
             }
             else if(SIDE(j, sides) == 1) to_t = TRUE ;
         }
@@ -271,7 +292,7 @@ static void Generate_Max_Flow_Graph
         if(to_t)
         {
             Fi[t]   = M - 1 ;
-            Fx[t++] = VSP_INF ;
+            Fx[t++] = INF_CAPACITY ;
         }
     }
 
@@ -281,6 +302,79 @@ static void Generate_Max_Flow_Graph
     return ;
 }
 
+static void Get_Partition
+(
+    // The Network
+    VSPINT  *Fi,
+    VSPINT  *Fx,
+    VSPLONG *Fp,
+    VSPINT   vF,  // number of vertices in F
+    int     *part,
+    VSPINT   seed, // start the BFS here   
+    VSPINT   seed_part_num
+)
+{
+        
+}
+
+static void Get_Max_Flow
+(
+    // The Network
+    VSPINT  *Fi,
+    VSPINT  *Fx,
+    VSPLONG *Fp,
+    VSPINT   vF,  // number of vertices in F
+    int     *part
+)
+{
+    VSPINT i, j ;
+    VSPLONG p, end ;
+    VSPINT eF = Fp[vF] ; // number of edges in F
+
+    // ========================================================================
+    // Store the network edges and edge capacities in an igraph vector
+    // ========================================================================
+    igraph_vector_int_t edges ;
+    igraph_vector_t capacities ;
+
+    // Each edge is stored by its start and end points. So we need space for
+    // twice the number of edges
+    igraph_vector_int_init(&edges, 2*eF) ;
+    igraph_vector_init(&capacities, eF) ; // one capacity per edge
+
+    for(i = 0 ; i < vF ; i++)
+    {
+        end = Fp[i+1] ;
+        for(p = Fp[i] ; p < end ; p++)
+        {
+            j = Fi[p] ;
+            VECTOR(edges)[2*p]     = i ;
+            VECTOR(edges)[2*p + 1] = j ;
+            VECTOR(capacities)[p]  = Fx[p] ;
+        }
+    }
+
+    // ========================================================================
+    // Create an igraph network
+    // ========================================================================
+    igraph_t F ;
+    igraph_create(&F, &edges, vF, IGRAPH_DIRECTED) ;
+
+
+    // ========================================================================
+    // Get the optimal flow
+    // ========================================================================
+    igraph_vector_t flow ;
+    igraph_vector_init(&flow, eF) ; // one flow per edge
+    igraph_maxflow
+    (&F, NULL, &flow, NULL, NULL, NULL, 0, vF - 1,  &capacities, NULL) ;
+
+    // ========================================================================
+    // Get the the two extreme separators; one with the smallest s side,
+    // and the other with the smallest t side
+    // ========================================================================
+
+}
 
 void Max_Flow_Refine
 (
@@ -298,6 +392,7 @@ void Max_Flow_Refine
                          problem->graph->total_vtx_cost -X->weight -Y->weight} ;
     VSPINT   u        = problem->u ;
     VSPINT  *c        = problem->graph->c ;
+    VSPINT   gamma    = problem->graph->max_vtx_cost ;
     
     VSPINT   deg_budget = 256 * sqrt(n) ;
     VSPINT  *Adense     = malloc(n * sizeof(*Adense)) ;
@@ -318,7 +413,7 @@ void Max_Flow_Refine
 
         // Get the flow graph corresponding to the area
         Generate_Max_Flow_Graph
-        (Ai, Ap, n, c, Adense, Asparse, numA, sides, Fi, Fx, Fp) ;
+        (Ai, Ap, n, c, gamma, Adense, Asparse, numA, sides, Fi, Fx, Fp) ;
         M = 2*numA + 2 ; // number of vertices in s-t flow graph
 
         // Construct the residual network of the final flow

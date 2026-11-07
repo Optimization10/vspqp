@@ -2362,7 +2362,7 @@ void compute_weight(Point *Z, VSPINT *weight_z, VSPINT *c) {
                  before typecasting */
         weight += lround(weight_frac_part) ;
         #ifdef DEBUG
-            if( fabs(weight_frac_part - round(weight_frac_part)) > ZERO ) {
+            if( fabs(weight_frac_part - round(weight_frac_part)) > VSP_ZERO ) {
                 Error("Error with weight", DBG_INFO) ;
             }
         #endif
@@ -2608,7 +2608,7 @@ VSPFLOAT compute_obj
         if(n < 200) {
             VSPFLOAT obj_val_dbg ;
             obj_val_dbg = compute_objective_0(X, Y, problem, gamma) ;
-            if( fabs(obj_val - obj_val_dbg) > ZERO )
+            if( fabs(obj_val - obj_val_dbg) > VSP_ZERO )
             {
                 Error("Error in computing objective", DBG_INFO) ;
             }

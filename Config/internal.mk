@@ -31,12 +31,14 @@ WARNINGS = -W -Wall -pedantic -Wmissing-prototypes \
 	-Winline -Wstrict-prototypes -Wno-unknown-pragmas
 endif
 
-CFLAGS += -g3 $(WARNINGS) -I$(VSPATH)/Include -I$(VSPATH)/Source/Include
+CFLAGS += -g3 $(WARNINGS) -I$(VSPATH)/Include -I$(VSPATH)/Source/Include \
+          -I$(VSPATH)/External/igraph/include
+
 
 # Used to handle dependency of object files on headers
 CFLAGS += -MMD -MP
 
-LIBS = -lm
+LIBS = -L$(VSPATH)/External/igraph/lib -ligraph -lstdc++ -lm
 
 # =============================================================================
 # Debug or Release Version

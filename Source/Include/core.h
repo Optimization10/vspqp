@@ -25,7 +25,7 @@
 #define TRUE    1
 #define FALSE   0
 
-#define ZERO        1E-6
+#define VSP_ZERO    1E-6
 #define ZERO_PLUS   1E-6
 #define ZERO_MINUS -(ZERO_PLUS)
 
