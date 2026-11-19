@@ -455,10 +455,11 @@ static void Apply_Flow_Refinement
     VSPINT   vF,   // numver of vertices
     VSPINT   gamma,
     igraph_vector_t flow,
-    VSPINT  *c // TODO: for vertex i in F, c[i] should be its cost
+    VSPINT *Rdense,
+    VSPINT  *c // cost vector of the original graph
 )
 {
-    VSPINT p, q, vR, i, k, M, j, v_in, v_out, u, v, f ;
+    VSPINT p, q, vR, i, k, M, j, v_in, v_out, u_in, u, v, f ;
     VSPLONG *Rp, *ptrs ;
     VSPLONG t, end ;
     VSPINT *Ri, *Rx ;
@@ -475,7 +476,7 @@ static void Apply_Flow_Refinement
     // Account for neighbors of p. For any arc (p, i), i gets another
     // outgoing arc in the residual graph
     Rp = calloc(vF, sizeof(*Rp)) ;
-    for(p = Fp[0] ; p < Fp[1] ; p++) Rp[ Fi[p]+1 ]++ ;
+    for(t = Fp[0] ; t < Fp[1] ; t++) Rp[ Fi[t]+1 ]++ ;
 
 
     for(i = 1 ; i < vR - 1 ; i++)
@@ -484,9 +485,9 @@ static void Apply_Flow_Refinement
         Rp[i+1] += Fp[i+1] - Fp[i] + (i % 2 == 0) ;
 
         // Count arcs going towards q
-        for(p = Fp[i+1] ; p < Fp[i] ; p++)
+        for(t = Fp[i+1] ; t < Fp[i] ; t++)
         {
-            if(Fi[p] == vR - 1) Rp[vF]++ ;
+            if(Fi[t] == vR - 1) Rp[vF]++ ;
         }
     }
     for(i = 0 ; i < vR + 1; i++) Rp[i] += Rp[i-1] ; // accumulate Rp
@@ -495,38 +496,11 @@ static void Apply_Flow_Refinement
     // ptrs[i] is initialized as the starting Ri-index of the adjacency list
     // of vertex i
     Ri   = malloc(Rp[vF] * sizeof(*Ri)) ;
-    Rx   = calloc(Rx[vF],  sizeof(*Rx)) ;
+    Rx   = malloc(Rx[vF] *  sizeof(*Rx)) ;
     ptrs = malloc(vR * sizeof(*ptrs)) ;
     for(i = 0 ; i < vR ; i++) ptrs[i] = Rp[i+1] ;
 
-    // // Write arcs going towards p
-    // for(p = Fp[0] ; p < Fp[1] ; p++)
-    // {
-    //     j = Fi[p] ;
-    //     Ri[ptrs[j]] = 0 ;
-    //     Rx[ptrs[j]++] = INF_CAPACITY ;
-    // }
-
-    // for(i = 1 ; i < vR - 1 ; i++)
-    // {
-    //     // If i is a v_in node
-    //     if(i % 2 == 1)
-
-    //     // Write all the arcs going out from i
-    //     for(p = Fp[i] ; p < Fp[i+1] ; i++)
-    //     {
-    //         j = Fi[p] ;
-    //         Ri[ ptrs[i] ] = j ;
-    //         // Rx[ ptrs[i] ] += 
-    //     }
-    // }
-
-
-
-    // (3) arcs of the form (p, v_in) in F become arcs
-    //     (p, v_in, infinity) and (v_in, p, flow(p, v_in))
-    // Loop through the arcs (p, v_in)
-    p = 0 ;
+    /* --- (1) arcs of the form (p, v_in) ----------------------------------- */
     for(t = Fp[p] ; t < Fp[p+1] ; t++)
     {
         v_in = Fi[p] ; // t is the index in F of the edge (p, v_in)
@@ -548,15 +522,15 @@ static void Apply_Flow_Refinement
         {
             j = Fi[t] ;
 
-            /* --- if (i, j) = (v_in, v_out) -------------------------------- */
-            if(j == i + 1)
+            /* --- (2) if (i, j) = (v_in, v_out) ---------------------------- */
+            if( (i % 2) && j == i + 1)
             {
                 v_in  = i ;
                 v_out = j ;
                 
                 // Add arc (v_in, v_out, c_v - flow(v_in, v_out))
                 Ri[ptrs[v_in]  ] = v_out ;
-                Rx[ptrs[v_in]++] = c[v] - VECTOR(flow)[t]  ;
+                Rx[ptrs[v_in]++] = c[ Rdense[(i-1) / 2] ] - VECTOR(flow)[t]  ;
 
                 // Add arc (v_out, v_in, flow(v_in, v_out)) 
                 Ri[ptrs[v_out]  ] = v_in ;
@@ -564,7 +538,7 @@ static void Apply_Flow_Refinement
                 continue ;
             }
 
-            /* --- if (i, j) = (v_out, q) ----------------------------------- */
+            /* --- (3) if (i, j) = (v_out, q) ------------------------------- */
             if(j == q)
             {
                 v_out = j ;
@@ -576,15 +550,140 @@ static void Apply_Flow_Refinement
                 // Add arc (q, v_out, f(v_out, q))
                 Ri[ptrs[q]  ] = v_out ;
                 Rx[ptrs[q]++] = VECTOR(flow)[t] ;
+                continue ;
             }
+
+            /* --- (4) if (i, j) = (v_out, u_in) ---------------------------- */
+            v_out = i ;
+            u_in = j ;
+
+            // Add arc (v_out, u_in, infty)
+            Ri[ptrs[v_out]  ] = u_in ;
+            Rx[ptrs[v_out]++] = INF_CAPACITY  ;
+
+            // Add arc (u_in, v_out, flow(v_out, u_in) )
+            Ri[ptrs[u_in]  ] = v_out ;
+            Rx[ptrs[u_in]++] =  VECTOR(flow)[t] ;
+        }
+    }
+
+    // ========================================================================
+    // Do a BFS from p to obtain cut1
+    // ========================================================================
+    int *cut1 = calloc(vF, sizeof(*cut1)) ;
+    cut1[0] = 1 ;
+
+    VSPINT res_flow, qstart, qend ;
+    VSPINT *queue = malloc(vF * sizeof(queue)) ;
+    
+    // initialize the queue with p
+    qstart        =  0 ;
+    qend          = -1 ;
+    queue[++qend] = p ;
+    cut1[p]       = 1 ;
+    while(qstart <= qend)
+    {
+        i = queue[qstart++] ;
+        for(t = Rp[i] ; t < Rp[i+1] ; t++)
+        {
+            // Skip neighbors with no residual flow
+            res_flow = Rx[t] ;
+            if(!res_flow || cut1[j]) continue ;
+            j = Ri[t] ;
+            queue[++qend] = j ;
+            cut1[j] = 1 ;
+        }
+    }
+
+    // ========================================================================
+    // Get the transpose of R in order to be able to follow backward arcs
+    // ========================================================================
+    // Every arc t = (i, j) of R becomes the arc (j, i) of RT, with the same
+    // capacity Rx[t]. So i can reach j in R along t iff RT has (j, i) with
+    // RTx > 0, and a BFS from q in RT finds all nodes that can reach q in R.
+    //
+    // The count of node j is stored two places ahead, in RTp[j+2]. After
+    // accumulating, RTp[j+1] is the start of the list of j, and serves as its
+    // write pointer. After the write pass, RTp[j+1] has moved to the end of
+    // the list of j, which is the start of the list of j+1. So RTp[0..vF] is
+    // the final pointer array of RT, with no separate ptrs array needed
+    VSPLONG *RTp = calloc(vF + 2, sizeof(*RTp)) ;
+    VSPINT  *RTi, *RTx ;
+
+    // Make a pass to record the number of entries per row
+    for(i = 0 ; i < vF ; i++)
+    {
+        for(t = Rp[i] ; t < Rp[i+1] ; t++)
+        {
+            j = Ri[t] ;
+            RTp[j+2]++ ;
+        }
+    }
+
+    // accumulate RTp. RTp[vF+1] is now the number of arcs of RT (= of R)
+    for(i = 1 ; i < vF + 2 ; i++) RTp[i] += RTp[i-1] ;
+    RTi = malloc(RTp[vF+1] * sizeof(*RTi)) ;
+    RTx = malloc(RTp[vF+1] * sizeof(*RTx)) ;
+
+    // Make another pass to write RTi and RTx
+    for(i = 0 ; i < vF ; i++)
+    {
+        for(t = Rp[i] ; t < Rp[i+1] ; t++)
+        {
+            j = Ri[t] ;
+            RTi[ RTp[j+1]   ] = i ;
+            RTx[ RTp[j+1]++ ] = Rx[t] ;
+        }
+    }
+
+    // ========================================================================
+    // Do a BFS from q in RT to obtain cut2
+    // ========================================================================
+    // cut2[i] = 1 iff q is reachable from i in R, so 1 marks the q side here
+    // (in cut1, 1 marks the p side). When the BFS stands at i and follows the
+    // arc (i, j) of RT with RTx > 0, R has the arc (j, i) with positive
+    // residual capacity, so j reaches i in R, and hence reaches q
+    int *cut2 = calloc(vF, sizeof(*cut2)) ;
+
+    // initialize the queue with q (the queue of the first BFS is reused)
+    qstart        =  0 ;
+    qend          = -1 ;
+    queue[++qend] = q ;
+    cut2[q]       = 1 ;
+    while(qstart <= qend)
+    {
+        i = queue[qstart++] ;
+        for(t = RTp[i] ; t < RTp[i+1] ; t++)
+        {
+            // Skip arcs with no residual flow, and nodes already visited
+            j = RTi[t] ;
+            res_flow = RTx[t] ;
+            if(!res_flow || cut2[j]) continue ;
+            queue[++qend] = j ;
+            cut2[j] = 1 ;
         }
     }
 
 
-    // (4) arcs of the form (v_out, q) in F become
-    //     (v_out, q, infty) and (q, v_out, flow(v_out, q))
+    // ========================================================================
+    // Figure out the cost of the shores given the separating partition P, C, Q
+    // from cut 1
+    // ========================================================================
+    // Go through the cut. For a vertex v, if both v_in and v_out, 
+    int *separation1 = malloc(vF * sizeof(*separation1)) ;
+    int *separation2 = malloc(vF * sizeof(*separation2)) ;
+
+    
 
     // Free memory
+    free(separation1) ;
+    free(separation2) ;
+    free(cut2) ;
+    free(RTp) ;
+    free(RTi) ;
+    free(RTx) ;
+    free(queue) ;
+    free(cut1) ;
     free(ptrs) ;
 }
 
