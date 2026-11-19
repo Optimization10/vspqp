@@ -3,10 +3,11 @@
 #include "igraph.h"
 #include "igraph_constants.h"
 #include "igraph_flow.h"
+#include "igraph_vector.h"
 
 #define OTHER_SIDE(i) (1 - (i))
 
-#define INF_CAPACITY (gamma)
+#define INF_CAPACITY (gamma + 1)
 // We change the capacity of the infinite-capacity edges to gamma, because
 // at the finest level, the network has unit capacities for every edge, and
 // some algorithms run faster in this setting
@@ -46,9 +47,9 @@ static VSPLONG Degree(VSPINT i, VSPLONG *Ap)
     return Ap[i+1] - Ap[i] ;
 }
 
-// Return the number of vertices in A. A return value of 0 means that
+// Return the number of vertices in R. A return value of 0 means that
 // either the separator is empty, or its degree exceeds deg_budget
-static VSPINT Get_A
+static VSPINT Get_R
 (
     VSPINT  *Ai,
     VSPLONG *Ap,
@@ -153,6 +154,8 @@ static VSPINT Get_A
     return numA ;
 }
 
+
+// Given the area A of the original graph, generate the max flow graph
 /*
 We are given a set of nodes A = (a_0, a_1, ..., a_{M-1}) 
 
@@ -176,7 +179,6 @@ whatever its side. The separator is in A, so a neighbor outside of A is
 in X or in Y
 
 */
-
 static void Generate_Max_Flow_Graph
 (
     // Original graph and vertex costs
@@ -302,29 +304,98 @@ static void Generate_Max_Flow_Graph
     return ;
 }
 
-static void Get_Partition
+
+
+static void Get_Partition_Smallest_s
 (
     // The Network
     VSPINT  *Fi,
     VSPINT  *Fx,
     VSPLONG *Fp,
     VSPINT   vF,  // number of vertices in F
-    int     *part,
-    VSPINT   seed, // start the BFS here   
-    VSPINT   seed_part_num
+
+    // BFS info
+    igraph_vector_t flow,
+
+    // Partition of A
+    int *part
 )
 {
+    VSPINT i, j ;
+    VSPLONG p, end ;
+    igraph_real_t residual_flow ;
+    VSPINT vA = (vF - 2) / 2 ; // number of vertices in A
+    VSPINT *q       = malloc(vF * sizeof(*q)) ;
+    q[0] = 0 ;
+    VSPINT start_q  = 0 ;
+    VSPINT end_q    = 0 ;
+    int    *visited = calloc(vF, sizeof(*visited)) ;
+    visited[0]   = 1 ;
+
+    // If doing the BFS from s, initially place all vertices of A onto the
+    // 1 side, which corresponds to t. If doing the BFS from t, initially place
+    // all vertices of A onto the 0 side
+
+    // Mark each node in partition 1 initially
+    for(i = 0 ; i < vA ; i++) part[i] = 1 ;
+
+
+    while(start_q <= end_q)
+    {
+        i = q[start_q++] ;
+
+        // Map i back to a vertex j of A
+        j = (i-1) / 2 ;
+        part[j] = 0 ;
+
+        // Visit the out-neighbors of i in the residual graph R
         
+        // If i is a v_in node, then its only potential out-neighbors is v_out,
+        // which is the same neighbor it has in F. This neighbor is Fi[Fp[i]]
+
+        // If i is a v_out node, then in the residual graph its potential
+        // out-neighbors are the same neighbors it has in F, plus the s node
+        // (which, even if it is an out-neighbor in the residual graph, has been
+        // visited so would be skipped anyway), plus v_in. v_in is the more
+        // difficult casel; v_in is an out-neighbor of v_out iff the flow
+        // across (v_in, v_out) is non-zero. So we need to know if this
+        // flow is non-zero in order to know all out-neighbors of v_out
+
+        
+        // If i = s, then 
+
+        // We don't have to worry about i = t because it will never be
+        // reached
+
+
+        // Place neighbors of i into the queue
+        end = Fp[i+1] ;
+        for(p = Fp[i] ; p < end ; p++)
+        {
+            j = Fi[p] ;
+
+            // Compute residual flow on edge (i, j)
+            // residual_flow
+        }
+    }
+
+
+    free(q) ;
+    free(visited) ;
 }
 
-static void Get_Max_Flow
+
+
+
+
+// Given a flow netowrk, get an optimal flow
+static igraph_vector_t Get_Max_Flow
 (
     // The Network
     VSPINT  *Fi,
     VSPINT  *Fx,
     VSPLONG *Fp,
-    VSPINT   vF,  // number of vertices in F
-    int     *part
+    VSPINT   vF   // number of vertices in F
 )
 {
     VSPINT i, j ;
@@ -368,14 +439,156 @@ static void Get_Max_Flow
     igraph_vector_init(&flow, eF) ; // one flow per edge
     igraph_maxflow
     (&F, NULL, &flow, NULL, NULL, NULL, 0, vF - 1,  &capacities, NULL) ;
-
-    // ========================================================================
-    // Get the the two extreme separators; one with the smallest s side,
-    // and the other with the smallest t side
-    // ========================================================================
-
+    return flow ;
 }
 
+// Read off the two partitions P, C, Q of R based on the flow.
+// Rpart1 contains the partition with smallest P. It is obtained by setting P
+// to be all vertices reacheable from p in the residual graph
+// Rpart2 contains the partition with smallest Q. The Q consists of all vertices
+// from which q is reacheable in the residual graph
+static void Apply_Flow_Refinement
+(
+    VSPINT  *Fi,
+    VSPINT  *Fx,
+    VSPLONG *Fp,
+    VSPINT   vF,   // numver of vertices
+    VSPINT   gamma,
+    igraph_vector_t flow,
+    VSPINT  *c // TODO: for vertex i in F, c[i] should be its cost
+)
+{
+    VSPINT p, q, vR, i, k, M, j, v_in, v_out, u, v, f ;
+    VSPLONG *Rp, *ptrs ;
+    VSPLONG t, end ;
+    VSPINT *Ri, *Rx ;
+    p = 0 ;
+    q = vF-1 ;
+
+    // ========================================================================
+    // Build the residual graph (TODO: allocate this memory only once, before)
+    // ========================================================================
+    vR = vF ;
+
+    /* --- Build Rp array --------------------------------------------------- */
+    // First, store the number of neighbors of vertex i in Rp[i+1]
+    // Account for neighbors of p. For any arc (p, i), i gets another
+    // outgoing arc in the residual graph
+    Rp = calloc(vF, sizeof(*Rp)) ;
+    for(p = Fp[0] ; p < Fp[1] ; p++) Rp[ Fi[p]+1 ]++ ;
+
+
+    for(i = 1 ; i < vR - 1 ; i++)
+    {
+        // Even nodes not in {p, q} get an additional residual arc
+        Rp[i+1] += Fp[i+1] - Fp[i] + (i % 2 == 0) ;
+
+        // Count arcs going towards q
+        for(p = Fp[i+1] ; p < Fp[i] ; p++)
+        {
+            if(Fi[p] == vR - 1) Rp[vF]++ ;
+        }
+    }
+    for(i = 0 ; i < vR + 1; i++) Rp[i] += Rp[i-1] ; // accumulate Rp
+
+    /* --- Build Ri and Rx arrays ------------------------------------------- */
+    // ptrs[i] is initialized as the starting Ri-index of the adjacency list
+    // of vertex i
+    Ri   = malloc(Rp[vF] * sizeof(*Ri)) ;
+    Rx   = calloc(Rx[vF],  sizeof(*Rx)) ;
+    ptrs = malloc(vR * sizeof(*ptrs)) ;
+    for(i = 0 ; i < vR ; i++) ptrs[i] = Rp[i+1] ;
+
+    // // Write arcs going towards p
+    // for(p = Fp[0] ; p < Fp[1] ; p++)
+    // {
+    //     j = Fi[p] ;
+    //     Ri[ptrs[j]] = 0 ;
+    //     Rx[ptrs[j]++] = INF_CAPACITY ;
+    // }
+
+    // for(i = 1 ; i < vR - 1 ; i++)
+    // {
+    //     // If i is a v_in node
+    //     if(i % 2 == 1)
+
+    //     // Write all the arcs going out from i
+    //     for(p = Fp[i] ; p < Fp[i+1] ; i++)
+    //     {
+    //         j = Fi[p] ;
+    //         Ri[ ptrs[i] ] = j ;
+    //         // Rx[ ptrs[i] ] += 
+    //     }
+    // }
+
+
+
+    // (3) arcs of the form (p, v_in) in F become arcs
+    //     (p, v_in, infinity) and (v_in, p, flow(p, v_in))
+    // Loop through the arcs (p, v_in)
+    p = 0 ;
+    for(t = Fp[p] ; t < Fp[p+1] ; t++)
+    {
+        v_in = Fi[p] ; // t is the index in F of the edge (p, v_in)
+
+        // Add the arc (p, v_in, infinity)
+        Ri[ ptrs[p]   ] = v_in ;
+        Rx[ ptrs[p]++ ] = INF_CAPACITY ;
+
+        // Add the arc (v_in, p, flow(p, v_in))
+        f = VECTOR(flow)[t] ;
+        Ri[ ptrs[v_in]   ] = p ;
+        Rx[ ptrs[v_in]++ ] = f ;
+    }
+
+    // Loop through the arcs of F
+    for(i = 1 ; i < vF ; i++)
+    {
+        for(t = Fp[i] ; Fp[i+1] ; t++)
+        {
+            j = Fi[t] ;
+
+            /* --- if (i, j) = (v_in, v_out) -------------------------------- */
+            if(j == i + 1)
+            {
+                v_in  = i ;
+                v_out = j ;
+                
+                // Add arc (v_in, v_out, c_v - flow(v_in, v_out))
+                Ri[ptrs[v_in]  ] = v_out ;
+                Rx[ptrs[v_in]++] = c[v] - VECTOR(flow)[t]  ;
+
+                // Add arc (v_out, v_in, flow(v_in, v_out)) 
+                Ri[ptrs[v_out]  ] = v_in ;
+                Rx[ptrs[v_out]++] = VECTOR(flow)[t] ;
+                continue ;
+            }
+
+            /* --- if (i, j) = (v_out, q) ----------------------------------- */
+            if(j == q)
+            {
+                v_out = j ;
+
+                // Add arc (v_out, q, infty)
+                Ri[ptrs[v_out]  ] = q ;
+                Rx[ptrs[v_out]++] = INF_CAPACITY  ;
+
+                // Add arc (q, v_out, f(v_out, q))
+                Ri[ptrs[q]  ] = v_out ;
+                Rx[ptrs[q]++] = VECTOR(flow)[t] ;
+            }
+        }
+    }
+
+
+    // (4) arcs of the form (v_out, q) in F become
+    //     (v_out, q, infty) and (q, v_out, flow(v_out, q))
+
+    // Free memory
+    free(ptrs) ;
+}
+
+// Refine the partition represented by X and Y
 void Max_Flow_Refine
 (
     State   *X,
@@ -383,7 +596,8 @@ void Max_Flow_Refine
     Problem *problem
 )
 {
-    VSPINT numA, M, i ;
+    igraph_vector_t flow ;
+    VSPINT numA, vF, i ;
     VSPINT  *Ai       = problem->graph->Ai ;
     VSPLONG *Ap       = problem->graph->Ap ;
     VSPINT   n        = problem->graph->n ;
@@ -403,20 +617,27 @@ void Max_Flow_Refine
     VSPINT  *Fx = malloc( (2 * Ap[n] + 2) * sizeof(*Fx)) ;
     VSPLONG *Fp = malloc( (2 * n + 3) * sizeof(*Fp)) ;
 
+    int *Rpart1  = malloc(n * sizeof(*Rpart1)) ;
+    int *Rpart2  = malloc(n * sizeof(*Rpart2)) ;
+
 
     for(int num_its = 0 ; num_its < 3 ; num_its++)
     {
         // Get the area A. Quit if no area
-        numA = Get_A(Ai, Ap, n, u, c, sides, wgts, deg_budget, Adense, Asparse);
+        numA = Get_R(Ai, Ap, n, u, c, sides, wgts, deg_budget, Adense, Asparse);
         if(numA == 0) break ;
         
 
         // Get the flow graph corresponding to the area
         Generate_Max_Flow_Graph
         (Ai, Ap, n, c, gamma, Adense, Asparse, numA, sides, Fi, Fx, Fp) ;
-        M = 2*numA + 2 ; // number of vertices in s-t flow graph
+        vF = 2*numA + 2 ; // number of vertices in s-t flow graph
 
-        // Construct the residual network of the final flow
+        // Get the max flow
+        flow = Get_Max_Flow(Fi, Fx, Fp, vF) ;
+
+        // Read off the partition of R off the residual network
+
 
         // Read off the two extreme min cuts from the residual 
     }
@@ -427,4 +648,6 @@ void Max_Flow_Refine
     free(Fp) ;
     free(Adense) ;
     free(Asparse) ;
+    free(Rpart1) ;
+    free(Rpart2) ;
 }
