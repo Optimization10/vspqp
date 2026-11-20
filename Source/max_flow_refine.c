@@ -452,11 +452,13 @@ static void Apply_Flow_Refinement
     VSPINT  *Fi,
     VSPINT  *Fx,
     VSPLONG *Fp,
-    VSPINT   vF,   // numver of vertices
+    VSPINT   vF,   // numver of vertices in F
     VSPINT   gamma,
     igraph_vector_t flow,
     VSPINT *Rdense,
-    VSPINT  *c // cost vector of the original graph
+    VSPINT  *c, // cost vector of the original graph
+    VSPINT   cost_p, // cost of X \ R
+    VSPINT   cost_q  // cost of Y \ R
 )
 {
     VSPINT p, q, vR, i, k, M, j, v_in, v_out, u_in, u, v, f ;
@@ -570,6 +572,9 @@ static void Apply_Flow_Refinement
     // ========================================================================
     // Do a BFS from p to obtain cut1
     // ========================================================================
+    // In cut1:
+    // 1 -- P hat
+    // 0 -- Q hat
     int *cut1 = calloc(vF, sizeof(*cut1)) ;
     cut1[0] = 1 ;
 
@@ -643,6 +648,10 @@ static void Apply_Flow_Refinement
     // (in cut1, 1 marks the p side). When the BFS stands at i and follows the
     // arc (i, j) of RT with RTx > 0, R has the arc (j, i) with positive
     // residual capacity, so j reaches i in R, and hence reaches q
+
+    // In cut2:
+    // 0 -- P hat
+    // 1 -- Q hat
     int *cut2 = calloc(vF, sizeof(*cut2)) ;
 
     // initialize the queue with q (the queue of the first BFS is reused)
@@ -669,14 +678,46 @@ static void Apply_Flow_Refinement
     // Figure out the cost of the shores given the separating partition P, C, Q
     // from cut 1
     // ========================================================================
-    // Go through the cut. For a vertex v, if both v_in and v_out, 
-    int *separation1 = malloc(vF * sizeof(*separation1)) ;
+    // In separation1 array:
+    // 0 -- in P
+    // 1 -- in Q
+    // 2 -- in C
+    int *PCQ_1 = malloc(vF * sizeof(*separation1)) ;
+    PCQ_1[vF-1] = 1 ;
+    VSPINT sep1Pcost = cost_p ;
+    VSPINT sep1Qcost = cost_q ;
+    VSPINT sizeR = (vF - 2) / 2 ;
+
+    for(i = 1 ; i <= sizeR ; i++)
+    {
+        v_in  = 2*i + 1 ;
+        v_out = v_in + 1 ;
+
+        if( cut1[v_in] == 1 && cut1[v_out] == 1) // v goes in P
+        {
+            PCQ_1[i]   = 1 ;
+            sep1Pcost += c[ Rdense[i-1] ] ;
+        }
+
+
+        if( cut1[v_in] == 0)
+        {
+            
+        }
+        else if()
+
+    }
+
+
+
+
+
     int *separation2 = malloc(vF * sizeof(*separation2)) ;
 
     
 
     // Free memory
-    free(separation1) ;
+    free(PCQ_1) ;
     free(separation2) ;
     free(cut2) ;
     free(RTp) ;
