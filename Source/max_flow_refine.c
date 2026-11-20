@@ -1,5 +1,7 @@
 #include "core.h"
+#include "utils.h"
 #include <math.h>
+#include <stdlib.h>
 #include "igraph.h"
 #include "igraph_constants.h"
 #include "igraph_flow.h"
@@ -447,7 +449,8 @@ static igraph_vector_t Get_Max_Flow
 // to be all vertices reacheable from p in the residual graph
 // Rpart2 contains the partition with smallest Q. The Q consists of all vertices
 // from which q is reacheable in the residual graph
-static void Apply_Flow_Refinement
+// Returns 1 if a vertex moved (X, S, Y changed), 0 if not
+static int Apply_Flow_Refinement
 (
     VSPINT  *Fi,
     VSPINT  *Fx,
@@ -458,9 +461,14 @@ static void Apply_Flow_Refinement
     VSPINT *Rdense,
     VSPINT  *c, // cost vector of the original graph
     VSPINT   cost_p, // cost of X \ R
-    VSPINT   cost_q  // cost of Y \ R
+    VSPINT   cost_q,  // cost of Y \ R
+    State *  X,
+    State *  Y,
+    Problem *problem
 )
 {
+    SET_FUNCTION_COUNTER ;
+
     VSPINT p, q, vR, i, k, M, j, v_in, v_out, u_in, u, v, f ;
     VSPLONG *Rp, *ptrs ;
     VSPLONG t, end ;
@@ -579,7 +587,7 @@ static void Apply_Flow_Refinement
     cut1[0] = 1 ;
 
     VSPINT res_flow, qstart, qend ;
-    VSPINT *queue = malloc(vF * sizeof(queue)) ;
+    VSPINT *queue = malloc(vF * sizeof(*queue)) ;
     
     // initialize the queue with p
     qstart        =  0 ;
@@ -591,10 +599,10 @@ static void Apply_Flow_Refinement
         i = queue[qstart++] ;
         for(t = Rp[i] ; t < Rp[i+1] ; t++)
         {
-            // Skip neighbors with no residual flow
+            // Skip arcs with no residual flow, and nodes already visited
+            j = Ri[t] ;
             res_flow = Rx[t] ;
             if(!res_flow || cut1[j]) continue ;
-            j = Ri[t] ;
             queue[++qend] = j ;
             cut1[j] = 1 ;
         }
@@ -678,47 +686,149 @@ static void Apply_Flow_Refinement
     // Figure out the cost of the shores given the separating partition P, C, Q
     // from cut 1
     // ========================================================================
-    // In separation1 array:
+    // In PCQ_1 array, indexed by the position v of a vertex in R (Rdense):
     // 0 -- in P
     // 1 -- in Q
     // 2 -- in C
-    int *PCQ_1 = malloc(vF * sizeof(*separation1)) ;
-    PCQ_1[vF-1] = 1 ;
+    VSPINT sizeR = (vF - 2) / 2 ;
+    int *PCQ_1 = malloc(sizeR * sizeof(*PCQ_1)) ;
     VSPINT sep1Pcost = cost_p ;
     VSPINT sep1Qcost = cost_q ;
-    VSPINT sizeR = (vF - 2) / 2 ;
+    VSPINT sep1Ccost = 0 ;
 
     for(i = 1 ; i <= sizeR ; i++)
     {
-        v_in  = 2*i + 1 ;
+        v     = i-1 ;
+        v_in  = 2*i - 1 ;
         v_out = v_in + 1 ;
 
         if( cut1[v_in] == 1 && cut1[v_out] == 1) // v goes in P
         {
-            PCQ_1[i]   = 1 ;
-            sep1Pcost += c[ Rdense[i-1] ] ;
+            PCQ_1[v]   = 0 ;
+            sep1Pcost += c[ Rdense[v] ] ;
         }
-
-
-        if( cut1[v_in] == 0)
+        else if(cut1[v_in] == 0 && cut1[v_out] == 0) // v goes in Q
         {
-            
+            PCQ_1[v]   = 1 ;
+            sep1Qcost +=  c[ Rdense[v] ] ;
         }
-        else if()
+        else // v goes in C
+        {
+            PCQ_1[v]   = 2 ;
+            sep1Ccost +=  c[ Rdense[v] ] ;
+        }
+    }
+    VSPINT sep1imb = ABS_VAL(sep1Pcost - sep1Qcost) ;
 
+
+    // ========================================================================
+    // Figure out the cost of the shores given the separating partition P, C, Q
+    // from cut 2
+    // ========================================================================
+    // Here 1 marks the q side: v_in and v_out both reach q -> Q, neither
+    // does -> P, only v_out does -> C (only v_in reaching q is impossible)
+    //
+    // In PCQ_2 array, indexed by the position v of a vertex in R (Rdense):
+    // 0 -- in P
+    // 1 -- in Q
+    // 2 -- in C
+    int *PCQ_2 = malloc(sizeR * sizeof(*PCQ_2)) ;
+    VSPINT sep2Pcost = cost_p ;
+    VSPINT sep2Qcost = cost_q ;
+    VSPINT sep2Ccost = 0 ;
+
+    for(i = 1 ; i <= sizeR ; i++)
+    {
+        v     = i-1 ;
+        v_in  = 2*i - 1 ;
+        v_out = v_in + 1 ;
+
+        if( cut2[v_in] == 0 && cut2[v_out] == 0) // v goes in P
+        {
+            PCQ_2[v]   = 0 ;
+            sep2Pcost += c[ Rdense[v] ] ;
+        }
+        else if(cut2[v_in] == 1 && cut2[v_out] == 1) // v goes in Q
+        {
+            PCQ_2[v]   = 1 ;
+            sep2Qcost += c[ Rdense[v] ] ;
+        }
+        else // v goes in C
+        {
+            PCQ_2[v]   = 2 ;
+            sep2Ccost += c[ Rdense[v] ] ;
+        }
+    }
+    VSPINT sep2imb = ABS_VAL(sep2Pcost - sep2Qcost) ;
+
+    // ========================================================================
+    // Apply the best new separator
+    // ========================================================================
+    VSPINT original_sep_cost =   problem->graph->total_vtx_cost
+                               - X->weight - Y->weight ;
+    VSPINT original_imb = ABS_VAL(X->weight - Y->weight) ;
+
+    // A partition is feasible if both shores satisfy the upper bound u
+    int sep1feasible = (sep1Pcost <= problem->u) && (sep1Qcost <= problem->u) ;
+    int sep2feasible = (sep2Pcost <= problem->u) && (sep2Qcost <= problem->u) ;
+
+    // Take a feasible partition, if one exists. Both have the same separator
+    // cost (the value of the max flow), so if both are feasible, take the
+    // one with the smaller imbalance (partition 1 on ties)
+    int    *best_PCQ   = NULL ;
+    VSPINT  best_Ccost = 0 ;
+    VSPINT  best_imb   = 0 ;
+    if(sep1feasible && (!sep2feasible || sep1imb <= sep2imb))
+    {
+        best_PCQ   = PCQ_1 ;
+        best_Ccost = sep1Ccost ;
+        best_imb   = sep1imb ;
+    }
+    else if(sep2feasible)
+    {
+        best_PCQ   = PCQ_2 ;
+        best_Ccost = sep2Ccost ;
+        best_imb   = sep2imb ;
     }
 
+    // Determine if the separator improved. The partition taken replaces
+    // X, S, Y only if C(S') < C(S), or C(S') = C(S) and its imbalance is
+    // smaller
+    int moved = 0 ;
+    if(best_PCQ != NULL
+       && (    best_Ccost <  original_sep_cost
+           || (best_Ccost == original_sep_cost && best_imb < original_imb)))
+    {
+        // Move each vertex w of R to its new side. P joins X (side 0), Q
+        // joins Y (side 1), C goes to the separator (0 in both x and y).
+        // Vertices outside of R keep their sides. For each of x and y whose
+        // entry for w changes, update the entry, Az (add or subtract column
+        // w of A) and the weight. Like Cover_Refine, this assumes that x and
+        // y are binary (no fractional entry), so only int_part needs updating
+        VSP_ASSERT(X->point->ind_frac == EMPTY && Y->point->ind_frac == EMPTY) ;
+        State  *states[2] = {X, Y} ;
+        VSPINT *z, w, want ;
+        for(v = 0 ; v < sizeR ; v++)
+        {
+            w = Rdense[v] ;
+            for(k = 0 ; k < 2 ; k++)
+            {
+                z    = states[k]->point->int_part ;
+                want = (best_PCQ[v] == k) ;
+                if(z[w] == want) continue ;
 
-
-
-
-    int *separation2 = malloc(vF * sizeof(*separation2)) ;
-
-    
+                moved = 1 ;
+                z[w] = want ;
+                Az_pm_col_of_A
+                (states[k]->Az->int_part, w, want ? PLUS : MINUS, problem) ;
+                states[k]->weight += want ? c[w] : -c[w] ;
+            }
+        }
+    }
 
     // Free memory
     free(PCQ_1) ;
-    free(separation2) ;
+    free(PCQ_2) ;
     free(cut2) ;
     free(RTp) ;
     free(RTi) ;
@@ -726,6 +836,8 @@ static void Apply_Flow_Refinement
     free(queue) ;
     free(cut1) ;
     free(ptrs) ;
+
+    return moved ;
 }
 
 // Refine the partition represented by X and Y
@@ -737,13 +849,13 @@ void Max_Flow_Refine
 )
 {
     igraph_vector_t flow ;
-    VSPINT numA, vF, i ;
+    VSPINT numA, vF, i, v, cost_p, cost_q ;
+    int moved ;
     VSPINT  *Ai       = problem->graph->Ai ;
     VSPLONG *Ap       = problem->graph->Ap ;
     VSPINT   n        = problem->graph->n ;
     VSPINT  *sides[2] = {X->point->int_part, Y->point->int_part} ;
-    VSPINT   wgts[3]  = {X->weight, Y->weight,
-                         problem->graph->total_vtx_cost -X->weight -Y->weight} ;
+    VSPINT   wgts[3] ; // set at the start of every pass
     VSPINT   u        = problem->u ;
     VSPINT  *c        = problem->graph->c ;
     VSPINT   gamma    = problem->graph->max_vtx_cost ;
@@ -763,10 +875,15 @@ void Max_Flow_Refine
 
     for(int num_its = 0 ; num_its < 3 ; num_its++)
     {
+        // The weights change when vertices move, so refresh them every pass
+        wgts[0] = X->weight ;
+        wgts[1] = Y->weight ;
+        wgts[2] = problem->graph->total_vtx_cost - X->weight - Y->weight ;
+
         // Get the area A. Quit if no area
         numA = Get_R(Ai, Ap, n, u, c, sides, wgts, deg_budget, Adense, Asparse);
         if(numA == 0) break ;
-        
+
 
         // Get the flow graph corresponding to the area
         Generate_Max_Flow_Graph
@@ -776,10 +893,30 @@ void Max_Flow_Refine
         // Get the max flow
         flow = Get_Max_Flow(Fi, Fx, Fp, vF) ;
 
-        // Read off the partition of R off the residual network
+        // Cost of X \ A and Y \ A, which are contracted into p and q. This
+        // must be done before Apply_Flow_Refinement moves the vertices of A
+        cost_p = X->weight ;
+        cost_q = Y->weight ;
+        for(i = 0 ; i < numA ; i++)
+        {
+            v = Adense[i] ;
+            if(sides[0][v]) cost_p -= c[v] ;
+            if(sides[1][v]) cost_q -= c[v] ;
+        }
 
+        // Read off the two extreme min cuts, and apply the best one if it
+        // improves the separator
+        moved = Apply_Flow_Refinement
+        (Fi, Fx, Fp, vF, gamma, flow, Adense, c, cost_p, cost_q, X, Y, problem) ;
 
-        // Read off the two extreme min cuts from the residual 
+        // Clean up for the next pass: free the flow, and reset Asparse to all
+        // EMPTY, as Get_R assumes
+        igraph_vector_destroy(&flow) ;
+        for(i = 0 ; i < numA ; i++) Asparse[ Adense[i] ] = EMPTY ;
+
+        // If nothing moved, X, S, Y are unchanged, so the next pass would
+        // build the same A and find the same cuts. Stop
+        if(!moved) break ;
     }
 
     // Free memory
