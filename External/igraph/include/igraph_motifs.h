@@ -40,7 +40,7 @@ IGRAPH_BEGIN_C_DECLS
  * callback function must be of type \c igraph_motifs_handler_t. It has
  * the following arguments:
  *
- * \param graph The graph that the algorithm is working on. Of course
+ * \param graph The graph that that algorithm is working on. Of course
  *   this must not be modified.
  * \param vids The IDs of the vertices in the motif that has just been
  *   found. This vector is owned by the motif search algorithm, so do not
@@ -92,8 +92,6 @@ IGRAPH_EXPORT igraph_error_t igraph_list_triangles(const igraph_t *graph,
                                         igraph_vector_int_t *res);
 
 IGRAPH_EXPORT igraph_error_t igraph_count_triangles(const igraph_t *graph, igraph_real_t *res);
-
-IGRAPH_EXPERIMENTAL IGRAPH_EXPORT igraph_error_t igraph_is_triangle_free(const igraph_t *graph, igraph_bool_t *res);
 
 IGRAPH_END_C_DECLS
 

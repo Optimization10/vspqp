@@ -441,6 +441,11 @@ static igraph_vector_t Get_Max_Flow
     igraph_vector_init(&flow, eF) ; // one flow per edge
     igraph_maxflow
     (&F, NULL, &flow, NULL, NULL, NULL, 0, vF - 1,  &capacities, NULL) ;
+
+    // Free the igraph objects. The caller frees flow
+    igraph_destroy(&F) ;
+    igraph_vector_destroy(&capacities) ;
+    igraph_vector_int_destroy(&edges) ;
     return flow ;
 }
 
@@ -482,38 +487,31 @@ static int Apply_Flow_Refinement
     vR = vF ;
 
     /* --- Build Rp array --------------------------------------------------- */
-    // First, store the number of neighbors of vertex i in Rp[i+1]
-    // Account for neighbors of p. For any arc (p, i), i gets another
-    // outgoing arc in the residual graph
-    Rp = calloc(vF, sizeof(*Rp)) ;
-    for(t = Fp[0] ; t < Fp[1] ; t++) Rp[ Fi[t]+1 ]++ ;
-
-
-    for(i = 1 ; i < vR - 1 ; i++)
+    // First, store the number of neighbors of vertex i in Rp[i+1]. Every arc
+    // (i, j) of F gives two arcs of R: (i, j) leaving i, and (j, i) leaving j.
+    // So the number of arcs leaving i in R is the number of arcs leaving i in
+    // F plus the number of arcs entering i in F. This covers all four cases
+    // below: (p, v_in), (v_in, v_out), (v_out, q), and (v_out, u_in)
+    Rp = calloc(vR + 1, sizeof(*Rp)) ;
+    for(i = 0 ; i < vR ; i++)
     {
-        // Even nodes not in {p, q} get an additional residual arc
-        Rp[i+1] += Fp[i+1] - Fp[i] + (i % 2 == 0) ;
-
-        // Count arcs going towards q
-        for(t = Fp[i+1] ; t < Fp[i] ; t++)
-        {
-            if(Fi[t] == vR - 1) Rp[vF]++ ;
-        }
+        Rp[i+1] += Fp[i+1] - Fp[i] ;                       // arcs leaving i
+        for(t = Fp[i] ; t < Fp[i+1] ; t++) Rp[ Fi[t]+1 ]++ ; // arcs entering Fi[t]
     }
-    for(i = 0 ; i < vR + 1; i++) Rp[i] += Rp[i-1] ; // accumulate Rp
+    for(i = 1 ; i < vR + 1; i++) Rp[i] += Rp[i-1] ; // accumulate Rp
 
     /* --- Build Ri and Rx arrays ------------------------------------------- */
     // ptrs[i] is initialized as the starting Ri-index of the adjacency list
     // of vertex i
-    Ri   = malloc(Rp[vF] * sizeof(*Ri)) ;
-    Rx   = malloc(Rx[vF] *  sizeof(*Rx)) ;
+    Ri   = malloc(Rp[vR] * sizeof(*Ri)) ;
+    Rx   = malloc(Rp[vR] * sizeof(*Rx)) ;
     ptrs = malloc(vR * sizeof(*ptrs)) ;
-    for(i = 0 ; i < vR ; i++) ptrs[i] = Rp[i+1] ;
+    for(i = 0 ; i < vR ; i++) ptrs[i] = Rp[i] ;
 
     /* --- (1) arcs of the form (p, v_in) ----------------------------------- */
     for(t = Fp[p] ; t < Fp[p+1] ; t++)
     {
-        v_in = Fi[p] ; // t is the index in F of the edge (p, v_in)
+        v_in = Fi[t] ; // t is the index in F of the edge (p, v_in)
 
         // Add the arc (p, v_in, infinity)
         Ri[ ptrs[p]   ] = v_in ;
@@ -528,7 +526,7 @@ static int Apply_Flow_Refinement
     // Loop through the arcs of F
     for(i = 1 ; i < vF ; i++)
     {
-        for(t = Fp[i] ; Fp[i+1] ; t++)
+        for(t = Fp[i] ; t < Fp[i+1] ; t++)
         {
             j = Fi[t] ;
 
@@ -551,7 +549,7 @@ static int Apply_Flow_Refinement
             /* --- (3) if (i, j) = (v_out, q) ------------------------------- */
             if(j == q)
             {
-                v_out = j ;
+                v_out = i ;
 
                 // Add arc (v_out, q, infty)
                 Ri[ptrs[v_out]  ] = q ;
@@ -576,6 +574,10 @@ static int Apply_Flow_Refinement
             Rx[ptrs[u_in]++] =  VECTOR(flow)[t] ;
         }
     }
+
+    // Every list of R must be exactly full: the arcs written must match the
+    // counts in Rp
+    for(i = 0 ; i < vR ; i++) VSP_ASSERT(ptrs[i] == Rp[i+1]) ;
 
     // ========================================================================
     // Do a BFS from p to obtain cut1
@@ -836,6 +838,9 @@ static int Apply_Flow_Refinement
     free(queue) ;
     free(cut1) ;
     free(ptrs) ;
+    free(Rp) ;
+    free(Ri) ;
+    free(Rx) ;
 
     return moved ;
 }
@@ -865,8 +870,10 @@ void Max_Flow_Refine
     VSPINT  *Asparse    = malloc(n * sizeof(*Asparse)) ;
     for(i = 0 ; i < n ; i++) Asparse[i] = EMPTY ;
 
-    VSPINT  *Fi = malloc( (2 * Ap[n] + 2) * sizeof(*Fi)) ;
-    VSPINT  *Fx = malloc( (2 * Ap[n] + 2) * sizeof(*Fx)) ;
+    // F has at most 3 * numA + deg(A) arcs (see Generate_Max_Flow_Graph), and
+    // numA <= n, deg(A) <= Ap[n]
+    VSPINT  *Fi = malloc( (3 * (VSPLONG) n + Ap[n]) * sizeof(*Fi)) ;
+    VSPINT  *Fx = malloc( (3 * (VSPLONG) n + Ap[n]) * sizeof(*Fx)) ;
     VSPLONG *Fp = malloc( (2 * n + 3) * sizeof(*Fp)) ;
 
     int *Rpart1  = malloc(n * sizeof(*Rpart1)) ;

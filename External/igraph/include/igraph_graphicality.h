@@ -30,7 +30,7 @@ IGRAPH_BEGIN_C_DECLS
  * \brief What types of non-simple edges to allow?
  *
  * This type is used with multiple functions to specify what types of non-simple
- * edges to allow, create or consider in a graph. The constants below are treated
+ * edges to allow, create or consider a graph. The constants below are treated
  * as "switches" that can be turned on individually and combined using the
  * bitwise-or operator. For example,
  * <code>IGRAPH_LOOPS_SW</code>
@@ -64,12 +64,6 @@ IGRAPH_EXPORT igraph_error_t igraph_is_graphical(const igraph_vector_int_t *out_
 IGRAPH_EXPORT igraph_error_t igraph_is_bigraphical(const igraph_vector_int_t *degrees1,
                                         const igraph_vector_int_t *degrees2,
                                         igraph_edge_type_sw_t allowed_edge_types,
-                                        igraph_bool_t *res);
-
-IGRAPH_EXPERIMENTAL IGRAPH_EXPORT igraph_error_t igraph_is_potentially_connected(const igraph_vector_int_t *out_degrees,
-                                        const igraph_vector_int_t *in_degrees,
-                                        igraph_edge_type_sw_t allowed_edge_types,
-                                        igraph_connectedness_t mode,
                                         igraph_bool_t *res);
 
 IGRAPH_END_C_DECLS

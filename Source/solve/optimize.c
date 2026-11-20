@@ -198,6 +198,7 @@ void Optimize
     // Phase 2: Greedy flips
     /* ====================================================================== */
     Round_Down_Fractions(X, Y, problem) ;
+    if(l == 0) Max_Flow_Refine(X, Y, problem) ; // max flow refinement, finest level only
     Greedy_Flips(X, Y, problem, 9, (problem->level <= 2), false);
 
 
