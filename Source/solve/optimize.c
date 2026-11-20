@@ -183,33 +183,25 @@ void Optimize
     VSPINT    gamma = problem->graph->max_vtx_cost ;
 
     /* ====================================================================== */
-    // Phase 0: Gradient Projection
+    // Gradient Projection
     /* ====================================================================== */
     if(options->vsp_grad_proj) Grad_Proj_Full_Space(X,Y, problem, options) ;
 
     /* ====================================================================== */
-    // Phase 1: Mountain climbing
+    // Mountain climbing
     /* ====================================================================== */
     mountain_climbing(X, Y, problem, options, gamma, true) ;
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
-
     /* ====================================================================== */
-    // Phase 2: Greedy flips
+    // Greedy flips
     /* ====================================================================== */
     Round_Down_Fractions(X, Y, problem) ;
     if(l == 0) Max_Flow_Refine(X, Y, problem) ; // max flow refinement, finest level only
     Greedy_Flips(X, Y, problem, 9, (problem->level <= 2), false);
 
-
     /* ====================================================================== */
-    // Phase 3: FM subspace gradient projection
-    /* ====================================================================== */
-
-
-
-    /* ====================================================================== */
-    // Phase 4: FM METIS
+    // FM METIS
     /* ====================================================================== */
     n_passes = (l >= L / 2) ? 3 : 2 ;
     Round_Down_Fractions(X, Y, problem) ;
@@ -218,12 +210,12 @@ void Optimize
     if (Early_Exit(X, Y, problem)) goto CLEANUP;
 
     /* ====================================================================== */
-    // Phase 5: Mountain climbing
+    // Mountain climbing
     /* ====================================================================== */
     mountain_climbing(X, Y, problem, options, gamma, true) ;
 
     /* ====================================================================== */
-    // Phase 6: Gamma reduction
+    // Gamma reduction
     /* ====================================================================== */
     if(l >= options->gamma_reduction_min_level)
     {
@@ -231,7 +223,7 @@ void Optimize
     }
 
     /* ====================================================================== */
-    // Phase 7: Greedy flips
+    // Greedy flips
     /* ====================================================================== */
     Round_Down_Fractions(X, Y, problem) ;
     Greedy_Flips(X, Y, problem, 5, true, true);
