@@ -29,7 +29,7 @@ IGRAPH_BEGIN_C_DECLS
  * Specifies the size of igraph's integer data type; must be one of 32 (for
  * 32-bit integers) or 64 (for 64-bit integers).
  */
-#define IGRAPH_INTEGER_SIZE 64
+#define IGRAPH_INTEGER_SIZE 32
 
 #define IGRAPH_DEPRECATED_ENUMVAL __attribute__ ((deprecated))
 

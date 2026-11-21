@@ -9,6 +9,17 @@
 
 #define OTHER_SIDE(i) (1 - (i))
 
+// Rules that skip the max flow refinement when it cannot pay for itself. Both
+// are checked at the start of every pass, on the cost C(S) of the separator
+// (= |S| at the finest level, where all vertex costs are 1)
+// 1) C(S) < MF_MIN_SEP: the max flow value is at most C(S), so at most a few
+//    vertices can be saved
+// 2) C(S) > MF_MAX_SEP_FACTOR * sqrt(n): the region A has a degree budget of
+//    256 sqrt(n), and S alone takes up a large part of it, so A is barely
+//    larger than S and the max flow can only make small local changes
+#define MF_MIN_SEP        3
+#define MF_MAX_SEP_FACTOR 10.0
+
 #define INF_CAPACITY (gamma + 1)
 // We change the capacity of the infinite-capacity edges to gamma, because
 // at the finest level, the network has unit capacities for every edge, and
@@ -29,14 +40,6 @@
 
 // Gives 0, 1, or 2 if i is in side 0 (X side), side 1 (Y side), or separator
 #define SIDE(i, sides) (2 - 2*(sides[0])[i] -  (sides[1])[i])
-
-
-#define SS_INSERT(i, Adense, Asparse, numA)          \
-    do { (Asparse)[i] = (numA) ;                     \
-         (Adense)[(numA)++] = (i) ; } while (0)
-
-
-
                                             
 
 static bool In_Sep(VSPINT i, VSPINT *sides[2])
@@ -846,7 +849,7 @@ static int Apply_Flow_Refinement
 }
 
 // Refine the partition represented by X and Y
-void Max_Flow_Refine
+void Max_Flow_Refine_2_cuts
 (
     State   *X,
     State   *Y,
@@ -887,7 +890,11 @@ void Max_Flow_Refine
         wgts[1] = Y->weight ;
         wgts[2] = problem->graph->total_vtx_cost - X->weight - Y->weight ;
 
-        // Get the area A. Quit if no area
+        // Skip the max flow if the separator is too small or too large for it
+        // to pay off (see MF_MIN_SEP and MF_MAX_SEP_FACTOR at the top)
+        if(wgts[2] < MF_MIN_SEP || wgts[2] > MF_MAX_SEP_FACTOR * sqrt(n)) break;
+
+        // Get the region R. Quit if no region
         numA = Get_R(Ai, Ap, n, u, c, sides, wgts, deg_budget, Adense, Asparse);
         if(numA == 0) break ;
 
@@ -934,4 +941,278 @@ void Max_Flow_Refine
     free(Asparse) ;
     free(Rpart1) ;
     free(Rpart2) ;
+}
+
+
+// ============================================================================
+// One cut version: igraph finds the min cut with the smallest Q itself, so we
+// do not need the flow or the residual network
+// ============================================================================
+
+// Find a max flow on F with igraph, and set Qhat[x] = 1 for the nodes x of F
+// from which q is reachable in the residual network (0 for all others). This
+// is the minimum pq cut with the smallest Q-hat. igraph finds these nodes
+// with a backward BFS from q (its "partition2" output). We do not ask igraph
+// for the flow itself, which saves igraph a second phase that turns its
+// preflow into a flow
+static void Get_Smallest_Q_Cut
+(
+    // The Network
+    VSPINT  *Fi,
+    VSPINT  *Fx,
+    VSPLONG *Fp,
+    VSPINT   vF,   // number of vertices in F
+
+    // Output: size vF
+    int     *Qhat
+)
+{
+    VSPINT  i ;
+    VSPLONG p, end ;
+    VSPINT  eF = Fp[vF] ; // number of edges in F
+
+    // ========================================================================
+    // Store the network edges and edge capacities in igraph vectors
+    // ========================================================================
+    igraph_vector_int_t edges ;
+    igraph_vector_t capacities ;
+    igraph_vector_int_init(&edges, 2*eF) ;
+    igraph_vector_init(&capacities, eF) ;
+
+    for(i = 0 ; i < vF ; i++)
+    {
+        end = Fp[i+1] ;
+        for(p = Fp[i] ; p < end ; p++)
+        {
+            VECTOR(edges)[2*p]     = i ;
+            VECTOR(edges)[2*p + 1] = Fi[p] ;
+            VECTOR(capacities)[p]  = Fx[p] ;
+        }
+    }
+
+    // ========================================================================
+    // Create the igraph network and get the cut
+    // ========================================================================
+    igraph_t F ;
+    igraph_create(&F, &edges, vF, IGRAPH_DIRECTED) ;
+
+    igraph_vector_int_t partition2 ; // the nodes from which q is reachable
+    igraph_vector_int_init(&partition2, 0) ;
+    igraph_maxflow
+    (&F, NULL, NULL, NULL, NULL, &partition2, 0, vF - 1, &capacities, NULL) ;
+
+    for(i = 0 ; i < vF ; i++) Qhat[i] = 0 ;
+    for(i = 0 ; i < igraph_vector_int_size(&partition2) ; i++)
+    {
+        Qhat[ VECTOR(partition2)[i] ] = 1 ;
+    }
+
+    // Free the igraph objects
+    igraph_vector_int_destroy(&partition2) ;
+    igraph_destroy(&F) ;
+    igraph_vector_destroy(&capacities) ;
+    igraph_vector_int_destroy(&edges) ;
+}
+
+
+// Read off the partition P, C, Q of R from the cut Qhat, and apply it if it
+// is feasible and improves the separator. Same rule as in
+// Apply_Flow_Refinement: the partition replaces X, S, Y only if C(S') < C(S),
+// or C(S') = C(S) and its imbalance is smaller.
+// Returns 1 if a vertex moved (X, S, Y changed), 0 if not
+static int Apply_Smallest_Q_Cut
+(
+    int     *Qhat,   // Qhat[x] = 1 iff q is reachable from node x of F
+    VSPINT   vF,     // number of vertices in F
+    VSPINT  *Rdense, // the vertices of R
+    VSPINT  *c,      // cost vector of the original graph
+    VSPINT   cost_p, // cost of X \ R
+    VSPINT   cost_q, // cost of Y \ R
+    State   *X,
+    State   *Y,
+    Problem *problem
+)
+{
+    SET_FUNCTION_COUNTER ;
+
+    VSPINT i, k, v, v_in, v_out, w, want ;
+    VSPINT *z ;
+    int     moved = 0 ;
+
+    // ========================================================================
+    // Figure out the cost of the shores given the separating partition P, C, Q
+    // ========================================================================
+    // Qhat marks the q side: v_in and v_out both reach q -> Q, neither
+    // does -> P, only v_out does -> C (only v_in reaching q is impossible)
+    //
+    // In PCQ array, indexed by the position v of a vertex in R (Rdense):
+    // 0 -- in P
+    // 1 -- in Q
+    // 2 -- in C
+    VSPINT sizeR = (vF - 2) / 2 ;
+    int   *PCQ   = malloc(sizeR * sizeof(*PCQ)) ;
+    VSPINT Pcost = cost_p ;
+    VSPINT Qcost = cost_q ;
+    VSPINT Ccost = 0 ;
+
+    for(i = 1 ; i <= sizeR ; i++)
+    {
+        v     = i-1 ;
+        v_in  = 2*i - 1 ;
+        v_out = v_in + 1 ;
+
+        if( Qhat[v_in] == 0 && Qhat[v_out] == 0) // v goes in P
+        {
+            PCQ[v] = 0 ;
+            Pcost += c[ Rdense[v] ] ;
+        }
+        else if(Qhat[v_in] == 1 && Qhat[v_out] == 1) // v goes in Q
+        {
+            PCQ[v] = 1 ;
+            Qcost += c[ Rdense[v] ] ;
+        }
+        else // v goes in C
+        {
+            PCQ[v] = 2 ;
+            Ccost += c[ Rdense[v] ] ;
+        }
+    }
+    VSPINT imb = ABS_VAL(Pcost - Qcost) ;
+
+    // ========================================================================
+    // Apply the new separator if it is feasible and improves the old one
+    // ========================================================================
+    VSPINT original_sep_cost =   problem->graph->total_vtx_cost
+                               - X->weight - Y->weight ;
+    VSPINT original_imb = ABS_VAL(X->weight - Y->weight) ;
+    int feasible = (Pcost <= problem->u) && (Qcost <= problem->u) ;
+
+    if(feasible
+       && (    Ccost <  original_sep_cost
+           || (Ccost == original_sep_cost && imb < original_imb)))
+    {
+        // Move each vertex w of R to its new side. P joins X (side 0), Q
+        // joins Y (side 1), C goes to the separator (0 in both x and y).
+        // Vertices outside of R keep their sides. For each of x and y whose
+        // entry for w changes, update the entry, Az (add or subtract column
+        // w of A) and the weight. Like Cover_Refine, this assumes that x and
+        // y are binary (no fractional entry), so only int_part needs updating
+        VSP_ASSERT(X->point->ind_frac == EMPTY && Y->point->ind_frac == EMPTY) ;
+        State *states[2] = {X, Y} ;
+        for(v = 0 ; v < sizeR ; v++)
+        {
+            w = Rdense[v] ;
+            for(k = 0 ; k < 2 ; k++)
+            {
+                z    = states[k]->point->int_part ;
+                want = (PCQ[v] == k) ;
+                if(z[w] == want) continue ;
+
+                moved = 1 ;
+                z[w] = want ;
+                Az_pm_col_of_A
+                (states[k]->Az->int_part, w, want ? PLUS : MINUS, problem) ;
+                states[k]->weight += want ? c[w] : -c[w] ;
+            }
+        }
+    }
+
+    free(PCQ) ;
+    return moved ;
+}
+
+
+// Refine the partition represented by X and Y, like Max_Flow_Refine_2_cuts,
+// but using only the min cut with the smallest Q, which igraph returns
+// directly. No flow and no residual network are needed
+void Max_Flow_Refine_1_Cut
+(
+    State   *X,
+    State   *Y,
+    Problem *problem
+)
+{
+    VSPINT numA, vF, i, v, cost_p, cost_q ;
+    int moved ;
+    VSPINT  *Ai       = problem->graph->Ai ;
+    VSPLONG *Ap       = problem->graph->Ap ;
+    VSPINT   n        = problem->graph->n ;
+    VSPINT  *sides[2] = {X->point->int_part, Y->point->int_part} ;
+    VSPINT   wgts[3] ; // set at the start of every pass
+    VSPINT   u        = problem->u ;
+    VSPINT  *c        = problem->graph->c ;
+    VSPINT   gamma    = problem->graph->max_vtx_cost ;
+
+    VSPINT   deg_budget = 256 * sqrt(n) ;
+    VSPINT  *Adense     = malloc(n * sizeof(*Adense)) ;
+    VSPINT  *Asparse    = malloc(n * sizeof(*Asparse)) ;
+    for(i = 0 ; i < n ; i++) Asparse[i] = EMPTY ;
+
+    // F has at most 3 * numA + deg(A) arcs (see Generate_Max_Flow_Graph), and
+    // numA <= n, deg(A) <= Ap[n]
+    VSPINT  *Fi = malloc( (3 * (VSPLONG) n + Ap[n]) * sizeof(*Fi)) ;
+    VSPINT  *Fx = malloc( (3 * (VSPLONG) n + Ap[n]) * sizeof(*Fx)) ;
+    VSPLONG *Fp = malloc( (2 * n + 3) * sizeof(*Fp)) ;
+
+    // Qhat[x] = 1 iff q is reachable from node x of F. F has at most 2n + 2
+    // nodes
+    int *Qhat = malloc( (2 * n + 2) * sizeof(*Qhat)) ;
+
+
+    for(int num_its = 0 ; num_its < 3 ; num_its++)
+    {
+        // The weights change when vertices move, so refresh them every pass
+        wgts[0] = X->weight ;
+        wgts[1] = Y->weight ;
+        wgts[2] = problem->graph->total_vtx_cost - X->weight - Y->weight ;
+
+        // Skip the max flow if the separator is too small or too large for it
+        // to pay off (see MF_MIN_SEP and MF_MAX_SEP_FACTOR at the top)
+        if(wgts[2] < MF_MIN_SEP || wgts[2] > MF_MAX_SEP_FACTOR * sqrt(n)) break;
+
+        // Get the region R. Quit if no region
+        numA = Get_R(Ai, Ap, n, u, c, sides, wgts, deg_budget, Adense, Asparse);
+        if(numA == 0) break ;
+
+
+        // Get the flow graph corresponding to the area
+        Generate_Max_Flow_Graph
+        (Ai, Ap, n, c, gamma, Adense, Asparse, numA, sides, Fi, Fx, Fp) ;
+        vF = 2*numA + 2 ; // number of vertices in s-t flow graph
+
+        // Get the min cut with the smallest Q
+        Get_Smallest_Q_Cut(Fi, Fx, Fp, vF, Qhat) ;
+
+        // Cost of X \ A and Y \ A, which are contracted into p and q. This
+        // must be done before Apply_Smallest_Q_Cut moves the vertices of A
+        cost_p = X->weight ;
+        cost_q = Y->weight ;
+        for(i = 0 ; i < numA ; i++)
+        {
+            v = Adense[i] ;
+            if(sides[0][v]) cost_p -= c[v] ;
+            if(sides[1][v]) cost_q -= c[v] ;
+        }
+
+        // Read off the partition from the cut, and apply it if it improves
+        // the separator
+        moved = Apply_Smallest_Q_Cut
+        (Qhat, vF, Adense, c, cost_p, cost_q, X, Y, problem) ;
+
+        // Clean up for the next pass: reset Asparse to all EMPTY, as Get_R
+        // assumes
+        for(i = 0 ; i < numA ; i++) Asparse[ Adense[i] ] = EMPTY ;
+
+        // If nothing moved, X, S, Y are unchanged, so the next pass would
+        // build the same A and find the same cut. Stop
+        if(!moved) break ;
+    }
+
+    // Free memory
+    free(Fi) ;
+    free(Fx) ;
+    free(Fp) ;
+    free(Adense) ;
+    free(Asparse) ;
+    free(Qhat) ;
 }

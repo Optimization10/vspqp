@@ -197,7 +197,7 @@ void Optimize
     // Greedy flips
     /* ====================================================================== */
     Round_Down_Fractions(X, Y, problem) ;
-    if(l == 0) Max_Flow_Refine(X, Y, problem) ; // max flow refinement, finest level only
+    if(l == 0) Max_Flow_Refine_1_Cut(X, Y, problem) ; // max flow refinement, finest level only
     Greedy_Flips(X, Y, problem, 9, (problem->level <= 2), false);
 
     /* ====================================================================== */

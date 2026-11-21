@@ -81,7 +81,8 @@ void strategy_explore_bisection
 void Rebalance_Singletons(State *X, State *Y, Problem *P) ;
 
 int Cover_Refine(State *X, State *Y, Problem *P, VSPINT max_bip) ;
-void Max_Flow_Refine(State *X, State *Y, Problem *problem) ;
+void Max_Flow_Refine_2_cuts(State *X, State *Y, Problem *problem) ;
+void Max_Flow_Refine_1_Cut(State *X, State *Y, Problem *problem) ;
 
 /*----------------------------------------------------------------------------*/
 /*  Multilevel solve pieces shared by VSP_Solve and VSP_Solve_2 (solve.c)     */
