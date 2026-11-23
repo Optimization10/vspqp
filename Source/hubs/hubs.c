@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "hubs.h"
 
-// Return a list of vertices whose degree / n is > t
+// Return a list of verticGet_Hubses whose degree / n is > t
 void Get_Hubs
 (
     VSPINT      n,
